@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from hashlib import sha1
+from urllib.parse import urlencode
 
 from flask import Flask, abort, jsonify, redirect, render_template, request, url_for
 
@@ -44,6 +45,16 @@ def grouped_questions(vertical) -> list[dict]:
     return groups
 
 
+def intake_edit_url(vertical, brief, field_id: str) -> str:
+    query = {
+        key: value
+        for key, value in brief.inputs.items()
+        if key not in {"species", "personality"} and value not in ("", None)
+    }
+    query["edit"] = field_id
+    return f"{vertical.route_prefix}?{urlencode(query)}"
+
+
 def display_brief_items(vertical, brief) -> list[dict[str, str]]:
     hidden_keys = {"species", "personality"}
     label_overrides = {
@@ -65,7 +76,14 @@ def display_brief_items(vertical, brief) -> list[dict[str, str]]:
         if key in hidden_keys or value in ("", None):
             continue
         label = label_overrides.get(key, key.replace("_", " ").title())
-        items.append({"label": label, "value": str(value)})
+        items.append(
+            {
+                "key": key,
+                "label": label,
+                "value": str(value),
+                "edit_url": intake_edit_url(vertical, brief, key),
+            }
+        )
     return items
 
 
@@ -85,6 +103,7 @@ def create_app() -> Flask:
             "vertical_theme_style": vertical_theme_style,
             "grouped_questions": grouped_questions,
             "display_brief_items": display_brief_items,
+            "intake_edit_url": intake_edit_url,
         }
 
     @app.get("/")

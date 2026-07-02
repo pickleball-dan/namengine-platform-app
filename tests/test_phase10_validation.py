@@ -50,8 +50,9 @@ class PhaseTenValidationTest(unittest.TestCase):
         brief = build_brief(PET, {"species": "Dog", "style": "Warm"})
         results = generate_names(PET, brief)
 
-        self.assertEqual(len(results[0].validation), 3)
+        self.assertEqual(len(results[0].validation), 2)
         self.assertIn("pet_callability", results[0].scores)
+        self.assertNotIn("avoid_match", results[0].scores)
 
     def test_save_session_persists_validation_results(self):
         brief = build_brief(PET, {"species": "Dog", "style": "Warm"})
@@ -61,9 +62,9 @@ class PhaseTenValidationTest(unittest.TestCase):
         validation_rows = get_validation_results("pet-session", "pet-1")
         snapshot = get_session_snapshot("pet-session")
 
-        self.assertEqual(len(validation_rows), 3)
+        self.assertEqual(len(validation_rows), 2)
         self.assertEqual(validation_rows[0]["session_id"], "pet-session")
-        self.assertEqual(len(snapshot["validation_results"]), 24)
+        self.assertEqual(len(snapshot["validation_results"]), 16)
 
     def test_results_page_renders_validation(self):
         query = b"species=Dog&personality=Gentle&style=Warm"
@@ -73,7 +74,15 @@ class PhaseTenValidationTest(unittest.TestCase):
         body = response.get_data(as_text=True)
         self.assertIn("Validation", body)
         self.assertIn("Callability", body)
+        self.assertNotIn("Avoid list", body)
+
+    def test_results_page_renders_avoid_validation_only_when_user_supplies_avoid_terms(self):
+        response = self.client.get("/pet/results?species=Dog&personality=Gentle&style=Warm&avoid=Milo")
+
+        self.assertEqual(response.status_code, 200)
+        body = response.get_data(as_text=True)
         self.assertIn("Avoid list", body)
+        self.assertIn("This name matches something the user asked to avoid.", body)
 
     def test_validation_table_survives_refined_session_ids(self):
         query = b"species=Dog&personality=Gentle&style=Warm"
@@ -82,7 +91,7 @@ class PhaseTenValidationTest(unittest.TestCase):
 
         rows = get_validation_results(session_id)
 
-        self.assertEqual(len(rows), 24)
+        self.assertEqual(len(rows), 16)
 
 
 if __name__ == "__main__":

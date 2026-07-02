@@ -95,6 +95,24 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn("Fit and feeling", body)
         self.assertIn("Optional", body)
 
+    def test_results_direction_items_link_back_to_prefilled_intake_fields(self):
+        response = self.client.get(
+            "/pet/results?pet_type=Dog&style=Classic&vibe=Playful&partner_alignment=cute"
+        )
+        body = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('class="brief-summary-item"', body)
+        self.assertIn("/pet?pet_type=Dog&amp;style=Classic&amp;vibe=Playful", body)
+        self.assertIn("edit=style", body)
+
+        edit_response = self.client.get("/pet?pet_type=Dog&style=Classic&vibe=Playful&edit=style")
+        edit_body = edit_response.get_data(as_text=True)
+
+        self.assertEqual(edit_response.status_code, 200)
+        self.assertIn('class="field is-edit-target"', edit_body)
+        self.assertIn('<option value="Classic" selected>Classic</option>', edit_body)
+
     def test_intake_sections_have_visible_group_treatment(self):
         css_path = Path(self.app.static_folder) / "css" / "platform.css"
         css = css_path.read_text(encoding="utf-8")
@@ -104,6 +122,8 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn("font-size: 25px", css)
         self.assertIn(".intake-section:nth-of-type(2)", css)
         self.assertIn(".intake-section:nth-of-type(3)", css)
+        self.assertIn(".brief-summary-item:hover", css)
+        self.assertIn(".field.is-edit-target", css)
 
 
 if __name__ == "__main__":

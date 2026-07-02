@@ -27,19 +27,20 @@
         <fieldset class="intake-section">
           <legend>{{ group.title }}</legend>
           {% for question in group.questions %}
-            <label class="field" for="{{ question.id }}">
+            {% set current_value = request.args.get(question.id, "") %}
+            <label class="field{% if request.args.get('edit') == question.id %} is-edit-target{% endif %}" for="{{ question.id }}" id="field-{{ question.id }}">
               <span>{{ question.label }}{% if not question.required %}<em>Optional</em>{% endif %}</span>
               {% if question.kind == "textarea" %}
-                <textarea id="{{ question.id }}" name="{{ question.id }}" {% if question.required %}required{% endif %} placeholder="{{ question.placeholder }}"></textarea>
+                <textarea id="{{ question.id }}" name="{{ question.id }}"{% if question.required %} required{% endif %} placeholder="{{ question.placeholder }}">{{ current_value }}</textarea>
               {% elif question.choices %}
-                <select id="{{ question.id }}" name="{{ question.id }}" {% if question.required %}required{% endif %}>
+                <select id="{{ question.id }}" name="{{ question.id }}"{% if question.required %} required{% endif %}>
                   <option value="">Choose one</option>
                   {% for choice in question.choices %}
-                    <option value="{{ choice }}">{{ choice }}</option>
+                    <option value="{{ choice }}"{% if current_value == choice %} selected{% endif %}>{{ choice }}</option>
                   {% endfor %}
                 </select>
               {% else %}
-                <input id="{{ question.id }}" name="{{ question.id }}" {% if question.required %}required{% endif %} placeholder="{{ question.placeholder }}">
+                <input id="{{ question.id }}" name="{{ question.id }}"{% if question.required %} required{% endif %} placeholder="{{ question.placeholder }}" value="{{ current_value }}">
               {% endif %}
               {% if question.help_text %}
                 <small>{{ question.help_text }}</small>

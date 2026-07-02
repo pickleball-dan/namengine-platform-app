@@ -130,7 +130,7 @@ class PhaseElevenAIGenerationTest(unittest.TestCase):
             )
 
         self.assertEqual(results[0].name, "Lumi")
-        self.assertEqual(len(results[0].validation), 3)
+        self.assertEqual(len(results[0].validation), 2)
         self.assertIn("pet_callability", results[0].scores)
 
     def test_generate_names_falls_back_without_api_key(self):

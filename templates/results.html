@@ -36,10 +36,10 @@
       <h2>Your direction</h2>
       <dl>
         {% for item in display_brief_items(vertical, brief) %}
-          <div>
+          <a class="brief-summary-item" href="{{ item.edit_url }}" aria-label="Edit {{ item.label }}">
             <dt>{{ item.label }}</dt>
             <dd>{{ item.value }}</dd>
-          </div>
+          </a>
         {% endfor %}
       </dl>
       <p class="reaction-counts">

@@ -49,11 +49,13 @@ def _validate_pet_name(brief: NamingBrief, name: str) -> list[ValidationResult]:
     syllable_count = _estimate_syllables(clean_name)
     length = len(clean_name)
 
-    return [
+    validation = [
         _pet_callability_validation(length, syllable_count),
         _pet_sound_clarity_validation(clean_name),
-        _pet_avoid_validation(clean_name, avoid),
     ]
+    if avoid:
+        validation.append(_pet_avoid_validation(clean_name, avoid))
+    return validation
 
 
 def _pet_callability_validation(length: int, syllable_count: int) -> ValidationResult:
