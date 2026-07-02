@@ -5,8 +5,8 @@
 {% block content %}
   <section class="compare-shell">
     <p class="eyebrow">Compare Favorites</p>
-    <h1>Decide between the names that rose to the top.</h1>
-    <p class="compare-lede">Round {{ session.round_number }} · {{ items|length }} names</p>
+    <h1>Choose with confidence.</h1>
+    <p class="compare-lede">Round {{ session.round_number }} · {{ items|length }} names, compared on fit, sound, warmth, and possible hesitation.</p>
     {% if taste_profile %}
       <aside class="taste-profile compare-taste">
         <h2>Taste profile</h2>
@@ -53,13 +53,17 @@
             <form action="/choose" method="post">
               <input type="hidden" name="session_id" value="{{ item.session_id }}">
               <input type="hidden" name="result_id" value="{{ item.result_id }}">
-              <button class="choose-button" type="submit">Choose this name</button>
+              <button class="choose-button" type="submit">Choose {{ item.name }}</button>
             </form>
           </article>
         {% endfor %}
       </div>
     {% else %}
-      <p>No favorites yet. React to a few names, then compare.</p>
+      <div class="empty-state">
+        <h2>No favorites yet</h2>
+        <p>React to a few names first. Love and Maybe picks become your comparison set.</p>
+        <a class="button-link" href="/{{ vertical.slug }}">Start a new {{ vertical.display_name|lower }} search</a>
+      </div>
     {% endif %}
   </section>
 {% endblock %}

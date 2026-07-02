@@ -74,57 +74,17 @@ PET = VerticalConfig(
     route_prefix="/pet",
     intake_questions=(
         Question(
-            "discovery_style",
-            "Discovery style",
-            choices=PET_DISCOVERY_STYLE_OPTIONS,
-        ),
-        Question(
             "pet_type",
             "Who's joining the family?",
+            required=True,
             choices=PET_TYPE_OPTIONS,
-        ),
-        Question(
-            "style",
-            "What overall style feels closest?",
-            choices=PET_STYLE_OPTIONS,
+            section="About your pet",
         ),
         Question(
             "pet_gender",
             "Gender",
             choices=PET_GENDER_OPTIONS,
-        ),
-        Question(
-            "timeless_vs_distinctive",
-            "Would you lean more timeless or more distinctive?",
-            choices=PET_DISTINCTIVENESS_OPTIONS,
-        ),
-        Question(
-            "familiarity_preference",
-            "How familiar should the name feel?",
-            choices=PET_FAMILIARITY_OPTIONS,
-        ),
-        Question(
-            "pronunciation_importance",
-            "How easy should it be to call?",
-            choices=PET_CALLABILITY_OPTIONS,
-        ),
-        Question(
-            "vibe",
-            "What personality should the name capture?",
-            choices=PET_PERSONALITY_OPTIONS,
-        ),
-        Question(
-            "cultural_context",
-            "Name inspiration",
-            choices=PET_INSPIRATION_OPTIONS,
-        ),
-        Question(
-            "partner_alignment",
-            "Anything you're torn between?",
-            placeholder=(
-                "Cute or serious, silly or elegant, human-name or pet-name, "
-                "everyone else's opinions..."
-            ),
+            section="About your pet",
         ),
         Question(
             "notes",
@@ -134,6 +94,61 @@ PET = VerticalConfig(
                 "Breed, coloring, personality, funny quirks, names to avoid, "
                 "favorite themes..."
             ),
+            section="About your pet",
+        ),
+        Question(
+            "discovery_style",
+            "How adventurous should we be?",
+            choices=PET_DISCOVERY_STYLE_OPTIONS,
+            help_text="Choose the lane for this first pass.",
+            section="Name style",
+        ),
+        Question(
+            "style",
+            "What overall style feels closest?",
+            required=True,
+            choices=PET_STYLE_OPTIONS,
+            section="Name style",
+        ),
+        Question(
+            "timeless_vs_distinctive",
+            "Would you lean more timeless or more distinctive?",
+            choices=PET_DISTINCTIVENESS_OPTIONS,
+            section="Name style",
+        ),
+        Question(
+            "familiarity_preference",
+            "How familiar should the name feel?",
+            choices=PET_FAMILIARITY_OPTIONS,
+            section="Name style",
+        ),
+        Question(
+            "pronunciation_importance",
+            "How easy should it be to call?",
+            choices=PET_CALLABILITY_OPTIONS,
+            section="Fit and feeling",
+        ),
+        Question(
+            "vibe",
+            "What personality should the name capture?",
+            required=True,
+            choices=PET_PERSONALITY_OPTIONS,
+            section="Fit and feeling",
+        ),
+        Question(
+            "cultural_context",
+            "Name inspiration",
+            choices=PET_INSPIRATION_OPTIONS,
+            section="Fit and feeling",
+        ),
+        Question(
+            "partner_alignment",
+            "Anything you're torn between?",
+            placeholder=(
+                "Cute or serious, silly or elegant, human-name or pet-name, "
+                "everyone else's opinions..."
+            ),
+            section="Fit and feeling",
         ),
     ),
     prompt_context=(

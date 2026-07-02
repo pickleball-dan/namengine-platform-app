@@ -141,7 +141,7 @@ h1 {
 
 .intake-form {
   display: grid;
-  gap: 16px;
+  gap: 18px;
   padding: 22px;
   background: var(--surface);
   border: 1px solid #dce2ea;
@@ -149,10 +149,46 @@ h1 {
   border-radius: 8px;
 }
 
+.intake-section {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  margin: 0;
+  padding: 0 0 18px;
+  border: 0;
+  border-bottom: 1px solid #e6ebf2;
+}
+
+.intake-section:last-of-type {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.intake-section legend {
+  margin: 0 0 2px;
+  color: #18212f;
+  font-size: 15px;
+  font-weight: 900;
+}
+
 .field {
   display: grid;
   gap: 8px;
   font-weight: 750;
+}
+
+.field span {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.field em {
+  color: #7a8698;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 800;
 }
 
 .field input,
@@ -226,6 +262,39 @@ button {
 .trust-cue span {
   color: #607086;
   font-size: 14px;
+  font-weight: 700;
+}
+
+.decision-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  max-width: 840px;
+  margin-top: 16px;
+}
+
+.decision-strip div {
+  min-height: 82px;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1px solid #dde3ec;
+  border-radius: 8px;
+}
+
+.decision-strip strong,
+.decision-strip span {
+  display: block;
+}
+
+.decision-strip strong {
+  color: #18212f;
+  font-size: 14px;
+}
+
+.decision-strip span {
+  margin-top: 3px;
+  color: #607086;
+  font-size: 13px;
   font-weight: 700;
 }
 
@@ -357,6 +426,7 @@ button {
 
 .result-card h2 {
   margin: 0;
+  overflow-wrap: anywhere;
   font-size: 34px;
   letter-spacing: 0;
 }
@@ -475,6 +545,26 @@ button {
   padding: 48px 0;
 }
 
+.chosen-hero {
+  padding: 26px;
+  background: var(--surface);
+  border: 1px solid #dde3ec;
+  border-top: 4px solid var(--accent);
+  border-radius: 8px;
+}
+
+.chosen-kicker {
+  margin: 0 0 4px;
+  color: #687386;
+  font-size: 14px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.chosen-hero h1 {
+  overflow-wrap: anywhere;
+}
+
 .chosen-pronunciation,
 .chosen-tagline {
   margin: 10px 0 0;
@@ -498,10 +588,24 @@ button {
   margin: 24px 0;
 }
 
+.chosen-actions button,
+.chosen-actions .button-link {
+  min-width: 148px;
+  justify-content: center;
+}
+
+.chosen-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
 .chosen-detail {
-  margin-top: 24px;
-  padding-top: 20px;
-  border-top: 1px solid #dde3ec;
+  min-height: 150px;
+  padding: 18px;
+  background: var(--card);
+  border: 1px solid #dde3ec;
+  border-radius: 8px;
 }
 
 .chosen-detail h2 {
@@ -552,6 +656,7 @@ button {
 
 .compare-card h2 {
   margin: 0;
+  overflow-wrap: anywhere;
   font-size: 34px;
 }
 
@@ -570,6 +675,24 @@ button {
 
 .compare-facts dd {
   margin: 3px 0 0;
+  color: #465266;
+}
+
+.empty-state {
+  max-width: 560px;
+  padding: 20px;
+  background: var(--card);
+  border: 1px solid #dde3ec;
+  border-left: 4px solid var(--accent);
+  border-radius: 8px;
+}
+
+.empty-state h2 {
+  margin: 0 0 8px;
+}
+
+.empty-state p {
+  margin: 0 0 16px;
   color: #465266;
 }
 
@@ -661,14 +784,25 @@ button {
   .vertical-grid,
   .intake-shell,
   .brief-summary dl,
+  .decision-strip,
   .results-grid,
   .refine-panel,
-  .compare-grid {
+  .compare-grid,
+  .chosen-detail-grid {
     grid-template-columns: 1fr;
   }
 
   h1 {
-    font-size: 42px;
+    font-size: 40px;
+  }
+
+  .intake-form,
+  .chosen-hero {
+    padding: 18px;
+  }
+
+  .decision-strip div {
+    min-height: auto;
   }
 
   .result-card {

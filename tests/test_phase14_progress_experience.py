@@ -40,7 +40,8 @@ class PhaseFourteenProgressExperienceTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         body = response.get_data(as_text=True)
         self.assertIn("Selected from", body)
-        self.assertIn("Matched to your brief", body)
+        self.assertIn("Matched to your taste", body)
+        self.assertIn("compare the short list", body)
         self.assertIn("data-progress-form", body)
         self.assertIn("Comparing naming strategies", body)
 

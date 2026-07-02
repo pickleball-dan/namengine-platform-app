@@ -13,9 +13,23 @@
       {% if trust_cue %}
         <div class="trust-cue" aria-label="Generation summary">
           <strong>{{ trust_cue.summary }}</strong>
-          <span>Matched to your brief. Ready to react, refine, or compare.</span>
+          <span>Matched to your taste. React to teach the engine, then compare the short list.</span>
         </div>
       {% endif %}
+      <div class="decision-strip" aria-label="Decision helpers">
+        <div>
+          <strong>1. React</strong>
+          <span>Mark gut-level yes, maybe, or no.</span>
+        </div>
+        <div>
+          <strong>2. Refine</strong>
+          <span>Steer the next round with what you learned.</span>
+        </div>
+        <div>
+          <strong>3. Choose</strong>
+          <span>Compare favorites and save the one that fits.</span>
+        </div>
+      </div>
     </div>
 
     <aside class="brief-summary" aria-label="Taste summary">
@@ -60,7 +74,17 @@
       {% for item in names %}
         <article class="result-card">
           <div class="result-card-main">
-            <p class="result-index">Option {{ loop.index }}</p>
+            <p class="result-index">
+              {% if loop.index == 1 %}
+                Best first look
+              {% elif loop.index == 2 %}
+                Strong alternative
+              {% elif loop.index == 3 %}
+                Worth comparing
+              {% else %}
+                Option {{ loop.index }}
+              {% endif %}
+            </p>
             <h2>{{ item.name }}</h2>
             {% if item.pronunciation %}
               <p class="pronunciation">{{ item.pronunciation }}</p>
@@ -112,7 +136,7 @@
           <form action="/choose" method="post">
             <input type="hidden" name="session_id" value="{{ session_id }}">
             <input type="hidden" name="result_id" value="{{ item.id }}">
-            <button class="choose-button" type="submit">Choose this name</button>
+            <button class="choose-button" type="submit">Choose {{ item.name }}</button>
           </form>
         </article>
       {% endfor %}

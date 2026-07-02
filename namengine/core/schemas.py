@@ -47,6 +47,7 @@ class Question:
     choices: tuple[str, ...] = ()
     placeholder: str = ""
     help_text: str = ""
+    section: str = ""
 
 
 @dataclass(frozen=True, slots=True)

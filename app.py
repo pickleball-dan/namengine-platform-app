@@ -30,6 +30,20 @@ from namengine.core.schemas import to_plain_data
 from namengine.verticals import VERTICALS, get_vertical
 
 
+def grouped_questions(vertical) -> list[dict]:
+    groups: list[dict] = []
+    by_section: dict[str, list] = {}
+
+    for question in vertical.intake_questions:
+        section = question.section or "Tell us what matters"
+        if section not in by_section:
+            by_section[section] = []
+            groups.append({"title": section, "questions": by_section[section]})
+        by_section[section].append(question)
+
+    return groups
+
+
 def make_session_id(vertical_slug: str, query_string: bytes) -> str:
     digest = sha1(vertical_slug.encode("utf-8") + b":" + query_string).hexdigest()
     return f"{vertical_slug}-{digest[:12]}"
@@ -44,6 +58,7 @@ def create_app() -> Flask:
             "contract_version": CONTRACT_VERSION,
             "verticals": VERTICALS,
             "vertical_theme_style": vertical_theme_style,
+            "grouped_questions": grouped_questions,
         }
 
     @app.get("/")

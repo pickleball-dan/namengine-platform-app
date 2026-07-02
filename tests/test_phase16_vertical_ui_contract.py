@@ -56,17 +56,17 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertEqual(
             list(questions),
             [
-                "discovery_style",
                 "pet_type",
-                "style",
                 "pet_gender",
+                "notes",
+                "discovery_style",
+                "style",
                 "timeless_vs_distinctive",
                 "familiarity_preference",
                 "pronunciation_importance",
                 "vibe",
                 "cultural_context",
                 "partner_alignment",
-                "notes",
             ],
         )
         self.assertIn("Dog", questions["pet_type"].choices)
@@ -74,6 +74,22 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn("Very important", questions["pronunciation_importance"].choices)
         self.assertIn("Nature", questions["cultural_context"].choices)
         self.assertEqual(questions["notes"].kind, "textarea")
+        self.assertTrue(questions["pet_type"].required)
+        self.assertTrue(questions["style"].required)
+        self.assertTrue(questions["vibe"].required)
+        self.assertEqual(questions["pet_type"].section, "About your pet")
+        self.assertEqual(questions["style"].section, "Name style")
+        self.assertEqual(questions["vibe"].section, "Fit and feeling")
+
+    def test_pet_intake_renders_as_three_decision_sections(self):
+        response = self.client.get("/pet")
+        body = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("About your pet", body)
+        self.assertIn("Name style", body)
+        self.assertIn("Fit and feeling", body)
+        self.assertIn("Optional", body)
 
 
 if __name__ == "__main__":

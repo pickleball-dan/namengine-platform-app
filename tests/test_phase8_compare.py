@@ -74,7 +74,8 @@ class PhaseEightCompareTest(unittest.TestCase):
         self.assertIn("Compare Favorites", body)
         self.assertIn("Best if", body)
         self.assertIn("Watch-out", body)
-        self.assertIn("Choose this name", body)
+        self.assertIn("Choose with confidence", body)
+        self.assertIn("Choose Milo", body)
         self.assertIn("Milo", body)
         self.assertIn("Benny", body)
 
