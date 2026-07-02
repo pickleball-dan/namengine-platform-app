@@ -75,7 +75,21 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         body = response.get_data(as_text=True)
         self.assertIn("Round 2", body)
         self.assertIn("Get finalists", body)
+        self.assertIn("Ready for a fresh list?", body)
+        self.assertIn("Generate New List", body)
         self.assertIn("Benny", body)
+
+    def test_results_page_has_bottom_generate_new_list_action(self):
+        session_id = self._seed_round_one()
+        response = self.client.get("/pet/results?species=Dog&personality=Gentle&style=Warm")
+        body = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('class="bottom-next-panel"', body)
+        self.assertIn("Ready for a fresh list?", body)
+        self.assertIn("Generate New List", body)
+        self.assertIn(f'name="session_id" value="{session_id}"', body)
+        self.assertIn('action="/refine"', body)
 
     def test_round_three_returns_finalists(self):
         session_id = self._seed_round_one()
@@ -97,4 +111,3 @@ class PhaseSevenRefinementTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

@@ -153,6 +153,30 @@
         </article>
       {% endfor %}
     </div>
+
+    <section class="bottom-next-panel" aria-label="Next list options">
+      <div>
+        <p class="eyebrow">Next list</p>
+        <h2>Ready for a fresh list?</h2>
+        <p>We’ll use your Love, Maybe, and No reactions to sharpen the next set.</p>
+      </div>
+      <form class="bottom-refine-form" action="/refine" method="post" data-progress-form>
+        <input type="hidden" name="session_id" value="{{ session_id }}">
+        <label for="bottom-instruction">Optional direction</label>
+        <input id="bottom-instruction" name="instruction" placeholder="Shorter, softer, bolder, less cute...">
+        <button type="submit">
+          {% if round_number < 3 %}
+            Generate New List
+          {% else %}
+            Generate One More List
+          {% endif %}
+        </button>
+      </form>
+      <div class="bottom-next-actions">
+        <a class="button-link compare-link" href="/compare/{{ session_id }}">Compare favorites</a>
+        <a class="button-link secondary-button" href="/share/{{ session_id }}">Share list</a>
+      </div>
+    </section>
   </section>
   {% include "progress_overlay.html" %}
   <script src="{{ url_for('static', filename='js/progress.js') }}"></script>
