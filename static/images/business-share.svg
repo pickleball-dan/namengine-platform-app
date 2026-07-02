@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="NamEngine Business">
+  <rect width="1200" height="630" fill="#f5f7fb"/>
+  <rect x="470" y="170" width="260" height="210" rx="32" fill="#162033"/>
+  <path d="M540 170v-38h120v38" fill="none" stroke="#d9a441" stroke-width="24" stroke-linecap="round"/>
+  <path d="M500 270h200" stroke="#d9a441" stroke-width="24" stroke-linecap="round"/>
+  <text x="600" y="505" text-anchor="middle" font-family="Arial, sans-serif" font-size="72" font-weight="800" fill="#162033">NamEngine Business</text>
+</svg>

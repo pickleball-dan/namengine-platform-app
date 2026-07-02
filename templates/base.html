@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}NamEngine{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/platform.css') }}">
+  </head>
+  <body {% if vertical is defined %}class="vertical-{{ vertical.slug }}" style="{{ vertical_theme_style(vertical) }}"{% endif %}>
+    <header class="site-header">
+      <a class="brand" href="/">
+        {% if vertical is defined and vertical.assets.get("logo") %}
+          <img class="brand-logo" src="{{ url_for('static', filename=vertical.assets.get('logo')) }}" alt="" width="34" height="34">
+        {% endif %}
+        <span>NamEngine</span>
+      </a>
+      <nav class="site-nav" aria-label="Verticals">
+        {% for slug, item in verticals.items() %}
+          <a href="{{ item.route_prefix }}">{{ item.display_name }}</a>
+        {% endfor %}
+      </nav>
+    </header>
+
+    <main>
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+      <span>Shared platform contract v{{ contract_version }}</span>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,82 @@
+import unittest
+
+from app import create_app
+from namengine.core import build_brief, generate_names
+from namengine.core.schemas import NameResult
+from namengine.verticals import PET
+
+
+class PhaseThreePetResultsTest(unittest.TestCase):
+    def setUp(self):
+        self.app = create_app()
+        self.app.testing = True
+        self.client = self.app.test_client()
+
+    def test_build_brief_normalizes_pet_query_inputs(self):
+        brief = build_brief(
+            PET,
+            {
+                "pet_type": "Dog",
+                "vibe": "Gentle and goofy",
+                "style": "Warm but not too cute",
+                "avoid": "Spot, Killer",
+            },
+        )
+
+        self.assertEqual(brief.vertical, "pet")
+        self.assertEqual(brief.inputs["pet_type"], "Dog")
+        self.assertEqual(brief.inputs["species"], "Dog")
+        self.assertEqual(brief.avoid, ["Spot", "Killer"])
+
+    def test_build_brief_keeps_legacy_pet_query_inputs(self):
+        brief = build_brief(
+            PET,
+            {
+                "species": "Dog",
+                "personality": "Gentle and goofy",
+                "style": "Warm but not too cute",
+            },
+        )
+
+        self.assertEqual(brief.inputs["pet_type"], "Dog")
+        self.assertEqual(brief.inputs["vibe"], "Gentle and goofy")
+
+    def test_pet_generator_returns_shared_name_results(self):
+        brief = build_brief(
+            PET,
+            {
+                "species": "Dog",
+                "personality": "loyal",
+                "style": "warm",
+            },
+        )
+
+        results = generate_names(PET, brief)
+
+        self.assertEqual(len(results), 8)
+        self.assertIsInstance(results[0], NameResult)
+        self.assertEqual(results[0].metadata["source"], "phase3_fallback")
+        self.assertGreaterEqual(len(results[0].validation), 2)
+
+    def test_pet_results_route_renders_name_cards(self):
+        response = self.client.get(
+            "/pet/results?species=Dog&personality=Gentle&style=Warm&avoid=Spot"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        body = response.get_data(as_text=True)
+        self.assertIn("Pet names shaped from your taste", body)
+        self.assertIn("Milo", body)
+        self.assertIn("Why this name?", body)
+        self.assertIn("Love", body)
+        self.assertIn("Maybe", body)
+        self.assertIn("No", body)
+
+    def test_non_pet_results_not_implemented_yet(self):
+        response = self.client.get("/baby/results?style=classic")
+
+        self.assertEqual(response.status_code, 501)
+
+
+if __name__ == "__main__":
+    unittest.main()

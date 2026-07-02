@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="NamEngine Pet">
+  <rect width="1200" height="630" fill="#fffaf1"/>
+  <circle cx="600" cy="285" r="118" fill="#f2b84b"/>
+  <circle cx="500" cy="170" r="44" fill="#285f61"/>
+  <circle cx="600" cy="135" r="50" fill="#285f61"/>
+  <circle cx="700" cy="170" r="44" fill="#285f61"/>
+  <circle cx="535" cy="230" r="38" fill="#285f61"/>
+  <circle cx="665" cy="230" r="38" fill="#285f61"/>
+  <text x="600" y="505" text-anchor="middle" font-family="Arial, sans-serif" font-size="72" font-weight="800" fill="#18212f">NamEngine Pet</text>
+</svg>

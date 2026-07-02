@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}NamEngine {{ vertical.display_name }} Results{% endblock %}
+
+{% block content %}
+  <section class="results-shell" data-session-id="{{ session_id }}">
+    <div class="results-heading">
+      <p class="eyebrow">NamEngine {{ vertical.display_name }}</p>
+      <h1>{{ vertical.display_name }} names shaped from your taste.</h1>
+      <p>
+        Round {{ round_number }} · {{ names|length }} options.
+      </p>
+      {% if trust_cue %}
+        <div class="trust-cue" aria-label="Generation summary">
+          <strong>{{ trust_cue.summary }}</strong>
+          <span>Matched to your brief. Ready to react, refine, or compare.</span>
+        </div>
+      {% endif %}
+    </div>
+
+    <aside class="brief-summary" aria-label="Taste summary">
+      <h2>Your taste</h2>
+      <dl>
+        {% for key, value in brief.inputs.items() %}
+          <div>
+            <dt>{{ key.replace("_", " ").title() }}</dt>
+            <dd>{{ value }}</dd>
+          </div>
+        {% endfor %}
+      </dl>
+      <p class="reaction-counts">
+        Loved {{ reaction_counts.love }} · Maybe {{ reaction_counts.maybe }} · No {{ reaction_counts.no }}
+      </p>
+      {% if taste_profile %}
+        <div class="taste-profile">
+          <h3>Taste profile</h3>
+          <p>{{ taste_profile.summary }}</p>
+          {% if taste_profile.liked_sounds %}
+            <p><strong>Signals:</strong> {{ taste_profile.liked_sounds|join(", ") }}</p>
+          {% endif %}
+        </div>
+      {% endif %}
+    </aside>
+
+    <form class="refine-panel" action="/refine" method="post" data-progress-form>
+      <input type="hidden" name="session_id" value="{{ session_id }}">
+      {% if round_number < 3 %}
+        <label for="instruction">Adjust direction</label>
+        <input id="instruction" name="instruction" placeholder="Optional: shorter, softer, bolder, less cute">
+        <button type="submit">{% if round_number == 1 %}Refine these{% else %}Get finalists{% endif %}</button>
+      {% else %}
+        <p>Finalist round. Choose, compare, or ask for one more specific round.</p>
+        <input id="instruction" name="instruction" placeholder="Optional: one more specific direction">
+        <button type="submit">One more round</button>
+      {% endif %}
+      <a class="button-link compare-link" href="/compare/{{ session_id }}">Compare favorites</a>
+    </form>
+
+    <div class="results-grid">
+      {% for item in names %}
+        <article class="result-card">
+          <div class="result-card-main">
+            <p class="result-index">Option {{ loop.index }}</p>
+            <h2>{{ item.name }}</h2>
+            {% if item.pronunciation %}
+              <p class="pronunciation">{{ item.pronunciation }}</p>
+            {% endif %}
+            {% if item.tagline %}
+              <p class="tagline">{{ item.tagline }}</p>
+            {% endif %}
+          </div>
+
+          <section>
+            <h3>{{ vertical.result_field_labels.get("why_this_name", "Why this name?") }}</h3>
+            <p>{{ item.why_this_name }}</p>
+          </section>
+
+          <section>
+            <h3>{{ vertical.result_field_labels.get("fit_note", "Fit") }}</h3>
+            <p>{{ item.fit_note }}</p>
+          </section>
+
+          <section>
+            <h3>{{ vertical.result_field_labels.get("risks", "Risks") }}</h3>
+            <ul>
+              {% for risk in item.risks %}
+                <li>{{ risk }}</li>
+              {% endfor %}
+            </ul>
+          </section>
+
+          {% if item.validation %}
+            <section>
+              <h3>Validation</h3>
+              <div class="validation-list">
+                {% for validation in item.validation %}
+                  <div class="validation-pill validation-{{ validation.status.value }}">
+                    <strong>{{ validation.label }}</strong>
+                    <span>{{ validation.message }}</span>
+                  </div>
+                {% endfor %}
+              </div>
+            </section>
+          {% endif %}
+
+          <div class="reaction-row" aria-label="React to {{ item.name }}" data-result-id="{{ item.id }}">
+            <button type="button" data-reaction-value="love">Love</button>
+            <button type="button" data-reaction-value="maybe">Maybe</button>
+            <button type="button" data-reaction-value="no">No</button>
+          </div>
+          <p class="reaction-status" aria-live="polite"></p>
+          <form action="/choose" method="post">
+            <input type="hidden" name="session_id" value="{{ session_id }}">
+            <input type="hidden" name="result_id" value="{{ item.id }}">
+            <button class="choose-button" type="submit">Choose this name</button>
+          </form>
+        </article>
+      {% endfor %}
+    </div>
+  </section>
+  {% include "progress_overlay.html" %}
+  <script src="{{ url_for('static', filename='js/progress.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/reactions.js') }}"></script>
+{% endblock %}

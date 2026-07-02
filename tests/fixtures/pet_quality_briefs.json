@@ -1,0 +1,24 @@
+[
+  {
+    "id": "pet-gentle-dog",
+    "vertical": "pet",
+    "inputs": {
+      "species": "Dog",
+      "personality": "Gentle and loyal",
+      "style": "Warm and easy to call"
+    },
+    "must_avoid": ["Spot"],
+    "desired_traits": ["callable", "warm"]
+  },
+  {
+    "id": "pet-quiet-cat",
+    "vertical": "pet",
+    "inputs": {
+      "species": "Cat",
+      "personality": "Quiet and observant",
+      "style": "Soft but distinctive"
+    },
+    "must_avoid": ["Tiger"],
+    "desired_traits": ["soft", "distinctive"]
+  }
+]

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="NamEngine Baby">
+  <rect width="1200" height="630" fill="#f7fbff"/>
+  <circle cx="600" cy="270" r="132" fill="#6ea8fe"/>
+  <path d="M600 145l34 84 91 5-70 58 23 89-78-50-78 50 23-89-70-58 91-5z" fill="#ffffff"/>
+  <text x="600" y="505" text-anchor="middle" font-family="Arial, sans-serif" font-size="72" font-weight="800" fill="#172033">NamEngine Baby</text>
+</svg>

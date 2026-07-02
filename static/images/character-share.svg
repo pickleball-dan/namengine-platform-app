@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="NamEngine Character">
+  <rect width="1200" height="630" fill="#fbf8ff"/>
+  <path d="M470 155h260v245H470z" fill="#9a7cff"/>
+  <path d="M535 155v245M665 155v245M470 225h260" stroke="#ffffff" stroke-width="22"/>
+  <path d="M535 115h130" stroke="#1f1830" stroke-width="24" stroke-linecap="round"/>
+  <text x="600" y="505" text-anchor="middle" font-family="Arial, sans-serif" font-size="72" font-weight="800" fill="#1f1830">NamEngine Character</text>
+</svg>

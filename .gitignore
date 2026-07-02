@@ -1,0 +1,7 @@
+__pycache__/
+*.py[cod]
+flask-*.log
+.env
+data/
+.pytest_cache/
+.coverage

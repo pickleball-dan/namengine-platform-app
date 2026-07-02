@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Compare {{ vertical.display_name }} Names{% endblock %}
+
+{% block content %}
+  <section class="compare-shell">
+    <p class="eyebrow">Compare Favorites</p>
+    <h1>Decide between the names that rose to the top.</h1>
+    <p class="compare-lede">Round {{ session.round_number }} · {{ items|length }} names</p>
+    {% if taste_profile %}
+      <aside class="taste-profile compare-taste">
+        <h2>Taste profile</h2>
+        <p>{{ taste_profile.summary }}</p>
+      </aside>
+    {% endif %}
+
+    {% if items %}
+      <div class="compare-grid">
+        {% for item in items %}
+          <article class="compare-card">
+            <p class="result-index">Round {{ item.round_number }} · {{ item.reaction.title() }}</p>
+            <h2>{{ item.name }}</h2>
+            {% if item.pronunciation %}
+              <p class="pronunciation">{{ item.pronunciation }}</p>
+            {% endif %}
+            {% if item.tagline %}
+              <p class="tagline">{{ item.tagline }}</p>
+            {% endif %}
+
+            <dl class="compare-facts">
+              <div>
+                <dt>Best if</dt>
+                <dd>{{ item.best_if }}</dd>
+              </div>
+              <div>
+                <dt>Watch-out</dt>
+                <dd>{{ item.watch_out }}</dd>
+              </div>
+              <div>
+                <dt>Callability</dt>
+                <dd>{{ item.callability }}</dd>
+              </div>
+              <div>
+                <dt>Warmth</dt>
+                <dd>{{ item.warmth }}</dd>
+              </div>
+              <div>
+                <dt>Distinctiveness</dt>
+                <dd>{{ item.distinctiveness }}</dd>
+              </div>
+            </dl>
+
+            <form action="/choose" method="post">
+              <input type="hidden" name="session_id" value="{{ item.session_id }}">
+              <input type="hidden" name="result_id" value="{{ item.result_id }}">
+              <button class="choose-button" type="submit">Choose this name</button>
+            </form>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p>No favorites yet. React to a few names, then compare.</p>
+    {% endif %}
+  </section>
+{% endblock %}

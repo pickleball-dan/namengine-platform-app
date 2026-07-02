@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}NamEngine Platform{% endblock %}
+
+{% block content %}
+  <section class="intro">
+    <p class="eyebrow">The AI Taste Engine</p>
+    <h1>Find the name that feels right.</h1>
+    <p>
+      One shared naming platform with vertical-specific context, taste learning,
+      validation, reactions, refinement, and chosen-name moments.
+    </p>
+  </section>
+
+  <section class="vertical-grid" aria-label="Naming verticals">
+    {% for slug, item in verticals.items() %}
+      <a class="vertical-card" href="{{ item.route_prefix }}">
+        <span class="vertical-name">{{ item.display_name }}</span>
+        <span class="vertical-label">{{ item.object_label }}</span>
+      </a>
+    {% endfor %}
+  </section>
+{% endblock %}
+

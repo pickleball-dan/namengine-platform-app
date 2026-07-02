@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}{{ chosen.name }} | NamEngine{% endblock %}
+
+{% block content %}
+  <section class="chosen-shell">
+    <p class="eyebrow">Chosen {{ chosen.vertical.title() }} Name</p>
+    <h1>{{ chosen.name }}</h1>
+    {% if result.pronunciation %}
+      <p class="chosen-pronunciation">{{ result.pronunciation }}</p>
+    {% endif %}
+    {% if result.tagline %}
+      <p class="chosen-tagline">{{ result.tagline }}</p>
+    {% endif %}
+
+    <div class="chosen-actions">
+      <button type="button" data-copy-url>Copy link</button>
+      <a class="button-link" href="/{{ chosen.vertical }}">Start another</a>
+    </div>
+
+    <section class="chosen-detail">
+      <h2>Why this name?</h2>
+      <p>{{ result.why_this_name }}</p>
+    </section>
+
+    <section class="chosen-detail">
+      <h2>Best fit</h2>
+      <p>{{ result.fit_note }}</p>
+    </section>
+  </section>
+  <script>
+    document.querySelector("[data-copy-url]")?.addEventListener("click", async (event) => {
+      await navigator.clipboard.writeText(window.location.href);
+      event.currentTarget.textContent = "Copied";
+    });
+  </script>
+{% endblock %}
