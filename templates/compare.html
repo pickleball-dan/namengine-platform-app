@@ -55,6 +55,7 @@
               <input type="hidden" name="result_id" value="{{ item.result_id }}">
               <button class="choose-button" type="submit">Choose {{ item.name }}</button>
             </form>
+            <a class="button-link detail-link" href="{{ url_for('name_detail', vertical_slug=vertical.slug, session_id=item.session_id, result_id=item.result_id) }}">Open detail</a>
           </article>
         {% endfor %}
       </div>

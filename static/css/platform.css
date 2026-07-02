@@ -894,6 +894,66 @@ button {
   color: #465266;
 }
 
+.detail-link {
+  justify-self: start;
+}
+
+.detail-shell {
+  display: grid;
+  gap: 24px;
+}
+
+.detail-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 0.42fr);
+  gap: 18px;
+  align-items: stretch;
+  padding: 26px;
+  background: var(--card);
+  border: 1px solid #dde3ec;
+  border-left: 5px solid var(--accent);
+  border-radius: 8px;
+}
+
+.detail-hero h1 {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.detail-fit-card {
+  display: grid;
+  align-content: center;
+  gap: 8px;
+  padding: 18px;
+  background: var(--surface);
+  border: 1px solid #dde3ec;
+  border-radius: 8px;
+}
+
+.detail-fit-card p {
+  margin: 0;
+}
+
+.detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.detail-actions form {
+  margin: 0;
+}
+
+.detail-page-grid {
+  align-items: stretch;
+}
+
+.detail-validation {
+  display: grid;
+  gap: 14px;
+}
+
 .empty-state {
   max-width: 560px;
   padding: 20px;
@@ -1004,6 +1064,7 @@ button {
   .results-grid,
   .refine-panel,
   .compare-grid,
+  .detail-hero,
   .chosen-detail-grid {
     grid-template-columns: 1fr;
   }

@@ -87,6 +87,32 @@ def display_brief_items(vertical, brief) -> list[dict[str, str]]:
     return items
 
 
+def result_detail_from_session(session_id: str, result_id: str) -> dict | None:
+    snapshot = get_session_snapshot(session_id)
+    if snapshot is None:
+        return None
+
+    for row in snapshot["results"]:
+        if row["id"] == result_id:
+            return {
+                "session": snapshot["session"],
+                "result": json_loads(row["result_json"]),
+                "reaction_counts": snapshot["reaction_counts"],
+                "taste_profile": _taste_profile_from_snapshot(snapshot),
+            }
+    return None
+
+
+def brief_query_string(brief_json: str) -> str:
+    brief = json_loads(brief_json)
+    inputs = {
+        key: value
+        for key, value in brief.get("inputs", {}).items()
+        if value not in ("", None)
+    }
+    return urlencode(inputs)
+
+
 def make_session_id(vertical_slug: str, query_string: bytes) -> str:
     digest = sha1(vertical_slug.encode("utf-8") + b":" + query_string).hexdigest()
     return f"{vertical_slug}-{digest[:12]}"
@@ -105,6 +131,8 @@ def create_app() -> Flask:
             "display_brief_items": display_brief_items,
             "intake_edit_url": intake_edit_url,
         }
+
+    app.add_template_filter(brief_query_string, "brief_query_string")
 
     @app.get("/")
     def index():
@@ -241,6 +269,28 @@ def create_app() -> Flask:
             session=snapshot["session"],
             items=items,
             taste_profile=taste_profile,
+        )
+
+    @app.get("/<vertical_slug>/name/<session_id>/<result_id>")
+    def name_detail(vertical_slug: str, session_id: str, result_id: str):
+        if vertical_slug not in VERTICALS:
+            abort(404)
+
+        detail = result_detail_from_session(session_id, result_id)
+        if detail is None:
+            abort(404)
+
+        vertical = get_vertical(detail["session"]["vertical"])
+        if vertical.slug != vertical_slug:
+            abort(404)
+
+        return render_template(
+            "name_detail.html",
+            vertical=vertical,
+            session=detail["session"],
+            result=detail["result"],
+            reaction_counts=detail["reaction_counts"],
+            taste_profile=detail["taste_profile"],
         )
 
     @app.get("/chosen/<chosen_id>")

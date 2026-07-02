@@ -127,6 +127,8 @@
             </section>
           {% endif %}
 
+          <a class="button-link detail-link" href="{{ url_for('name_detail', vertical_slug=vertical.slug, session_id=session_id, result_id=item.id) }}">Open full detail</a>
+
           <div class="reaction-row" aria-label="React to {{ item.name }}" data-result-id="{{ item.id }}">
             <button type="button" data-reaction-value="love">Love</button>
             <button type="button" data-reaction-value="maybe">Maybe</button>

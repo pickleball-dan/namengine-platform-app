@@ -84,6 +84,8 @@ class PhaseThreePetResultsTest(unittest.TestCase):
         self.assertIn("Your direction", body)
         self.assertIn("<dt>Pet</dt>", body)
         self.assertIn("<dt>Personality</dt>", body)
+        self.assertIn("Open full detail", body)
+        self.assertIn("/pet/name/", body)
         self.assertNotIn("<dt>Species</dt>", body)
 
     def test_non_pet_results_not_implemented_yet(self):
