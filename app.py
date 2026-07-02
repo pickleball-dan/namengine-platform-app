@@ -44,6 +44,31 @@ def grouped_questions(vertical) -> list[dict]:
     return groups
 
 
+def display_brief_items(vertical, brief) -> list[dict[str, str]]:
+    hidden_keys = {"species", "personality"}
+    label_overrides = {
+        "pet_type": "Pet",
+        "pet_gender": "Gender",
+        "notes": "About them",
+        "discovery_style": "Discovery",
+        "style": "Style",
+        "timeless_vs_distinctive": "Timeless vs distinctive",
+        "familiarity_preference": "Familiarity",
+        "pronunciation_importance": "Callability",
+        "vibe": "Personality",
+        "cultural_context": "Inspiration",
+        "partner_alignment": "Torn between",
+    }
+
+    items: list[dict[str, str]] = []
+    for key, value in brief.inputs.items():
+        if key in hidden_keys or value in ("", None):
+            continue
+        label = label_overrides.get(key, key.replace("_", " ").title())
+        items.append({"label": label, "value": str(value)})
+    return items
+
+
 def make_session_id(vertical_slug: str, query_string: bytes) -> str:
     digest = sha1(vertical_slug.encode("utf-8") + b":" + query_string).hexdigest()
     return f"{vertical_slug}-{digest[:12]}"
@@ -59,6 +84,7 @@ def create_app() -> Flask:
             "verticals": VERTICALS,
             "vertical_theme_style": vertical_theme_style,
             "grouped_questions": grouped_questions,
+            "display_brief_items": display_brief_items,
         }
 
     @app.get("/")

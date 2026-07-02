@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}NamEngine{% endblock %}</title>
     {% if vertical is defined and vertical.assets.get("share_image") %}
+      <meta property="og:title" content="NamEngine {{ vertical.display_name }}">
+      <meta property="og:description" content="{{ vertical.prompt_context }}">
       <meta property="og:image" content="{{ url_for('static', filename=vertical.assets.get('share_image'), _external=True) }}">
       <meta name="twitter:card" content="summary_large_image">
     {% endif %}
@@ -30,7 +32,7 @@
     </main>
 
     <footer class="site-footer">
-      <span>Shared platform contract v{{ contract_version }}</span>
+      <span>NamEngine</span>
     </footer>
   </body>
 </html>

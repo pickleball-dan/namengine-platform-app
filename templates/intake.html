@@ -8,9 +8,16 @@
       <p class="eyebrow">NamEngine {{ vertical.display_name }}</p>
       <h1>Let’s shape the right {{ vertical.object_label }}.</h1>
       <p>{{ vertical.prompt_context }}</p>
-      {% if vertical.assets.get("share_image") %}
-        <div class="vertical-visual">
-          <img src="{{ url_for('static', filename=vertical.assets.get('share_image')) }}" alt="" loading="eager">
+      {% if vertical.assets.get("logo") %}
+        <div class="identity-preview">
+          <img src="{{ url_for('static', filename=vertical.assets.get('logo')) }}" alt="" width="54" height="54">
+          <p class="identity-preview-label">{{ vertical.display_name }} name fit</p>
+          <h2>Built for names that sound good out loud and feel like them.</h2>
+          <div class="identity-preview-points" aria-label="Name fit checks">
+            <span>Sound</span>
+            <span>Style</span>
+            <span>Personality</span>
+          </div>
         </div>
       {% endif %}
     </div>

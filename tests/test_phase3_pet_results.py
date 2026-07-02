@@ -58,6 +58,16 @@ class PhaseThreePetResultsTest(unittest.TestCase):
         self.assertEqual(results[0].metadata["source"], "phase3_fallback")
         self.assertGreaterEqual(len(results[0].validation), 2)
 
+    def test_pet_fallback_explanations_are_name_specific(self):
+        brief = build_brief(PET, {"pet_type": "Dog", "vibe": "Playful", "style": "Classic"})
+
+        results = generate_names(PET, brief, use_ai=False)
+        explanations = {result.name: result.why_this_name for result in results}
+
+        self.assertIn("bright repeated sounds", explanations["Rory"])
+        self.assertIn("cozy and affectionate", explanations["Maple"])
+        self.assertNotEqual(explanations["Rory"], explanations["Maple"])
+
     def test_pet_results_route_renders_name_cards(self):
         response = self.client.get(
             "/pet/results?species=Dog&personality=Gentle&style=Warm&avoid=Spot"
@@ -71,6 +81,10 @@ class PhaseThreePetResultsTest(unittest.TestCase):
         self.assertIn("Love", body)
         self.assertIn("Maybe", body)
         self.assertIn("No", body)
+        self.assertIn("Your direction", body)
+        self.assertIn("<dt>Pet</dt>", body)
+        self.assertIn("<dt>Personality</dt>", body)
+        self.assertNotIn("<dt>Species</dt>", body)
 
     def test_non_pet_results_not_implemented_yet(self):
         response = self.client.get("/baby/results?style=classic")

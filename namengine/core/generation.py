@@ -44,6 +44,25 @@ PET_FINALIST_POOL = [
     ("Hazel", "HAY-zul", "Soft, nature-touched, and grounded."),
 ]
 
+PET_NAME_INSIGHTS = {
+    "Milo": "has a soft opening, friendly rhythm, and an easy two-syllable call shape",
+    "Juniper": "adds nature texture and a more distinctive shape without becoming hard to say",
+    "Rory": "has bright repeated sounds that feel lively, warm, and easy to call across a room",
+    "Clover": "brings a lucky, gentle image that still feels wearable for everyday use",
+    "Toby": "feels familiar and loyal, with a simple sound that lands quickly",
+    "Sierra": "has an open, graceful feel with outdoor energy and a calm finish",
+    "Maple": "feels cozy and affectionate, with a soft nature cue that is easy to remember",
+    "Finn": "is short, crisp, and especially strong if callability matters most",
+    "Benny": "feels sunny and affectionate while staying familiar enough for daily use",
+    "Scout": "carries adventurous energy with a crisp one-syllable command-friendly shape",
+    "Poppy": "is bright and upbeat, with a repeatable sound that feels playful",
+    "Ollie": "has a friendly, rounded sound that feels approachable and affectionate",
+    "Winnie": "leans gentle and cozy, with warmth that suits a sweet personality",
+    "Remy": "feels stylish but still relaxed enough for a pet name",
+    "Sunny": "makes the personality cue immediate and easy for people to remember",
+    "Hazel": "adds a grounded nature feel with a softer, vintage edge",
+}
+
 
 def slugify(value: str) -> str:
     clean = re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
@@ -56,10 +75,10 @@ def _brief_text(brief: NamingBrief, key: str, default: str = "") -> str:
 
 
 def _pet_fit_note(name: str, species: str, personality: str) -> str:
-    animal = species or "pet"
+    animal = (species or "pet").lower()
     if personality:
-        return f"Best for a {animal} with a {personality.lower()} streak."
-    return f"Best for a {animal} that needs a name people can say easily."
+        return f"Best for a {personality.lower()} {animal} whose name should feel natural in everyday use."
+    return f"Best for a {animal} whose name should be easy to say, remember, and share."
 
 
 def generate_names(
@@ -124,9 +143,13 @@ def generate_fallback_names(
         if not risks:
             risks.append("Low practical risk; still test it out loud.")
 
+        insight = PET_NAME_INSIGHTS.get(
+            name,
+            "balances clear sound, everyday usability, and a memorable emotional cue",
+        )
         why = (
-            f"{name} fits the {style.lower()} lane while staying easy to remember. "
-            f"It gives a {species.lower()} name enough personality without making it hard to call."
+            f"{name} works because it {insight}. "
+            f"It stays in the {style.lower()} lane while giving a {species.lower()} name a distinct point of view."
         )
         if taste_summary:
             why += f" {taste_summary}"

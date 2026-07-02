@@ -147,21 +147,56 @@ h1 {
   align-items: start;
 }
 
-.vertical-visual {
+.identity-preview {
+  display: grid;
+  gap: 10px;
   max-width: 520px;
   margin: 28px 0 0;
-}
-
-.vertical-visual img {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 1200 / 630;
-  object-fit: cover;
-  background: var(--surface);
+  padding: 22px;
+  background:
+    linear-gradient(135deg, rgba(242, 184, 75, 0.16), rgba(40, 95, 97, 0.06)),
+    var(--surface);
   border: 1px solid #dde3ec;
+  border-left: 4px solid var(--accent);
   border-radius: 8px;
   box-shadow: 0 18px 48px rgba(24, 33, 47, 0.08);
+}
+
+.identity-preview img {
+  width: 54px;
+  height: 54px;
+}
+
+.identity-preview-label {
+  margin: 4px 0 0;
+  color: #687386;
+  font-size: 13px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.identity-preview h2 {
+  max-width: 430px;
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.12;
+}
+
+.identity-preview-points {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.identity-preview-points span {
+  padding: 7px 10px;
+  color: #18212f;
+  font-size: 13px;
+  font-weight: 900;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid #dde3ec;
+  border-radius: 999px;
 }
 
 .intake-form {
@@ -887,8 +922,13 @@ button {
     padding: 18px;
   }
 
-  .vertical-visual {
+  .identity-preview {
     margin-top: 22px;
+    padding: 18px;
+  }
+
+  .identity-preview h2 {
+    font-size: 24px;
   }
 
   .share-preview {
