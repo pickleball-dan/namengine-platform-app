@@ -9,7 +9,7 @@
     {% endif %}
     <p class="eyebrow">Compare Favorites</p>
     <h1>Choose with confidence.</h1>
-    <p class="compare-lede">Round {{ session.round_number }} · {{ items|length }} names, compared on fit, sound, warmth, and possible hesitation.</p>
+    <p class="compare-lede">Round {{ session.round_number }} · {{ items|length }} names, compared on fit, sound, warmth, and what is worth considering.</p>
     {% if taste_profile %}
       <aside class="taste-profile compare-taste">
         <h2>Taste profile</h2>
@@ -36,7 +36,7 @@
                 <dd>{{ item.best_if }}</dd>
               </div>
               <div>
-                <dt>Watch-out</dt>
+                <dt>Worth noting</dt>
                 <dd>{{ item.watch_out }}</dd>
               </div>
               <div>

@@ -125,6 +125,18 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn(".brief-summary-item:hover", css)
         self.assertIn(".field.is-edit-target", css)
 
+    def test_reaction_selected_state_uses_soft_pet_highlight(self):
+        css_path = Path(self.app.static_folder) / "css" / "platform.css"
+        css = css_path.read_text(encoding="utf-8")
+
+        self.assertIn(".reaction-row button.is-selected", css)
+        self.assertIn("background: rgba(47, 148, 134, 0.16)", css)
+        self.assertIn("box-shadow: 0 0 0 3px rgba(252, 186, 118, 0.26)", css)
+        self.assertNotIn(
+            ".reaction-row button:hover,\n.reaction-row button.is-selected",
+            css,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

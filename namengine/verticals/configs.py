@@ -159,7 +159,7 @@ PET = VerticalConfig(
     result_field_labels={
         "why_this_name": "Why this name?",
         "fit_note": "Best fit",
-        "risks": "Watch-outs",
+        "risks": "Worth noting",
     },
     validation_modules=("pet_callability", "pet_sound_clarity"),
     theme={

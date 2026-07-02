@@ -707,11 +707,17 @@ button {
   border-radius: 999px;
 }
 
-.reaction-row button:hover,
-.reaction-row button.is-selected {
+.reaction-row button:hover {
   background: #18212f;
   color: #ffffff;
   border-color: #18212f;
+}
+
+.reaction-row button.is-selected {
+  background: rgba(47, 148, 134, 0.16);
+  color: #26364d;
+  border-color: rgba(47, 148, 134, 0.55);
+  box-shadow: 0 0 0 3px rgba(252, 186, 118, 0.26);
 }
 
 .reaction-row button:disabled {
