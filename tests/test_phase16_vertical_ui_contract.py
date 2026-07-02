@@ -102,9 +102,14 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         body = response.get_data(as_text=True)
 
         self.assertEqual(response.status_code, 200)
+        self.assertIn('class="brief-summary direction-disclosure"', body)
+        self.assertIn("<summary>", body)
+        self.assertIn("Your direction", body)
+        self.assertIn("selections", body)
         self.assertIn('class="brief-summary-item"', body)
         self.assertIn("/pet?pet_type=Dog&amp;style=Classic&amp;vibe=Playful", body)
         self.assertIn("edit=style", body)
+        self.assertNotIn('class="refine-panel"', body)
 
         edit_response = self.client.get("/pet?pet_type=Dog&style=Classic&vibe=Playful&edit=style")
         edit_body = edit_response.get_data(as_text=True)
@@ -123,6 +128,7 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn(".intake-section:nth-of-type(2)", css)
         self.assertIn(".intake-section:nth-of-type(3)", css)
         self.assertIn(".brief-summary-item:hover", css)
+        self.assertIn(".direction-disclosure summary", css)
         self.assertIn(".field.is-edit-target", css)
 
     def test_reaction_selected_state_uses_soft_pet_highlight(self):

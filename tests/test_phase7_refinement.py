@@ -74,7 +74,7 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         body = response.get_data(as_text=True)
         self.assertIn("Round 2", body)
-        self.assertIn("Get finalists", body)
+        self.assertNotIn("Get finalists", body)
         self.assertIn("Ready for a fresh list?", body)
         self.assertIn("Generate New List", body)
         self.assertIn("Benny", body)

@@ -16,63 +16,39 @@
       {% if trust_cue %}
         <div class="trust-cue" aria-label="Generation summary">
           <strong>{{ names|length }} names checked for fit, sound, and distinctiveness.</strong>
-          <span>Mark what feels right, then compare the short list.</span>
+          <span>React to the names below, then use the next-step panel at the bottom.</span>
         </div>
       {% endif %}
-      <div class="decision-strip" aria-label="Decision helpers">
-        <div>
-          <strong>1. Feel</strong>
-          <span>Use Love, Maybe, and No as quick instincts.</span>
-        </div>
-        <div>
-          <strong>2. Refine</strong>
-          <span>Ask for a sharper direction if needed.</span>
-        </div>
-        <div>
-          <strong>3. Decide</strong>
-          <span>Compare favorites and save the best fit.</span>
-        </div>
-      </div>
     </div>
 
-    <aside class="brief-summary" aria-label="Taste summary">
-      <h2>Your direction</h2>
-      <dl>
-        {% for item in display_brief_items(vertical, brief) %}
-          <a class="brief-summary-item" href="{{ item.edit_url }}" aria-label="Edit {{ item.label }}">
-            <dt>{{ item.label }}</dt>
-            <dd>{{ item.value }}</dd>
-          </a>
-        {% endfor %}
-      </dl>
-      <p class="reaction-counts">
-        Loved {{ reaction_counts.love }} · Maybe {{ reaction_counts.maybe }} · No {{ reaction_counts.no }}
-      </p>
-      {% if taste_profile %}
-        <div class="taste-profile">
-          <h3>Taste profile</h3>
-          <p>{{ taste_profile.summary }}</p>
-          {% if taste_profile.liked_sounds %}
-            <p><strong>Signals:</strong> {{ taste_profile.liked_sounds|join(", ") }}</p>
-          {% endif %}
-        </div>
-      {% endif %}
-    </aside>
-
-    <form class="refine-panel" action="/refine" method="post" data-progress-form>
-      <input type="hidden" name="session_id" value="{{ session_id }}">
-      {% if round_number < 3 %}
-        <label for="instruction">Adjust direction</label>
-        <input id="instruction" name="instruction" placeholder="Optional: shorter, softer, bolder, less cute">
-        <button type="submit">{% if round_number == 1 %}Refine these{% else %}Get finalists{% endif %}</button>
-      {% else %}
-        <p>Finalist round. Choose, compare, or ask for one more specific round.</p>
-        <input id="instruction" name="instruction" placeholder="Optional: one more specific direction">
-        <button type="submit">One more round</button>
-      {% endif %}
-      <a class="button-link compare-link" href="/compare/{{ session_id }}">Compare favorites</a>
-      <a class="button-link secondary-button" href="/share/{{ session_id }}">Share list</a>
-    </form>
+    <details class="brief-summary direction-disclosure">
+      <summary>
+        <span>Your direction</span>
+        <strong>{{ display_brief_items(vertical, brief)|length }} selections</strong>
+      </summary>
+      <div class="direction-disclosure-body" aria-label="Selected intake fields">
+        <dl>
+          {% for item in display_brief_items(vertical, brief) %}
+            <a class="brief-summary-item" href="{{ item.edit_url }}" aria-label="Edit {{ item.label }}">
+              <dt>{{ item.label }}</dt>
+              <dd>{{ item.value }}</dd>
+            </a>
+          {% endfor %}
+        </dl>
+        <p class="reaction-counts">
+          Loved {{ reaction_counts.love }} · Maybe {{ reaction_counts.maybe }} · No {{ reaction_counts.no }}
+        </p>
+        {% if taste_profile %}
+          <div class="taste-profile">
+            <h3>Taste profile</h3>
+            <p>{{ taste_profile.summary }}</p>
+            {% if taste_profile.liked_sounds %}
+              <p><strong>Signals:</strong> {{ taste_profile.liked_sounds|join(", ") }}</p>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+    </details>
 
     <div class="results-grid">
       {% for item in names %}

@@ -42,8 +42,8 @@ class PhaseFourteenProgressExperienceTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         body = response.get_data(as_text=True)
         self.assertIn("8 names checked for fit, sound, and distinctiveness", body)
-        self.assertIn("Mark what feels right", body)
-        self.assertIn("compare the short list", body)
+        self.assertIn("React to the names below", body)
+        self.assertIn("next-step panel at the bottom", body)
         self.assertIn("data-progress-form", body)
         self.assertIn("Selecting names with the strongest identity fit", body)
 
