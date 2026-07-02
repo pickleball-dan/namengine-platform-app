@@ -74,6 +74,7 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn("Very important", questions["pronunciation_importance"].choices)
         self.assertIn("Nature", questions["cultural_context"].choices)
         self.assertEqual(questions["notes"].kind, "textarea")
+        self.assertEqual(questions["partner_alignment"].kind, "textarea")
         self.assertTrue(questions["pet_type"].required)
         self.assertTrue(questions["style"].required)
         self.assertTrue(questions["vibe"].required)

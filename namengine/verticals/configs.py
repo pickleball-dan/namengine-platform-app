@@ -144,6 +144,7 @@ PET = VerticalConfig(
         Question(
             "partner_alignment",
             "Anything you're torn between?",
+            kind="textarea",
             placeholder=(
                 "Cute or serious, silly or elegant, human-name or pet-name, "
                 "everyone else's opinions..."
