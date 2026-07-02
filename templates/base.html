@@ -4,6 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}NamEngine{% endblock %}</title>
+    {% if vertical is defined and vertical.assets.get("share_image") %}
+      <meta property="og:image" content="{{ url_for('static', filename=vertical.assets.get('share_image'), _external=True) }}">
+      <meta name="twitter:card" content="summary_large_image">
+    {% endif %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/platform.css') }}">
   </head>
   <body {% if vertical is defined %}class="vertical-{{ vertical.slug }}" style="{{ vertical_theme_style(vertical) }}"{% endif %}>

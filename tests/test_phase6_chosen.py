@@ -72,6 +72,9 @@ class PhaseSixChosenNameTest(unittest.TestCase):
         body = response.get_data(as_text=True)
         self.assertIn("Milo", body)
         self.assertIn("Why this name?", body)
+        self.assertIn("share-preview", body)
+        self.assertIn("Meet Milo", body)
+        self.assertIn("images/pet-logo.svg", body)
         self.assertIn("Copy link", body)
         self.assertIn("Start another", body)
 
@@ -97,4 +100,3 @@ class PhaseSixChosenNameTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

@@ -3,5 +3,6 @@ __pycache__/
 flask-*.log
 .env
 data/
+docs/visual-qa/
 .pytest_cache/
 .coverage

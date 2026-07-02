@@ -112,11 +112,19 @@ h1 {
   display: grid;
   min-height: 124px;
   align-content: end;
+  gap: 6px;
   padding: 18px;
   text-decoration: none;
   background: var(--card);
   border: 1px solid #dde3ec;
   border-radius: 8px;
+}
+
+.vertical-card-logo {
+  align-self: start;
+  width: 38px;
+  height: 38px;
+  margin-bottom: 8px;
 }
 
 .vertical-card:hover {
@@ -137,6 +145,23 @@ h1 {
   grid-template-columns: minmax(0, 0.9fr) minmax(320px, 1.1fr);
   gap: 36px;
   align-items: start;
+}
+
+.vertical-visual {
+  max-width: 520px;
+  margin: 28px 0 0;
+}
+
+.vertical-visual img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1200 / 630;
+  object-fit: cover;
+  background: var(--surface);
+  border: 1px solid #dde3ec;
+  border-radius: 8px;
+  box-shadow: 0 18px 48px rgba(24, 33, 47, 0.08);
 }
 
 .intake-form {
@@ -588,6 +613,67 @@ button {
   margin: 24px 0;
 }
 
+.share-preview {
+  position: relative;
+  display: grid;
+  gap: 8px;
+  margin-top: 18px;
+  padding: 22px;
+  overflow: hidden;
+  color: #18212f;
+  background: var(--surface);
+  border: 1px solid #dde3ec;
+  border-radius: 8px;
+}
+
+.share-preview::after {
+  position: absolute;
+  right: -44px;
+  bottom: -54px;
+  width: 180px;
+  height: 180px;
+  content: "";
+  background: var(--accent);
+  border-radius: 999px;
+  opacity: 0.18;
+}
+
+.share-preview-logo {
+  position: relative;
+  z-index: 1;
+  width: 48px;
+  height: 48px;
+}
+
+.share-preview-label,
+.share-preview h2,
+.share-preview p {
+  position: relative;
+  z-index: 1;
+}
+
+.share-preview-label {
+  margin: 4px 0 0;
+  color: #687386;
+  font-size: 13px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.share-preview h2 {
+  margin: 0;
+  font-size: 34px;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+}
+
+.share-preview p:last-child {
+  max-width: 520px;
+  margin: 0;
+  color: #334155;
+  font-size: 18px;
+}
+
 .chosen-actions button,
 .chosen-actions .button-link {
   min-width: 148px;
@@ -799,6 +885,18 @@ button {
   .intake-form,
   .chosen-hero {
     padding: 18px;
+  }
+
+  .vertical-visual {
+    margin-top: 22px;
+  }
+
+  .share-preview {
+    padding: 18px;
+  }
+
+  .share-preview h2 {
+    font-size: 30px;
   }
 
   .decision-strip div {

@@ -16,6 +16,17 @@
       {% endif %}
     </div>
 
+    <section class="share-preview" aria-label="Share preview">
+      {% if vertical.assets.get("logo") %}
+        <img class="share-preview-logo" src="{{ url_for('static', filename=vertical.assets.get('logo')) }}" alt="">
+      {% endif %}
+      <p class="share-preview-label">NamEngine {{ vertical.display_name }}</p>
+      <h2>Meet {{ chosen.name }}</h2>
+      {% if result.tagline %}
+        <p>{{ result.tagline }}</p>
+      {% endif %}
+    </section>
+
     <div class="chosen-actions">
       <button type="button" data-copy-url>Copy link</button>
       <a class="button-link" href="/{{ chosen.vertical }}">Start another</a>
