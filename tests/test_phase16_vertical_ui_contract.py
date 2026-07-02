@@ -50,7 +50,8 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn("images/pet-logo.svg", body)
         self.assertIn("identity-preview", body)
         self.assertIn("og:image", body)
-        self.assertIn("--accent: #f2b84b", body)
+        self.assertIn("--accent: #2f9486", body)
+        self.assertIn("--accent-pet: #fcba76", body)
 
     def test_pet_intake_matches_first_edition_question_contract(self):
         questions = {question.id: question for question in VERTICALS["pet"].intake_questions}
@@ -93,6 +94,16 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn("Name style", body)
         self.assertIn("Fit and feeling", body)
         self.assertIn("Optional", body)
+
+    def test_intake_sections_have_visible_group_treatment(self):
+        css_path = Path(self.app.static_folder) / "css" / "platform.css"
+        css = css_path.read_text(encoding="utf-8")
+
+        self.assertIn("counter-reset: intake-section", css)
+        self.assertIn("counter-increment: intake-section", css)
+        self.assertIn("font-size: 25px", css)
+        self.assertIn(".intake-section:nth-of-type(2)", css)
+        self.assertIn(".intake-section:nth-of-type(3)", css)
 
 
 if __name__ == "__main__":
