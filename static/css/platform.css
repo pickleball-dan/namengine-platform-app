@@ -1118,6 +1118,13 @@ button {
   font-size: 28px;
 }
 
+.progress-note {
+  margin: 10px 0 0;
+  color: #4d596b;
+  font-size: 16px;
+  font-weight: 750;
+}
+
 .progress-steps {
   display: grid;
   gap: 10px;

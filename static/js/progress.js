@@ -3,12 +3,14 @@
   const current = document.querySelector("[data-progress-current]");
   const steps = Array.from(document.querySelectorAll("[data-progress-step]"));
   const forms = Array.from(document.querySelectorAll("[data-progress-form]"));
+  const minimumProgressMs = 5000;
 
   if (!overlay || !current || !steps.length || !forms.length) {
     return;
   }
 
   let timer = null;
+  let submittingForm = null;
 
   function activateStep(index) {
     steps.forEach((step, stepIndex) => {
@@ -28,7 +30,7 @@
       if (index === steps.length - 1) {
         window.clearInterval(timer);
       }
-    }, 750);
+    }, Math.max(900, Math.floor(minimumProgressMs / steps.length)));
   }
 
   function fieldForControl(control) {
@@ -93,15 +95,23 @@
     });
 
     form.addEventListener("submit", (event) => {
+      if (submittingForm === form) {
+        return;
+      }
       if (!form.checkValidity()) {
         event.preventDefault();
         focusFirstInvalid(form);
         return;
       }
+      event.preventDefault();
       if (timer) {
         window.clearInterval(timer);
       }
       showProgress();
+      submittingForm = form;
+      window.setTimeout(() => {
+        HTMLFormElement.prototype.submit.call(form);
+      }, minimumProgressMs);
     });
   });
 })();

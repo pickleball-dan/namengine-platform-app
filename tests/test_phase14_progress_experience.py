@@ -30,8 +30,9 @@ class PhaseFourteenProgressExperienceTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         body = response.get_data(as_text=True)
         self.assertIn("data-progress-form", body)
-        self.assertIn("NamEngine is working", body)
-        self.assertIn("Checking fit and callability", body)
+        self.assertIn("NamEngine is building your identity shortlist", body)
+        self.assertIn("sound, style, emotional fit", body)
+        self.assertIn("Testing names for callability and everyday use", body)
         self.assertIn("js/progress.js", body)
         self.assertIn("novalidate", body)
 
@@ -44,7 +45,7 @@ class PhaseFourteenProgressExperienceTest(unittest.TestCase):
         self.assertIn("Mark what feels right", body)
         self.assertIn("compare the short list", body)
         self.assertIn("data-progress-form", body)
-        self.assertIn("Comparing naming strategies", body)
+        self.assertIn("Selecting names with the strongest identity fit", body)
 
     def test_trust_cue_summarizes_validation_work(self):
         brief = build_brief(PET, {"species": "Dog", "style": "Warm"})
@@ -76,6 +77,16 @@ class PhaseFourteenProgressExperienceTest(unittest.TestCase):
         self.assertIn("is-required-missing", script)
         self.assertIn("Required before we can generate names.", script)
         self.assertIn("scrollIntoView", script)
+
+    def test_progress_script_holds_overlay_for_minimum_marketing_moment(self):
+        script_path = os.path.join(self.app.static_folder, "js", "progress.js")
+        with open(script_path, encoding="utf-8") as script_file:
+            script = script_file.read()
+
+        self.assertIn("minimumProgressMs = 5000", script)
+        self.assertIn("event.preventDefault()", script)
+        self.assertIn("setTimeout", script)
+        self.assertIn("HTMLFormElement.prototype.submit.call(form)", script)
 
 
 if __name__ == "__main__":
