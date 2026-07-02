@@ -59,6 +59,9 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
         self.assertIn("images/reactions/love.jpg", body)
         self.assertIn("images/reactions/maybe.jpg", body)
         self.assertIn("images/reactions/no.jpg", body)
+        self.assertNotIn(">Love</button>", body)
+        self.assertNotIn(">Maybe</button>", body)
+        self.assertNotIn(">No</button>", body)
 
     def test_shared_shortlist_route_renders_saved_session(self):
         query = b"pet_type=Dog&style=Classic&vibe=Playful"

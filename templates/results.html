@@ -134,9 +134,15 @@
           <a class="button-link detail-link" href="{{ url_for('name_detail', vertical_slug=vertical.slug, session_id=session_id, result_id=item.id) }}">Open full detail</a>
 
           <div class="reaction-row" aria-label="React to {{ item.name }}" data-result-id="{{ item.id }}">
-            <button type="button" data-reaction-value="love" data-result-name="{{ item.name }}"><img class="reaction-icon" src="{{ url_for('static', filename='images/reactions/love.jpg') }}" alt="">Love</button>
-            <button type="button" data-reaction-value="maybe" data-result-name="{{ item.name }}"><img class="reaction-icon" src="{{ url_for('static', filename='images/reactions/maybe.jpg') }}" alt="">Maybe</button>
-            <button type="button" data-reaction-value="no" data-result-name="{{ item.name }}"><img class="reaction-icon" src="{{ url_for('static', filename='images/reactions/no.jpg') }}" alt="">No</button>
+            <button type="button" data-reaction-value="love" data-reaction-label="Love" data-result-name="{{ item.name }}" aria-label="Love {{ item.name }}" title="Love">
+              <img class="reaction-icon" src="{{ url_for('static', filename='images/reactions/love.jpg') }}" alt="">
+            </button>
+            <button type="button" data-reaction-value="maybe" data-reaction-label="Maybe" data-result-name="{{ item.name }}" aria-label="Maybe {{ item.name }}" title="Maybe">
+              <img class="reaction-icon" src="{{ url_for('static', filename='images/reactions/maybe.jpg') }}" alt="">
+            </button>
+            <button type="button" data-reaction-value="no" data-reaction-label="No" data-result-name="{{ item.name }}" aria-label="No {{ item.name }}" title="No">
+              <img class="reaction-icon" src="{{ url_for('static', filename='images/reactions/no.jpg') }}" alt="">
+            </button>
           </div>
           <p class="reaction-status" aria-live="polite"></p>
           <form action="/choose" method="post">

@@ -691,17 +691,18 @@ button {
 
 .reaction-row button {
   display: grid;
-  min-height: 76px;
+  min-height: 104px;
+  align-content: center;
   justify-items: center;
-  gap: 6px;
+  padding: 14px 10px;
   color: #18212f;
   background: #f8fafc;
   border: 1px solid #d8e0eb;
 }
 
 .reaction-icon {
-  width: 34px;
-  height: 34px;
+  width: 68px;
+  height: 68px;
   object-fit: cover;
   border-radius: 999px;
 }

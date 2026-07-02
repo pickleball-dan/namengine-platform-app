@@ -7,6 +7,7 @@
   async function sendReaction(row, button) {
     const resultId = row.dataset.resultId;
     const value = button.dataset.reactionValue;
+    const label = button.dataset.reactionLabel || value;
     const status = row.parentElement.querySelector(".reaction-status");
 
     row.querySelectorAll("button").forEach((item) => {
@@ -42,9 +43,9 @@
       if (status) {
         const counts = data.reaction_counts;
         if (counts) {
-          status.textContent = `Saved: ${button.textContent} · ${counts.love} loved`;
+          status.textContent = `Saved: ${label} · ${counts.love} loved`;
         } else {
-          status.textContent = `Saved: ${button.textContent}`;
+          status.textContent = `Saved: ${label}`;
         }
       }
     } catch (error) {
