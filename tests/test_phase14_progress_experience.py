@@ -33,6 +33,7 @@ class PhaseFourteenProgressExperienceTest(unittest.TestCase):
         self.assertIn("NamEngine is working", body)
         self.assertIn("Checking fit and callability", body)
         self.assertIn("js/progress.js", body)
+        self.assertIn("novalidate", body)
 
     def test_results_page_has_trust_cue_and_refine_progress(self):
         response = self.client.get("/pet/results?species=Dog&personality=Gentle&style=Warm")
@@ -64,6 +65,17 @@ class PhaseFourteenProgressExperienceTest(unittest.TestCase):
         self.assertNotIn("claude", body)
         self.assertNotIn("gemini", body)
         self.assertNotIn("groq", body)
+
+    def test_progress_script_guides_missing_required_fields(self):
+        script_path = os.path.join(self.app.static_folder, "js", "progress.js")
+        with open(script_path, encoding="utf-8") as script_file:
+            script = script_file.read()
+
+        self.assertIn("form.checkValidity()", script)
+        self.assertIn("focusFirstInvalid", script)
+        self.assertIn("is-required-missing", script)
+        self.assertIn("Required before we can generate names.", script)
+        self.assertIn("scrollIntoView", script)
 
 
 if __name__ == "__main__":

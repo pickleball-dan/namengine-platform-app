@@ -36,11 +36,13 @@ class PhaseTwoWebShellTest(unittest.TestCase):
         self.assertIn("Fit and feeling", body)
         self.assertIn("Name inspiration", body)
         self.assertIn("Tell us about your pet", body)
+        self.assertIn("Required", body)
         self.assertIn('<option value="Dog">Dog</option>', body)
         self.assertIn('<option value="Cat">Cat</option>', body)
         self.assertIn('<option value="Balanced mix">Balanced mix</option>', body)
         self.assertIn('<option value="Very important">Very important</option>', body)
         self.assertIn('action="/pet/results"', body)
+        self.assertIn("novalidate", body)
 
     def test_unknown_vertical_404s(self):
         response = self.client.get("/spaceship")

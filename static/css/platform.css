@@ -511,6 +511,25 @@ button {
   border-radius: 8px;
 }
 
+.field.is-required-missing {
+  padding: 12px;
+  background: #fff7ed;
+  border: 1px solid rgba(213, 92, 50, 0.35);
+  border-left: 4px solid #d55c32;
+  border-radius: 8px;
+  box-shadow: 0 12px 28px rgba(213, 92, 50, 0.08);
+}
+
+.field.is-required-missing em {
+  color: #9f341e;
+}
+
+.field-error {
+  color: #9f341e;
+  font-size: 13px;
+  font-weight: 850;
+}
+
 .reaction-counts {
   margin: 14px 0 0;
   color: #4d596b;
