@@ -53,9 +53,10 @@ a {
 
 .brand-logo {
   display: block;
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  border-radius: 0;
 }
 
 .site-nav {
@@ -156,6 +157,29 @@ h1 {
   align-items: start;
 }
 
+.vertical-page-logo {
+  display: block;
+  width: min(300px, 72vw);
+  height: auto;
+  margin: 0 0 18px;
+}
+
+.vertical-page-logo.small {
+  width: min(220px, 58vw);
+  margin-bottom: 14px;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 24px 0 0;
+}
+
+.inline-action {
+  margin-top: 18px;
+}
+
 .identity-preview {
   display: grid;
   gap: 10px;
@@ -172,8 +196,9 @@ h1 {
 }
 
 .identity-preview img {
-  width: 54px;
-  height: 54px;
+  width: 150px;
+  height: auto;
+  object-fit: contain;
 }
 
 .identity-preview-label {
@@ -665,10 +690,20 @@ button {
 }
 
 .reaction-row button {
-  min-height: 44px;
+  display: grid;
+  min-height: 76px;
+  justify-items: center;
+  gap: 6px;
   color: #18212f;
   background: #f8fafc;
   border: 1px solid #d8e0eb;
+}
+
+.reaction-icon {
+  width: 34px;
+  height: 34px;
+  object-fit: cover;
+  border-radius: 999px;
 }
 
 .reaction-row button:hover,
@@ -954,6 +989,55 @@ button {
   gap: 14px;
 }
 
+.taste-history-panel {
+  grid-column: 2;
+  display: grid;
+  gap: 10px;
+  padding: 18px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--accent-pet);
+  border-radius: 8px;
+}
+
+.taste-history-panel h2,
+.taste-history-panel p {
+  margin: 0;
+}
+
+.taste-history-panel h2 {
+  font-size: 18px;
+}
+
+.taste-history-panel p,
+.taste-history-panel span {
+  color: #607086;
+}
+
+.taste-history-panel ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.taste-history-panel li {
+  display: grid;
+  gap: 2px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.68);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+.results-header-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
 .empty-state {
   max-width: 560px;
   padding: 20px;
@@ -1067,6 +1151,10 @@ button {
   .detail-hero,
   .chosen-detail-grid {
     grid-template-columns: 1fr;
+  }
+
+  .taste-history-panel {
+    grid-column: auto;
   }
 
   h1 {

@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Shared {{ vertical.display_name }} List | NamEngine{% endblock %}
+
+{% block content %}
+  <section class="results-shell shared-shortlist" data-session-id="{{ session.id }}">
+    <div class="results-heading">
+      {% if vertical.assets.get("logo") %}
+        <img class="vertical-page-logo small" src="{{ url_for('static', filename=vertical.assets.get('logo')) }}" alt="NamEngine {{ vertical.display_name }} logo">
+      {% endif %}
+      <p class="eyebrow">Shared NamEngine {{ vertical.display_name }} list</p>
+      <h1>A saved list, ready to compare.</h1>
+      <p>Use this page to review the names, choose a favorite, or start your own direction.</p>
+      <div class="results-header-links">
+        <a class="button-link" href="/{{ vertical.slug }}">Start your own list</a>
+        <a class="button-link secondary-button" href="/feedback">Give feedback</a>
+      </div>
+    </div>
+
+    <aside class="brief-summary" aria-label="Taste summary">
+      <h2>Your direction</h2>
+      <dl>
+        {% for key, value in brief.inputs.items() if key not in ["species", "personality", "original_mode"] and value %}
+          <div class="brief-summary-item">
+            <dt>{{ key.replace("_", " ").title() }}</dt>
+            <dd>{{ value }}</dd>
+          </div>
+        {% endfor %}
+      </dl>
+      <p class="reaction-counts">
+        Loved {{ reaction_counts.love }} · Maybe {{ reaction_counts.maybe }} · No {{ reaction_counts.no }}
+      </p>
+      {% if taste_profile %}
+        <div class="taste-profile">
+          <h3>Taste profile</h3>
+          <p>{{ taste_profile.summary }}</p>
+        </div>
+      {% endif %}
+    </aside>
+
+    <div class="results-grid">
+      {% for item in names %}
+        <article class="result-card">
+          <div class="result-card-main">
+            <p class="result-index">Option {{ loop.index }}</p>
+            <h2>{{ item.name }}</h2>
+            {% if item.pronunciation %}
+              <p class="pronunciation">{{ item.pronunciation }}</p>
+            {% endif %}
+            {% if item.tagline %}
+              <p class="tagline">{{ item.tagline }}</p>
+            {% endif %}
+          </div>
+
+          <section>
+            <h3>{{ vertical.result_field_labels.get("why_this_name", "Why this name?") }}</h3>
+            <p>{{ item.why_this_name }}</p>
+          </section>
+
+          <section>
+            <h3>{{ vertical.result_field_labels.get("fit_note", "Fit") }}</h3>
+            <p>{{ item.fit_note }}</p>
+          </section>
+
+          <a class="button-link detail-link" href="{{ url_for('name_detail', vertical_slug=vertical.slug, session_id=session.id, result_id=item.id) }}">Open detail</a>
+          <form action="/choose" method="post">
+            <input type="hidden" name="session_id" value="{{ session.id }}">
+            <input type="hidden" name="result_id" value="{{ item.id }}">
+            <button class="choose-button" type="submit">Choose {{ item.name }}</button>
+          </form>
+        </article>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}

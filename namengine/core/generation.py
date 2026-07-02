@@ -44,6 +44,17 @@ PET_FINALIST_POOL = [
     ("Hazel", "HAY-zul", "Soft, nature-touched, and grounded."),
 ]
 
+PET_ORIGINAL_POOL = [
+    ("Lumo", "LOO-moh", "Bright, compact, and invented while staying easy to call."),
+    ("Noriu", "NOR-ee-oo", "Softly original with a warm, musical finish."),
+    ("Kova", "KOH-vah", "Strong, sleek, and pet-ready without feeling common."),
+    ("Mavie", "MAY-vee", "Sweet and lively with a familiar enough shape."),
+    ("Talo", "TAH-loh", "Short, grounded, and easy to say out loud."),
+    ("Bramblee", "BRAM-blee", "Nature-touched and playful with an invented twist."),
+    ("Solvi", "SOL-vee", "Sunny, distinctive, and still wearable."),
+    ("Rueby", "ROO-bee", "Cute, bright, and lightly unexpected."),
+]
+
 PET_NAME_INSIGHTS = {
     "Milo": "has a soft opening, friendly rhythm, and an easy two-syllable call shape",
     "Juniper": "adds nature texture and a more distinctive shape without becoming hard to say",
@@ -126,10 +137,18 @@ def generate_fallback_names(
     avoid_text = ", ".join(brief.avoid)
 
     pool = PET_NAME_POOL
-    if round_number == 2:
+    if brief.inputs.get("original_mode") == "true" or _brief_text(brief, "discovery_style") == "Completely original":
+        pool = PET_ORIGINAL_POOL
+    elif round_number == 2:
         pool = PET_REFINED_POOL
     elif round_number >= 3:
         pool = PET_FINALIST_POOL
+
+    starting_letter = _brief_text(brief, "starting_letter").lower()[:1]
+    if starting_letter:
+        matching = [item for item in pool if item[0].lower().startswith(starting_letter)]
+        if matching:
+            pool = matching + [item for item in pool if item not in matching]
 
     results: list[NameResult] = []
     for index, (name, pronunciation, opener) in enumerate(pool, start=1):
@@ -145,7 +164,7 @@ def generate_fallback_names(
 
         insight = PET_NAME_INSIGHTS.get(
             name,
-            "balances clear sound, everyday usability, and a memorable emotional cue",
+            "balances original sound, everyday usability, and a memorable emotional cue",
         )
         why = (
             f"{name} works because it {insight}. "

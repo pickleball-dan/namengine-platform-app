@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Create an original pet name | NamEngine Pet{% endblock %}
+
+{% block content %}
+  <section class="intake-shell original-intake-shell">
+    <div class="intake-heading">
+      {% if vertical.assets.get("logo") %}
+        <img class="vertical-page-logo" src="{{ url_for('static', filename=vertical.assets.get('logo')) }}" alt="NamEngine Pet logo">
+      {% endif %}
+      <p class="eyebrow">Original Pet Name Studio</p>
+      <h1>Create a pet name that feels like it could only come from your life.</h1>
+      <p>Use this lane when you want something one-of-a-kind, but still wearable at the vet, park, barn, or living room.</p>
+      <a class="button-link secondary-button inline-action" href="/pet">Back to pet names</a>
+    </div>
+
+    <form class="intake-form" action="/pet/original/results" method="post" data-progress-form>
+      <fieldset class="intake-section">
+        <legend>About your pet</legend>
+        <label class="field" for="pet_type">
+          <span>Who's joining the family?<em>Required</em></span>
+          <select id="pet_type" name="pet_type" required>
+            <option value="">Choose one</option>
+            {% for choice in ["Dog", "Cat", "Horse", "Bird", "Rabbit", "Reptile", "Other"] %}
+              <option value="{{ choice }}">{{ choice }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label class="field" for="pet_gender">
+          <span>Gender<em>Optional</em></span>
+          <select id="pet_gender" name="pet_gender">
+            <option value="">Choose one</option>
+            {% for choice in ["Male", "Female", "Neutral"] %}
+              <option value="{{ choice }}">{{ choice }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label class="field" for="notes">
+          <span>Tell us about your pet<em>Optional</em></span>
+          <textarea id="notes" name="notes" placeholder="Breed, coloring, personality, funny quirks, favorite themes..."></textarea>
+        </label>
+      </fieldset>
+
+      <fieldset class="intake-section">
+        <legend>Name shape</legend>
+        <label class="field" for="style">
+          <span>Core style<em>Required</em></span>
+          <select id="style" name="style" required>
+            <option value="">Choose one</option>
+            {% for choice in ["Modern", "Soft and romantic", "Strong and tailored", "Uncommon but usable", "Classic"] %}
+              <option value="{{ choice }}">{{ choice }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label class="field" for="vibe">
+          <span>What personality should the name capture?<em>Required</em></span>
+          <select id="vibe" name="vibe" required>
+            <option value="">Choose one</option>
+            {% for choice in ["Playful", "Loyal", "Elegant", "Brave", "Curious", "Gentle", "Mischievous", "Regal", "Adventurous", "Quirky", "Sweet", "Tough"] %}
+              <option value="{{ choice }}">{{ choice }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label class="field" for="starting_letter">
+          <span>Letter to begin the name<em>Optional</em></span>
+          <input id="starting_letter" name="starting_letter" maxlength="2" placeholder="A, E, L...">
+        </label>
+        <label class="field" for="length_preference">
+          <span>Length preference<em>Optional</em></span>
+          <select id="length_preference" name="length_preference">
+            <option value="">Choose one</option>
+            {% for choice in ["Short and crisp", "Balanced 2 syllables", "Flowing 3 syllables", "Open to either"] %}
+              <option value="{{ choice }}">{{ choice }}</option>
+            {% endfor %}
+          </select>
+        </label>
+      </fieldset>
+
+      <fieldset class="intake-section">
+        <legend>Fit and guardrails</legend>
+        <label class="field" for="pronunciation_importance">
+          <span>How easy should it be to call?<em>Optional</em></span>
+          <select id="pronunciation_importance" name="pronunciation_importance">
+            <option value="">Choose one</option>
+            {% for choice in ["Very important", "Helpful but not absolute", "Open to slight friction"] %}
+              <option value="{{ choice }}">{{ choice }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label class="field" for="cultural_context">
+          <span>Name inspiration<em>Optional</em></span>
+          <select id="cultural_context" name="cultural_context">
+            <option value="">No preference</option>
+            {% for choice in ["Nature", "Mythology", "Human names", "Food & drink", "Literature", "Movies & TV", "Music", "Geography", "Vintage", "Pop culture"] %}
+              <option value="{{ choice }}">{{ choice }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label class="field" for="avoid_feel">
+          <span>What should the name avoid feeling like?<em>Optional</em></span>
+          <input id="avoid_feel" name="avoid_feel" placeholder="Too trendy, fantasy-ish, overly soft, hard to say...">
+        </label>
+        <label class="field" for="partner_alignment">
+          <span>Anything you're torn between?<em>Optional</em></span>
+          <textarea id="partner_alignment" name="partner_alignment" placeholder="Cute or serious, silly or elegant, human-name or pet-name..."></textarea>
+        </label>
+      </fieldset>
+
+      <input type="hidden" name="discovery_style" value="Completely original">
+      <button type="submit">Create original pet names</button>
+    </form>
+  </section>
+  {% include "progress_overlay.html" %}
+  <script src="{{ url_for('static', filename='js/progress.js') }}"></script>
+{% endblock %}

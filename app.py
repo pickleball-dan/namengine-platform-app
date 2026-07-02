@@ -18,6 +18,7 @@ from namengine.core import (
     generate_names,
     get_reaction_counts,
     get_chosen_snapshot,
+    get_database_path,
     get_session_snapshot,
     get_taste_profile,
     refine_session,
@@ -118,6 +119,40 @@ def make_session_id(vertical_slug: str, query_string: bytes) -> str:
     return f"{vertical_slug}-{digest[:12]}"
 
 
+def _query_string_from_mapping(source) -> str:
+    return urlencode(
+        {
+            key: value
+            for key, value in source.items()
+            if value not in ("", None)
+        }
+    )
+
+
+def save_feedback_submission(source) -> None:
+    import json
+
+    feedback_path = get_database_path().parent / "feedback.jsonl"
+    feedback_path.parent.mkdir(parents=True, exist_ok=True)
+    allowed_keys = (
+        "name",
+        "tester_type",
+        "overall_rating",
+        "liked_most",
+        "confusing",
+        "missing",
+    )
+    payload = {
+        key: str(source.get(key, "")).strip()
+        for key in allowed_keys
+        if str(source.get(key, "")).strip()
+    }
+    if not payload:
+        return
+    with feedback_path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(payload) + "\n")
+
+
 def create_app() -> Flask:
     app = Flask(__name__)
 
@@ -146,6 +181,44 @@ def create_app() -> Flask:
         vertical = get_vertical(vertical_slug)
         return render_template("intake.html", vertical=vertical)
 
+    @app.get("/pet/original")
+    def pet_original():
+        vertical = get_vertical("pet")
+        return render_template("original_intake.html", vertical=vertical)
+
+    @app.post("/pet/original/results")
+    def pet_original_submit():
+        query = _query_string_from_mapping(request.form)
+        return redirect(f"{url_for('pet_original_results')}?{query}")
+
+    @app.get("/pet/original/results")
+    def pet_original_results():
+        vertical = get_vertical("pet")
+        source = request.args.to_dict(flat=True)
+        source["discovery_style"] = source.get("discovery_style") or "Completely original"
+        source["original_mode"] = "true"
+        brief = build_brief(vertical, source)
+        for key in ("starting_letter", "length_preference", "avoid_feel", "original_mode"):
+            if source.get(key):
+                brief.inputs[key] = source[key]
+        names = generate_names(vertical, brief)
+        session_id = make_session_id("pet-original", request.query_string)
+        save_session(session_id, vertical.slug, brief, names)
+        taste_profile_row = get_taste_profile(session_id)
+        return render_template(
+            "results.html",
+            vertical=vertical,
+            brief=brief,
+            names=names,
+            trust_cue=build_trust_cue(names),
+            session_id=session_id,
+            reaction_counts=get_reaction_counts(session_id),
+            taste_profile=json_loads(taste_profile_row["profile_json"]) if taste_profile_row else None,
+            round_number=1,
+            parent_session_id=None,
+            original_mode=True,
+        )
+
     @app.get("/<vertical_slug>/results")
     def results(vertical_slug: str):
         if vertical_slug not in VERTICALS:
@@ -171,6 +244,7 @@ def create_app() -> Flask:
             taste_profile=json_loads(taste_profile_row["profile_json"]) if taste_profile_row else None,
             round_number=1,
             parent_session_id=None,
+            original_mode=False,
         )
 
     @app.post("/api/react")
@@ -252,6 +326,7 @@ def create_app() -> Flask:
             taste_profile=taste_profile,
             round_number=round_number,
             parent_session_id=session_id,
+            original_mode=False,
         )
 
     @app.get("/compare/<session_id>")
@@ -268,6 +343,26 @@ def create_app() -> Flask:
             vertical=vertical,
             session=snapshot["session"],
             items=items,
+            taste_profile=taste_profile,
+        )
+
+    @app.get("/share/<session_id>")
+    def shared_shortlist(session_id: str):
+        snapshot = get_session_snapshot(session_id)
+        if snapshot is None:
+            abort(404)
+
+        vertical = get_vertical(snapshot["session"]["vertical"])
+        names = [json_loads(row["result_json"]) for row in snapshot["results"]]
+        brief = json_loads(snapshot["session"]["brief_json"])
+        taste_profile = _taste_profile_from_snapshot(snapshot)
+        return render_template(
+            "shared_shortlist.html",
+            vertical=vertical,
+            session=snapshot["session"],
+            brief=brief,
+            names=names,
+            reaction_counts=snapshot["reaction_counts"],
             taste_profile=taste_profile,
         )
 
@@ -306,6 +401,18 @@ def create_app() -> Flask:
             chosen=snapshot["chosen"],
             result=result,
             session=snapshot["session"],
+        )
+
+    @app.route("/feedback", methods=["GET", "POST"])
+    def feedback():
+        submitted = request.method == "POST"
+        if submitted:
+            save_feedback_submission(request.form)
+        return render_template(
+            "feedback.html",
+            vertical=get_vertical("pet"),
+            submitted=submitted,
+            form_data=request.form if submitted else {},
         )
 
     return app

@@ -5,8 +5,11 @@
 {% block content %}
   <section class="results-shell" data-session-id="{{ session_id }}">
     <div class="results-heading">
+      {% if vertical.assets.get("logo") %}
+        <img class="vertical-page-logo small" src="{{ url_for('static', filename=vertical.assets.get('logo')) }}" alt="NamEngine {{ vertical.display_name }} logo">
+      {% endif %}
       <p class="eyebrow">NamEngine {{ vertical.display_name }}</p>
-      <h1>{{ vertical.display_name }} names shaped from your taste.</h1>
+      <h1>{% if original_mode|default(false) %}Original pet names shaped from your life.{% else %}{{ vertical.display_name }} names shaped from your taste.{% endif %}</h1>
       <p>
         Round {{ round_number }} · {{ names|length }} options.
       </p>
@@ -68,6 +71,7 @@
         <button type="submit">One more round</button>
       {% endif %}
       <a class="button-link compare-link" href="/compare/{{ session_id }}">Compare favorites</a>
+      <a class="button-link secondary-button" href="/share/{{ session_id }}">Share list</a>
     </form>
 
     <div class="results-grid">
@@ -130,9 +134,9 @@
           <a class="button-link detail-link" href="{{ url_for('name_detail', vertical_slug=vertical.slug, session_id=session_id, result_id=item.id) }}">Open full detail</a>
 
           <div class="reaction-row" aria-label="React to {{ item.name }}" data-result-id="{{ item.id }}">
-            <button type="button" data-reaction-value="love">Love</button>
-            <button type="button" data-reaction-value="maybe">Maybe</button>
-            <button type="button" data-reaction-value="no">No</button>
+            <button type="button" data-reaction-value="love" data-result-name="{{ item.name }}"><img class="reaction-icon" src="{{ url_for('static', filename='images/reactions/love.jpg') }}" alt="">Love</button>
+            <button type="button" data-reaction-value="maybe" data-result-name="{{ item.name }}"><img class="reaction-icon" src="{{ url_for('static', filename='images/reactions/maybe.jpg') }}" alt="">Maybe</button>
+            <button type="button" data-reaction-value="no" data-result-name="{{ item.name }}"><img class="reaction-icon" src="{{ url_for('static', filename='images/reactions/no.jpg') }}" alt="">No</button>
           </div>
           <p class="reaction-status" aria-live="polite"></p>
           <form action="/choose" method="post">
@@ -146,5 +150,6 @@
   </section>
   {% include "progress_overlay.html" %}
   <script src="{{ url_for('static', filename='js/progress.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/taste-history.js') }}"></script>
   <script src="{{ url_for('static', filename='js/reactions.js') }}"></script>
 {% endblock %}

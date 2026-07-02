@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Feedback | NamEngine Pet{% endblock %}
+
+{% block content %}
+  <section class="intake-shell feedback-shell">
+    <div class="intake-heading">
+      {% if vertical.assets.get("logo") %}
+        <img class="vertical-page-logo" src="{{ url_for('static', filename=vertical.assets.get('logo')) }}" alt="NamEngine Pet logo">
+      {% endif %}
+      <p class="eyebrow">Beta feedback</p>
+      <h1>Tell us what worked, what didn’t, and what felt missing.</h1>
+      <p>A few honest notes are more useful than a polished review. If something felt confusing, slow, awkward, surprisingly good, or worth sharing, put it here.</p>
+      <a class="button-link secondary-button inline-action" href="/pet">Back to NamEngine Pet</a>
+    </div>
+
+    <form class="intake-form feedback-form" action="/feedback" method="post">
+      {% if submitted %}
+        <div class="notice success-notice">Feedback received. Thank you for helping shape NamEngine Pet.</div>
+      {% endif %}
+
+      <fieldset class="intake-section">
+        <legend>Quick context</legend>
+        <label class="field" for="name">
+          <span>Name<em>Optional</em></span>
+          <input id="name" name="name" value="{{ form_data.get('name', '') }}" placeholder="Optional">
+        </label>
+        <label class="field" for="tester_type">
+          <span>How were you using it?<em>Optional</em></span>
+          <select id="tester_type" name="tester_type">
+            <option value="">Choose one</option>
+            {% for choice in ["Pet name search", "Original pet name creation", "Just exploring"] %}
+              <option value="{{ choice }}">{{ choice }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label class="field" for="overall_rating">
+          <span>Overall impression<em>Optional</em></span>
+          <select id="overall_rating" name="overall_rating">
+            <option value="">Choose one</option>
+            {% for choice in ["Loved it", "Promising", "Mixed", "Confusing"] %}
+              <option value="{{ choice }}">{{ choice }}</option>
+            {% endfor %}
+          </select>
+        </label>
+      </fieldset>
+
+      <fieldset class="intake-section">
+        <legend>What should change?</legend>
+        <label class="field" for="liked_most">
+          <span>What did you like most?<em>Optional</em></span>
+          <textarea id="liked_most" name="liked_most" placeholder="A feature, a name, the flow, the reactions, the tone...">{{ form_data.get('liked_most', '') }}</textarea>
+        </label>
+        <label class="field" for="confusing">
+          <span>What felt confusing or awkward?<em>Optional</em></span>
+          <textarea id="confusing" name="confusing" placeholder="Anything unclear, too much, too little, or oddly worded...">{{ form_data.get('confusing', '') }}</textarea>
+        </label>
+        <label class="field" for="missing">
+          <span>What felt missing?<em>Optional</em></span>
+          <textarea id="missing" name="missing" placeholder="A filter, explanation, button, name type, or next step...">{{ form_data.get('missing', '') }}</textarea>
+        </label>
+      </fieldset>
+
+      <button type="submit">Send feedback</button>
+    </form>
+  </section>
+{% endblock %}

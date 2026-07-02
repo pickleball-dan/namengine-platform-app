@@ -47,7 +47,7 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("vertical-pet", body)
-        self.assertIn("images/pet-logo.svg", body)
+        self.assertIn("images/pet/namengine-pet-logo.png", body)
         self.assertIn("identity-preview", body)
         self.assertIn("og:image", body)
         self.assertIn("--accent: #2f9486", body)

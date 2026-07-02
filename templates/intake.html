@@ -5,9 +5,18 @@
 {% block content %}
   <section class="intake-shell">
     <div class="intake-heading">
+      {% if vertical.assets.get("logo") %}
+        <img class="vertical-page-logo" src="{{ url_for('static', filename=vertical.assets.get('logo')) }}" alt="NamEngine {{ vertical.display_name }} logo">
+      {% endif %}
       <p class="eyebrow">NamEngine {{ vertical.display_name }}</p>
       <h1>Let’s shape the right {{ vertical.object_label }}.</h1>
       <p>{{ vertical.prompt_context }}</p>
+      {% if vertical.slug == "pet" %}
+        <div class="hero-actions">
+          <a class="button-link" href="#pet-intake-form">Start discovering names</a>
+          <a class="button-link secondary-button" href="/pet/original">Create an original pet name</a>
+        </div>
+      {% endif %}
       {% if vertical.assets.get("logo") %}
         <div class="identity-preview">
           <img src="{{ url_for('static', filename=vertical.assets.get('logo')) }}" alt="" width="54" height="54">
@@ -22,7 +31,7 @@
       {% endif %}
     </div>
 
-    <form class="intake-form" action="{{ vertical.route_prefix }}/results" method="get" data-progress-form>
+    <form id="pet-intake-form" class="intake-form" action="{{ vertical.route_prefix }}/results" method="get" data-progress-form>
       {% for group in grouped_questions(vertical) %}
         <fieldset class="intake-section">
           <legend>{{ group.title }}</legend>
@@ -52,7 +61,20 @@
 
       <button type="submit">Generate {{ vertical.display_name }} Names</button>
     </form>
+
+    {% if vertical.slug == "pet" %}
+      <aside class="taste-history-panel" aria-label="Taste history">
+        <h2>Taste history</h2>
+        <p>Names you loved during this visit will collect here.</p>
+        <ul data-taste-history-list>
+          <li>No loved names yet.</li>
+        </ul>
+      </aside>
+    {% endif %}
   </section>
   {% include "progress_overlay.html" %}
   <script src="{{ url_for('static', filename='js/progress.js') }}"></script>
+  {% if vertical.slug == "pet" %}
+    <script src="{{ url_for('static', filename='js/taste-history.js') }}"></script>
+  {% endif %}
 {% endblock %}

@@ -32,6 +32,13 @@
       }
 
       const data = await response.json();
+      if (
+        value === "love" &&
+        window.NamEnginePetTasteHistory &&
+        typeof window.NamEnginePetTasteHistory.add === "function"
+      ) {
+        window.NamEnginePetTasteHistory.add(button.dataset.resultName, "Loved from results");
+      }
       if (status) {
         const counts = data.reaction_counts;
         if (counts) {

@@ -6,6 +6,9 @@
   <section class="detail-shell">
     <div class="detail-hero">
       <div>
+        {% if vertical.assets.get("logo") %}
+          <img class="vertical-page-logo small" src="{{ url_for('static', filename=vertical.assets.get('logo')) }}" alt="NamEngine {{ vertical.display_name }} logo">
+        {% endif %}
         <p class="eyebrow">NamEngine {{ vertical.display_name }} · Name detail</p>
         <h1>{{ result.name }}</h1>
         {% if result.pronunciation %}
