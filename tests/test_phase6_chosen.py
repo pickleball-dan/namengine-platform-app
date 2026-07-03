@@ -76,6 +76,8 @@ class PhaseSixChosenNameTest(unittest.TestCase):
         self.assertIn("Final pick", body)
         self.assertIn("Meet Milo", body)
         self.assertNotIn("chosen-hero", body)
+        self.assertNotIn("share-preview-logo", body)
+        self.assertNotIn("share-preview-brand", body)
         self.assertIn("images/pet/namengine-pet-logo-transparent.png", body)
         self.assertIn("Copy link", body)
         self.assertIn("Start another", body)

@@ -10,10 +10,6 @@
     <p class="eyebrow">Chosen {{ chosen.vertical.title() }} Name</p>
 
     <section class="share-preview" aria-label="Share preview">
-      {% if vertical.assets.get("logo") %}
-        <img class="share-preview-logo" src="{{ url_for('static', filename=vertical.assets.get('logo')) }}" alt="">
-      {% endif %}
-      <p class="share-preview-brand">NamEngine {{ vertical.display_name }}</p>
       <p class="share-preview-label">Final pick</p>
       <h1>Meet {{ chosen.name }}</h1>
       {% if result.pronunciation %}
