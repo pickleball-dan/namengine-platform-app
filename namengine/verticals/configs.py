@@ -176,7 +176,7 @@ PET = VerticalConfig(
         "line": "rgba(69, 48, 34, 0.11)",
     },
     assets={
-        "logo": "images/pet/namengine-pet-logo.png",
+        "logo": "images/pet/namengine-pet-logo-transparent.png",
         "share_image": "images/pet/namengine-pet-card-share-v3.jpg",
     },
 )

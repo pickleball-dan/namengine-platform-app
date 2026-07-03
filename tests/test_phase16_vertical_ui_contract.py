@@ -41,13 +41,20 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
                     asset_path = Path(self.app.static_folder) / vertical.assets[asset_key]
                     self.assertTrue(asset_path.is_file(), asset_path)
 
+    def test_pet_logo_asset_is_transparent_png(self):
+        logo_path = Path(self.app.static_folder) / VERTICALS["pet"].assets["logo"]
+        data = logo_path.read_bytes()
+
+        self.assertEqual(data[:8], b"\x89PNG\r\n\x1a\n")
+        self.assertEqual(data[25], 6)
+
     def test_pet_pages_use_vertical_logo_and_theme(self):
         response = self.client.get("/pet")
         body = response.get_data(as_text=True)
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("vertical-pet", body)
-        self.assertIn("images/pet/namengine-pet-logo.png", body)
+        self.assertIn("images/pet/namengine-pet-logo-transparent.png", body)
         self.assertIn("identity-preview", body)
         self.assertIn("og:image", body)
         self.assertIn("--accent: #2f9486", body)
