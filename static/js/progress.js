@@ -1,6 +1,7 @@
 (function () {
   const overlay = document.querySelector("[data-progress-overlay]");
   const current = document.querySelector("[data-progress-current]");
+  const eyebrow = document.querySelector("[data-progress-eyebrow]");
   const visual = document.querySelector("[data-progress-visual]");
   const steps = Array.from(document.querySelectorAll("[data-progress-step]"));
   const forms = Array.from(document.querySelectorAll("[data-progress-form]"));
@@ -12,6 +13,61 @@
 
   let timer = null;
   let submittingForm = null;
+
+  function cleanValue(value) {
+    return String(value || "").trim();
+  }
+
+  function formValue(form, names) {
+    const fields = Array.isArray(names) ? names : [names];
+    for (const name of fields) {
+      const control = form.elements.namedItem(name);
+      const value = cleanValue(control && control.value);
+      if (value) {
+        return value;
+      }
+    }
+    return "";
+  }
+
+  function subjectFor(form) {
+    const petType = formValue(form, ["pet_type", "species"]);
+    if (petType) {
+      return `this ${petType.toLowerCase()}`;
+    }
+    if (formValue(form, "business_description")) {
+      return "this brand";
+    }
+    if (formValue(form, ["genre", "role", "tone"])) {
+      return "this character";
+    }
+    if (formValue(form, ["gender", "family_context"])) {
+      return "this baby name";
+    }
+    return "this identity";
+  }
+
+  function personalizeProgress(form) {
+    const subject = subjectFor(form);
+    const vibe = formValue(form, ["vibe", "style", "tone"]);
+    const feelLine = vibe ? `Matching the ${vibe.toLowerCase()} feel` : "Matching the feel";
+    const labels = [
+      "Reading the details",
+      `Finding names for ${subject}`,
+      feelLine,
+      "Checking sound and use",
+      "Picking the strongest names",
+    ];
+
+    if (eyebrow) {
+      eyebrow.textContent = `Building a shortlist for ${subject}`;
+    }
+    steps.forEach((step, index) => {
+      const label = labels[index] || cleanValue(step.dataset.progressHeadline || step.textContent);
+      step.textContent = label;
+      step.dataset.progressHeadline = label;
+    });
+  }
 
   function activateStep(index) {
     steps.forEach((step, stepIndex) => {
@@ -120,6 +176,7 @@
       if (timer) {
         window.clearInterval(timer);
       }
+      personalizeProgress(form);
       showProgress();
       submittingForm = form;
       window.setTimeout(() => {

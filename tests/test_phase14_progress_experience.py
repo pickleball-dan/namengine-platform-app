@@ -30,9 +30,10 @@ class PhaseFourteenProgressExperienceTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         body = response.get_data(as_text=True)
         self.assertIn("data-progress-form", body)
-        self.assertIn("NamEngine is building your identity shortlist", body)
-        self.assertIn("sound, style, emotional fit", body)
-        self.assertIn("Testing names for callability and everyday use", body)
+        self.assertIn("Building a shortlist around this identity", body)
+        self.assertIn("A few quick checks before the list appears.", body)
+        self.assertIn("Finding names for this identity", body)
+        self.assertIn("Checking sound and use", body)
         self.assertIn("data-progress-visual", body)
         self.assertIn("progress-node-center", body)
         self.assertIn("Identity fit", body)
@@ -49,7 +50,7 @@ class PhaseFourteenProgressExperienceTest(unittest.TestCase):
         self.assertIn("React to the names below", body)
         self.assertIn("next-step panel at the bottom", body)
         self.assertIn("data-progress-form", body)
-        self.assertIn("Selecting names with the strongest identity fit", body)
+        self.assertIn("Picking the strongest names", body)
 
     def test_trust_cue_summarizes_validation_work(self):
         brief = build_brief(PET, {"species": "Dog", "style": "Warm"})
@@ -92,6 +93,9 @@ class PhaseFourteenProgressExperienceTest(unittest.TestCase):
         self.assertIn("setTimeout", script)
         self.assertIn("namengine:progress-step", script)
         self.assertIn("is-pulsing", script)
+        self.assertIn("personalizeProgress(form)", script)
+        self.assertIn("Building a shortlist for ${subject}", script)
+        self.assertIn("Finding names for ${subject}", script)
         self.assertIn("HTMLFormElement.prototype.submit.call(form)", script)
 
     def test_progress_overlay_has_synced_node_animation_styles(self):
