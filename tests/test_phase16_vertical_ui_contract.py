@@ -94,6 +94,10 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn("Name style", body)
         self.assertIn("Fit and feeling", body)
         self.assertIn("Optional", body)
+        self.assertIn("Taste history", body)
+        self.assertIn("Open taste history", body)
+        self.assertIn("Pick up where you left off.", body)
+        self.assertIn("data-taste-history-drawer-list", body)
 
     def test_results_direction_items_link_back_to_prefilled_intake_fields(self):
         response = self.client.get(
@@ -103,6 +107,9 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn('class="brief-summary direction-disclosure"', body)
+        self.assertIn('data-taste-session-id=', body)
+        self.assertIn('data-taste-list-url=', body)
+        self.assertIn('data-taste-share-url=', body)
         self.assertIn("<summary>", body)
         self.assertIn("Your direction", body)
         self.assertIn("selections", body)
@@ -130,6 +137,18 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn(".brief-summary-item:hover", css)
         self.assertIn(".direction-disclosure summary", css)
         self.assertIn(".field.is-edit-target", css)
+        self.assertIn(".taste-history-dialog", css)
+        self.assertIn(".taste-history-actions", css)
+
+    def test_pet_taste_history_script_restores_resume_and_view_actions(self):
+        js_path = Path(self.app.static_folder) / "js" / "taste-history.js"
+        js = js_path.read_text(encoding="utf-8")
+
+        self.assertIn("namengine.pet.tasteHistory.v1", js)
+        self.assertIn("data-taste-session-id", js)
+        self.assertIn("Resume", js)
+        self.assertIn("View list", js)
+        self.assertIn("lovedNames", js)
 
     def test_reaction_selected_state_uses_soft_pet_highlight(self):
         css_path = Path(self.app.static_folder) / "css" / "platform.css"

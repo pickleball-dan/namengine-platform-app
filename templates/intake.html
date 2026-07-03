@@ -65,11 +65,29 @@
     {% if vertical.slug == "pet" %}
       <aside class="taste-history-panel" aria-label="Taste history">
         <h2>Taste history</h2>
-        <p>Names you loved during this visit will collect here.</p>
+        <p>Names and lists you loved during this visit will collect here.</p>
         <ul data-taste-history-list>
           <li>No loved names yet.</li>
         </ul>
+        <button class="taste-history-button" type="button" data-taste-history-open>
+          Open taste history
+        </button>
       </aside>
+      <dialog class="taste-history-dialog" data-taste-history-dialog aria-label="Taste history review">
+        <div class="taste-history-dialog-header">
+          <div>
+            <p class="eyebrow">Taste history</p>
+            <h2>Pick up where you left off.</h2>
+          </div>
+          <button type="button" class="icon-button" data-taste-history-close aria-label="Close taste history">×</button>
+        </div>
+        <p class="taste-history-dialog-note">
+          Reopen a list, review loved names, or continue refining from a previous search.
+        </p>
+        <ul class="taste-history-searches" data-taste-history-drawer-list>
+          <li>No saved taste history yet.</li>
+        </ul>
+      </dialog>
     {% endif %}
   </section>
   {% include "progress_overlay.html" %}

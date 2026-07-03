@@ -3,7 +3,15 @@
 {% block title %}NamEngine {{ vertical.display_name }} Results{% endblock %}
 
 {% block content %}
-  <section class="results-shell" data-session-id="{{ session_id }}">
+  <section
+    class="results-shell"
+    data-session-id="{{ session_id }}"
+    data-taste-session-id="{{ session_id }}"
+    data-taste-list-url="{{ request.full_path }}"
+    data-taste-share-url="/share/{{ session_id }}"
+    data-taste-title="{{ vertical.display_name }} Round {{ round_number }}"
+    data-taste-context="{{ names|length }} names · {{ display_brief_items(vertical, brief)|length }} direction selections"
+  >
     <div class="results-heading">
       {% if vertical.assets.get("logo") %}
         <img class="vertical-page-logo small" src="{{ url_for('static', filename=vertical.assets.get('logo')) }}" alt="NamEngine {{ vertical.display_name }} logo">
