@@ -1,6 +1,7 @@
 (function () {
   const overlay = document.querySelector("[data-progress-overlay]");
   const current = document.querySelector("[data-progress-current]");
+  const visual = document.querySelector("[data-progress-visual]");
   const steps = Array.from(document.querySelectorAll("[data-progress-step]"));
   const forms = Array.from(document.querySelectorAll("[data-progress-form]"));
   const minimumProgressMs = 5000;
@@ -17,7 +18,12 @@
       step.classList.toggle("is-active", stepIndex === index);
       step.classList.toggle("is-complete", stepIndex < index);
     });
-    current.textContent = steps[index].textContent;
+    current.textContent = steps[index].dataset.progressHeadline || steps[index].textContent;
+    if (visual) {
+      visual.classList.remove("is-pulsing");
+      void visual.offsetWidth;
+      visual.classList.add("is-pulsing");
+    }
   }
 
   function showProgress() {
@@ -32,6 +38,13 @@
       }
     }, Math.max(900, Math.floor(minimumProgressMs / steps.length)));
   }
+
+  window.addEventListener("namengine:progress-step", (event) => {
+    const requestedStep = Number(event.detail && event.detail.index);
+    if (Number.isInteger(requestedStep)) {
+      activateStep(Math.max(0, Math.min(requestedStep, steps.length - 1)));
+    }
+  });
 
   function fieldForControl(control) {
     return control.closest(".field");

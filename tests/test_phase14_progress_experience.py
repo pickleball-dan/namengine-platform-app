@@ -33,6 +33,9 @@ class PhaseFourteenProgressExperienceTest(unittest.TestCase):
         self.assertIn("NamEngine is building your identity shortlist", body)
         self.assertIn("sound, style, emotional fit", body)
         self.assertIn("Testing names for callability and everyday use", body)
+        self.assertIn("data-progress-visual", body)
+        self.assertIn("progress-node-center", body)
+        self.assertIn("data-progress-headline", body)
         self.assertIn("js/progress.js", body)
         self.assertIn("novalidate", body)
 
@@ -86,7 +89,21 @@ class PhaseFourteenProgressExperienceTest(unittest.TestCase):
         self.assertIn("minimumProgressMs = 5000", script)
         self.assertIn("event.preventDefault()", script)
         self.assertIn("setTimeout", script)
+        self.assertIn("namengine:progress-step", script)
+        self.assertIn("is-pulsing", script)
         self.assertIn("HTMLFormElement.prototype.submit.call(form)", script)
+
+    def test_progress_overlay_has_synced_node_animation_styles(self):
+        css_path = os.path.join(self.app.static_folder, "css", "platform.css")
+        with open(css_path, encoding="utf-8") as css_file:
+            css = css_file.read()
+
+        self.assertIn(".progress-visual", css)
+        self.assertIn(".progress-node-center", css)
+        self.assertIn("@keyframes progress-node-pulse", css)
+        self.assertIn(".progress-visual.is-pulsing .progress-node-center", css)
+        self.assertIn("grid-template-columns: 156px minmax(0, 1fr)", css)
+        self.assertIn("width: 126px", css)
 
 
 if __name__ == "__main__":

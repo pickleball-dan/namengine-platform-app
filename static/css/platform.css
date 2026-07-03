@@ -1318,13 +1318,83 @@ button {
 }
 
 .progress-panel {
-  width: min(520px, 100%);
+  display: grid;
+  grid-template-columns: 156px minmax(0, 1fr);
+  gap: 22px;
+  align-items: center;
+  width: min(690px, 100%);
   padding: 24px;
   background: var(--card);
   border: 1px solid #dce2ea;
   border-top: 4px solid var(--accent);
   border-radius: 8px;
   box-shadow: 0 24px 70px rgba(24, 33, 47, 0.16);
+}
+
+.progress-visual {
+  position: relative;
+  width: 148px;
+  height: 148px;
+  isolation: isolate;
+}
+
+.progress-orbit,
+.progress-node {
+  position: absolute;
+  border-radius: 999px;
+}
+
+.progress-orbit {
+  inset: 18px;
+  border: 1px solid rgba(47, 148, 134, 0.2);
+}
+
+.progress-orbit-two {
+  inset: 38px;
+  border-color: rgba(252, 186, 118, 0.34);
+}
+
+.progress-node {
+  width: 16px;
+  height: 16px;
+  background: var(--accent-pet);
+  box-shadow: 0 0 0 5px rgba(252, 186, 118, 0.18);
+}
+
+.progress-node-center {
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+  width: 48px;
+  height: 48px;
+  background: var(--accent);
+  box-shadow: 0 0 0 12px rgba(47, 148, 134, 0.12);
+  transform: translate(-50%, -50%);
+}
+
+.progress-visual.is-pulsing .progress-node-center {
+  animation: progress-node-pulse 720ms ease-out;
+}
+
+.progress-node-one {
+  top: 22px;
+  left: 66px;
+}
+
+.progress-node-two {
+  right: 22px;
+  bottom: 42px;
+}
+
+.progress-node-three {
+  bottom: 24px;
+  left: 34px;
+  background: var(--accent-deep);
+  box-shadow: 0 0 0 5px rgba(38, 54, 77, 0.12);
+}
+
+.progress-copy {
+  min-width: 0;
 }
 
 .progress-panel h2 {
@@ -1377,6 +1447,17 @@ button {
   background: #5fb481;
 }
 
+@keyframes progress-node-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(47, 148, 134, 0.28), 0 0 0 12px rgba(47, 148, 134, 0.12);
+    transform: translate(-50%, -50%) scale(0.92);
+  }
+  100% {
+    box-shadow: 0 0 0 28px rgba(47, 148, 134, 0), 0 0 0 12px rgba(47, 148, 134, 0.12);
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
 @media (max-width: 760px) {
   .site-header {
     align-items: flex-start;
@@ -1408,6 +1489,17 @@ button {
 
   .bottom-next-actions {
     grid-column: auto;
+  }
+
+  .progress-panel {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .progress-visual {
+    justify-self: center;
+    width: 126px;
+    height: 126px;
   }
 
   h1 {
