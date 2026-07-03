@@ -899,6 +899,12 @@ button {
   box-shadow: 0 18px 46px rgba(73, 49, 32, 0.1);
 }
 
+.share-preview.has-portrait {
+  grid-template-columns: minmax(180px, 250px) minmax(0, 1fr);
+  align-items: center;
+  gap: 24px;
+}
+
 .share-preview::before {
   position: absolute;
   inset: 12px;
@@ -926,9 +932,15 @@ button {
 
 .share-preview-label,
 .share-preview h1,
-.share-preview p {
+.share-preview p,
+.share-preview figure,
+.share-preview dl {
   position: relative;
   z-index: 1;
+}
+
+.share-preview-copy {
+  min-width: 0;
 }
 
 .share-preview-label {
@@ -965,6 +977,76 @@ button {
   color: #334155;
   font-size: 20px;
   line-height: 1.45;
+}
+
+.pet-portrait-frame {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 12px 12px 10px;
+  background: #fffaf2;
+  border: 1px solid rgba(73, 49, 32, 0.18);
+  border-radius: 8px;
+  box-shadow: 0 14px 28px rgba(73, 49, 32, 0.14);
+}
+
+.pet-portrait-frame img,
+.pet-portrait-placeholder {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  background: #f4e3cc;
+  border: 1px solid rgba(73, 49, 32, 0.16);
+  border-radius: 6px;
+}
+
+.pet-portrait-placeholder {
+  display: grid;
+  place-items: center;
+  color: rgba(38, 54, 77, 0.75);
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 74px;
+  font-weight: 700;
+}
+
+.pet-portrait-frame figcaption {
+  color: #26364d;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+}
+
+.pet-portrait-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 16px 0 0;
+}
+
+.pet-portrait-details div {
+  min-width: 84px;
+  padding: 8px 10px;
+  background: rgba(255, 250, 242, 0.86);
+  border: 1px solid rgba(47, 148, 134, 0.14);
+  border-radius: 8px;
+}
+
+.pet-portrait-details dt {
+  margin: 0 0 2px;
+  color: #687386;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.pet-portrait-details dd {
+  margin: 0;
+  color: #26364d;
+  font-size: 14px;
+  font-weight: 850;
 }
 
 .chosen-actions button,
@@ -1577,6 +1659,16 @@ button {
   .intake-form,
   .share-preview {
     padding: 18px;
+  }
+
+  .share-preview.has-portrait {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .pet-portrait-frame {
+    max-width: 260px;
+    margin: 0 auto;
   }
 
   .identity-preview {

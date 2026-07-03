@@ -32,6 +32,17 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
         self.assertIn("images/pet/namengine-pet-card-share-v3.jpg", body)
         self.assertIn("vertical-page-logo", body)
 
+    def test_pet_intake_collects_portrait_details(self):
+        response = self.client.get("/pet")
+        body = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('name="pet_breed"', body)
+        self.assertIn('name="pet_color"', body)
+        self.assertIn('name="pet_life_stage"', body)
+        self.assertIn("Puppy", body)
+        self.assertIn("Adult", body)
+
     def test_pet_original_mode_exists_and_generates_original_results(self):
         response = self.client.get("/pet/original")
         body = response.get_data(as_text=True)

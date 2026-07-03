@@ -5,9 +5,11 @@ import unittest
 from app import create_app, make_session_id
 from namengine.core import (
     build_brief,
+    build_pet_portrait_prompt,
     generate_names,
     get_chosen_snapshot,
     get_session_snapshot,
+    portrait_details_from_brief,
     save_chosen_name,
     save_session,
 )
@@ -19,7 +21,9 @@ class PhaseSixChosenNameTest(unittest.TestCase):
         self.tempdir = tempfile.TemporaryDirectory()
         self.db_path = os.path.join(self.tempdir.name, "test.sqlite3")
         self.previous_db_path = os.environ.get("NAMENGINE_DB_PATH")
+        self.previous_disable_pet_images = os.environ.get("NAMENGINE_DISABLE_PET_IMAGES")
         os.environ["NAMENGINE_DB_PATH"] = self.db_path
+        os.environ["NAMENGINE_DISABLE_PET_IMAGES"] = "1"
         self.app = create_app()
         self.app.testing = True
         self.client = self.app.test_client()
@@ -29,6 +33,10 @@ class PhaseSixChosenNameTest(unittest.TestCase):
             os.environ.pop("NAMENGINE_DB_PATH", None)
         else:
             os.environ["NAMENGINE_DB_PATH"] = self.previous_db_path
+        if self.previous_disable_pet_images is None:
+            os.environ.pop("NAMENGINE_DISABLE_PET_IMAGES", None)
+        else:
+            os.environ["NAMENGINE_DISABLE_PET_IMAGES"] = self.previous_disable_pet_images
         self.tempdir.cleanup()
 
     def test_save_chosen_name_persists_choice(self):
@@ -81,6 +89,54 @@ class PhaseSixChosenNameTest(unittest.TestCase):
         self.assertIn("images/pet/namengine-pet-logo-transparent.png", body)
         self.assertIn("Copy link", body)
         self.assertIn("Start another", body)
+
+    def test_chosen_page_uses_pet_portrait_details_when_present(self):
+        query = (
+            b"pet_type=Dog&pet_breed=Golden+Retriever&pet_color=Honey"
+            b"&pet_life_stage=Puppy&style=Classic&vibe=Gentle"
+        )
+        session_id = make_session_id("pet", query)
+        self.client.get(f"/pet/results?{query.decode('utf-8')}")
+        response = self.client.post(
+            "/choose",
+            data={"session_id": session_id, "result_id": "pet-1"},
+            follow_redirects=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        body = response.get_data(as_text=True)
+        self.assertIn("pet-portrait-frame", body)
+        self.assertIn("Breed", body)
+        self.assertIn("Golden Retriever", body)
+        self.assertIn("Color", body)
+        self.assertIn("Honey", body)
+        self.assertIn("Stage", body)
+        self.assertIn("Puppy", body)
+        self.assertIn("Milo", body)
+
+    def test_pet_portrait_prompt_is_timeless_and_avoids_generated_text(self):
+        brief = {
+            "inputs": {
+                "pet_type": "Dog",
+                "pet_breed": "Whippet",
+                "pet_color": "Blue gray",
+                "pet_life_stage": "Adult",
+                "vibe": "Elegant",
+                "style": "Classic",
+            }
+        }
+        details = portrait_details_from_brief(brief)
+        prompt = build_pet_portrait_prompt(
+            {"name": "Clover"},
+            {"name": "Clover"},
+            brief,
+            details,
+        )
+
+        self.assertEqual(details["breed"], "Whippet")
+        self.assertIn("timeless framed studio portrait", prompt)
+        self.assertIn("Blue gray adult Whippet dog named Clover", prompt)
+        self.assertIn("Do not include words", prompt)
 
     def test_session_stores_round_metadata(self):
         brief = build_brief(PET, {"species": "Dog", "style": "Warm"})

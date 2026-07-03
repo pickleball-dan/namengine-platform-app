@@ -5,7 +5,7 @@ from __future__ import annotations
 from hashlib import sha1
 from urllib.parse import urlencode
 
-from flask import Flask, abort, jsonify, redirect, render_template, request, url_for
+from flask import Flask, abort, jsonify, redirect, render_template, request, send_from_directory, url_for
 
 from namengine import CONTRACT_VERSION
 from namengine.core import (
@@ -15,6 +15,7 @@ from namengine.core import (
     build_reaction,
     build_taste_profile,
     build_trust_cue,
+    ensure_pet_portrait_for_chosen,
     generate_names,
     get_reaction_counts,
     get_chosen_snapshot,
@@ -61,6 +62,9 @@ def display_brief_items(vertical, brief) -> list[dict[str, str]]:
     label_overrides = {
         "pet_type": "Pet",
         "pet_gender": "Gender",
+        "pet_breed": "Breed",
+        "pet_color": "Color",
+        "pet_life_stage": "Stage",
         "notes": "About them",
         "discovery_style": "Discovery",
         "style": "Style",
@@ -286,6 +290,7 @@ def create_app() -> Flask:
         except StorageError:
             abort(404)
 
+        _try_generate_pet_portrait(chosen.id)
         return redirect(url_for("chosen_name", chosen_id=chosen.id))
 
     @app.post("/refine")
@@ -395,13 +400,20 @@ def create_app() -> Flask:
             abort(404)
 
         result = to_plain_data(json_loads(snapshot["result"]["result_json"]))
+        portrait = _try_generate_pet_portrait(chosen_id)
         return render_template(
             "chosen.html",
             vertical=get_vertical(snapshot["chosen"]["vertical"]),
             chosen=snapshot["chosen"],
             result=result,
             session=snapshot["session"],
+            portrait=portrait,
         )
+
+    @app.get("/generated/pet-portraits/<filename>")
+    def generated_pet_portrait(filename: str):
+        portrait_dir = get_database_path().parent / "generated_pet_portraits"
+        return send_from_directory(portrait_dir, filename)
 
     @app.route("/feedback", methods=["GET", "POST"])
     def feedback():
@@ -429,6 +441,24 @@ def _taste_profile_from_snapshot(snapshot: dict):
     if not row:
         return None
     return json_loads(row["profile_json"])
+
+
+def _try_generate_pet_portrait(chosen_id: str):
+    snapshot = get_chosen_snapshot(chosen_id)
+    if snapshot is None or snapshot["result"] is None:
+        return None
+    if snapshot["chosen"].get("vertical") != "pet":
+        return None
+
+    result = to_plain_data(json_loads(snapshot["result"]["result_json"]))
+    try:
+        return ensure_pet_portrait_for_chosen(
+            snapshot["chosen"],
+            result,
+            snapshot["session"],
+        )
+    except Exception:
+        return None
 
 
 app = create_app()

@@ -14,6 +14,7 @@ PET_DISCOVERY_STYLE_OPTIONS = (
 
 PET_TYPE_OPTIONS = ("Dog", "Cat", "Horse", "Bird", "Rabbit", "Reptile", "Other")
 PET_GENDER_OPTIONS = ("Male", "Female", "Neutral")
+PET_LIFE_STAGE_OPTIONS = ("Puppy", "Adult", "Senior")
 PET_STYLE_OPTIONS = (
     "Classic",
     "Modern",
@@ -87,12 +88,29 @@ PET = VerticalConfig(
             section="About your pet",
         ),
         Question(
+            "pet_breed",
+            "Breed",
+            placeholder="Golden retriever, tabby, mixed breed...",
+            section="About your pet",
+        ),
+        Question(
+            "pet_color",
+            "Color",
+            placeholder="Honey, black and white, brindle...",
+            section="About your pet",
+        ),
+        Question(
+            "pet_life_stage",
+            "Puppy or adult?",
+            choices=PET_LIFE_STAGE_OPTIONS,
+            section="About your pet",
+        ),
+        Question(
             "notes",
             "Tell us about your pet",
             kind="textarea",
             placeholder=(
-                "Breed, coloring, personality, funny quirks, names to avoid, "
-                "favorite themes..."
+                "Personality, funny quirks, names to avoid, favorite themes..."
             ),
             section="About your pet",
         ),

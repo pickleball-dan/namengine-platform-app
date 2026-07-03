@@ -25,6 +25,13 @@ from .quality import (
     summarize_quality_runs,
 )
 from .progress import PROGRESS_STEPS, build_trust_cue
+from .pet_portrait import (
+    build_pet_portrait_prompt,
+    ensure_pet_portrait_for_chosen,
+    is_pet_portrait_generation_configured,
+    pet_portrait_url_from_metadata,
+    portrait_details_from_brief,
+)
 from .provider_performance import (
     ProviderPerformance,
     build_provider_performance,
@@ -65,6 +72,7 @@ from .storage import (
     save_taste_profile,
     save_validation_results,
     StorageError,
+    update_chosen_metadata,
 )
 from .taste import build_taste_profile
 from .validation import validate_result, validate_results
@@ -78,6 +86,7 @@ from .vertical_ui import (
 __all__ = [
     "build_brief",
     "build_generation_prompt",
+    "build_pet_portrait_prompt",
     "build_provider_performance",
     "build_trust_cue",
     "build_compare_items",
@@ -98,8 +107,10 @@ __all__ = [
     "get_taste_profile",
     "get_validation_results",
     "get_provider_performance",
+    "ensure_pet_portrait_for_chosen",
     "initialize_database",
     "is_ai_generation_configured",
+    "is_pet_portrait_generation_configured",
     "load_quality_briefs",
     "ModelProvider",
     "NamingBrief",
@@ -112,6 +123,8 @@ __all__ = [
     "QualityBrief",
     "QualityRunResult",
     "parse_ai_generation_response",
+    "pet_portrait_url_from_metadata",
+    "portrait_details_from_brief",
     "Reaction",
     "ReactionError",
     "refine_session",
@@ -137,6 +150,7 @@ __all__ = [
     "ValidationStatus",
     "VerticalConfig",
     "validate_vertical_ui_contract",
+    "update_chosen_metadata",
     "validate_result",
     "validate_results",
     "vertical_theme_style",

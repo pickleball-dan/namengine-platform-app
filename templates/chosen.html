@@ -9,15 +9,51 @@
     {% endif %}
     <p class="eyebrow">Chosen {{ chosen.vertical.title() }} Name</p>
 
-    <section class="share-preview" aria-label="Share preview">
-      <p class="share-preview-label">Final pick</p>
-      <h1>Meet {{ chosen.name }}</h1>
-      {% if result.pronunciation %}
-        <p class="share-preview-pronunciation">{{ result.pronunciation }}</p>
+    <section class="share-preview{% if portrait %} has-portrait{% endif %}" aria-label="Share preview">
+      {% if portrait %}
+        <figure class="pet-portrait-frame">
+          {% if portrait.url %}
+            <img src="{{ portrait.url }}" alt="Framed portrait of {{ chosen.name }}">
+          {% else %}
+            <div class="pet-portrait-placeholder" aria-hidden="true">
+              <span>{{ chosen.name[:1] }}</span>
+            </div>
+          {% endif %}
+          <figcaption>{{ chosen.name }}</figcaption>
+        </figure>
       {% endif %}
-      {% if result.tagline %}
-        <p class="share-preview-tagline">{{ result.tagline }}</p>
-      {% endif %}
+      <div class="share-preview-copy">
+        <p class="share-preview-label">Final pick</p>
+        <h1>Meet {{ chosen.name }}</h1>
+        {% if result.pronunciation %}
+          <p class="share-preview-pronunciation">{{ result.pronunciation }}</p>
+        {% endif %}
+        {% if result.tagline %}
+          <p class="share-preview-tagline">{{ result.tagline }}</p>
+        {% endif %}
+        {% if portrait and portrait.details %}
+          <dl class="pet-portrait-details" aria-label="Portrait details">
+            {% if portrait.details.breed %}
+              <div>
+                <dt>Breed</dt>
+                <dd>{{ portrait.details.breed }}</dd>
+              </div>
+            {% endif %}
+            {% if portrait.details.color %}
+              <div>
+                <dt>Color</dt>
+                <dd>{{ portrait.details.color }}</dd>
+              </div>
+            {% endif %}
+            {% if portrait.details.life_stage %}
+              <div>
+                <dt>Stage</dt>
+                <dd>{{ portrait.details.life_stage }}</dd>
+              </div>
+            {% endif %}
+          </dl>
+        {% endif %}
+      </div>
     </section>
 
     <div class="chosen-actions">

@@ -335,6 +335,39 @@ def save_chosen_name(
     return chosen
 
 
+def update_chosen_metadata(
+    chosen_id: str,
+    metadata: dict[str, Any],
+    db_path: Path | None = None,
+) -> dict[str, Any]:
+    initialize_database(db_path)
+    with closing(connect(db_path)) as connection:
+        row = connection.execute(
+            "SELECT chosen_json FROM chosen_names WHERE id = ?",
+            (chosen_id,),
+        ).fetchone()
+        if row is None:
+            raise StorageError("chosen name not found")
+
+        chosen = json.loads(row["chosen_json"])
+        existing_metadata = chosen.get("metadata", {})
+        if not isinstance(existing_metadata, dict):
+            existing_metadata = {}
+        existing_metadata.update(metadata)
+        chosen["metadata"] = existing_metadata
+
+        connection.execute(
+            """
+            UPDATE chosen_names
+            SET chosen_json = ?
+            WHERE id = ?
+            """,
+            (json.dumps(chosen), chosen_id),
+        )
+        connection.commit()
+    return existing_metadata
+
+
 def refresh_provider_performance(
     session_id: str,
     db_path: Path | None = None,
@@ -623,8 +656,16 @@ def get_chosen_snapshot(chosen_id: str, db_path: Path | None = None) -> dict[str
             (chosen["session_id"],),
         ).fetchone()
 
+    chosen_row = dict(chosen)
+    try:
+        chosen_data = json.loads(chosen_row.get("chosen_json", "{}"))
+    except json.JSONDecodeError:
+        chosen_data = {}
+    if isinstance(chosen_data, dict):
+        chosen_row.update(chosen_data)
+
     return {
-        "chosen": dict(chosen),
+        "chosen": chosen_row,
         "result": dict(result) if result else None,
         "session": dict(session) if session else None,
     }
