@@ -35,6 +35,7 @@ class PhaseFourteenProgressExperienceTest(unittest.TestCase):
         self.assertIn("Testing names for callability and everyday use", body)
         self.assertIn("data-progress-visual", body)
         self.assertIn("progress-node-center", body)
+        self.assertIn("Identity fit", body)
         self.assertIn("data-progress-headline", body)
         self.assertIn("js/progress.js", body)
         self.assertIn("novalidate", body)
@@ -100,10 +101,12 @@ class PhaseFourteenProgressExperienceTest(unittest.TestCase):
 
         self.assertIn(".progress-visual", css)
         self.assertIn(".progress-node-center", css)
+        self.assertIn(".progress-visual-label", css)
         self.assertIn("@keyframes progress-node-pulse", css)
         self.assertIn(".progress-visual.is-pulsing .progress-node-center", css)
-        self.assertIn("grid-template-columns: 156px minmax(0, 1fr)", css)
-        self.assertIn("width: 126px", css)
+        self.assertIn("grid-template-columns: minmax(170px, 0.45fr) minmax(0, 1fr)", css)
+        self.assertIn("width: min(168px, 52vw)", css)
+        self.assertIn("max-height: calc(100vh - 32px)", css)
 
 
 if __name__ == "__main__":

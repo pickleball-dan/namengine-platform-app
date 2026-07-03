@@ -1319,8 +1319,8 @@ button {
 
 .progress-panel {
   display: grid;
-  grid-template-columns: 156px minmax(0, 1fr);
-  gap: 22px;
+  grid-template-columns: minmax(170px, 0.45fr) minmax(0, 1fr);
+  gap: 24px;
   align-items: center;
   width: min(690px, 100%);
   padding: 24px;
@@ -1333,9 +1333,10 @@ button {
 
 .progress-visual {
   position: relative;
-  width: 148px;
-  height: 148px;
+  width: min(100%, 176px);
+  aspect-ratio: 1;
   isolation: isolate;
+  justify-self: center;
 }
 
 .progress-orbit,
@@ -1345,30 +1346,31 @@ button {
 }
 
 .progress-orbit {
-  inset: 18px;
-  border: 1px solid rgba(47, 148, 134, 0.2);
+  inset: 16px;
+  border: 1px solid rgba(47, 148, 134, 0.34);
 }
 
 .progress-orbit-two {
-  inset: 38px;
-  border-color: rgba(252, 186, 118, 0.34);
+  inset: 44px;
+  border-color: rgba(252, 186, 118, 0.46);
 }
 
 .progress-node {
-  width: 16px;
-  height: 16px;
+  width: 15px;
+  height: 15px;
   background: var(--accent-pet);
-  box-shadow: 0 0 0 5px rgba(252, 186, 118, 0.18);
+  box-shadow: 0 0 0 5px rgba(252, 186, 118, 0.24);
 }
 
 .progress-node-center {
   top: 50%;
   left: 50%;
   z-index: 2;
-  width: 48px;
-  height: 48px;
-  background: var(--accent);
-  box-shadow: 0 0 0 12px rgba(47, 148, 134, 0.12);
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, var(--accent), #236f67);
+  border: 3px solid #ffffff;
+  box-shadow: 0 0 0 14px rgba(47, 148, 134, 0.16), 0 14px 30px rgba(24, 33, 47, 0.18);
   transform: translate(-50%, -50%);
 }
 
@@ -1377,20 +1379,45 @@ button {
 }
 
 .progress-node-one {
-  top: 22px;
-  left: 66px;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .progress-node-two {
-  right: 22px;
-  bottom: 42px;
+  right: 24px;
+  bottom: 46px;
 }
 
 .progress-node-three {
-  bottom: 24px;
+  bottom: 26px;
   left: 34px;
   background: var(--accent-deep);
   box-shadow: 0 0 0 5px rgba(38, 54, 77, 0.12);
+}
+
+.progress-visual-label {
+  position: absolute;
+  right: 50%;
+  bottom: 20px;
+  z-index: 3;
+  transform: translateX(50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 104px;
+  padding: 7px 12px;
+  color: #18212f;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0;
+  background: #fff8ef;
+  border: 1px solid rgba(252, 186, 118, 0.78);
+  border-radius: 999px;
+  box-shadow: 0 10px 24px rgba(24, 33, 47, 0.13);
 }
 
 .progress-copy {
@@ -1449,11 +1476,11 @@ button {
 
 @keyframes progress-node-pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(47, 148, 134, 0.28), 0 0 0 12px rgba(47, 148, 134, 0.12);
+    box-shadow: 0 0 0 0 rgba(47, 148, 134, 0.36), 0 0 0 14px rgba(47, 148, 134, 0.16), 0 14px 30px rgba(24, 33, 47, 0.18);
     transform: translate(-50%, -50%) scale(0.92);
   }
   100% {
-    box-shadow: 0 0 0 28px rgba(47, 148, 134, 0), 0 0 0 12px rgba(47, 148, 134, 0.12);
+    box-shadow: 0 0 0 34px rgba(47, 148, 134, 0), 0 0 0 14px rgba(47, 148, 134, 0.16), 0 14px 30px rgba(24, 33, 47, 0.18);
     transform: translate(-50%, -50%) scale(1);
   }
 }
@@ -1493,13 +1520,33 @@ button {
 
   .progress-panel {
     grid-template-columns: 1fr;
-    gap: 18px;
+    gap: 16px;
+    width: min(390px, 100%);
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+    padding: 20px;
   }
 
   .progress-visual {
-    justify-self: center;
-    width: 126px;
-    height: 126px;
+    width: min(168px, 52vw);
+  }
+
+  .progress-panel h2 {
+    font-size: 25px;
+  }
+
+  .progress-note {
+    font-size: 15px;
+  }
+
+  .progress-steps {
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .progress-steps li {
+    font-size: 14px;
+    line-height: 1.25;
   }
 
   h1 {
