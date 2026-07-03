@@ -104,9 +104,11 @@ class PhaseFourteenProgressExperienceTest(unittest.TestCase):
         self.assertIn(".progress-visual-label", css)
         self.assertIn("@keyframes progress-node-pulse", css)
         self.assertIn(".progress-visual.is-pulsing .progress-node-center", css)
-        self.assertIn("grid-template-columns: minmax(170px, 0.45fr) minmax(0, 1fr)", css)
-        self.assertIn("width: min(168px, 52vw)", css)
-        self.assertIn("max-height: calc(100vh - 32px)", css)
+        self.assertIn("grid-template-columns: minmax(220px, 0.54fr) minmax(0, 1fr)", css)
+        self.assertIn("width: min(218px, 68vw)", css)
+        self.assertIn("max-height: calc(100vh - 28px)", css)
+        self.assertIn("text-align: center", css)
+        self.assertIn("background: #fff8ef", css)
 
 
 if __name__ == "__main__":
