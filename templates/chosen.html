@@ -8,25 +8,19 @@
       <img class="vertical-page-logo small" src="{{ url_for('static', filename=vertical.assets.get('logo')) }}" alt="NamEngine {{ vertical.display_name }} logo">
     {% endif %}
     <p class="eyebrow">Chosen {{ chosen.vertical.title() }} Name</p>
-    <div class="chosen-hero">
-      <p class="chosen-kicker">Final pick</p>
-      <h1>{{ chosen.name }}</h1>
-      {% if result.pronunciation %}
-        <p class="chosen-pronunciation">{{ result.pronunciation }}</p>
-      {% endif %}
-      {% if result.tagline %}
-        <p class="chosen-tagline">{{ result.tagline }}</p>
-      {% endif %}
-    </div>
 
     <section class="share-preview" aria-label="Share preview">
       {% if vertical.assets.get("logo") %}
         <img class="share-preview-logo" src="{{ url_for('static', filename=vertical.assets.get('logo')) }}" alt="">
       {% endif %}
-      <p class="share-preview-label">NamEngine {{ vertical.display_name }}</p>
-      <h2>Meet {{ chosen.name }}</h2>
+      <p class="share-preview-brand">NamEngine {{ vertical.display_name }}</p>
+      <p class="share-preview-label">Final pick</p>
+      <h1>Meet {{ chosen.name }}</h1>
+      {% if result.pronunciation %}
+        <p class="share-preview-pronunciation">{{ result.pronunciation }}</p>
+      {% endif %}
       {% if result.tagline %}
-        <p>{{ result.tagline }}</p>
+        <p class="share-preview-tagline">{{ result.tagline }}</p>
       {% endif %}
     </section>
 
