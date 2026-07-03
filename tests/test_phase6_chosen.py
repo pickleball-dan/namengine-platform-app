@@ -102,6 +102,7 @@ class PhaseSixChosenNameTest(unittest.TestCase):
             data={"session_id": session_id, "result_id": "pet-1"},
             follow_redirects=True,
         )
+        chosen_id = get_session_snapshot(session_id)["chosen_names"][0]["id"]
 
         self.assertEqual(response.status_code, 200)
         body = response.get_data(as_text=True)
@@ -113,6 +114,33 @@ class PhaseSixChosenNameTest(unittest.TestCase):
         self.assertIn("Age", body)
         self.assertIn("Puppy", body)
         self.assertIn("Milo", body)
+
+        snapshot = get_chosen_snapshot(chosen_id)
+        self.assertEqual(snapshot["chosen"]["metadata"]["pet_portrait"]["status"], "not_configured")
+
+    def test_chosen_portrait_status_reports_runtime_without_secret(self):
+        query = (
+            b"pet_type=Dog&pet_breed=Golden+Retriever&pet_color=Honey"
+            b"&pet_life_stage=Puppy&style=Classic&vibe=Gentle"
+        )
+        session_id = make_session_id("pet", query)
+        self.client.get(f"/pet/results?{query.decode('utf-8')}")
+        self.client.post(
+            "/choose",
+            data={"session_id": session_id, "result_id": "pet-1"},
+            follow_redirects=True,
+        )
+        chosen_id = get_session_snapshot(session_id)["chosen_names"][0]["id"]
+
+        response = self.client.get(f"/api/chosen/{chosen_id}/portrait")
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.get_json()
+        self.assertFalse(payload["runtime"]["configured"])
+        self.assertTrue(payload["runtime"]["disabled"])
+        self.assertNotIn("api_key", payload)
+        self.assertEqual(payload["portrait"]["status"], "not_configured")
+        self.assertEqual(payload["portrait"]["model"], "gpt-image-1")
 
     def test_pet_portrait_prompt_is_timeless_and_avoids_generated_text(self):
         brief = {

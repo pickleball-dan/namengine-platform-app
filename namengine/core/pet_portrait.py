@@ -20,6 +20,16 @@ def is_pet_portrait_generation_configured() -> bool:
     return bool(os.getenv("OPENAI_API_KEY")) and not _env_flag("NAMENGINE_DISABLE_PET_IMAGES")
 
 
+def pet_portrait_runtime_config() -> dict[str, Any]:
+    return {
+        "configured": is_pet_portrait_generation_configured(),
+        "has_api_key": bool(os.getenv("OPENAI_API_KEY")),
+        "disabled": _env_flag("NAMENGINE_DISABLE_PET_IMAGES"),
+        "model": os.getenv("NAMENGINE_IMAGE_MODEL", DEFAULT_IMAGE_MODEL),
+        "size": os.getenv("NAMENGINE_IMAGE_SIZE", "1024x1024"),
+    }
+
+
 def portrait_details_from_brief(brief: dict[str, Any] | None) -> dict[str, str]:
     inputs = (brief or {}).get("inputs", {})
     if not isinstance(inputs, dict):
@@ -68,25 +78,58 @@ def ensure_pet_portrait_for_chosen(
     portrait = {
         "details": details,
         "prompt": build_pet_portrait_prompt(chosen, result, brief, details),
+        "model": os.getenv("NAMENGINE_IMAGE_MODEL", DEFAULT_IMAGE_MODEL),
+        "size": os.getenv("NAMENGINE_IMAGE_SIZE", "1024x1024"),
         "status": "pending",
     }
 
     if not is_pet_portrait_generation_configured():
         portrait["status"] = "not_configured"
+        update_chosen_metadata(
+            str(chosen["id"]),
+            {"pet_portrait": {key: value for key, value in portrait.items() if key != "prompt"}},
+        )
         return portrait
 
     filename = f"{chosen['id']}.png"
     path = _portrait_path(filename)
     path.parent.mkdir(parents=True, exist_ok=True)
 
-    response = OpenAI().images.generate(
-        model=os.getenv("NAMENGINE_IMAGE_MODEL", DEFAULT_IMAGE_MODEL),
-        prompt=portrait["prompt"],
-        size=os.getenv("NAMENGINE_IMAGE_SIZE", "1024x1024"),
-    )
+    try:
+        response = OpenAI().images.generate(
+            model=portrait["model"],
+            prompt=portrait["prompt"],
+            size=portrait["size"],
+        )
+    except Exception as exc:
+        portrait.update(
+            {
+                "status": "failed",
+                "error_type": exc.__class__.__name__,
+                "error_message": _safe_error_message(exc),
+            }
+        )
+        update_chosen_metadata(
+            str(chosen["id"]),
+            {"pet_portrait": {key: value for key, value in portrait.items() if key != "prompt"}},
+        )
+        raise
+
     image_data = response.data[0].b64_json
     if not image_data:
-        raise RuntimeError("image response did not include base64 data")
+        error = RuntimeError("image response did not include base64 data")
+        portrait.update(
+            {
+                "status": "failed",
+                "error_type": error.__class__.__name__,
+                "error_message": str(error),
+            }
+        )
+        update_chosen_metadata(
+            str(chosen["id"]),
+            {"pet_portrait": {key: value for key, value in portrait.items() if key != "prompt"}},
+        )
+        raise error
 
     path.write_bytes(base64.b64decode(image_data))
     portrait.update(
@@ -141,6 +184,16 @@ def _portrait_path(filename: str) -> Path:
 
 def _clean(value: Any) -> str:
     return str(value or "").strip()
+
+
+def _safe_error_message(exc: Exception) -> str:
+    message = str(exc).strip()
+    if not message:
+        return ""
+    for marker in ("sk-", "OPENAI_API_KEY"):
+        if marker in message:
+            return "OpenAI image generation failed; see server logs for sanitized details."
+    return message[:500]
 
 
 def _env_flag(name: str) -> bool:

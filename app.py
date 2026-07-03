@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from hashlib import sha1
 from urllib.parse import urlencode
 
@@ -22,6 +23,7 @@ from namengine.core import (
     get_database_path,
     get_session_snapshot,
     get_taste_profile,
+    pet_portrait_runtime_config,
     refine_session,
     save_reaction,
     save_chosen_name,
@@ -31,6 +33,9 @@ from namengine.core import (
 )
 from namengine.core.schemas import to_plain_data
 from namengine.verticals import VERTICALS, get_vertical
+
+
+logger = logging.getLogger(__name__)
 
 
 def grouped_questions(vertical) -> list[dict]:
@@ -415,6 +420,22 @@ def create_app() -> Flask:
         portrait_dir = get_database_path().parent / "generated_pet_portraits"
         return send_from_directory(portrait_dir, filename)
 
+    @app.get("/api/chosen/<chosen_id>/portrait")
+    def chosen_portrait_status(chosen_id: str):
+        snapshot = get_chosen_snapshot(chosen_id)
+        if snapshot is None:
+            abort(404)
+
+        metadata = snapshot["chosen"].get("metadata")
+        portrait = metadata.get("pet_portrait") if isinstance(metadata, dict) else None
+        return jsonify(
+            {
+                "chosen_id": chosen_id,
+                "runtime": pet_portrait_runtime_config(),
+                "portrait": portrait or {"status": "not_attempted"},
+            }
+        )
+
     @app.route("/feedback", methods=["GET", "POST"])
     def feedback():
         submitted = request.method == "POST"
@@ -457,7 +478,13 @@ def _try_generate_pet_portrait(chosen_id: str):
             result,
             snapshot["session"],
         )
-    except Exception:
+    except Exception as exc:
+        logger.warning(
+            "Pet portrait generation failed for %s: %s: %s",
+            chosen_id,
+            exc.__class__.__name__,
+            str(exc)[:500],
+        )
         return None
 
 
