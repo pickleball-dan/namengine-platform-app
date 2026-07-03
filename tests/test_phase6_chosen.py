@@ -110,7 +110,7 @@ class PhaseSixChosenNameTest(unittest.TestCase):
         self.assertIn("Golden Retriever", body)
         self.assertIn("Color", body)
         self.assertIn("Honey", body)
-        self.assertIn("Stage", body)
+        self.assertIn("Age", body)
         self.assertIn("Puppy", body)
         self.assertIn("Milo", body)
 

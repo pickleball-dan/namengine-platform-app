@@ -64,7 +64,7 @@ def display_brief_items(vertical, brief) -> list[dict[str, str]]:
         "pet_gender": "Gender",
         "pet_breed": "Breed",
         "pet_color": "Color",
-        "pet_life_stage": "Stage",
+        "pet_life_stage": "Age",
         "notes": "About them",
         "discovery_style": "Discovery",
         "style": "Style",

@@ -85,6 +85,7 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn("Dog", questions["pet_type"].choices)
         self.assertIn("Puppy", questions["pet_life_stage"].choices)
         self.assertIn("Adult", questions["pet_life_stage"].choices)
+        self.assertNotIn("Senior", questions["pet_life_stage"].choices)
         self.assertIn("Balanced mix", questions["discovery_style"].choices)
         self.assertIn("Very important", questions["pronunciation_importance"].choices)
         self.assertIn("Nature", questions["cultural_context"].choices)

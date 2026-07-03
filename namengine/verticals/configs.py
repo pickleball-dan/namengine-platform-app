@@ -14,7 +14,7 @@ PET_DISCOVERY_STYLE_OPTIONS = (
 
 PET_TYPE_OPTIONS = ("Dog", "Cat", "Horse", "Bird", "Rabbit", "Reptile", "Other")
 PET_GENDER_OPTIONS = ("Male", "Female", "Neutral")
-PET_LIFE_STAGE_OPTIONS = ("Puppy", "Adult", "Senior")
+PET_LIFE_STAGE_OPTIONS = ("Puppy", "Adult")
 PET_STYLE_OPTIONS = (
     "Classic",
     "Modern",
