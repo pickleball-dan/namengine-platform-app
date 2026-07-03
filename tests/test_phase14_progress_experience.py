@@ -88,7 +88,7 @@ class PhaseFourteenProgressExperienceTest(unittest.TestCase):
         with open(script_path, encoding="utf-8") as script_file:
             script = script_file.read()
 
-        self.assertIn("minimumProgressMs = 5000", script)
+        self.assertIn("minimumProgressMs = 10000", script)
         self.assertIn("event.preventDefault()", script)
         self.assertIn("setTimeout", script)
         self.assertIn("namengine:progress-step", script)

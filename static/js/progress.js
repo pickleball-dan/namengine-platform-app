@@ -5,7 +5,7 @@
   const visual = document.querySelector("[data-progress-visual]");
   const steps = Array.from(document.querySelectorAll("[data-progress-step]"));
   const forms = Array.from(document.querySelectorAll("[data-progress-form]"));
-  const minimumProgressMs = 5000;
+  const minimumProgressMs = 10000;
 
   if (!overlay || !current || !steps.length || !forms.length) {
     return;
