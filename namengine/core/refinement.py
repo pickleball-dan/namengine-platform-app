@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from uuid import uuid4
 
 from namengine.core.briefs import build_brief
 from namengine.core.generation import generate_names
@@ -67,7 +68,10 @@ def refine_session(
         taste_profile=taste_profile,
         previous_names=previous_names,
     )
-    session_id = f"{parent_session_id}-r{next_round}"
+    if next_round >= 4:
+        session_id = f"{parent_session_id}-r{next_round}-{uuid4().hex[:8]}"
+    else:
+        session_id = f"{parent_session_id}-r{next_round}"
     save_session(
         session_id,
         vertical.slug,

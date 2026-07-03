@@ -46,6 +46,7 @@ def generate_with_router(
         candidates,
         count=count or _count_for_round(vertical, round_number),
         previous_names=previous_names or [],
+        allow_previous_fill=round_number < 4,
     )
     return [candidate.result for candidate in selected]
 
@@ -132,6 +133,7 @@ def select_best_candidates(
     candidates: list[GenerationCandidate],
     count: int,
     previous_names: list[str] | None = None,
+    allow_previous_fill: bool = True,
 ) -> list[GenerationCandidate]:
     previous = {name.lower() for name in (previous_names or [])}
     seen: set[str] = set()
@@ -146,7 +148,7 @@ def select_best_candidates(
         if len(selected) >= count:
             break
 
-    if len(selected) < count:
+    if allow_previous_fill and len(selected) < count:
         for candidate in sorted(candidates, key=lambda item: item.quality_score, reverse=True):
             key = candidate.result.name.lower()
             if key in seen:
@@ -233,6 +235,7 @@ def _fallback_provider(
         brief=brief,
         round_number=round_number,
         taste_summary=taste_summary,
+        previous_names=previous_names,
     )
 
 

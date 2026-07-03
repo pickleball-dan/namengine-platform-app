@@ -44,6 +44,17 @@ PET_FINALIST_POOL = [
     ("Hazel", "HAY-zul", "Soft, nature-touched, and grounded."),
 ]
 
+PET_EXTRA_POOL = [
+    ("Archie", "AR-chee", "Cheerful, familiar, and gently vintage."),
+    ("Nico", "NEE-koh", "Compact, stylish, and easy to call."),
+    ("Lottie", "LOT-ee", "Sweet, warm, and a little old-soul."),
+    ("Otis", "OH-tis", "Friendly and grounded with an easygoing feel."),
+    ("Mabel", "MAY-bul", "Cozy, classic, and affectionate."),
+    ("Ziggy", "ZIG-ee", "Playful, bright, and full of personality."),
+    ("Rosie", "ROH-zee", "Warm, lovable, and immediately friendly."),
+    ("Theo", "THEE-oh", "Softly classic with a modern pet-ready shape."),
+]
+
 PET_ORIGINAL_POOL = [
     ("Lumo", "LOO-moh", "Bright, compact, and invented while staying easy to call."),
     ("Noriu", "NOR-ee-oo", "Softly original with a warm, musical finish."),
@@ -72,6 +83,14 @@ PET_NAME_INSIGHTS = {
     "Remy": "feels stylish but still relaxed enough for a pet name",
     "Sunny": "makes the personality cue immediate and easy for people to remember",
     "Hazel": "adds a grounded nature feel with a softer, vintage edge",
+    "Archie": "adds cheerful vintage warmth while staying easy to say",
+    "Nico": "keeps the sound compact and stylish without losing callability",
+    "Lottie": "leans sweet and affectionate with a soft everyday rhythm",
+    "Otis": "feels grounded and friendly with a calm, lovable finish",
+    "Mabel": "brings cozy classic charm and a gentle sound",
+    "Ziggy": "has lively energy and a memorable two-syllable shape",
+    "Rosie": "feels warm, familiar, and naturally affectionate",
+    "Theo": "balances a soft classic feel with a clean modern sound",
 }
 
 
@@ -122,6 +141,7 @@ def generate_names(
         brief=brief,
         round_number=round_number,
         taste_summary=taste_summary,
+        previous_names=previous_names or [],
     )
 
 
@@ -130,6 +150,7 @@ def generate_fallback_names(
     brief: NamingBrief,
     round_number: int = 1,
     taste_summary: str = "",
+    previous_names: list[str] | None = None,
 ) -> list[NameResult]:
     species = _brief_text(brief, "pet_type") or _brief_text(brief, "species", "pet")
     personality = _brief_text(brief, "vibe") or _brief_text(brief, "personality")
@@ -141,8 +162,16 @@ def generate_fallback_names(
         pool = PET_ORIGINAL_POOL
     elif round_number == 2:
         pool = PET_REFINED_POOL
+    elif round_number >= 4:
+        pool = PET_EXTRA_POOL
     elif round_number >= 3:
         pool = PET_FINALIST_POOL
+
+    if round_number >= 4:
+        previous = {name.lower() for name in (previous_names or [])}
+        filtered_pool = [item for item in pool if item[0].lower() not in previous]
+        if filtered_pool:
+            pool = filtered_pool
 
     starting_letter = _brief_text(brief, "starting_letter").lower()[:1]
     if starting_letter:

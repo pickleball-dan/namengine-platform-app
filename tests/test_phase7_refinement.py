@@ -103,6 +103,23 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         self.assertEqual(round_three["session"]["parent_session_id"], round_two_id)
         self.assertEqual(len(results), 6)
 
+    def test_one_more_round_after_finalists_returns_new_names(self):
+        session_id = self._seed_round_one()
+        round_two_id, _, _ = refine_session(session_id, PET, instruction="shorter")
+        round_three_id, _, finalists = refine_session(round_two_id, PET, instruction="finalists")
+        for index, _ in enumerate(finalists, start=1):
+            save_reaction(build_reaction(round_three_id, f"pet-{index}", "no"))
+
+        round_four_id, _, extra_results = refine_session(round_three_id, PET, instruction="")
+        round_four = get_session_snapshot(round_four_id)
+
+        finalist_names = {result.name for result in finalists}
+        extra_names = {result.name for result in extra_results}
+        self.assertEqual(round_four["session"]["round_number"], 4)
+        self.assertNotEqual(round_four_id, f"{round_three_id}-r4")
+        self.assertEqual(len(extra_results), 6)
+        self.assertFalse(finalist_names & extra_names)
+
     def test_refine_route_rejects_missing_session(self):
         response = self.client.post("/refine", data={"session_id": "missing"})
 
