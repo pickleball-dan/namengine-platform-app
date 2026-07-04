@@ -422,8 +422,8 @@ def create_app() -> Flask:
             abort(404)
 
         result = to_plain_data(json_loads(snapshot["result"]["result_json"]))
-        portrait = _pet_portrait_preview(chosen_id)
         _queue_pet_portrait_generation(chosen_id)
+        portrait = _pet_portrait_preview(chosen_id)
         return render_template(
             "chosen.html",
             vertical=get_vertical(snapshot["chosen"]["vertical"]),

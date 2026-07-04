@@ -9,10 +9,12 @@ from namengine.core import (
     build_pet_portrait_prompt,
     generate_names,
     get_chosen_snapshot,
+    get_database_path,
     get_session_snapshot,
     portrait_details_from_brief,
     save_chosen_name,
     save_session,
+    update_chosen_metadata,
 )
 from namengine.core.schemas import NameResult
 from namengine.verticals import PET
@@ -200,6 +202,46 @@ class PhaseSixChosenNameTest(unittest.TestCase):
         self.assertNotIn("api_key", payload)
         self.assertEqual(payload["portrait"]["status"], "not_configured")
         self.assertEqual(payload["portrait"]["model"], "gpt-image-1")
+
+    def test_chosen_page_renders_ready_pet_portrait_image_on_refresh(self):
+        query = (
+            b"pet_type=Dog&pet_breed=Golden+Retriever&pet_color=Honey"
+            b"&pet_life_stage=Young&style=Classic&vibe=Gentle"
+        )
+        session_id = make_session_id("pet", query)
+        self.client.get(f"/pet/results?{query.decode('utf-8')}")
+        self.client.post(
+            "/choose",
+            data={"session_id": session_id, "result_id": "pet-1"},
+            follow_redirects=True,
+        )
+        chosen_id = get_session_snapshot(session_id)["chosen_names"][0]["id"]
+        filename = f"{chosen_id}.png"
+        portrait_dir = get_database_path().parent / "generated_pet_portraits"
+        portrait_dir.mkdir(parents=True, exist_ok=True)
+        (portrait_dir / filename).write_bytes(b"png")
+        update_chosen_metadata(
+            chosen_id,
+            {
+                "pet_portrait": {
+                    "details": {
+                        "breed": "Golden Retriever",
+                        "color": "Honey",
+                        "life_stage": "Young",
+                    },
+                    "filename": filename,
+                    "status": "ready",
+                }
+            },
+        )
+
+        response = self.client.get(f"/chosen/{chosen_id}")
+        body = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(f"/generated/pet-portraits/{filename}", body)
+        self.assertNotIn('class="pet-portrait-placeholder"', body)
+        self.assertNotIn('data-portrait-status-url="/api/chosen/', body)
 
     def test_original_mode_chosen_page_uses_pet_portrait_details_when_present(self):
         query = (
