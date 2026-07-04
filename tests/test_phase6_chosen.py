@@ -14,6 +14,7 @@ from namengine.core import (
     save_chosen_name,
     save_session,
 )
+from namengine.core.schemas import NameResult
 from namengine.verticals import PET
 
 
@@ -91,6 +92,38 @@ class PhaseSixChosenNameTest(unittest.TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(snapshot["chosen"]["metadata"]["pet_portrait"]["status"], "pending")
         thread.assert_called_once()
+
+    def test_revisiting_same_results_url_does_not_change_selected_name(self):
+        query = b"pet_type=Dog&pet_breed=Mixed&pet_color=Brown&pet_life_stage=Young"
+        session_id = make_session_id("pet", query)
+        first_names = [
+            NameResult(id="pet-1", name="Briella", slug="briella"),
+            NameResult(id="pet-2", name="Bree", slug="bree"),
+        ]
+        regenerated_names = [
+            NameResult(id="pet-1", name="Benny", slug="benny"),
+            NameResult(id="pet-2", name="Briala", slug="briala"),
+        ]
+
+        with patch("app.generate_names", side_effect=[first_names, regenerated_names]) as mocked:
+            first_response = self.client.get(f"/pet/results?{query.decode('utf-8')}")
+            second_response = self.client.get(f"/pet/results?{query.decode('utf-8')}")
+            choose_response = self.client.post(
+                "/choose",
+                data={"session_id": session_id, "result_id": "pet-1"},
+                follow_redirects=True,
+            )
+
+        snapshot = get_chosen_snapshot(get_session_snapshot(session_id)["chosen_names"][0]["id"])
+        chosen_body = choose_response.get_data(as_text=True)
+
+        self.assertEqual(first_response.status_code, 200)
+        self.assertEqual(second_response.status_code, 200)
+        mocked.assert_called_once()
+        self.assertIn("Briella", chosen_body)
+        self.assertNotIn("Benny", chosen_body)
+        self.assertEqual(snapshot["chosen"]["name"], "Briella")
+        self.assertEqual(snapshot["result"]["name"], "Briella")
 
     def test_chosen_page_renders_single_name(self):
         query = b"species=Dog&personality=Gentle&style=Warm"

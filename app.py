@@ -34,7 +34,7 @@ from namengine.core import (
     StorageError,
     vertical_theme_style,
 )
-from namengine.core.schemas import to_plain_data
+from namengine.core.schemas import NameResult, to_plain_data
 from namengine.verticals import VERTICALS, get_vertical
 
 
@@ -215,9 +215,13 @@ def create_app() -> Flask:
         for key in ("starting_letter", "length_preference", "avoid_feel", "original_mode"):
             if source.get(key):
                 brief.inputs[key] = source[key]
-        names = generate_names(vertical, brief)
         session_id = make_session_id("pet-original", request.query_string)
-        save_session(session_id, vertical.slug, brief, names)
+        snapshot = get_session_snapshot(session_id)
+        if snapshot and snapshot["results"]:
+            names = _names_from_snapshot(snapshot)
+        else:
+            names = generate_names(vertical, brief)
+            save_session(session_id, vertical.slug, brief, names)
         taste_profile_row = get_taste_profile(session_id)
         return render_template(
             "results.html",
@@ -243,9 +247,13 @@ def create_app() -> Flask:
         if vertical.slug != "pet":
             abort(501)
 
-        names = generate_names(vertical, brief)
         session_id = make_session_id(vertical.slug, request.query_string)
-        save_session(session_id, vertical.slug, brief, names)
+        snapshot = get_session_snapshot(session_id)
+        if snapshot and snapshot["results"]:
+            names = _names_from_snapshot(snapshot)
+        else:
+            names = generate_names(vertical, brief)
+            save_session(session_id, vertical.slug, brief, names)
         taste_profile_row = get_taste_profile(session_id)
         return render_template(
             "results.html",
@@ -469,6 +477,10 @@ def _taste_profile_from_snapshot(snapshot: dict):
     if not row:
         return None
     return json_loads(row["profile_json"])
+
+
+def _names_from_snapshot(snapshot: dict) -> list[NameResult]:
+    return [NameResult(**json_loads(row["result_json"])) for row in snapshot["results"]]
 
 
 def _try_generate_pet_portrait(chosen_id: str):
