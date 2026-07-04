@@ -95,6 +95,7 @@ class PhaseFourteenProgressExperienceTest(unittest.TestCase):
         self.assertIn("fetch(url", script)
         self.assertIn("Promise.all([request, minimumWait])", script)
         self.assertIn("window.location.assign(response.url || navigateUrl)", script)
+        self.assertIn('"X-NamEngine-Progress": "1"', script)
         self.assertIn("syncOtherSelect", script)
         self.assertIn("select[data-other-select]", script)
         self.assertIn("input.required = isOther && select.required", script)

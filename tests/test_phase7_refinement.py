@@ -80,6 +80,22 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         self.assertIn("Generate New List", body)
         self.assertIn("Benny", body)
 
+    def test_progress_refine_redirects_to_saved_results_page(self):
+        session_id = self._seed_round_one()
+        response = self.client.post(
+            "/refine",
+            data={"session_id": session_id, "instruction": "shorter"},
+            headers={"X-NamEngine-Progress": "1"},
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/results/session/", response.headers["Location"])
+        follow = self.client.get(response.headers["Location"])
+        body = follow.get_data(as_text=True)
+        self.assertEqual(follow.status_code, 200)
+        self.assertIn("Round 2", body)
+        self.assertIn("Generate New List", body)
+
     def test_results_page_has_bottom_generate_new_list_action(self):
         session_id = self._seed_round_one()
         response = self.client.get("/pet/results?species=Dog&personality=Gentle&style=Warm")

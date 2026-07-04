@@ -131,7 +131,10 @@
         method,
         body: formData,
         credentials: "same-origin",
-        headers: { "Accept": "text/html" },
+        headers: {
+          "Accept": "text/html",
+          "X-NamEngine-Progress": "1",
+        },
       }),
     };
   }

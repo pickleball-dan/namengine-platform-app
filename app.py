@@ -331,6 +331,10 @@ def create_app() -> Flask:
             original_mode=False,
         )
 
+    @app.get("/results/session/<session_id>")
+    def session_results(session_id: str):
+        return _render_results_snapshot(session_id)
+
     @app.post("/api/react")
     def react():
         payload = request.get_json(silent=True) or request.form
@@ -410,6 +414,9 @@ def create_app() -> Flask:
         child_snapshot = get_session_snapshot(child_session_id)
         round_number = int(child_snapshot["session"]["round_number"])
         taste_profile = _taste_profile_from_snapshot(child_snapshot)
+        if request.headers.get("X-NamEngine-Progress") == "1":
+            return redirect(url_for("session_results", session_id=child_session_id))
+
         return render_template(
             "results.html",
             vertical=vertical,
