@@ -53,10 +53,15 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("Original Pet Name Studio", body)
         self.assertIn("Letter to begin the name", body)
+        self.assertIn('name="pet_breed"', body)
+        self.assertIn('name="pet_color"', body)
+        self.assertIn('name="pet_life_stage"', body)
+        self.assertIn("Young or mature?", body)
         self.assertIn("Create original pet names", body)
 
         results = self.client.get(
-            "/pet/original/results?pet_type=Dog&style=Modern&vibe=Playful&starting_letter=L"
+            "/pet/original/results?pet_type=Dog&pet_breed=Whippet&pet_color=Blue+gray"
+            "&pet_life_stage=Mature&style=Modern&vibe=Playful&starting_letter=L"
         )
         results_body = results.get_data(as_text=True)
 

@@ -201,6 +201,29 @@ class PhaseSixChosenNameTest(unittest.TestCase):
         self.assertEqual(payload["portrait"]["status"], "not_configured")
         self.assertEqual(payload["portrait"]["model"], "gpt-image-1")
 
+    def test_original_mode_chosen_page_uses_pet_portrait_details_when_present(self):
+        query = (
+            b"pet_type=Dog&pet_breed=Whippet&pet_color=Blue+gray"
+            b"&pet_life_stage=Mature&style=Modern&vibe=Playful&starting_letter=L"
+        )
+        response = self.client.get(f"/pet/original/results?{query.decode('utf-8')}")
+        body = response.get_data(as_text=True)
+        session_id = make_session_id("pet-original", query)
+        chosen_response = self.client.post(
+            "/choose",
+            data={"session_id": session_id, "result_id": "pet-1"},
+            follow_redirects=True,
+        )
+        chosen_body = chosen_response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Lumo", body)
+        self.assertEqual(chosen_response.status_code, 200)
+        self.assertIn("pet-portrait-frame", chosen_body)
+        self.assertIn("Whippet", chosen_body)
+        self.assertIn("Blue gray", chosen_body)
+        self.assertIn("Mature", chosen_body)
+
     def test_pet_portrait_prompt_is_timeless_and_avoids_generated_text(self):
         brief = {
             "inputs": {

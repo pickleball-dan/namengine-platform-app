@@ -35,9 +35,26 @@
             {% endfor %}
           </select>
         </label>
+        <label class="field" for="pet_breed">
+          <span>Breed<em>Optional</em></span>
+          <input id="pet_breed" name="pet_breed" placeholder="Golden retriever, tabby, mixed breed...">
+        </label>
+        <label class="field" for="pet_color">
+          <span>Color<em>Optional</em></span>
+          <input id="pet_color" name="pet_color" placeholder="Honey, black and white, brindle...">
+        </label>
+        <label class="field" for="pet_life_stage">
+          <span>Young or mature?<em>Optional</em></span>
+          <select id="pet_life_stage" name="pet_life_stage">
+            <option value="">Choose one</option>
+            {% for choice in ["Young", "Mature"] %}
+              <option value="{{ choice }}">{{ choice }}</option>
+            {% endfor %}
+          </select>
+        </label>
         <label class="field" for="notes">
           <span>Tell us about your pet<em>Optional</em></span>
-          <textarea id="notes" name="notes" placeholder="Breed, coloring, personality, funny quirks, favorite themes..."></textarea>
+          <textarea id="notes" name="notes" placeholder="Personality, funny quirks, favorite themes, names to avoid..."></textarea>
         </label>
       </fieldset>
 
