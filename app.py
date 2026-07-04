@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from threading import Lock, Thread
 from hashlib import sha1
 from urllib.parse import urlencode
 
@@ -22,8 +23,10 @@ from namengine.core import (
     get_chosen_snapshot,
     get_database_path,
     get_session_snapshot,
+    pet_portrait_preview_for_chosen,
     get_taste_profile,
     pet_portrait_runtime_config,
+    prepare_pet_portrait_for_chosen,
     refine_session,
     save_reaction,
     save_chosen_name,
@@ -36,6 +39,8 @@ from namengine.verticals import VERTICALS, get_vertical
 
 
 logger = logging.getLogger(__name__)
+_portrait_jobs: set[str] = set()
+_portrait_jobs_lock = Lock()
 
 
 def grouped_questions(vertical) -> list[dict]:
@@ -295,7 +300,7 @@ def create_app() -> Flask:
         except StorageError:
             abort(404)
 
-        _try_generate_pet_portrait(chosen.id)
+        _queue_pet_portrait_generation(chosen.id)
         return redirect(url_for("chosen_name", chosen_id=chosen.id))
 
     @app.post("/refine")
@@ -405,7 +410,8 @@ def create_app() -> Flask:
             abort(404)
 
         result = to_plain_data(json_loads(snapshot["result"]["result_json"]))
-        portrait = _try_generate_pet_portrait(chosen_id)
+        portrait = _pet_portrait_preview(chosen_id)
+        _queue_pet_portrait_generation(chosen_id)
         return render_template(
             "chosen.html",
             vertical=get_vertical(snapshot["chosen"]["vertical"]),
@@ -426,8 +432,9 @@ def create_app() -> Flask:
         if snapshot is None:
             abort(404)
 
-        metadata = snapshot["chosen"].get("metadata")
-        portrait = metadata.get("pet_portrait") if isinstance(metadata, dict) else None
+        portrait = _pet_portrait_preview(chosen_id)
+        if portrait and portrait.get("status") not in {"ready", "not_configured", "failed"}:
+            _queue_pet_portrait_generation(chosen_id)
         return jsonify(
             {
                 "chosen_id": chosen_id,
@@ -486,6 +493,48 @@ def _try_generate_pet_portrait(chosen_id: str):
             str(exc)[:500],
         )
         return None
+
+
+def _pet_portrait_preview(chosen_id: str):
+    snapshot = get_chosen_snapshot(chosen_id)
+    if snapshot is None or snapshot["result"] is None:
+        return None
+    if snapshot["chosen"].get("vertical") != "pet":
+        return None
+
+    return pet_portrait_preview_for_chosen(snapshot["chosen"], snapshot["session"])
+
+
+def _queue_pet_portrait_generation(chosen_id: str):
+    snapshot = get_chosen_snapshot(chosen_id)
+    if snapshot is None or snapshot["result"] is None:
+        return None
+    if snapshot["chosen"].get("vertical") != "pet":
+        return None
+
+    result = to_plain_data(json_loads(snapshot["result"]["result_json"]))
+    portrait = prepare_pet_portrait_for_chosen(
+        snapshot["chosen"],
+        result,
+        snapshot["session"],
+    )
+    if not portrait or portrait.get("status") in {"ready", "not_configured", "failed"}:
+        return portrait
+
+    with _portrait_jobs_lock:
+        if chosen_id in _portrait_jobs:
+            return portrait
+        _portrait_jobs.add(chosen_id)
+
+    def run() -> None:
+        try:
+            _try_generate_pet_portrait(chosen_id)
+        finally:
+            with _portrait_jobs_lock:
+                _portrait_jobs.discard(chosen_id)
+
+    Thread(target=run, daemon=True).start()
+    return portrait
 
 
 app = create_app()

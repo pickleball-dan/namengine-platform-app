@@ -1,6 +1,7 @@
 import os
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from app import create_app, make_session_id
 from namengine.core import (
@@ -65,6 +66,31 @@ class PhaseSixChosenNameTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 302)
         self.assertIn("/chosen/chosen-", response.headers["Location"])
+
+    def test_choose_route_queues_portrait_without_waiting_for_generation(self):
+        query = (
+            b"pet_type=Dog&pet_breed=Golden+Retriever&pet_color=Honey"
+            b"&pet_life_stage=Puppy&style=Classic&vibe=Gentle"
+        )
+        session_id = make_session_id("pet", query)
+        self.client.get(f"/pet/results?{query.decode('utf-8')}")
+
+        with patch.dict(
+            os.environ,
+            {"NAMENGINE_DISABLE_PET_IMAGES": "0", "OPENAI_API_KEY": "test-key"},
+        ), patch("app.Thread") as thread:
+            response = self.client.post(
+                "/choose",
+                data={"session_id": session_id, "result_id": "pet-1"},
+                follow_redirects=False,
+            )
+
+        chosen_id = get_session_snapshot(session_id)["chosen_names"][0]["id"]
+        snapshot = get_chosen_snapshot(chosen_id)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(snapshot["chosen"]["metadata"]["pet_portrait"]["status"], "pending")
+        thread.assert_called_once()
 
     def test_chosen_page_renders_single_name(self):
         query = b"species=Dog&personality=Gentle&style=Warm"

@@ -29,8 +29,10 @@ from .pet_portrait import (
     build_pet_portrait_prompt,
     ensure_pet_portrait_for_chosen,
     is_pet_portrait_generation_configured,
+    pet_portrait_preview_for_chosen,
     pet_portrait_runtime_config,
     pet_portrait_url_from_metadata,
+    prepare_pet_portrait_for_chosen,
     portrait_details_from_brief,
 )
 from .provider_performance import (
@@ -125,7 +127,9 @@ __all__ = [
     "QualityRunResult",
     "parse_ai_generation_response",
     "pet_portrait_url_from_metadata",
+    "pet_portrait_preview_for_chosen",
     "pet_portrait_runtime_config",
+    "prepare_pet_portrait_for_chosen",
     "portrait_details_from_brief",
     "Reaction",
     "ReactionError",

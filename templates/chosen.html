@@ -9,14 +9,28 @@
     {% endif %}
     <p class="eyebrow">Chosen {{ chosen.vertical.title() }} Name</p>
 
-    <section class="share-preview{% if portrait %} has-portrait{% endif %}" aria-label="Share preview">
+    <section
+      class="share-preview{% if portrait %} has-portrait{% endif %}"
+      aria-label="Share preview"
+      {% if portrait and portrait.status not in ["ready", "not_configured", "failed"] %}
+        data-portrait-status-url="{{ url_for('chosen_portrait_status', chosen_id=chosen.id) }}"
+      {% endif %}
+    >
       {% if portrait %}
-        <figure class="pet-portrait-frame">
+        <figure class="pet-portrait-frame" data-pet-portrait-frame>
           {% if portrait.url %}
-            <img src="{{ portrait.url }}" alt="Framed portrait of {{ chosen.name }}">
+            <img data-pet-portrait-image src="{{ portrait.url }}" alt="Framed portrait of {{ chosen.name }}">
           {% else %}
-            <div class="pet-portrait-placeholder" aria-hidden="true">
-              <span>{{ chosen.name[:1] }}</span>
+            <div class="pet-portrait-placeholder" data-pet-portrait-placeholder>
+              <span class="portrait-monogram" aria-hidden="true">{{ chosen.name[:1] }}</span>
+              {% if portrait.status == "not_configured" %}
+                <span class="portrait-status">Portrait setup needed</span>
+              {% elif portrait.status == "failed" %}
+                <span class="portrait-status">Portrait could not be created</span>
+              {% else %}
+                <span class="portrait-progress" aria-hidden="true"></span>
+                <span class="portrait-status" data-pet-portrait-status>Creating portrait</span>
+              {% endif %}
             </div>
           {% endif %}
           <figcaption>{{ chosen.name }}</figcaption>
@@ -78,5 +92,54 @@
       await navigator.clipboard.writeText(window.location.href);
       event.currentTarget.textContent = "Copied";
     });
+
+    const portraitShell = document.querySelector("[data-portrait-status-url]");
+    const portraitFrame = document.querySelector("[data-pet-portrait-frame]");
+    const portraitStatus = document.querySelector("[data-pet-portrait-status]");
+
+    if (portraitShell && portraitFrame) {
+      let attempts = 0;
+      const maxAttempts = 30;
+
+      const pollPortrait = async () => {
+        attempts += 1;
+        try {
+          const response = await fetch(portraitShell.dataset.portraitStatusUrl, {
+            headers: { "Accept": "application/json" },
+          });
+          const payload = await response.json();
+          const portrait = payload.portrait || {};
+
+          if (portrait.status === "ready" && portrait.url) {
+            const image = document.createElement("img");
+            image.dataset.petPortraitImage = "true";
+            image.src = portrait.url;
+            image.alt = "Framed portrait of {{ chosen.name }}";
+            portraitFrame.querySelector("[data-pet-portrait-placeholder]")?.replaceWith(image);
+            portraitShell.removeAttribute("data-portrait-status-url");
+            return;
+          }
+
+          if (portrait.status === "failed" && portraitStatus) {
+            portraitStatus.textContent = "Portrait could not be created";
+            return;
+          }
+
+          if (portraitStatus) {
+            portraitStatus.textContent = attempts % 2 ? "Creating portrait" : "Finishing portrait";
+          }
+        } catch (error) {
+          if (portraitStatus) {
+            portraitStatus.textContent = "Still creating portrait";
+          }
+        }
+
+        if (attempts < maxAttempts) {
+          window.setTimeout(pollPortrait, 2000);
+        }
+      };
+
+      window.setTimeout(pollPortrait, 1200);
+    }
   </script>
 {% endblock %}

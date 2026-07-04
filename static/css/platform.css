@@ -1002,12 +1002,63 @@ button {
 }
 
 .pet-portrait-placeholder {
-  display: grid;
-  place-items: center;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
   color: rgba(38, 54, 77, 0.75);
   font-family: "Cormorant Garamond", Georgia, serif;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba(255, 250, 242, 0.88), rgba(230, 204, 169, 0.72)),
+    radial-gradient(circle at 50% 38%, rgba(255, 255, 255, 0.72), transparent 45%);
+}
+
+.pet-portrait-placeholder::before {
+  position: absolute;
+  inset: 12px;
+  content: "";
+  border: 1px solid rgba(73, 49, 32, 0.16);
+  border-radius: 4px;
+}
+
+.portrait-monogram {
+  position: relative;
+  z-index: 1;
   font-size: 74px;
   font-weight: 700;
+  line-height: 0.9;
+}
+
+.portrait-progress {
+  position: relative;
+  z-index: 1;
+  width: 34px;
+  height: 34px;
+  border: 3px solid rgba(47, 148, 134, 0.18);
+  border-top-color: #2f9486;
+  border-radius: 50%;
+  animation: portrait-spin 0.9s linear infinite;
+}
+
+.portrait-status {
+  position: relative;
+  z-index: 1;
+  max-width: 150px;
+  color: #465266;
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 850;
+  line-height: 1.25;
+  text-align: center;
+}
+
+@keyframes portrait-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .pet-portrait-frame figcaption {

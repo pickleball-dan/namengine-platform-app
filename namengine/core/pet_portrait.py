@@ -58,6 +58,61 @@ def pet_portrait_url_from_metadata(chosen_id: str, metadata: dict[str, Any]) -> 
     return None
 
 
+def pet_portrait_preview_for_chosen(
+    chosen: dict[str, Any],
+    session: dict[str, Any] | None,
+) -> dict[str, Any] | None:
+    metadata = chosen.get("metadata") if isinstance(chosen.get("metadata"), dict) else {}
+    portrait = metadata.get("pet_portrait") if isinstance(metadata, dict) else None
+    if isinstance(portrait, dict):
+        portrait = dict(portrait)
+        existing_url = pet_portrait_url_from_metadata(str(chosen["id"]), metadata)
+        if existing_url:
+            portrait["url"] = existing_url
+        return portrait
+
+    brief = _json_loads((session or {}).get("brief_json", "{}"))
+    details = portrait_details_from_brief(brief)
+    if not _has_enough_detail(details):
+        return None
+
+    return {
+        "details": details,
+        "model": os.getenv("NAMENGINE_IMAGE_MODEL", DEFAULT_IMAGE_MODEL),
+        "size": os.getenv("NAMENGINE_IMAGE_SIZE", "1024x1024"),
+        "status": "pending" if is_pet_portrait_generation_configured() else "not_configured",
+    }
+
+
+def prepare_pet_portrait_for_chosen(
+    chosen: dict[str, Any],
+    result: dict[str, Any],
+    session: dict[str, Any] | None,
+) -> dict[str, Any] | None:
+    metadata = chosen.get("metadata") if isinstance(chosen.get("metadata"), dict) else {}
+    portrait = metadata.get("pet_portrait") if isinstance(metadata, dict) else None
+    if isinstance(portrait, dict) and portrait.get("status") in {"pending", "ready"}:
+        return pet_portrait_preview_for_chosen(chosen, session)
+
+    brief = _json_loads((session or {}).get("brief_json", "{}"))
+    details = portrait_details_from_brief(brief)
+    if not _has_enough_detail(details):
+        return None
+
+    portrait = {
+        "details": details,
+        "prompt": build_pet_portrait_prompt(chosen, result, brief, details),
+        "model": os.getenv("NAMENGINE_IMAGE_MODEL", DEFAULT_IMAGE_MODEL),
+        "size": os.getenv("NAMENGINE_IMAGE_SIZE", "1024x1024"),
+        "status": "pending" if is_pet_portrait_generation_configured() else "not_configured",
+    }
+    update_chosen_metadata(
+        str(chosen["id"]),
+        {"pet_portrait": {key: value for key, value in portrait.items() if key != "prompt"}},
+    )
+    return portrait
+
+
 def ensure_pet_portrait_for_chosen(
     chosen: dict[str, Any],
     result: dict[str, Any],
