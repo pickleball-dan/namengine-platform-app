@@ -100,6 +100,26 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertEqual(questions["style"].section, "Name style")
         self.assertEqual(questions["vibe"].section, "Fit and feeling")
 
+    def test_pet_intake_other_dropdown_has_custom_entry_field(self):
+        response = self.client.get("/pet")
+        body = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('data-other-select="pet_type_other"', body)
+        self.assertIn('id="pet_type_other"', body)
+        self.assertIn('name="pet_type_other"', body)
+        self.assertIn('placeholder="Enter your own"', body)
+
+    def test_pet_intake_prefills_custom_other_value_for_editing(self):
+        response = self.client.get("/pet?pet_type=Goat&style=Classic&vibe=Playful&edit=pet_type")
+        body = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('<option value="Other" selected>Other</option>', body)
+        self.assertIn('id="pet_type_other"', body)
+        self.assertIn('value="Goat"', body)
+        self.assertNotIn('id="pet_type_other" name="pet_type_other" data-other-input placeholder="Enter your own" value="Goat" hidden disabled', body)
+
     def test_pet_intake_renders_as_three_decision_sections(self):
         response = self.client.get("/pet")
         body = response.get_data(as_text=True)

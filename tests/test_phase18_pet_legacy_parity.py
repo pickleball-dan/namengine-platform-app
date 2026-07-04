@@ -42,6 +42,8 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
         self.assertIn('name="pet_life_stage"', body)
         self.assertIn("Young", body)
         self.assertIn("Mature", body)
+        self.assertIn('data-other-select="pet_type_other"', body)
+        self.assertIn('name="pet_type_other"', body)
         self.assertNotIn("Puppy", body)
         self.assertNotIn("Adult", body)
         self.assertNotIn("Senior", body)
@@ -56,6 +58,8 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
         self.assertIn('name="pet_breed"', body)
         self.assertIn('name="pet_color"', body)
         self.assertIn('name="pet_life_stage"', body)
+        self.assertIn('data-other-select="pet_type_other"', body)
+        self.assertIn('name="pet_type_other"', body)
         self.assertIn("Young or mature?", body)
         self.assertIn("Create original pet names", body)
 
@@ -68,6 +72,33 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
         self.assertEqual(results.status_code, 200)
         self.assertIn("Original pet names shaped from your life", results_body)
         self.assertIn("Lumo", results_body)
+
+    def test_other_pet_type_custom_value_is_used_for_results(self):
+        response = self.client.get(
+            "/pet/results?pet_type=Other&pet_type_other=Goat&style=Classic&vibe=Playful"
+        )
+        body = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("<dt>Pet</dt>", body)
+        self.assertIn("<dd>Goat</dd>", body)
+        self.assertNotIn("<dd>Other</dd>", body)
+
+    def test_original_other_pet_type_redirects_with_custom_value(self):
+        response = self.client.post(
+            "/pet/original/results",
+            data={
+                "pet_type": "Other",
+                "pet_type_other": "Goat",
+                "style": "Modern",
+                "vibe": "Playful",
+            },
+            follow_redirects=False,
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("pet_type=Goat", response.headers["Location"])
+        self.assertNotIn("pet_type_other", response.headers["Location"])
 
     def test_results_have_share_route_and_reaction_images(self):
         response = self.client.get("/pet/results?pet_type=Dog&style=Classic&vibe=Playful")

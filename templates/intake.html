@@ -37,17 +37,22 @@
           <legend>{{ group.title }}</legend>
           {% for question in group.questions %}
             {% set current_value = request.args.get(question.id, "") %}
+            {% set has_other_choice = "Other" in question.choices %}
+            {% set other_value = current_value if has_other_choice and current_value and current_value not in question.choices else request.args.get(question.id ~ "_other", "") %}
             <label class="field{% if request.args.get('edit') == question.id %} is-edit-target{% endif %}" for="{{ question.id }}" id="field-{{ question.id }}">
               <span>{{ question.label }}<em>{% if question.required %}Required{% else %}Optional{% endif %}</em></span>
               {% if question.kind == "textarea" %}
                 <textarea id="{{ question.id }}" name="{{ question.id }}"{% if question.required %} required{% endif %} placeholder="{{ question.placeholder }}">{{ current_value }}</textarea>
               {% elif question.choices %}
-                <select id="{{ question.id }}" name="{{ question.id }}"{% if question.required %} required{% endif %}>
+                <select id="{{ question.id }}" name="{{ question.id }}"{% if question.required %} required{% endif %}{% if has_other_choice %} data-other-select="{{ question.id }}_other"{% endif %}>
                   <option value="">Choose one</option>
                   {% for choice in question.choices %}
-                    <option value="{{ choice }}"{% if current_value == choice %} selected{% endif %}>{{ choice }}</option>
+                    <option value="{{ choice }}"{% if current_value == choice or (choice == "Other" and other_value) %} selected{% endif %}>{{ choice }}</option>
                   {% endfor %}
                 </select>
+                {% if has_other_choice %}
+                  <input class="other-choice-input" id="{{ question.id }}_other" name="{{ question.id }}_other" data-other-input placeholder="Enter your own" value="{{ other_value }}"{% if not other_value and current_value != "Other" %} hidden disabled{% endif %}>
+                {% endif %}
               {% else %}
                 <input id="{{ question.id }}" name="{{ question.id }}"{% if question.required %} required{% endif %} placeholder="{{ question.placeholder }}" value="{{ current_value }}">
               {% endif %}

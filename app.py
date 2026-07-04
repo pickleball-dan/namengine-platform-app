@@ -144,6 +144,22 @@ def _query_string_from_mapping(source) -> str:
     )
 
 
+def _normalize_other_inputs(source) -> dict[str, str]:
+    normalized = {
+        key: value
+        for key, value in source.items()
+        if value not in ("", None) and not str(key).endswith("_other")
+    }
+    for key, value in source.items():
+        if not str(key).endswith("_other"):
+            continue
+        base_key = str(key)[: -len("_other")]
+        other_value = str(value or "").strip()
+        if other_value and normalized.get(base_key) == "Other":
+            normalized[base_key] = other_value
+    return normalized
+
+
 def _reaction_total(reaction_counts: dict[str, int]) -> int:
     return sum(int(reaction_counts.get(value, 0)) for value in ("love", "maybe", "no"))
 
@@ -246,20 +262,21 @@ def create_app() -> Flask:
 
     @app.post("/pet/original/results")
     def pet_original_submit():
-        query = _query_string_from_mapping(request.form)
+        query = _query_string_from_mapping(_normalize_other_inputs(request.form))
         return redirect(f"{url_for('pet_original_results')}?{query}")
 
     @app.get("/pet/original/results")
     def pet_original_results():
         vertical = get_vertical("pet")
-        source = request.args.to_dict(flat=True)
+        source_for_id = _normalize_other_inputs(request.args.to_dict(flat=True))
+        source = dict(source_for_id)
         source["discovery_style"] = source.get("discovery_style") or "Completely original"
         source["original_mode"] = "true"
         brief = build_brief(vertical, source)
         for key in ("starting_letter", "length_preference", "avoid_feel", "original_mode"):
             if source.get(key):
                 brief.inputs[key] = source[key]
-        session_id = make_session_id("pet-original", request.query_string)
+        session_id = make_session_id("pet-original", _query_string_from_mapping(source_for_id).encode("utf-8"))
         snapshot = get_session_snapshot(session_id)
         if snapshot and snapshot["results"]:
             names = _names_from_snapshot(snapshot)
@@ -287,11 +304,12 @@ def create_app() -> Flask:
             abort(404)
 
         vertical = get_vertical(vertical_slug)
-        brief = build_brief(vertical, request.args)
+        source = _normalize_other_inputs(request.args.to_dict(flat=True))
+        brief = build_brief(vertical, source)
         if vertical.slug != "pet":
             abort(501)
 
-        session_id = make_session_id(vertical.slug, request.query_string)
+        session_id = make_session_id(vertical.slug, _query_string_from_mapping(source).encode("utf-8"))
         snapshot = get_session_snapshot(session_id)
         if snapshot and snapshot["results"]:
             names = _names_from_snapshot(snapshot)

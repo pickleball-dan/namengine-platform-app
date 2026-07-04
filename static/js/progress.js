@@ -140,6 +140,20 @@
     return new Promise((resolve) => window.setTimeout(resolve, ms));
   }
 
+  function syncOtherSelect(select) {
+    const input = document.getElementById(select.dataset.otherSelect);
+    if (!input) return;
+
+    const isOther = select.value === "Other";
+    input.hidden = !isOther;
+    input.disabled = !isOther;
+    input.required = isOther && select.required;
+    if (!isOther) {
+      input.value = "";
+      clearInvalidField(input);
+    }
+  }
+
   function fieldForControl(control) {
     return control.closest(".field");
   }
@@ -189,6 +203,11 @@
   }
 
   forms.forEach((form) => {
+    form.querySelectorAll("select[data-other-select]").forEach((select) => {
+      syncOtherSelect(select);
+      select.addEventListener("change", () => syncOtherSelect(select));
+    });
+
     form.addEventListener("input", (event) => {
       if (event.target.matches("input, select, textarea") && event.target.checkValidity()) {
         clearInvalidField(event.target);

@@ -353,6 +353,10 @@ h1 {
   border-radius: 6px;
 }
 
+.field .other-choice-input {
+  margin-top: 8px;
+}
+
 .field textarea {
   min-height: 112px;
   resize: vertical;

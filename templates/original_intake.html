@@ -19,12 +19,13 @@
         <legend>About your pet</legend>
         <label class="field" for="pet_type">
           <span>Who's joining the family?<em>Required</em></span>
-          <select id="pet_type" name="pet_type" required>
+          <select id="pet_type" name="pet_type" required data-other-select="pet_type_other">
             <option value="">Choose one</option>
             {% for choice in ["Dog", "Cat", "Horse", "Bird", "Rabbit", "Reptile", "Other"] %}
               <option value="{{ choice }}">{{ choice }}</option>
             {% endfor %}
           </select>
+          <input class="other-choice-input" id="pet_type_other" name="pet_type_other" data-other-input placeholder="Enter your own" hidden disabled>
         </label>
         <label class="field" for="pet_gender">
           <span>Gender<em>Optional</em></span>
