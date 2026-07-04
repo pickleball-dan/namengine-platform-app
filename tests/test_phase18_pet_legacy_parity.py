@@ -95,6 +95,30 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
         self.assertIn("Start your own list", body)
         self.assertIn("Open detail", body)
 
+    def test_original_shared_shortlist_route_renders_saved_session(self):
+        query = (
+            b"pet_type=Dog&pet_breed=Whippet&pet_color=Blue+gray"
+            b"&pet_life_stage=Mature&style=Modern&vibe=Playful&starting_letter=L"
+        )
+        session_id = make_session_id("pet-original", query)
+        self.client.get(f"/pet/original/results?{query.decode('utf-8')}")
+
+        response = self.client.get(f"/share/{session_id}")
+        body = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Shared NamEngine Pet list", body)
+        self.assertIn("Lumo", body)
+
+    def test_missing_shared_shortlist_route_has_recovery_page(self):
+        response = self.client.get("/share/pet-original-missing")
+        body = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 410)
+        self.assertIn("This saved list is no longer available.", body)
+        self.assertIn("Start a new pet list", body)
+        self.assertNotIn("Not Found", body)
+
     def test_feedback_route_renders_and_accepts_submission(self):
         response = self.client.get("/feedback")
         self.assertEqual(response.status_code, 200)

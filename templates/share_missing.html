@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}List Unavailable | NamEngine{% endblock %}
+
+{% block content %}
+  <section class="results-shell shared-shortlist">
+    <div class="results-heading">
+      {% if vertical and vertical.assets.get("logo") %}
+        <img class="vertical-page-logo small" src="{{ url_for('static', filename=vertical.assets.get('logo')) }}" alt="NamEngine {{ vertical.display_name }} logo">
+      {% endif %}
+      <p class="eyebrow">NamEngine saved list</p>
+      <h1>This saved list is no longer available.</h1>
+      <p>The link points to a list that is not in the current saved-results store.</p>
+      <div class="results-header-links">
+        <a class="button-link" href="/pet">Start a new pet list</a>
+        <a class="button-link secondary-button" href="/">Go to NamEngine</a>
+      </div>
+    </div>
+  </section>
+{% endblock %}

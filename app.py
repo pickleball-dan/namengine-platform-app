@@ -373,7 +373,11 @@ def create_app() -> Flask:
     def shared_shortlist(session_id: str):
         snapshot = get_session_snapshot(session_id)
         if snapshot is None:
-            abort(404)
+            return render_template(
+                "share_missing.html",
+                session_id=session_id,
+                vertical=get_vertical("pet") if session_id.startswith("pet") else None,
+            ), 410
 
         vertical = get_vertical(snapshot["session"]["vertical"])
         names = [json_loads(row["result_json"]) for row in snapshot["results"]]
