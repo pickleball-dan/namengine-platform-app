@@ -67,8 +67,27 @@
   </section>
   <script>
     document.querySelector("[data-copy-url]")?.addEventListener("click", async (event) => {
+      const button = event.currentTarget;
+      const chosenName = {{ chosen.name|tojson }};
+      const sharePayload = {
+        title: `${chosenName} | NamEngine`,
+        text: `Meet ${chosenName}, a NamEngine final pick.`,
+        url: window.location.href,
+      };
+
+      if (navigator.share) {
+        try {
+          await navigator.share(sharePayload);
+          return;
+        } catch (error) {
+          if (error.name === "AbortError") {
+            return;
+          }
+        }
+      }
+
       await navigator.clipboard.writeText(window.location.href);
-      event.currentTarget.textContent = "Link copied";
+      button.textContent = "Link copied";
     });
 
     const portraitShell = document.querySelector("[data-portrait-status-url]");
