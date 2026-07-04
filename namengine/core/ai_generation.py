@@ -186,7 +186,7 @@ def _call_openai(
 def _default_client():
     from openai import OpenAI
 
-    return OpenAI()
+    return OpenAI(max_retries=0)
 
 
 def _openai_timeout_seconds() -> float:
