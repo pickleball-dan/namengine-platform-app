@@ -36,6 +36,7 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         self.client.get(f"/pet/results?{query.decode('utf-8')}")
         save_reaction(build_reaction(session_id, "pet-1", "love"))
         save_reaction(build_reaction(session_id, "pet-2", "no"))
+        save_reaction(build_reaction(session_id, "pet-3", "maybe"))
         return session_id
 
     def test_reaction_effect_summary_is_short_and_directional(self):
@@ -90,6 +91,39 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         self.assertIn("Generate New List", body)
         self.assertIn(f'name="session_id" value="{session_id}"', body)
         self.assertIn('action="/refine"', body)
+        self.assertIn('data-min-reactions="3"', body)
+        self.assertIn("Ready to generate the next list.", body)
+        self.assertNotIn("data-refine-submit disabled", body)
+
+    def test_results_page_disables_generate_new_list_until_three_reactions(self):
+        query = b"species=Dog&personality=Gentle&style=Warm"
+        session_id = make_session_id("pet", query)
+        response = self.client.get(f"/pet/results?{query.decode('utf-8')}")
+        body = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('data-min-reactions="3"', body)
+        self.assertIn('data-reaction-total="0"', body)
+        self.assertIn("data-refine-submit disabled", body)
+        self.assertIn("React to 3 more names before generating the next list.", body)
+
+    def test_refine_route_requires_three_reactions(self):
+        query = b"species=Dog&personality=Gentle&style=Warm"
+        session_id = make_session_id("pet", query)
+        self.client.get(f"/pet/results?{query.decode('utf-8')}")
+        save_reaction(build_reaction(session_id, "pet-1", "love"))
+        save_reaction(build_reaction(session_id, "pet-2", "no"))
+
+        response = self.client.post(
+            "/refine",
+            data={"session_id": session_id, "instruction": "shorter"},
+        )
+        body = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("React to 1 more name before generating the next list.", body)
+        self.assertIn("Generate New List", body)
+        self.assertNotIn("Round 2", body)
 
     def test_round_three_returns_finalists(self):
         session_id = self._seed_round_one()

@@ -708,6 +708,23 @@ button {
   border-radius: 6px;
 }
 
+.bottom-refine-form button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.refine-reaction-gate {
+  grid-column: 1 / -1;
+  margin: -2px 0 0;
+  color: #59667a;
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.refine-reaction-gate.is-error {
+  color: #9f341e;
+}
+
 .bottom-next-actions {
   grid-column: 2;
   display: flex;

@@ -3,6 +3,28 @@
   if (!shell) return;
 
   const sessionId = shell.dataset.sessionId;
+  const refineForm = document.querySelector("[data-min-reactions]");
+  const refineButton = refineForm ? refineForm.querySelector("[data-refine-submit]") : null;
+  const refineGate = refineForm ? refineForm.querySelector("[data-refine-reaction-gate]") : null;
+
+  function updateRefineGate(counts) {
+    if (!refineForm || !counts) return;
+
+    const minimum = Number(refineForm.dataset.minReactions || 3);
+    const total = Number(counts.love || 0) + Number(counts.maybe || 0) + Number(counts.no || 0);
+    const remaining = Math.max(minimum - total, 0);
+
+    refineForm.dataset.reactionTotal = String(total);
+    if (refineButton) {
+      refineButton.disabled = remaining > 0;
+    }
+    if (refineGate) {
+      refineGate.classList.remove("is-error");
+      refineGate.textContent = remaining > 0
+        ? `React to ${remaining} more ${remaining === 1 ? "name" : "names"} before generating the next list.`
+        : "Ready to generate the next list.";
+    }
+  }
 
   async function sendReaction(row, button) {
     const resultId = row.dataset.resultId;
@@ -44,6 +66,7 @@
         const counts = data.reaction_counts;
         if (counts) {
           status.textContent = `Saved: ${label} · ${counts.love} loved`;
+          updateRefineGate(counts);
         } else {
           status.textContent = `Saved: ${label}`;
         }

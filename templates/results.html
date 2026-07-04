@@ -138,23 +138,42 @@
       {% endfor %}
     </div>
 
+    {% set reaction_total = reaction_total|default(reaction_counts.love + reaction_counts.maybe + reaction_counts.no) %}
+    {% set min_reactions_for_refinement = min_reactions_for_refinement|default(3) %}
+    {% set reactions_remaining = [min_reactions_for_refinement - reaction_total, 0]|max %}
     <section class="bottom-next-panel" aria-label="Next list options">
       <div>
         <p class="eyebrow">Next list</p>
         <h2>Ready for a fresh list?</h2>
-        <p>We’ll use your Love, Maybe, and No reactions to sharpen the next set.</p>
+        <p>We’ll use at least 3 Love, Maybe, or No reactions to sharpen the next set.</p>
       </div>
-      <form class="bottom-refine-form" action="/refine" method="post" data-progress-form>
+      <form
+        class="bottom-refine-form"
+        action="/refine"
+        method="post"
+        data-progress-form
+        data-min-reactions="{{ min_reactions_for_refinement }}"
+        data-reaction-total="{{ reaction_total }}"
+      >
         <input type="hidden" name="session_id" value="{{ session_id }}">
         <label for="bottom-instruction">Optional direction</label>
         <input id="bottom-instruction" name="instruction" placeholder="Shorter, softer, bolder, less cute...">
-        <button type="submit">
+        <button type="submit" data-refine-submit {% if reaction_total < min_reactions_for_refinement %}disabled{% endif %}>
           {% if round_number < 3 %}
             Generate New List
           {% else %}
             Generate One More List
           {% endif %}
         </button>
+        <p class="refine-reaction-gate{% if refinement_error %} is-error{% endif %}" data-refine-reaction-gate aria-live="polite">
+          {% if refinement_error %}
+            {{ refinement_error }}
+          {% elif reactions_remaining > 0 %}
+            React to {{ reactions_remaining }} more {{ "name" if reactions_remaining == 1 else "names" }} before generating the next list.
+          {% else %}
+            Ready to generate the next list.
+          {% endif %}
+        </p>
       </form>
       <div class="bottom-next-actions">
         <a class="button-link compare-link" href="/compare/{{ session_id }}">Compare favorites</a>

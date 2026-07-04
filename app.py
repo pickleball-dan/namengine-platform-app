@@ -34,13 +34,14 @@ from namengine.core import (
     StorageError,
     vertical_theme_style,
 )
-from namengine.core.schemas import NameResult, to_plain_data
+from namengine.core.schemas import NameResult, NamingBrief, to_plain_data
 from namengine.verticals import VERTICALS, get_vertical
 
 
 logger = logging.getLogger(__name__)
 _portrait_jobs: set[str] = set()
 _portrait_jobs_lock = Lock()
+MIN_REACTIONS_FOR_REFINEMENT = 3
 
 
 def grouped_questions(vertical) -> list[dict]:
@@ -140,6 +141,49 @@ def _query_string_from_mapping(source) -> str:
             for key, value in source.items()
             if value not in ("", None)
         }
+    )
+
+
+def _reaction_total(reaction_counts: dict[str, int]) -> int:
+    return sum(int(reaction_counts.get(value, 0)) for value in ("love", "maybe", "no"))
+
+
+def _brief_from_snapshot(snapshot: dict) -> NamingBrief:
+    return NamingBrief(**json_loads(snapshot["session"]["brief_json"]))
+
+
+def _render_results_snapshot(
+    session_id: str,
+    *,
+    status: int = 200,
+    refinement_error: str | None = None,
+):
+    snapshot = get_session_snapshot(session_id)
+    if snapshot is None:
+        abort(404)
+
+    vertical = get_vertical(snapshot["session"]["vertical"])
+    names = _names_from_snapshot(snapshot)
+    brief = _brief_from_snapshot(snapshot)
+    reaction_counts = get_reaction_counts(session_id)
+    return (
+        render_template(
+            "results.html",
+            vertical=vertical,
+            brief=brief,
+            names=names,
+            trust_cue=build_trust_cue(names),
+            session_id=session_id,
+            reaction_counts=reaction_counts,
+            reaction_total=_reaction_total(reaction_counts),
+            min_reactions_for_refinement=MIN_REACTIONS_FOR_REFINEMENT,
+            taste_profile=_taste_profile_from_snapshot(snapshot),
+            round_number=int(snapshot["session"]["round_number"]),
+            parent_session_id=snapshot["session"]["parent_session_id"],
+            original_mode=session_id.startswith("pet-original"),
+            refinement_error=refinement_error,
+        ),
+        status,
     )
 
 
@@ -321,6 +365,16 @@ def create_app() -> Flask:
         snapshot = get_session_snapshot(session_id)
         if snapshot is None:
             abort(404)
+
+        reaction_counts = get_reaction_counts(session_id)
+        if _reaction_total(reaction_counts) < MIN_REACTIONS_FOR_REFINEMENT:
+            remaining = MIN_REACTIONS_FOR_REFINEMENT - _reaction_total(reaction_counts)
+            noun = "name" if remaining == 1 else "names"
+            return _render_results_snapshot(
+                session_id,
+                status=400,
+                refinement_error=f"React to {remaining} more {noun} before generating the next list.",
+            )
 
         vertical = get_vertical(snapshot["session"]["vertical"])
         if vertical.slug != "pet":
