@@ -40,8 +40,10 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
         self.assertIn('name="pet_breed"', body)
         self.assertIn('name="pet_color"', body)
         self.assertIn('name="pet_life_stage"', body)
-        self.assertIn("Puppy", body)
-        self.assertIn("Adult", body)
+        self.assertIn("Young", body)
+        self.assertIn("Mature", body)
+        self.assertNotIn("Puppy", body)
+        self.assertNotIn("Adult", body)
         self.assertNotIn("Senior", body)
 
     def test_pet_original_mode_exists_and_generates_original_results(self):

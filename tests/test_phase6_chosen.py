@@ -70,7 +70,7 @@ class PhaseSixChosenNameTest(unittest.TestCase):
     def test_choose_route_queues_portrait_without_waiting_for_generation(self):
         query = (
             b"pet_type=Dog&pet_breed=Golden+Retriever&pet_color=Honey"
-            b"&pet_life_stage=Puppy&style=Classic&vibe=Gentle"
+            b"&pet_life_stage=Young&style=Classic&vibe=Gentle"
         )
         session_id = make_session_id("pet", query)
         self.client.get(f"/pet/results?{query.decode('utf-8')}")
@@ -119,7 +119,7 @@ class PhaseSixChosenNameTest(unittest.TestCase):
     def test_chosen_page_uses_pet_portrait_details_when_present(self):
         query = (
             b"pet_type=Dog&pet_breed=Golden+Retriever&pet_color=Honey"
-            b"&pet_life_stage=Puppy&style=Classic&vibe=Gentle"
+            b"&pet_life_stage=Young&style=Classic&vibe=Gentle"
         )
         session_id = make_session_id("pet", query)
         self.client.get(f"/pet/results?{query.decode('utf-8')}")
@@ -138,7 +138,7 @@ class PhaseSixChosenNameTest(unittest.TestCase):
         self.assertIn("Color", body)
         self.assertIn("Honey", body)
         self.assertIn("Age", body)
-        self.assertIn("Puppy", body)
+        self.assertIn("Young", body)
         self.assertIn("Milo", body)
 
         snapshot = get_chosen_snapshot(chosen_id)
@@ -147,7 +147,7 @@ class PhaseSixChosenNameTest(unittest.TestCase):
     def test_chosen_portrait_status_reports_runtime_without_secret(self):
         query = (
             b"pet_type=Dog&pet_breed=Golden+Retriever&pet_color=Honey"
-            b"&pet_life_stage=Puppy&style=Classic&vibe=Gentle"
+            b"&pet_life_stage=Young&style=Classic&vibe=Gentle"
         )
         session_id = make_session_id("pet", query)
         self.client.get(f"/pet/results?{query.decode('utf-8')}")
@@ -174,7 +174,7 @@ class PhaseSixChosenNameTest(unittest.TestCase):
                 "pet_type": "Dog",
                 "pet_breed": "Whippet",
                 "pet_color": "Blue gray",
-                "pet_life_stage": "Adult",
+                "pet_life_stage": "Mature",
                 "vibe": "Elegant",
                 "style": "Classic",
             }
@@ -189,7 +189,7 @@ class PhaseSixChosenNameTest(unittest.TestCase):
 
         self.assertEqual(details["breed"], "Whippet")
         self.assertIn("timeless framed studio portrait", prompt)
-        self.assertIn("Blue gray adult Whippet dog named Clover", prompt)
+        self.assertIn("Blue gray mature Whippet dog named Clover", prompt)
         self.assertIn("Do not include words", prompt)
 
     def test_session_stores_round_metadata(self):

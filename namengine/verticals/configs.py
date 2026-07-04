@@ -14,7 +14,7 @@ PET_DISCOVERY_STYLE_OPTIONS = (
 
 PET_TYPE_OPTIONS = ("Dog", "Cat", "Horse", "Bird", "Rabbit", "Reptile", "Other")
 PET_GENDER_OPTIONS = ("Male", "Female", "Neutral")
-PET_LIFE_STAGE_OPTIONS = ("Puppy", "Adult")
+PET_LIFE_STAGE_OPTIONS = ("Young", "Mature")
 PET_STYLE_OPTIONS = (
     "Classic",
     "Modern",
@@ -101,7 +101,7 @@ PET = VerticalConfig(
         ),
         Question(
             "pet_life_stage",
-            "Puppy or adult?",
+            "Young or mature?",
             choices=PET_LIFE_STAGE_OPTIONS,
             section="About your pet",
         ),
