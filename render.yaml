@@ -10,5 +10,15 @@ services:
         value: 3.12.4
       - key: NAMENGINE_OPENAI_MODEL
         value: gpt-4.1-mini
+      - key: NAMENGINE_DB_PATH
+        value: /var/data/namengine.sqlite3
+      - key: NAMENGINE_IMAGE_MODEL
+        value: gpt-image-1-mini
+      - key: NAMENGINE_IMAGE_SIZE
+        value: 1024x1024
       - key: OPENAI_API_KEY
         sync: false
+    disk:
+      name: namengine-data
+      mountPath: /var/data
+      sizeGB: 1
