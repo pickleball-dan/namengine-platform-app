@@ -4,5 +4,6 @@ flask-*.log
 .env
 data/
 docs/visual-qa/
+node_modules/
 .pytest_cache/
 .coverage

@@ -17,6 +17,7 @@ from namengine.core.validation import validate_results
 
 
 DEFAULT_MODEL = "gpt-4.1-mini"
+DEFAULT_TIMEOUT_SECONDS = 8.0
 
 
 class AIGenerationError(RuntimeError):
@@ -171,6 +172,7 @@ def _call_openai(
                 },
             ],
             temperature=0.9,
+            timeout=_openai_timeout_seconds(),
         )
     except Exception as exc:  # pragma: no cover - live SDK/network behavior
         raise AIGenerationError(str(exc)) from exc
@@ -185,6 +187,15 @@ def _default_client():
     from openai import OpenAI
 
     return OpenAI()
+
+
+def _openai_timeout_seconds() -> float:
+    raw_value = os.getenv("NAMENGINE_OPENAI_TIMEOUT_SECONDS", str(DEFAULT_TIMEOUT_SECONDS))
+    try:
+        value = float(raw_value)
+    except ValueError:
+        return DEFAULT_TIMEOUT_SECONDS
+    return max(1.0, value)
 
 
 def _loads_json_payload(raw_text: str) -> Any:

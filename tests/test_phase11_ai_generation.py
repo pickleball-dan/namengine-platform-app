@@ -121,7 +121,7 @@ class PhaseElevenAIGenerationTest(unittest.TestCase):
         brief = build_brief(PET, {"species": "Dog", "style": "Warm"})
         fake_client = FakeClient(AI_RESPONSE)
 
-        with patch.dict(os.environ, {"OPENAI_API_KEY": "test-key"}):
+        with patch.dict(os.environ, {"OPENAI_API_KEY": "test-key", "NAMENGINE_OPENAI_TIMEOUT_SECONDS": "7"}):
             results = generate_ai_names(
                 PET,
                 brief,
@@ -132,6 +132,7 @@ class PhaseElevenAIGenerationTest(unittest.TestCase):
         self.assertEqual(results[0].name, "Lumi")
         self.assertEqual(len(results[0].validation), 2)
         self.assertIn("pet_callability", results[0].scores)
+        self.assertEqual(fake_client.responses.last_kwargs["timeout"], 7.0)
 
     def test_generate_names_falls_back_without_api_key(self):
         brief = build_brief(PET, {"species": "Dog", "style": "Warm"})
