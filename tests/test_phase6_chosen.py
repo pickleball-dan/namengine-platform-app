@@ -113,7 +113,7 @@ class PhaseSixChosenNameTest(unittest.TestCase):
         self.assertNotIn("share-preview-logo", body)
         self.assertNotIn("share-preview-brand", body)
         self.assertIn("images/pet/namengine-pet-logo-transparent.png", body)
-        self.assertIn("Copy link", body)
+        self.assertIn("Share", body)
         self.assertIn("Start another", body)
 
     def test_chosen_page_uses_pet_portrait_details_when_present(self):
