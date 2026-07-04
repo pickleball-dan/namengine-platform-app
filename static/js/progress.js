@@ -102,6 +102,44 @@
     }
   });
 
+  function requestForForm(form, submitter) {
+    const method = (form.method || "get").toUpperCase();
+    const action = form.action || window.location.href;
+    const formData = new FormData(form);
+
+    if (submitter && submitter.name) {
+      formData.append(submitter.name, submitter.value);
+    }
+
+    if (method === "GET") {
+      const url = new URL(action, window.location.href);
+      const params = new URLSearchParams(formData);
+      url.search = params.toString();
+      return {
+        navigateUrl: url.toString(),
+        request: fetch(url, {
+          method: "GET",
+          credentials: "same-origin",
+          headers: { "Accept": "text/html" },
+        }),
+      };
+    }
+
+    return {
+      navigateUrl: action,
+      request: fetch(action, {
+        method,
+        body: formData,
+        credentials: "same-origin",
+        headers: { "Accept": "text/html" },
+      }),
+    };
+  }
+
+  function wait(ms) {
+    return new Promise((resolve) => window.setTimeout(resolve, ms));
+  }
+
   function fieldForControl(control) {
     return control.closest(".field");
   }
@@ -179,9 +217,22 @@
       personalizeProgress(form);
       showProgress();
       submittingForm = form;
-      window.setTimeout(() => {
-        HTMLFormElement.prototype.submit.call(form);
-      }, minimumProgressMs);
+
+      const { navigateUrl, request } = requestForForm(form, event.submitter);
+      const minimumWait = wait(minimumProgressMs);
+
+      Promise.all([request, minimumWait])
+        .then(([response]) => {
+          if (!response.ok) {
+            throw new Error(`Progress request failed: ${response.status}`);
+          }
+          window.location.assign(response.url || navigateUrl);
+        })
+        .catch(() => {
+          minimumWait.then(() => {
+            HTMLFormElement.prototype.submit.call(form);
+          });
+        });
     });
   });
 })();
