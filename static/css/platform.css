@@ -1070,36 +1070,6 @@ button {
   text-align: center;
 }
 
-.pet-portrait-details {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 16px 0 0;
-}
-
-.pet-portrait-details div {
-  min-width: 84px;
-  padding: 8px 10px;
-  background: rgba(255, 250, 242, 0.86);
-  border: 1px solid rgba(47, 148, 134, 0.14);
-  border-radius: 8px;
-}
-
-.pet-portrait-details dt {
-  margin: 0 0 2px;
-  color: #687386;
-  font-size: 11px;
-  font-weight: 900;
-  text-transform: uppercase;
-}
-
-.pet-portrait-details dd {
-  margin: 0;
-  color: #26364d;
-  font-size: 14px;
-  font-weight: 850;
-}
-
 .chosen-actions button,
 .chosen-actions .button-link {
   min-width: 148px;

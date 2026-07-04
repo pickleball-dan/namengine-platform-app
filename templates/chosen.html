@@ -45,28 +45,6 @@
         {% if result.tagline %}
           <p class="share-preview-tagline">{{ result.tagline }}</p>
         {% endif %}
-        {% if portrait and portrait.details %}
-          <dl class="pet-portrait-details" aria-label="Portrait details">
-            {% if portrait.details.breed %}
-              <div>
-                <dt>Breed</dt>
-                <dd>{{ portrait.details.breed }}</dd>
-              </div>
-            {% endif %}
-            {% if portrait.details.color %}
-              <div>
-                <dt>Color</dt>
-                <dd>{{ portrait.details.color }}</dd>
-              </div>
-            {% endif %}
-            {% if portrait.details.life_stage %}
-              <div>
-                <dt>Age</dt>
-                <dd>{{ portrait.details.life_stage }}</dd>
-              </div>
-            {% endif %}
-          </dl>
-        {% endif %}
       </div>
     </section>
 

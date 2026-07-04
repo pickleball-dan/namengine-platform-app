@@ -168,16 +168,20 @@ class PhaseSixChosenNameTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         body = response.get_data(as_text=True)
         self.assertIn("pet-portrait-frame", body)
-        self.assertIn("Breed", body)
-        self.assertIn("Golden Retriever", body)
-        self.assertIn("Color", body)
-        self.assertIn("Honey", body)
-        self.assertIn("Age", body)
-        self.assertIn("Young", body)
+        self.assertNotIn("pet-portrait-details", body)
+        self.assertNotIn("Breed", body)
+        self.assertNotIn("Golden Retriever", body)
+        self.assertNotIn("Color", body)
+        self.assertNotIn("Honey", body)
+        self.assertNotIn("Age", body)
         self.assertIn("Milo", body)
 
         snapshot = get_chosen_snapshot(chosen_id)
         self.assertEqual(snapshot["chosen"]["metadata"]["pet_portrait"]["status"], "not_configured")
+        details = snapshot["chosen"]["metadata"]["pet_portrait"]["details"]
+        self.assertEqual(details["breed"], "Golden Retriever")
+        self.assertEqual(details["color"], "Honey")
+        self.assertEqual(details["life_stage"], "Young")
 
     def test_chosen_portrait_status_reports_runtime_without_secret(self):
         query = (
@@ -262,9 +266,9 @@ class PhaseSixChosenNameTest(unittest.TestCase):
         self.assertIn("Lumo", body)
         self.assertEqual(chosen_response.status_code, 200)
         self.assertIn("pet-portrait-frame", chosen_body)
-        self.assertIn("Whippet", chosen_body)
-        self.assertIn("Blue gray", chosen_body)
-        self.assertIn("Mature", chosen_body)
+        self.assertNotIn("pet-portrait-details", chosen_body)
+        self.assertNotIn("Whippet", chosen_body)
+        self.assertNotIn("Blue gray", chosen_body)
 
     def test_pet_portrait_prompt_is_timeless_and_avoids_generated_text(self):
         brief = {
