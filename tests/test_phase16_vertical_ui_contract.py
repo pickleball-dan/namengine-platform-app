@@ -84,6 +84,78 @@ def _png_rgba_size_and_corner_alpha(path):
     return width, height, color_type, corners
 
 
+def _png_opaque_cyan_pixel_count(path, box):
+    data = path.read_bytes()
+    if data[:8] != b"\x89PNG\r\n\x1a\n":
+        raise AssertionError(f"{path} is not a PNG")
+
+    offset = 8
+    width = height = None
+    idat = bytearray()
+    while offset < len(data):
+        length = struct.unpack(">I", data[offset : offset + 4])[0]
+        chunk_type = data[offset + 4 : offset + 8]
+        chunk_data = data[offset + 8 : offset + 8 + length]
+        offset += 12 + length
+        if chunk_type == b"IHDR":
+            width, height, bit_depth, color_type, _compression, _filter, interlace = struct.unpack(
+                ">IIBBBBB", chunk_data
+            )
+            if bit_depth != 8 or color_type != 6 or interlace != 0:
+                raise AssertionError(f"{path} must be a non-interlaced 8-bit RGBA PNG")
+        elif chunk_type == b"IDAT":
+            idat.extend(chunk_data)
+        elif chunk_type == b"IEND":
+            break
+
+    if width is None or height is None:
+        raise AssertionError(f"{path} has no IHDR")
+
+    x1, y1, x2, y2 = box
+    raw = zlib.decompress(bytes(idat))
+    stride = width * 4
+    previous = [0] * stride
+    cursor = 0
+    cyan_pixels = 0
+    for y in range(height):
+        filter_type = raw[cursor]
+        cursor += 1
+        scanline = list(raw[cursor : cursor + stride])
+        cursor += stride
+        reconstructed = []
+        for i, value in enumerate(scanline):
+            left = reconstructed[i - 4] if i >= 4 else 0
+            up = previous[i]
+            up_left = previous[i - 4] if i >= 4 else 0
+            if filter_type == 0:
+                decoded = value
+            elif filter_type == 1:
+                decoded = value + left
+            elif filter_type == 2:
+                decoded = value + up
+            elif filter_type == 3:
+                decoded = value + ((left + up) // 2)
+            elif filter_type == 4:
+                predictor = left + up - up_left
+                pa = abs(predictor - left)
+                pb = abs(predictor - up)
+                pc = abs(predictor - up_left)
+                decoded = value + (left if pa <= pb and pa <= pc else up if pb <= pc else up_left)
+            else:
+                raise AssertionError(f"{path} uses unsupported PNG filter {filter_type}")
+            reconstructed.append(decoded & 0xFF)
+
+        if y1 <= y < y2:
+            for x in range(x1, x2):
+                idx = x * 4
+                r, g, b, a = reconstructed[idx : idx + 4]
+                if a > 0 and r < 80 and g > 120 and b > 120:
+                    cyan_pixels += 1
+        previous = reconstructed
+
+    return cyan_pixels
+
+
 class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
     def setUp(self):
         self.app = create_app()
@@ -133,7 +205,7 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn("--accent: #2f9486", body)
         self.assertIn("--accent-pet: #fcba76", body)
 
-    def test_baby_pages_use_full_wordmark_logo(self):
+    def test_baby_pages_use_plus_wordmark_logo(self):
         response = self.client.get("/baby")
         body = response.get_data(as_text=True)
 
@@ -158,6 +230,15 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertEqual(baby_color_type, 6)
         self.assertEqual((baby_width, baby_height), (pet_width, pet_height))
         self.assertEqual(baby_corner_alpha, [0, 0, 0, 0])
+
+    def test_baby_page_logo_contains_namengine_plus_mark(self):
+        static_root = Path(self.app.static_folder)
+        baby_logo = static_root / VERTICALS["baby"].assets["page_logo"]
+
+        self.assertGreater(
+            _png_opaque_cyan_pixel_count(baby_logo, (760, 500, 990, 720)),
+            5000,
+        )
 
     def test_pet_intake_matches_first_edition_question_contract(self):
         questions = {question.id: question for question in VERTICALS["pet"].intake_questions}
