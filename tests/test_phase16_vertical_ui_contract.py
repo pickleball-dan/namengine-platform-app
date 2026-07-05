@@ -1,4 +1,6 @@
 import unittest
+import struct
+import zlib
 from pathlib import Path
 
 from app import create_app
@@ -9,6 +11,77 @@ from namengine.core import (
     vertical_theme_style,
 )
 from namengine.verticals import VERTICALS
+
+
+def _png_rgba_size_and_corner_alpha(path):
+    data = path.read_bytes()
+    if data[:8] != b"\x89PNG\r\n\x1a\n":
+        raise AssertionError(f"{path} is not a PNG")
+
+    offset = 8
+    width = height = color_type = interlace = None
+    idat = bytearray()
+    while offset < len(data):
+        length = struct.unpack(">I", data[offset : offset + 4])[0]
+        chunk_type = data[offset + 4 : offset + 8]
+        chunk_data = data[offset + 8 : offset + 8 + length]
+        offset += 12 + length
+        if chunk_type == b"IHDR":
+            width, height, bit_depth, color_type, _compression, _filter, interlace = struct.unpack(
+                ">IIBBBBB", chunk_data
+            )
+            if bit_depth != 8 or color_type != 6 or interlace != 0:
+                raise AssertionError(f"{path} must be a non-interlaced 8-bit RGBA PNG")
+        elif chunk_type == b"IDAT":
+            idat.extend(chunk_data)
+        elif chunk_type == b"IEND":
+            break
+
+    if width is None or height is None:
+        raise AssertionError(f"{path} has no IHDR")
+
+    raw = zlib.decompress(bytes(idat))
+    stride = width * 4
+    rows = []
+    previous = [0] * stride
+    cursor = 0
+    for _row in range(height):
+        filter_type = raw[cursor]
+        cursor += 1
+        scanline = list(raw[cursor : cursor + stride])
+        cursor += stride
+        reconstructed = []
+        for i, value in enumerate(scanline):
+            left = reconstructed[i - 4] if i >= 4 else 0
+            up = previous[i]
+            up_left = previous[i - 4] if i >= 4 else 0
+            if filter_type == 0:
+                decoded = value
+            elif filter_type == 1:
+                decoded = value + left
+            elif filter_type == 2:
+                decoded = value + up
+            elif filter_type == 3:
+                decoded = value + ((left + up) // 2)
+            elif filter_type == 4:
+                predictor = left + up - up_left
+                pa = abs(predictor - left)
+                pb = abs(predictor - up)
+                pc = abs(predictor - up_left)
+                decoded = value + (left if pa <= pb and pa <= pc else up if pb <= pc else up_left)
+            else:
+                raise AssertionError(f"{path} uses unsupported PNG filter {filter_type}")
+            reconstructed.append(decoded & 0xFF)
+        rows.append(reconstructed)
+        previous = reconstructed
+
+    corners = [
+        rows[0][3],
+        rows[0][stride - 1],
+        rows[-1][3],
+        rows[-1][stride - 1],
+    ]
+    return width, height, color_type, corners
 
 
 class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
@@ -69,6 +142,22 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn("images/baby/namengine-baby-logo.png", body)
         self.assertIn('alt="NamEngine Baby logo"', body)
         self.assertIn("identity-preview", body)
+
+    def test_baby_page_logo_matches_pet_transparent_png_canvas(self):
+        static_root = Path(self.app.static_folder)
+        baby_logo = static_root / VERTICALS["baby"].assets["page_logo"]
+        pet_logo = static_root / VERTICALS["pet"].assets["logo"]
+
+        baby_width, baby_height, baby_color_type, baby_corner_alpha = (
+            _png_rgba_size_and_corner_alpha(baby_logo)
+        )
+        pet_width, pet_height, _pet_color_type, _pet_corner_alpha = (
+            _png_rgba_size_and_corner_alpha(pet_logo)
+        )
+
+        self.assertEqual(baby_color_type, 6)
+        self.assertEqual((baby_width, baby_height), (pet_width, pet_height))
+        self.assertEqual(baby_corner_alpha, [0, 0, 0, 0])
 
     def test_pet_intake_matches_first_edition_question_contract(self):
         questions = {question.id: question for question in VERTICALS["pet"].intake_questions}
