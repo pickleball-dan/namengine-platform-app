@@ -284,7 +284,6 @@ BABY = VerticalConfig(
         Question(
             "style",
             "What style do you naturally like?",
-            required=True,
             choices=BABY_STYLE_OPTIONS,
             section="Name style",
         ),
