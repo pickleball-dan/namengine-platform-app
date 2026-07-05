@@ -61,7 +61,7 @@ class PhaseTwoWebShellTest(unittest.TestCase):
         self.assertIn("Taste history", body)
         self.assertIn('id="baby-intake-form"', body)
         self.assertIn('action="/baby/results"', body)
-        self.assertIn("images/baby-logo.svg", body)
+        self.assertIn("images/baby/namengine-baby-logo.svg", body)
         self.assertIn('data-taste-vertical="baby"', body)
         self.assertIn("data-taste-history-clear", body)
         self.assertIn("Required", body)

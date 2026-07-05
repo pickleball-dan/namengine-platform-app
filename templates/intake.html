@@ -5,8 +5,9 @@
 {% block content %}
   <section class="intake-shell">
     <div class="intake-heading">
-      {% if vertical.assets.get("logo") %}
-        <img class="vertical-page-logo" src="{{ url_for('static', filename=vertical.assets.get('logo')) }}" alt="NamEngine {{ vertical.display_name }} logo">
+      {% set page_logo = vertical.assets.get("page_logo", vertical.assets.get("logo")) %}
+      {% if page_logo %}
+        <img class="vertical-page-logo" src="{{ url_for('static', filename=page_logo) }}" alt="NamEngine {{ vertical.display_name }} logo">
       {% endif %}
       <p class="eyebrow">NamEngine {{ vertical.display_name }}</p>
       <h1>Let’s shape the right {{ vertical.object_label }}.</h1>
@@ -19,9 +20,9 @@
           {% endif %}
         </div>
       {% endif %}
-      {% if vertical.assets.get("logo") %}
+      {% if page_logo %}
         <div class="identity-preview">
-          <img src="{{ url_for('static', filename=vertical.assets.get('logo')) }}" alt="" width="54" height="54">
+          <img src="{{ url_for('static', filename=page_logo) }}" alt="" width="54" height="54">
           <p class="identity-preview-label">{{ vertical.display_name }} name fit</p>
           <h2>
             {% if vertical.slug == "baby" %}

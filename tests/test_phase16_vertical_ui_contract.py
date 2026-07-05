@@ -60,6 +60,16 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn("--accent: #2f9486", body)
         self.assertIn("--accent-pet: #fcba76", body)
 
+    def test_baby_pages_use_full_wordmark_logo(self):
+        response = self.client.get("/baby")
+        body = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("vertical-baby", body)
+        self.assertIn("images/baby/namengine-baby-logo.svg", body)
+        self.assertIn('alt="NamEngine Baby logo"', body)
+        self.assertIn("identity-preview", body)
+
     def test_pet_intake_matches_first_edition_question_contract(self):
         questions = {question.id: question for question in VERTICALS["pet"].intake_questions}
 

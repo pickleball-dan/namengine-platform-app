@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 220" role="img" aria-label="NamEngine Baby">
+  <defs>
+    <linearGradient id="blanket" x1="105" y1="31" x2="105" y2="181" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#eef4ff"/>
+      <stop offset="1" stop-color="#dbe6ff"/>
+    </linearGradient>
+    <linearGradient id="wordmark" x1="232" y1="66" x2="571" y2="144" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#29344f"/>
+      <stop offset="1" stop-color="#7d95c7"/>
+    </linearGradient>
+  </defs>
+  <rect width="620" height="220" rx="42" fill="none"/>
+  <g>
+    <rect x="30" y="31" width="150" height="150" rx="35" fill="#f9fbff"/>
+    <rect x="47" y="48" width="116" height="116" rx="28" fill="url(#blanket)"/>
+    <path d="M47 82h116v24H47z" fill="#f0b8c8"/>
+    <path d="M62 55c20 17 66 17 86 0" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" opacity=".88"/>
+    <path d="M79 122c18-20 34-20 52 0" fill="none" stroke="#29344f" stroke-width="8" stroke-linecap="round"/>
+    <path d="M87 138h36" stroke="#29344f" stroke-width="8" stroke-linecap="round"/>
+  </g>
+  <g>
+    <text x="218" y="98" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="900" letter-spacing="0" fill="#7d95c7">NAMENGINE</text>
+    <text x="216" y="154" font-family="Cormorant Garamond, Georgia, serif" font-size="72" font-weight="700" letter-spacing="0" fill="url(#wordmark)">Baby</text>
+    <path d="M218 174h282" stroke="#f0b8c8" stroke-width="8" stroke-linecap="round"/>
+  </g>
+</svg>

@@ -354,6 +354,7 @@ BABY = VerticalConfig(
     },
     assets={
         "logo": "images/baby-logo.svg",
+        "page_logo": "images/baby/namengine-baby-logo.svg",
         "share_image": "images/baby-share.svg",
     },
 )
