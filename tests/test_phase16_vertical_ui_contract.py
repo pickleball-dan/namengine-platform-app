@@ -66,7 +66,7 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("vertical-baby", body)
-        self.assertIn("images/baby/namengine-baby-logo.svg", body)
+        self.assertIn("images/baby/namengine-baby-logo.png", body)
         self.assertIn('alt="NamEngine Baby logo"', body)
         self.assertIn("identity-preview", body)
 

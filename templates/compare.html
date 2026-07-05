@@ -4,8 +4,9 @@
 
 {% block content %}
   <section class="compare-shell">
-    {% if vertical.assets.get("logo") %}
-      <img class="vertical-page-logo small" src="{{ url_for('static', filename=vertical.assets.get('logo')) }}" alt="NamEngine {{ vertical.display_name }} logo">
+    {% set page_logo = vertical.assets.get("page_logo", vertical.assets.get("logo")) %}
+    {% if page_logo %}
+      <img class="vertical-page-logo small" src="{{ url_for('static', filename=page_logo) }}" alt="NamEngine {{ vertical.display_name }} logo">
     {% endif %}
     <p class="eyebrow">Compare Favorites</p>
     <h1>Choose with confidence.</h1>

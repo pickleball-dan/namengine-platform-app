@@ -14,8 +14,9 @@
     data-taste-context="{{ names|length }} names · {{ display_brief_items(vertical, brief)|length }} direction selections"
   >
     <div class="results-heading">
-      {% if vertical.assets.get("logo") %}
-        <img class="vertical-page-logo small" src="{{ url_for('static', filename=vertical.assets.get('logo')) }}" alt="NamEngine {{ vertical.display_name }} logo">
+      {% set page_logo = vertical.assets.get("page_logo", vertical.assets.get("logo")) %}
+      {% if page_logo %}
+        <img class="vertical-page-logo small" src="{{ url_for('static', filename=page_logo) }}" alt="NamEngine {{ vertical.display_name }} logo">
       {% endif %}
       <p class="eyebrow">NamEngine {{ vertical.display_name }}</p>
       <h1>{% if original_mode|default(false) %}Original pet names shaped from your life.{% else %}{{ vertical.display_name }} names shaped from your taste.{% endif %}</h1>
