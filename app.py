@@ -17,16 +17,16 @@ from namengine.core import (
     build_reaction,
     build_taste_profile,
     build_trust_cue,
-    ensure_pet_portrait_for_chosen,
+    ensure_keepsake_for_chosen,
     generate_names,
     get_reaction_counts,
     get_chosen_snapshot,
     get_database_path,
     get_session_snapshot,
-    pet_portrait_preview_for_chosen,
+    keepsake_preview_for_chosen,
     get_taste_profile,
-    pet_portrait_runtime_config,
-    prepare_pet_portrait_for_chosen,
+    keepsake_runtime_config,
+    prepare_keepsake_for_chosen,
     refine_session,
     save_reaction,
     save_chosen_name,
@@ -306,8 +306,6 @@ def create_app() -> Flask:
         vertical = get_vertical(vertical_slug)
         source = _normalize_other_inputs(request.args.to_dict(flat=True))
         brief = build_brief(vertical, source)
-        if vertical.slug != "pet":
-            abort(501)
 
         session_id = make_session_id(vertical.slug, _query_string_from_mapping(source).encode("utf-8"))
         snapshot = get_session_snapshot(session_id)
@@ -374,7 +372,7 @@ def create_app() -> Flask:
         except StorageError:
             abort(404)
 
-        _queue_pet_portrait_generation(chosen.id)
+        _queue_keepsake_generation(chosen.id)
         return redirect(url_for("chosen_name", chosen_id=chosen.id))
 
     @app.post("/refine")
@@ -399,8 +397,6 @@ def create_app() -> Flask:
             )
 
         vertical = get_vertical(snapshot["session"]["vertical"])
-        if vertical.slug != "pet":
-            abort(501)
 
         try:
             child_session_id, brief, names = refine_session(
@@ -501,8 +497,8 @@ def create_app() -> Flask:
             abort(404)
 
         result = to_plain_data(json_loads(snapshot["result"]["result_json"]))
-        _queue_pet_portrait_generation(chosen_id)
-        portrait = _pet_portrait_preview(chosen_id)
+        _queue_keepsake_generation(chosen_id)
+        portrait = _keepsake_preview(chosen_id)
         return render_template(
             "chosen.html",
             vertical=get_vertical(snapshot["chosen"]["vertical"]),
@@ -517,19 +513,25 @@ def create_app() -> Flask:
         portrait_dir = get_database_path().parent / "generated_pet_portraits"
         return send_from_directory(portrait_dir, filename)
 
+    @app.get("/generated/baby-keepsakes/<filename>")
+    def generated_baby_keepsake(filename: str):
+        keepsake_dir = get_database_path().parent / "generated_baby_keepsakes"
+        return send_from_directory(keepsake_dir, filename)
+
     @app.get("/api/chosen/<chosen_id>/portrait")
     def chosen_portrait_status(chosen_id: str):
         snapshot = get_chosen_snapshot(chosen_id)
         if snapshot is None:
             abort(404)
 
-        portrait = _pet_portrait_preview(chosen_id)
+        vertical_slug = str(snapshot["chosen"].get("vertical", ""))
+        portrait = _keepsake_preview(chosen_id)
         if portrait and portrait.get("status") not in {"ready", "not_configured", "failed"}:
-            _queue_pet_portrait_generation(chosen_id)
+            _queue_keepsake_generation(chosen_id)
         return jsonify(
             {
                 "chosen_id": chosen_id,
-                "runtime": pet_portrait_runtime_config(),
+                "runtime": keepsake_runtime_config(vertical_slug),
                 "portrait": portrait or {"status": "not_attempted"},
             }
         )
@@ -566,23 +568,23 @@ def _names_from_snapshot(snapshot: dict) -> list[NameResult]:
     return [NameResult(**json_loads(row["result_json"])) for row in snapshot["results"]]
 
 
-def _try_generate_pet_portrait(chosen_id: str):
+def _try_generate_keepsake(chosen_id: str):
     snapshot = get_chosen_snapshot(chosen_id)
     if snapshot is None or snapshot["result"] is None:
         return None
-    if snapshot["chosen"].get("vertical") != "pet":
+    if snapshot["chosen"].get("vertical") not in {"pet", "baby"}:
         return None
 
     result = to_plain_data(json_loads(snapshot["result"]["result_json"]))
     try:
-        return ensure_pet_portrait_for_chosen(
+        return ensure_keepsake_for_chosen(
             snapshot["chosen"],
             result,
             snapshot["session"],
         )
     except Exception as exc:
         logger.warning(
-            "Pet portrait generation failed for %s: %s: %s",
+            "Keepsake generation failed for %s: %s: %s",
             chosen_id,
             exc.__class__.__name__,
             str(exc)[:500],
@@ -590,25 +592,25 @@ def _try_generate_pet_portrait(chosen_id: str):
         return None
 
 
-def _pet_portrait_preview(chosen_id: str):
+def _keepsake_preview(chosen_id: str):
     snapshot = get_chosen_snapshot(chosen_id)
     if snapshot is None or snapshot["result"] is None:
         return None
-    if snapshot["chosen"].get("vertical") != "pet":
+    if snapshot["chosen"].get("vertical") not in {"pet", "baby"}:
         return None
 
-    return pet_portrait_preview_for_chosen(snapshot["chosen"], snapshot["session"])
+    return keepsake_preview_for_chosen(snapshot["chosen"], snapshot["session"])
 
 
-def _queue_pet_portrait_generation(chosen_id: str):
+def _queue_keepsake_generation(chosen_id: str):
     snapshot = get_chosen_snapshot(chosen_id)
     if snapshot is None or snapshot["result"] is None:
         return None
-    if snapshot["chosen"].get("vertical") != "pet":
+    if snapshot["chosen"].get("vertical") not in {"pet", "baby"}:
         return None
 
     result = to_plain_data(json_loads(snapshot["result"]["result_json"]))
-    portrait = prepare_pet_portrait_for_chosen(
+    portrait = prepare_keepsake_for_chosen(
         snapshot["chosen"],
         result,
         snapshot["session"],
@@ -623,7 +625,7 @@ def _queue_pet_portrait_generation(chosen_id: str):
 
     def run() -> None:
         try:
-            _try_generate_pet_portrait(chosen_id)
+            _try_generate_keepsake(chosen_id)
         finally:
             with _portrait_jobs_lock:
                 _portrait_jobs.discard(chosen_id)

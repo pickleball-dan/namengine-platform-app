@@ -21,6 +21,8 @@ def validate_result(
 ) -> list[ValidationResult]:
     if vertical.slug == "pet":
         return _validate_pet_name(brief, result.name)
+    if vertical.slug == "baby":
+        return _validate_baby_name(brief, result.name)
     return [
         ValidationResult(
             module="validation_not_configured",
@@ -117,6 +119,85 @@ def _pet_avoid_validation(clean_name: str, avoid: set[str]) -> ValidationResult:
         message="Does not match the avoid list.",
         score=1.0,
         confidence=1.0,
+    )
+
+
+def _validate_baby_name(brief: NamingBrief, name: str) -> list[ValidationResult]:
+    clean_name = "".join(character for character in name.lower() if character.isalpha())
+    avoid = {item.lower() for item in brief.avoid}
+    syllable_count = _estimate_syllables(clean_name)
+    validation = [
+        _baby_pronunciation_validation(clean_name, syllable_count),
+        _baby_initials_validation(brief, clean_name),
+        _baby_popularity_validation(clean_name),
+    ]
+    if avoid:
+        validation.append(_pet_avoid_validation(clean_name, avoid))
+    return validation
+
+
+def _baby_pronunciation_validation(clean_name: str, syllable_count: int) -> ValidationResult:
+    if 1 <= syllable_count <= 3 and len(clean_name) <= 8:
+        return ValidationResult(
+            module="baby_pronunciation",
+            status=ValidationStatus.PASS,
+            label="Pronunciation",
+            message="Readable sound shape for everyday introductions.",
+            score=0.9,
+            confidence=0.82,
+            metadata={"length": len(clean_name), "syllables": syllable_count},
+        )
+    return ValidationResult(
+        module="baby_pronunciation",
+        status=ValidationStatus.WARN,
+        label="Pronunciation",
+        message="A little longer or less immediate; test how people read it cold.",
+        score=0.72,
+        confidence=0.76,
+        metadata={"length": len(clean_name), "syllables": syllable_count},
+    )
+
+
+def _baby_initials_validation(brief: NamingBrief, clean_name: str) -> ValidationResult:
+    family_context = str(brief.inputs.get("family_context", "")).strip()
+    if not family_context:
+        return ValidationResult(
+            module="baby_initials",
+            status=ValidationStatus.UNKNOWN,
+            label="Initials",
+            message="Add a surname or initials to check full-name flow.",
+            score=0.62,
+            confidence=0.58,
+        )
+    return ValidationResult(
+        module="baby_initials",
+        status=ValidationStatus.PASS,
+        label="Initials",
+        message="Family context provided; test the full name out loud before deciding.",
+        score=0.84,
+        confidence=0.7,
+        metadata={"first_initial": clean_name[:1].upper()},
+    )
+
+
+def _baby_popularity_validation(clean_name: str) -> ValidationResult:
+    familiar_names = {"maya", "nora", "theo", "miles", "clara"}
+    if clean_name in familiar_names:
+        return ValidationResult(
+            module="baby_popularity",
+            status=ValidationStatus.WARN,
+            label="Popularity",
+            message="Familiar choice; decide whether that comfort is a plus or a concern.",
+            score=0.72,
+            confidence=0.65,
+        )
+    return ValidationResult(
+        module="baby_popularity",
+        status=ValidationStatus.PASS,
+        label="Popularity",
+        message="Distinctive enough to feel considered without being hard to use.",
+        score=0.84,
+        confidence=0.65,
     )
 
 

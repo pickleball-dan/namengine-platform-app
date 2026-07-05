@@ -186,6 +186,27 @@ without template drift:
 The shared templates consume those values, so Baby, Business, Character, and
 future verticals can inherit the same flow while still feeling distinct.
 
+## Phase 17 Baby Vertical Migration
+
+Baby now uses the same structural flow as Pet:
+
+- grouped intake
+- progress overlay
+- results
+- Love / Maybe / No reactions
+- 3-reaction refinement gate
+- Round 2+ refinement
+- compare favorites
+- share list
+- chosen-name page
+- persisted sessions, reactions, taste profile, and chosen names
+- non-blocking chosen-name image preparation
+
+Baby has its own intake fields, soft nursery palette, logo/share assets,
+fallback name pools, validation modules, and chosen-name keepsake treatment.
+The selected-name image prompt uses a baby blanket with the chosen name
+embroidered on it, not a baby photo.
+
 ## Verify
 
 ```powershell

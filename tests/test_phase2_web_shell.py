@@ -44,6 +44,25 @@ class PhaseTwoWebShellTest(unittest.TestCase):
         self.assertIn('action="/pet/results"', body)
         self.assertIn("novalidate", body)
 
+    def test_baby_intake_renders_baby_specific_structure(self):
+        response = self.client.get("/baby")
+
+        self.assertEqual(response.status_code, 200)
+        body = response.get_data(as_text=True)
+        self.assertIn("NamEngine Baby", body)
+        self.assertIn("Let’s shape the right baby name.", body)
+        self.assertIn("About your baby", body)
+        self.assertIn("Name style", body)
+        self.assertIn("Fit and feeling", body)
+        self.assertIn("Sibling, surname, or family context", body)
+        self.assertIn("How familiar should the name feel?", body)
+        self.assertIn("What sound should the name have?", body)
+        self.assertIn("Family fit", body)
+        self.assertIn("Taste history", body)
+        self.assertIn('id="baby-intake-form"', body)
+        self.assertIn('action="/baby/results"', body)
+        self.assertIn("images/baby-logo.svg", body)
+
     def test_unknown_vertical_404s(self):
         response = self.client.get("/spaceship")
 

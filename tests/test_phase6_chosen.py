@@ -6,18 +6,20 @@ from unittest.mock import patch
 from app import create_app, make_session_id
 from namengine.core import (
     build_brief,
+    build_baby_keepsake_prompt,
     build_pet_portrait_prompt,
     generate_names,
     get_chosen_snapshot,
     get_database_path,
     get_session_snapshot,
     portrait_details_from_brief,
+    keepsake_details_from_brief,
     save_chosen_name,
     save_session,
     update_chosen_metadata,
 )
 from namengine.core.schemas import NameResult
-from namengine.verticals import PET
+from namengine.verticals import BABY, PET
 
 
 class PhaseSixChosenNameTest(unittest.TestCase):
@@ -26,8 +28,10 @@ class PhaseSixChosenNameTest(unittest.TestCase):
         self.db_path = os.path.join(self.tempdir.name, "test.sqlite3")
         self.previous_db_path = os.environ.get("NAMENGINE_DB_PATH")
         self.previous_disable_pet_images = os.environ.get("NAMENGINE_DISABLE_PET_IMAGES")
+        self.previous_disable_baby_images = os.environ.get("NAMENGINE_DISABLE_BABY_IMAGES")
         os.environ["NAMENGINE_DB_PATH"] = self.db_path
         os.environ["NAMENGINE_DISABLE_PET_IMAGES"] = "1"
+        os.environ["NAMENGINE_DISABLE_BABY_IMAGES"] = "1"
         self.app = create_app()
         self.app.testing = True
         self.client = self.app.test_client()
@@ -41,6 +45,10 @@ class PhaseSixChosenNameTest(unittest.TestCase):
             os.environ.pop("NAMENGINE_DISABLE_PET_IMAGES", None)
         else:
             os.environ["NAMENGINE_DISABLE_PET_IMAGES"] = self.previous_disable_pet_images
+        if self.previous_disable_baby_images is None:
+            os.environ.pop("NAMENGINE_DISABLE_BABY_IMAGES", None)
+        else:
+            os.environ["NAMENGINE_DISABLE_BABY_IMAGES"] = self.previous_disable_baby_images
         self.tempdir.cleanup()
 
     def test_save_chosen_name_persists_choice(self):
@@ -296,6 +304,51 @@ class PhaseSixChosenNameTest(unittest.TestCase):
         self.assertIn("timeless framed studio portrait", prompt)
         self.assertIn("Blue gray mature Whippet dog named Clover", prompt)
         self.assertIn("Do not include words", prompt)
+
+    def test_baby_chosen_page_uses_keepsake_details_when_present(self):
+        query = b"gender=Girl&style=Classic&sound=Soft&family_context=Surname+Parker"
+        session_id = make_session_id("baby", query)
+        self.client.get(f"/baby/results?{query.decode('utf-8')}")
+        response = self.client.post(
+            "/choose",
+            data={"session_id": session_id, "result_id": "baby-1"},
+            follow_redirects=True,
+        )
+        chosen_id = get_session_snapshot(session_id)["chosen_names"][0]["id"]
+        snapshot = get_chosen_snapshot(chosen_id)
+        body = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Creating keepsake", body)
+        self.assertIn("Baby blanket keepsake", body)
+        self.assertIn("Meet Eloise", body)
+        self.assertEqual(snapshot["chosen"]["metadata"]["baby_keepsake"]["status"], "not_configured")
+        self.assertEqual(snapshot["chosen"]["metadata"]["baby_keepsake"]["kind"], "baby_blanket")
+        details = snapshot["chosen"]["metadata"]["baby_keepsake"]["details"]
+        self.assertEqual(details["gender"], "Girl")
+        self.assertEqual(details["style"], "Classic")
+
+    def test_baby_keepsake_prompt_uses_blanket_not_baby_photo(self):
+        brief = {
+            "inputs": {
+                "gender": "Boy",
+                "style": "Classic",
+                "sound": "Strong",
+            }
+        }
+        details = keepsake_details_from_brief(brief, "baby")
+        prompt = build_baby_keepsake_prompt(
+            {"name": "Miles"},
+            {"name": "Miles"},
+            brief,
+            details,
+        )
+
+        self.assertEqual(details["gender"], "Boy")
+        self.assertIn("soft baby blanket", prompt)
+        self.assertIn("name Miles", prompt)
+        self.assertIn("soft powder blue", prompt)
+        self.assertIn("no baby, no people, no hands", prompt)
 
     def test_session_stores_round_metadata(self):
         brief = build_brief(PET, {"species": "Dog", "style": "Warm"})

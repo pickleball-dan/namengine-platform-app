@@ -93,6 +93,67 @@ PET_NAME_INSIGHTS = {
     "Theo": "balances a soft classic feel with a clean modern sound",
 }
 
+BABY_NAME_POOL = [
+    ("Eloise", "EL-oh-eez", "Elegant, literary, and familiar without feeling overused."),
+    ("Maya", "MY-uh", "Warm, simple, and internationally recognizable."),
+    ("Clara", "KLAIR-uh", "Clear, classic, and gently bright."),
+    ("Julian", "JOO-lee-un", "Softly tailored with a timeless, intelligent feel."),
+    ("Theo", "THEE-oh", "Friendly, warm, and modern-classic."),
+    ("Maren", "MAIR-en", "Calm, uncommon, and easy to wear."),
+    ("Nora", "NOR-uh", "Graceful, familiar, and quietly strong."),
+    ("Rowan", "ROH-un", "Nature-touched and flexible across styles."),
+]
+
+BABY_REFINED_POOL = [
+    ("Iris", "EYE-ris", "Floral, crisp, and quietly distinctive."),
+    ("Lena", "LEE-nuh", "Soft, international, and easy to say."),
+    ("Miles", "MYLZ", "Warm, polished, and friendly."),
+    ("Ada", "AY-duh", "Brief, vintage, and substantial."),
+    ("Jonah", "JOH-nuh", "Gentle, grounded, and familiar."),
+    ("Elian", "EL-ee-un", "Lyrical and uncommon while staying readable."),
+    ("Maeve", "MAYV", "Compact, elegant, and strong."),
+    ("Silas", "SY-lus", "Tailored, warm, and old-soul."),
+]
+
+BABY_FINALIST_POOL = [
+    ("Clara", "KLAIR-uh", "Clear, classic, and gently bright."),
+    ("Maren", "MAIR-en", "Calm, uncommon, and easy to wear."),
+    ("Iris", "EYE-ris", "Floral, crisp, and quietly distinctive."),
+    ("Miles", "MYLZ", "Warm, polished, and friendly."),
+    ("Ada", "AY-duh", "Brief, vintage, and substantial."),
+    ("Silas", "SY-lus", "Tailored, warm, and old-soul."),
+]
+
+BABY_EXTRA_POOL = [
+    ("Anya", "AHN-yuh", "Warm, compact, and quietly international."),
+    ("Calla", "KAL-uh", "Botanical, soft, and uncommon."),
+    ("Ellis", "EL-is", "Gentle, tailored, and gender-flexible."),
+    ("Hugo", "HYOO-goh", "Bright, classic, and stylish."),
+    ("Lyra", "LYE-ruh", "Musical, celestial, and easy to say."),
+    ("Reid", "REED", "Clean, strong, and understated."),
+    ("Soren", "SOR-en", "Distinctive, calm, and literary."),
+    ("Vera", "VAIR-uh", "Clear, vintage, and quietly confident."),
+]
+
+BABY_NAME_INSIGHTS = {
+    "Eloise": "carries a polished literary feeling with a soft, graceful rhythm",
+    "Maya": "is short, warm, and easy across languages and generations",
+    "Clara": "feels clear and timeless, with a bright sound that is easy to spell",
+    "Julian": "balances gentle sounds with a tailored, grown-up shape",
+    "Theo": "has friendly warmth and a current classic feel without becoming fussy",
+    "Maren": "offers a calm coastal sound with uncommon-but-readable strength",
+    "Nora": "is familiar and graceful while still feeling substantial",
+    "Rowan": "brings nature texture and a flexible, modern sound",
+    "Iris": "is compact, botanical, and distinctive without being difficult",
+    "Lena": "has a soft international feel and a clean everyday rhythm",
+    "Miles": "feels warm, cultured, and easy to picture at every age",
+    "Ada": "is brief and vintage with more strength than sweetness",
+    "Jonah": "lands gentle and grounded with a friendly cadence",
+    "Elian": "adds lyrical freshness while keeping pronunciation approachable",
+    "Maeve": "is compact, elegant, and strong in one syllable",
+    "Silas": "has old-soul polish with a warm modern edge",
+}
+
 
 def slugify(value: str) -> str:
     clean = re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
@@ -111,6 +172,13 @@ def _pet_fit_note(name: str, species: str, personality: str) -> str:
     return f"Best for a {animal} whose name should be easy to say, remember, and share."
 
 
+def _baby_fit_note(name: str, gender: str, sound: str) -> str:
+    direction = f" for a {gender.lower()} direction" if gender else ""
+    if sound:
+        return f"Best{direction} if you want a {sound.lower()} name that can grow from childhood into adulthood."
+    return f"Best{direction} if you want a name that feels warm now and still substantial later."
+
+
 def generate_names(
     vertical: VerticalConfig,
     brief: NamingBrief,
@@ -120,9 +188,6 @@ def generate_names(
     previous_names: list[str] | None = None,
     use_ai: bool = True,
 ) -> list[NameResult]:
-    if vertical.slug != "pet":
-        raise NotImplementedError("Phase 3 only generates Pet results.")
-
     if use_ai:
         from namengine.core.model_router import generate_with_router
 
@@ -152,6 +217,15 @@ def generate_fallback_names(
     taste_summary: str = "",
     previous_names: list[str] | None = None,
 ) -> list[NameResult]:
+    if vertical.slug == "baby":
+        return _generate_baby_fallback_names(
+            vertical=vertical,
+            brief=brief,
+            round_number=round_number,
+            taste_summary=taste_summary,
+            previous_names=previous_names or [],
+        )
+
     species = _brief_text(brief, "pet_type") or _brief_text(brief, "species", "pet")
     personality = _brief_text(brief, "vibe") or _brief_text(brief, "personality")
     style = _brief_text(brief, "style", "warm and wearable")
@@ -222,6 +296,84 @@ def generate_fallback_names(
                     "distinctiveness": 0.62 if name in {"Milo", "Toby", "Finn"} else 0.76,
                 },
                 metadata={"source": "phase3_fallback", "round_number": round_number},
+            )
+        )
+
+    if round_number >= 3:
+        return validate_results(vertical, brief, results[:6])
+    return validate_results(vertical, brief, results[: vertical.default_result_count])
+
+
+def _generate_baby_fallback_names(
+    vertical: VerticalConfig,
+    brief: NamingBrief,
+    round_number: int,
+    taste_summary: str = "",
+    previous_names: list[str] | None = None,
+) -> list[NameResult]:
+    gender = _brief_text(brief, "gender")
+    sound = _brief_text(brief, "sound")
+    style = _brief_text(brief, "style", "warm and wearable")
+    family_context = _brief_text(brief, "family_context")
+    avoid_text = ", ".join(brief.avoid)
+
+    pool = BABY_NAME_POOL
+    if round_number == 2:
+        pool = BABY_REFINED_POOL
+    elif round_number >= 4:
+        pool = BABY_EXTRA_POOL
+    elif round_number >= 3:
+        pool = BABY_FINALIST_POOL
+
+    if round_number >= 4:
+        previous = {name.lower() for name in (previous_names or [])}
+        filtered_pool = [item for item in pool if item[0].lower() not in previous]
+        if filtered_pool:
+            pool = filtered_pool
+
+    results: list[NameResult] = []
+    for index, (name, pronunciation, opener) in enumerate(pool, start=1):
+        risks = []
+        if name.lower() in {item.lower() for item in brief.avoid}:
+            risks.append("This name matches something in the avoid list.")
+        if len(name) <= 3:
+            risks.append("Short name; test it with the surname for rhythm and initials.")
+        if not risks:
+            risks.append("Low practical risk; still test initials, surname flow, and family associations.")
+
+        insight = BABY_NAME_INSIGHTS.get(
+            name,
+            "balances sound, warmth, and everyday wearability",
+        )
+        why = (
+            f"{name} works because it {insight}. "
+            f"It stays in the {style.lower()} lane while giving the name enough substance for every stage of life."
+        )
+        if family_context:
+            why += f" It should be tested against your family context: {family_context}."
+        if taste_summary:
+            why += f" {taste_summary}"
+        if avoid_text:
+            why += f" It also stays mindful of your avoid list: {avoid_text}."
+
+        results.append(
+            NameResult(
+                id=f"{vertical.slug}-{index}",
+                name=name,
+                slug=slugify(name),
+                pronunciation=pronunciation,
+                tagline=opener,
+                meaning="A baby name shaped for sound, warmth, family fit, and long-term wearability.",
+                why_this_name=why,
+                fit_note=_baby_fit_note(name, gender, sound),
+                risks=risks,
+                tags=["wearable", "warm", "family-ready"],
+                scores={
+                    "callability": 0.9 if len(name) <= 6 else 0.82,
+                    "warmth": 0.88,
+                    "distinctiveness": 0.58 if name in {"Maya", "Nora", "Theo"} else 0.74,
+                },
+                metadata={"source": "baby_fallback", "round_number": round_number},
             )
         )
 

@@ -951,6 +951,10 @@ button {
   opacity: 0.58;
 }
 
+.share-preview:not(.vertical-pet)::after {
+  display: none;
+}
+
 .share-preview-label,
 .share-preview h1,
 .share-preview p,
@@ -1043,6 +1047,57 @@ button {
   content: "";
   border: 1px solid rgba(73, 49, 32, 0.16);
   border-radius: 4px;
+}
+
+.baby-keepsake-frame {
+  background: linear-gradient(145deg, #fffaf2 0%, #f5ead9 100%);
+}
+
+.baby-keepsake-placeholder {
+  background:
+    linear-gradient(90deg, rgba(247, 198, 212, 0.92) 0 22%, transparent 22% 29%, rgba(219, 230, 255, 0.95) 29% 100%),
+    linear-gradient(145deg, #fff9ef, #eadbc5);
+  border-color: rgba(41, 52, 79, 0.15);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.76);
+  justify-content: center;
+  padding: 28px 16px 56px;
+}
+
+.baby-keepsake-placeholder::before {
+  inset: 14%;
+  border-color: rgba(41, 52, 79, 0.1);
+  border-radius: 10px;
+}
+
+.baby-keepsake-placeholder::after {
+  position: absolute;
+  inset: 18% 15% auto;
+  height: 18%;
+  content: "";
+  border-top: 7px solid rgba(255, 255, 255, 0.86);
+  border-radius: 999px 999px 0 0;
+}
+
+.blanket-fold {
+  position: absolute;
+  inset: 14% 12%;
+  border: 1px solid rgba(41, 52, 79, 0.1);
+  border-radius: 11px;
+}
+
+.blanket-embroidered-name {
+  color: #29344f;
+  font-size: clamp(30px, 9vw, 46px);
+  line-height: 1;
+  text-align: center;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.baby-keepsake-placeholder .portrait-status {
+  position: absolute;
+  right: 18px;
+  bottom: 16px;
+  left: 18px;
 }
 
 .portrait-monogram {

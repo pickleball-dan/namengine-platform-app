@@ -13,6 +13,7 @@ from namengine.core.storage import get_database_path, update_chosen_metadata
 
 
 PORTRAIT_DIRNAME = "generated_pet_portraits"
+BABY_KEEPSAKE_DIRNAME = "generated_baby_keepsakes"
 DEFAULT_IMAGE_MODEL = "gpt-image-1"
 
 
@@ -20,11 +21,27 @@ def is_pet_portrait_generation_configured() -> bool:
     return bool(os.getenv("OPENAI_API_KEY")) and not _env_flag("NAMENGINE_DISABLE_PET_IMAGES")
 
 
+def is_keepsake_generation_configured(vertical_slug: str) -> bool:
+    if not os.getenv("OPENAI_API_KEY"):
+        return False
+    if vertical_slug == "pet":
+        return not _env_flag("NAMENGINE_DISABLE_PET_IMAGES")
+    if vertical_slug == "baby":
+        return not _env_flag("NAMENGINE_DISABLE_BABY_IMAGES")
+    return False
+
+
 def pet_portrait_runtime_config() -> dict[str, Any]:
+    return keepsake_runtime_config("pet")
+
+
+def keepsake_runtime_config(vertical_slug: str) -> dict[str, Any]:
     return {
-        "configured": is_pet_portrait_generation_configured(),
+        "configured": is_keepsake_generation_configured(vertical_slug),
         "has_api_key": bool(os.getenv("OPENAI_API_KEY")),
-        "disabled": _env_flag("NAMENGINE_DISABLE_PET_IMAGES"),
+        "disabled": _env_flag("NAMENGINE_DISABLE_PET_IMAGES")
+        if vertical_slug == "pet"
+        else _env_flag("NAMENGINE_DISABLE_BABY_IMAGES"),
         "model": os.getenv("NAMENGINE_IMAGE_MODEL", DEFAULT_IMAGE_MODEL),
         "size": os.getenv("NAMENGINE_IMAGE_SIZE", "1024x1024"),
     }
@@ -58,21 +75,53 @@ def pet_portrait_url_from_metadata(chosen_id: str, metadata: dict[str, Any]) -> 
     return None
 
 
+def keepsake_url_from_metadata(
+    chosen_id: str,
+    metadata: dict[str, Any],
+    vertical_slug: str,
+) -> str | None:
+    metadata_key = _metadata_key(vertical_slug)
+    keepsake = metadata.get(metadata_key) if isinstance(metadata, dict) else None
+    if not isinstance(keepsake, dict):
+        return None
+
+    filename = keepsake.get("filename")
+    if not filename:
+        return None
+
+    path = _keepsake_path(str(filename), vertical_slug)
+    if path.is_file():
+        return f"/generated/{_generated_route_segment(vertical_slug)}/{path.name}"
+    return None
+
+
 def pet_portrait_preview_for_chosen(
     chosen: dict[str, Any],
     session: dict[str, Any] | None,
 ) -> dict[str, Any] | None:
+    return keepsake_preview_for_chosen(chosen, session)
+
+
+def keepsake_preview_for_chosen(
+    chosen: dict[str, Any],
+    session: dict[str, Any] | None,
+) -> dict[str, Any] | None:
+    vertical_slug = str(chosen.get("vertical", ""))
+    if vertical_slug not in {"pet", "baby"}:
+        return None
+
     metadata = chosen.get("metadata") if isinstance(chosen.get("metadata"), dict) else {}
-    portrait = metadata.get("pet_portrait") if isinstance(metadata, dict) else None
+    metadata_key = _metadata_key(vertical_slug)
+    portrait = metadata.get(metadata_key) if isinstance(metadata, dict) else None
     if isinstance(portrait, dict):
         portrait = dict(portrait)
-        existing_url = pet_portrait_url_from_metadata(str(chosen["id"]), metadata)
+        existing_url = keepsake_url_from_metadata(str(chosen["id"]), metadata, vertical_slug)
         if existing_url:
             portrait["url"] = existing_url
         return portrait
 
     brief = _json_loads((session or {}).get("brief_json", "{}"))
-    details = portrait_details_from_brief(brief)
+    details = keepsake_details_from_brief(brief, vertical_slug)
     if not _has_enough_detail(details):
         return None
 
@@ -80,7 +129,8 @@ def pet_portrait_preview_for_chosen(
         "details": details,
         "model": os.getenv("NAMENGINE_IMAGE_MODEL", DEFAULT_IMAGE_MODEL),
         "size": os.getenv("NAMENGINE_IMAGE_SIZE", "1024x1024"),
-        "status": "pending" if is_pet_portrait_generation_configured() else "not_configured",
+        "status": "pending" if is_keepsake_generation_configured(vertical_slug) else "not_configured",
+        "kind": _keepsake_kind(vertical_slug),
     }
 
 
@@ -89,26 +139,40 @@ def prepare_pet_portrait_for_chosen(
     result: dict[str, Any],
     session: dict[str, Any] | None,
 ) -> dict[str, Any] | None:
+    return prepare_keepsake_for_chosen(chosen, result, session)
+
+
+def prepare_keepsake_for_chosen(
+    chosen: dict[str, Any],
+    result: dict[str, Any],
+    session: dict[str, Any] | None,
+) -> dict[str, Any] | None:
+    vertical_slug = str(chosen.get("vertical", ""))
+    if vertical_slug not in {"pet", "baby"}:
+        return None
+
     metadata = chosen.get("metadata") if isinstance(chosen.get("metadata"), dict) else {}
-    portrait = metadata.get("pet_portrait") if isinstance(metadata, dict) else None
+    metadata_key = _metadata_key(vertical_slug)
+    portrait = metadata.get(metadata_key) if isinstance(metadata, dict) else None
     if isinstance(portrait, dict) and portrait.get("status") in {"pending", "ready"}:
-        return pet_portrait_preview_for_chosen(chosen, session)
+        return keepsake_preview_for_chosen(chosen, session)
 
     brief = _json_loads((session or {}).get("brief_json", "{}"))
-    details = portrait_details_from_brief(brief)
+    details = keepsake_details_from_brief(brief, vertical_slug)
     if not _has_enough_detail(details):
         return None
 
     portrait = {
         "details": details,
-        "prompt": build_pet_portrait_prompt(chosen, result, brief, details),
+        "prompt": build_keepsake_prompt(chosen, result, brief, details, vertical_slug),
         "model": os.getenv("NAMENGINE_IMAGE_MODEL", DEFAULT_IMAGE_MODEL),
         "size": os.getenv("NAMENGINE_IMAGE_SIZE", "1024x1024"),
-        "status": "pending" if is_pet_portrait_generation_configured() else "not_configured",
+        "status": "pending" if is_keepsake_generation_configured(vertical_slug) else "not_configured",
+        "kind": _keepsake_kind(vertical_slug),
     }
     update_chosen_metadata(
         str(chosen["id"]),
-        {"pet_portrait": {key: value for key, value in portrait.items() if key != "prompt"}},
+        {metadata_key: {key: value for key, value in portrait.items() if key != "prompt"}},
     )
     return portrait
 
@@ -118,36 +182,50 @@ def ensure_pet_portrait_for_chosen(
     result: dict[str, Any],
     session: dict[str, Any] | None,
 ) -> dict[str, Any] | None:
+    return ensure_keepsake_for_chosen(chosen, result, session)
+
+
+def ensure_keepsake_for_chosen(
+    chosen: dict[str, Any],
+    result: dict[str, Any],
+    session: dict[str, Any] | None,
+) -> dict[str, Any] | None:
+    vertical_slug = str(chosen.get("vertical", ""))
+    if vertical_slug not in {"pet", "baby"}:
+        return None
+
     metadata = chosen.get("metadata") if isinstance(chosen.get("metadata"), dict) else {}
-    existing_url = pet_portrait_url_from_metadata(str(chosen["id"]), metadata)
+    metadata_key = _metadata_key(vertical_slug)
+    existing_url = keepsake_url_from_metadata(str(chosen["id"]), metadata, vertical_slug)
     if existing_url:
-        portrait = dict(metadata["pet_portrait"])
+        portrait = dict(metadata[metadata_key])
         portrait["url"] = existing_url
         return portrait
 
     brief = _json_loads((session or {}).get("brief_json", "{}"))
-    details = portrait_details_from_brief(brief)
+    details = keepsake_details_from_brief(brief, vertical_slug)
     if not _has_enough_detail(details):
         return None
 
     portrait = {
         "details": details,
-        "prompt": build_pet_portrait_prompt(chosen, result, brief, details),
+        "prompt": build_keepsake_prompt(chosen, result, brief, details, vertical_slug),
         "model": os.getenv("NAMENGINE_IMAGE_MODEL", DEFAULT_IMAGE_MODEL),
         "size": os.getenv("NAMENGINE_IMAGE_SIZE", "1024x1024"),
         "status": "pending",
+        "kind": _keepsake_kind(vertical_slug),
     }
 
-    if not is_pet_portrait_generation_configured():
+    if not is_keepsake_generation_configured(vertical_slug):
         portrait["status"] = "not_configured"
         update_chosen_metadata(
             str(chosen["id"]),
-            {"pet_portrait": {key: value for key, value in portrait.items() if key != "prompt"}},
+            {metadata_key: {key: value for key, value in portrait.items() if key != "prompt"}},
         )
         return portrait
 
     filename = f"{chosen['id']}.png"
-    path = _portrait_path(filename)
+    path = _keepsake_path(filename, vertical_slug)
     path.parent.mkdir(parents=True, exist_ok=True)
 
     try:
@@ -166,7 +244,7 @@ def ensure_pet_portrait_for_chosen(
         )
         update_chosen_metadata(
             str(chosen["id"]),
-            {"pet_portrait": {key: value for key, value in portrait.items() if key != "prompt"}},
+            {metadata_key: {key: value for key, value in portrait.items() if key != "prompt"}},
         )
         raise
 
@@ -182,7 +260,7 @@ def ensure_pet_portrait_for_chosen(
         )
         update_chosen_metadata(
             str(chosen["id"]),
-            {"pet_portrait": {key: value for key, value in portrait.items() if key != "prompt"}},
+            {metadata_key: {key: value for key, value in portrait.items() if key != "prompt"}},
         )
         raise error
 
@@ -191,12 +269,12 @@ def ensure_pet_portrait_for_chosen(
         {
             "filename": filename,
             "status": "ready",
-            "url": f"/generated/pet-portraits/{filename}",
+            "url": f"/generated/{_generated_route_segment(vertical_slug)}/{filename}",
         }
     )
     update_chosen_metadata(
         str(chosen["id"]),
-        {"pet_portrait": {key: value for key, value in portrait.items() if key != "url"}},
+        {metadata_key: {key: value for key, value in portrait.items() if key != "url"}},
     )
     return portrait
 
@@ -207,6 +285,19 @@ def build_pet_portrait_prompt(
     brief: dict[str, Any],
     details: dict[str, str] | None = None,
 ) -> str:
+    return build_keepsake_prompt(chosen, result, brief, details, "pet")
+
+
+def build_keepsake_prompt(
+    chosen: dict[str, Any],
+    result: dict[str, Any],
+    brief: dict[str, Any],
+    details: dict[str, str] | None = None,
+    vertical_slug: str = "pet",
+) -> str:
+    if vertical_slug == "baby":
+        return build_baby_keepsake_prompt(chosen, result, brief, details)
+
     inputs = brief.get("inputs", {}) if isinstance(brief, dict) else {}
     details = details or portrait_details_from_brief(brief)
     pet_type = _clean(inputs.get("pet_type")) or "pet"
@@ -228,13 +319,90 @@ def build_pet_portrait_prompt(
     )
 
 
+def build_baby_keepsake_prompt(
+    chosen: dict[str, Any],
+    result: dict[str, Any],
+    brief: dict[str, Any],
+    details: dict[str, str] | None = None,
+) -> str:
+    inputs = brief.get("inputs", {}) if isinstance(brief, dict) else {}
+    details = details or keepsake_details_from_brief(brief, "baby")
+    name = _clean(chosen.get("name")) or _clean(result.get("name")) or "the name"
+    gender = (details.get("gender") or "neutral").lower()
+    style = _clean(inputs.get("style")) or "classic"
+    sound = _clean(inputs.get("sound")) or "warm"
+    palette = _baby_palette(gender)
+
+    return (
+        "Create a premium nursery keepsake image centered on a soft baby blanket. "
+        f"The blanket should have the name {name} tastefully embroidered on it in clear, readable letters. "
+        f"Use a {palette} color palette based on the gender direction: {gender}. "
+        f"Mood: {style.lower()}, {sound.lower()}, tender, refined, gift-worthy, modern heirloom. "
+        "Composition: folded or gently draped blanket, subtle nursery surface, soft natural light, "
+        "high-end product photography, cozy texture, no baby, no people, no hands. "
+        "Do not include logos, watermarks, extra captions, misspellings, or unrelated text."
+    )
+
+
 def _has_enough_detail(details: dict[str, str]) -> bool:
-    return bool(details.get("breed") or details.get("color") or details.get("life_stage"))
+    return bool(
+        details.get("breed")
+        or details.get("color")
+        or details.get("life_stage")
+        or details.get("gender")
+        or details.get("style")
+    )
 
 
 def _portrait_path(filename: str) -> Path:
     safe_name = Path(filename).name
     return get_database_path().parent / PORTRAIT_DIRNAME / safe_name
+
+
+def keepsake_details_from_brief(
+    brief: dict[str, Any] | None,
+    vertical_slug: str,
+) -> dict[str, str]:
+    if vertical_slug == "pet":
+        return portrait_details_from_brief(brief)
+
+    inputs = (brief or {}).get("inputs", {})
+    if not isinstance(inputs, dict):
+        return {}
+
+    details = {
+        "gender": _clean(inputs.get("gender")),
+        "style": _clean(inputs.get("style")),
+        "sound": _clean(inputs.get("sound")),
+    }
+    return {key: value for key, value in details.items() if value}
+
+
+def _keepsake_path(filename: str, vertical_slug: str) -> Path:
+    safe_name = Path(filename).name
+    dirname = BABY_KEEPSAKE_DIRNAME if vertical_slug == "baby" else PORTRAIT_DIRNAME
+    return get_database_path().parent / dirname / safe_name
+
+
+def _metadata_key(vertical_slug: str) -> str:
+    return "baby_keepsake" if vertical_slug == "baby" else "pet_portrait"
+
+
+def _generated_route_segment(vertical_slug: str) -> str:
+    return "baby-keepsakes" if vertical_slug == "baby" else "pet-portraits"
+
+
+def _keepsake_kind(vertical_slug: str) -> str:
+    return "baby_blanket" if vertical_slug == "baby" else "pet_portrait"
+
+
+def _baby_palette(gender: str) -> str:
+    normalized = gender.lower()
+    if "boy" in normalized:
+        return "soft powder blue, warm white, and pale silver"
+    if "girl" in normalized:
+        return "soft blush pink, warm white, and pale champagne"
+    return "warm ivory, sage, pale blue, and blush accents"
 
 
 def _clean(value: Any) -> str:

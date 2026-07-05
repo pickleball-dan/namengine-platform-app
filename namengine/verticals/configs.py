@@ -67,6 +67,55 @@ PET_INSPIRATION_OPTIONS = (
     "Pop culture",
 )
 
+BABY_GENDER_OPTIONS = ("Girl", "Boy", "Gender-neutral", "Surprise me")
+BABY_DISCOVERY_STYLE_OPTIONS = (
+    "Classic favorites",
+    "Balanced mix",
+    "Unexpected finds",
+    "Rare but wearable",
+)
+BABY_STYLE_OPTIONS = (
+    "Classic",
+    "Modern",
+    "Soft and romantic",
+    "Strong and tailored",
+    "Vintage revival",
+    "Nature-inspired",
+    "Globally familiar",
+)
+BABY_DISTINCTIVENESS_OPTIONS = (
+    "Strongly timeless",
+    "Mostly timeless",
+    "Balanced",
+    "Mostly distinctive",
+    "Strongly distinctive",
+)
+BABY_FAMILIARITY_OPTIONS = (
+    "Very familiar and easy",
+    "Recognizable but not overused",
+    "A little less common",
+    "Memorable and rarer",
+)
+BABY_SOUND_OPTIONS = (
+    "Soft",
+    "Bright",
+    "Strong",
+    "Elegant",
+    "Playful",
+    "Calm",
+    "Warm",
+)
+BABY_INSPIRATION_OPTIONS = (
+    "Family heritage",
+    "Nature",
+    "Literature",
+    "Saints & classics",
+    "Music",
+    "Places",
+    "Meaning first",
+    "Modern favorites",
+)
+
 
 PET = VerticalConfig(
     slug="pet",
@@ -206,10 +255,76 @@ BABY = VerticalConfig(
     object_label="baby name",
     route_prefix="/baby",
     intake_questions=(
-        Question("gender", "Any gender direction?"),
-        Question("style", "What style do you naturally like?"),
-        Question("family_context", "Any sibling, surname, or family context?"),
-        Question("avoid", "Anything to avoid?"),
+        Question(
+            "gender",
+            "Any gender direction?",
+            choices=BABY_GENDER_OPTIONS,
+            section="About your baby",
+        ),
+        Question(
+            "family_context",
+            "Sibling, surname, or family context",
+            placeholder="Last name, sibling names, family names, initials...",
+            section="About your baby",
+        ),
+        Question(
+            "notes",
+            "Tell us what matters",
+            kind="textarea",
+            placeholder="Meanings you love, family dynamics, cultural notes, names already on your list...",
+            section="About your baby",
+        ),
+        Question(
+            "discovery_style",
+            "How adventurous should we be?",
+            choices=BABY_DISCOVERY_STYLE_OPTIONS,
+            help_text="Choose the lane for this first pass.",
+            section="Name style",
+        ),
+        Question(
+            "style",
+            "What style do you naturally like?",
+            required=True,
+            choices=BABY_STYLE_OPTIONS,
+            section="Name style",
+        ),
+        Question(
+            "timeless_vs_distinctive",
+            "Would you lean more timeless or more distinctive?",
+            choices=BABY_DISTINCTIVENESS_OPTIONS,
+            section="Name style",
+        ),
+        Question(
+            "familiarity_preference",
+            "How familiar should the name feel?",
+            choices=BABY_FAMILIARITY_OPTIONS,
+            section="Name style",
+        ),
+        Question(
+            "sound",
+            "What sound should the name have?",
+            choices=BABY_SOUND_OPTIONS,
+            section="Fit and feeling",
+        ),
+        Question(
+            "cultural_context",
+            "Name inspiration",
+            choices=BABY_INSPIRATION_OPTIONS,
+            section="Fit and feeling",
+        ),
+        Question(
+            "partner_alignment",
+            "Anything you're torn between?",
+            kind="textarea",
+            placeholder="One parent likes classic, one likes modern; honoring family without copying exactly...",
+            section="Fit and feeling",
+        ),
+        Question(
+            "avoid",
+            "Anything to avoid?",
+            placeholder="Names, initials, sounds, popularity levels, associations...",
+            section="Fit and feeling",
+        ),
     ),
     prompt_context=(
         "Generate baby names with warmth, pronunciation clarity, cultural care, "
@@ -223,12 +338,17 @@ BABY = VerticalConfig(
     },
     validation_modules=("baby_pronunciation", "baby_initials", "baby_popularity"),
     theme={
-        "accent": "#6ea8fe",
-        "surface": "#f3f8ff",
+        "accent": "#7d95c7",
+        "accent_deep": "#29344f",
+        "accent_pet": "#f0b8c8",
+        "accent_soft": "rgba(125, 149, 199, 0.15)",
+        "accent_warm_soft": "rgba(240, 184, 200, 0.25)",
+        "surface": "rgba(249, 251, 255, 0.96)",
         "page": "#f7fbff",
         "card": "#ffffff",
         "ink": "#172033",
         "muted": "#62708a",
+        "line": "rgba(41, 52, 79, 0.13)",
     },
     assets={
         "logo": "images/baby-logo.svg",

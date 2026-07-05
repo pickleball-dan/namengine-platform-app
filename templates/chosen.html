@@ -3,6 +3,11 @@
 {% block title %}{{ chosen.name }} | NamEngine{% endblock %}
 
 {% block content %}
+  {% set keepsake_label = "keepsake" if vertical.slug == "baby" else "portrait" %}
+  {% set keepsake_ready_alt = "Baby blanket keepsake for " ~ chosen.name if vertical.slug == "baby" else "Framed portrait of " ~ chosen.name %}
+  {% set keepsake_setup_text = "Keepsake setup needed" if vertical.slug == "baby" else "Portrait setup needed" %}
+  {% set keepsake_failed_text = "Keepsake could not be created" if vertical.slug == "baby" else "Portrait could not be created" %}
+  {% set keepsake_creating_text = "Creating keepsake" if vertical.slug == "baby" else "Creating portrait" %}
   <section class="chosen-shell">
     {% if vertical.assets.get("logo") %}
       <img class="vertical-page-logo small" src="{{ url_for('static', filename=vertical.assets.get('logo')) }}" alt="NamEngine {{ vertical.display_name }} logo">
@@ -10,26 +15,31 @@
     <p class="eyebrow">Chosen {{ chosen.vertical.title() }} Name</p>
 
     <section
-      class="share-preview{% if portrait %} has-portrait{% endif %}"
+      class="share-preview vertical-{{ vertical.slug }}{% if portrait %} has-portrait{% endif %}"
       aria-label="Share preview"
       {% if portrait and portrait.status not in ["ready", "not_configured", "failed"] %}
         data-portrait-status-url="{{ url_for('chosen_portrait_status', chosen_id=chosen.id) }}"
       {% endif %}
     >
       {% if portrait %}
-        <figure class="pet-portrait-frame" data-pet-portrait-frame>
+        <figure class="pet-portrait-frame{% if vertical.slug == 'baby' %} baby-keepsake-frame{% endif %}" data-pet-portrait-frame>
           {% if portrait.url %}
-            <img data-pet-portrait-image src="{{ portrait.url }}" alt="Framed portrait of {{ chosen.name }}">
+            <img data-pet-portrait-image src="{{ portrait.url }}" alt="{{ keepsake_ready_alt }}">
           {% else %}
-            <div class="pet-portrait-placeholder" data-pet-portrait-placeholder>
-              <span class="portrait-monogram" aria-hidden="true">{{ chosen.name[:1] }}</span>
+            <div class="pet-portrait-placeholder{% if vertical.slug == 'baby' %} baby-keepsake-placeholder{% endif %}" data-pet-portrait-placeholder>
+              {% if vertical.slug == "baby" %}
+                <span class="blanket-fold" aria-hidden="true"></span>
+                <span class="portrait-monogram blanket-embroidered-name" aria-label="Baby blanket keepsake embroidered with {{ chosen.name }}">{{ chosen.name }}</span>
+              {% else %}
+                <span class="portrait-monogram" aria-hidden="true">{{ chosen.name[:1] }}</span>
+              {% endif %}
               {% if portrait.status == "not_configured" %}
-                <span class="portrait-status">Portrait setup needed</span>
+                <span class="portrait-status">{{ keepsake_setup_text }}</span>
               {% elif portrait.status == "failed" %}
-                <span class="portrait-status">Portrait could not be created</span>
+                <span class="portrait-status">{{ keepsake_failed_text }}</span>
               {% else %}
                 <span class="portrait-progress" aria-hidden="true"></span>
-                <span class="portrait-status" data-pet-portrait-status>Creating portrait</span>
+                <span class="portrait-status" data-pet-portrait-status>{{ keepsake_creating_text }}</span>
               {% endif %}
             </div>
           {% endif %}
@@ -69,9 +79,10 @@
     document.querySelector("[data-copy-url]")?.addEventListener("click", async (event) => {
       const button = event.currentTarget;
       const chosenName = {{ chosen.name|tojson }};
+      const verticalLabel = {{ vertical.display_name|tojson }};
       const sharePayload = {
         title: `${chosenName} | NamEngine`,
-        text: `Meet ${chosenName}, a NamEngine final pick.`,
+        text: `Meet ${chosenName}, a NamEngine ${verticalLabel} final pick.`,
         url: window.location.href,
       };
 
@@ -93,6 +104,11 @@
     const portraitShell = document.querySelector("[data-portrait-status-url]");
     const portraitFrame = document.querySelector("[data-pet-portrait-frame]");
     const portraitStatus = document.querySelector("[data-pet-portrait-status]");
+    const readyAlt = {{ keepsake_ready_alt|tojson }};
+    const failedText = {{ keepsake_failed_text|tojson }};
+    const creatingText = {{ keepsake_creating_text|tojson }};
+    const finishingText = {{ ("Finishing keepsake" if vertical.slug == "baby" else "Finishing portrait")|tojson }};
+    const stillCreatingText = {{ ("Still creating keepsake" if vertical.slug == "baby" else "Still creating portrait")|tojson }};
 
     if (portraitShell && portraitFrame) {
       let attempts = 0;
@@ -111,23 +127,23 @@
             const image = document.createElement("img");
             image.dataset.petPortraitImage = "true";
             image.src = portrait.url;
-            image.alt = "Framed portrait of {{ chosen.name }}";
+            image.alt = readyAlt;
             portraitFrame.querySelector("[data-pet-portrait-placeholder]")?.replaceWith(image);
             portraitShell.removeAttribute("data-portrait-status-url");
             return;
           }
 
           if (portrait.status === "failed" && portraitStatus) {
-            portraitStatus.textContent = "Portrait could not be created";
+            portraitStatus.textContent = failedText;
             return;
           }
 
           if (portraitStatus) {
-            portraitStatus.textContent = attempts % 2 ? "Creating portrait" : "Finishing portrait";
+            portraitStatus.textContent = attempts % 2 ? creatingText : finishingText;
           }
         } catch (error) {
           if (portraitStatus) {
-            portraitStatus.textContent = "Still creating portrait";
+            portraitStatus.textContent = stillCreatingText;
           }
         }
 

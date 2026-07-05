@@ -1,6 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="NamEngine Baby">
   <rect width="1200" height="630" fill="#f7fbff"/>
-  <circle cx="600" cy="270" r="132" fill="#6ea8fe"/>
-  <path d="M600 145l34 84 91 5-70 58 23 89-78-50-78 50 23-89-70-58 91-5z" fill="#ffffff"/>
-  <text x="600" y="505" text-anchor="middle" font-family="Arial, sans-serif" font-size="72" font-weight="800" fill="#172033">NamEngine Baby</text>
+  <path d="M270 120c0-34 27-61 61-61h538c34 0 61 27 61 61v287c0 34-27 61-61 61H331c-34 0-61-27-61-61z" fill="#dbe6ff"/>
+  <path d="M270 198h660v72H270z" fill="#f7c6d4"/>
+  <path d="M344 120c62 52 450 52 512 0" fill="none" stroke="#ffffff" stroke-width="26" stroke-linecap="round" opacity=".82"/>
+  <path d="M438 342c72-72 252-72 324 0" fill="none" stroke="#29344f" stroke-width="24" stroke-linecap="round"/>
+  <path d="M468 391h264" stroke="#29344f" stroke-width="24" stroke-linecap="round"/>
+  <text x="600" y="555" text-anchor="middle" font-family="Arial, sans-serif" font-size="70" font-weight="800" fill="#172033">NamEngine Baby</text>
 </svg>
