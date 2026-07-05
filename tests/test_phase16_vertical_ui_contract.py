@@ -157,6 +157,8 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn("Open taste history", body)
         self.assertIn("Pick up where you left off.", body)
         self.assertIn("data-taste-history-drawer-list", body)
+        self.assertIn("data-taste-history-clear", body)
+        self.assertIn('data-taste-vertical="pet"', body)
 
     def test_results_direction_items_link_back_to_prefilled_intake_fields(self):
         response = self.client.get(
@@ -166,6 +168,7 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn('class="brief-summary direction-disclosure"', body)
+        self.assertIn('data-taste-vertical="pet"', body)
         self.assertIn('data-taste-session-id=', body)
         self.assertIn('data-taste-list-url=', body)
         self.assertIn('data-taste-share-url=', body)
@@ -204,6 +207,11 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         js = js_path.read_text(encoding="utf-8")
 
         self.assertIn("namengine.pet.tasteHistory.v1", js)
+        self.assertIn("namengine.${verticalSlug}.tasteHistory.v1", js)
+        self.assertIn("data-taste-history-clear", js)
+        self.assertIn("Clear saved ${verticalName} loved names and searches", js)
+        self.assertIn("clearLegacyVerticalHistory", js)
+        self.assertIn("window.NamEngineTasteHistory", js)
         self.assertIn("data-taste-session-id", js)
         self.assertIn("Resume", js)
         self.assertIn("View list", js)

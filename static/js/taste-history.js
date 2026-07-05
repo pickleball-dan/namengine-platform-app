@@ -1,13 +1,57 @@
 (function () {
-  const key = "namengine.pet.tasteHistory.v1";
+  const legacyKey = "namengine.pet.tasteHistory.v1";
+  const verticalSlug = getVerticalSlug();
+  const verticalName = verticalSlug.charAt(0).toUpperCase() + verticalSlug.slice(1);
+  const key = `namengine.${verticalSlug}.tasteHistory.v1`;
 
-  function readHistory() {
+  function getVerticalSlug() {
+    const marker = document.querySelector("[data-taste-vertical]");
+    if (marker && marker.dataset.tasteVertical) {
+      return marker.dataset.tasteVertical;
+    }
+
+    const session = document.querySelector("[data-taste-session-id]");
+    const sessionId = session && session.dataset.tasteSessionId;
+    if (sessionId && sessionId.includes("-")) {
+      return sessionId.split("-")[0] || "pet";
+    }
+    return "pet";
+  }
+
+  function itemBelongsToVertical(item) {
+    if (!item) return false;
+    const prefix = `${verticalSlug}-`;
+    return (
+      String(item.sessionId || "").startsWith(prefix) ||
+      String(item.listUrl || "").startsWith(`/${verticalSlug}`) ||
+      String(item.shareUrl || "").includes(`/${verticalSlug}/`)
+    );
+  }
+
+  function readStoredItems(storageKey) {
     try {
-      const parsed = JSON.parse(window.localStorage.getItem(key) || "[]");
+      const parsed = JSON.parse(window.localStorage.getItem(storageKey) || "[]");
       return Array.isArray(parsed) ? parsed.map(normalizeItem).filter(Boolean) : [];
     } catch (error) {
       return [];
     }
+  }
+
+  function migrateLegacyHistory() {
+    if (key === legacyKey || window.localStorage.getItem(key) !== null) {
+      return [];
+    }
+
+    const migrated = readStoredItems(legacyKey).filter(itemBelongsToVertical);
+    if (migrated.length) {
+      writeHistory(migrated);
+    }
+    return migrated;
+  }
+
+  function readHistory() {
+    const history = readStoredItems(key);
+    return history.length ? history : migrateLegacyHistory();
   }
 
   function normalizeItem(item) {
@@ -15,9 +59,9 @@
     if (item.sessionId) {
       return {
         sessionId: item.sessionId,
-        title: item.title || "Pet name search",
+        title: item.title || `${verticalName} name search`,
         context: item.context || "Saved search",
-        listUrl: item.listUrl || item.resumeUrl || "/pet",
+        listUrl: item.listUrl || item.resumeUrl || `/${verticalSlug}`,
         shareUrl: item.shareUrl || (item.sessionId ? `/share/${item.sessionId}` : ""),
         lovedNames: Array.isArray(item.lovedNames) ? item.lovedNames : [],
         savedAt: item.savedAt || new Date().toISOString(),
@@ -29,7 +73,7 @@
         sessionId: `legacy-${item.name}`,
         title: "Loved names",
         context: item.context || "Loved name",
-        listUrl: "/pet",
+        listUrl: `/${verticalSlug}`,
         shareUrl: "",
         lovedNames: [item.name],
         savedAt: item.savedAt || new Date().toISOString(),
@@ -47,7 +91,7 @@
     if (!shell) return null;
     return {
       sessionId: shell.dataset.tasteSessionId,
-      title: shell.dataset.tasteTitle || "Pet name search",
+      title: shell.dataset.tasteTitle || `${verticalName} name search`,
       context: shell.dataset.tasteContext || "Saved search",
       listUrl: shell.dataset.tasteListUrl || `${window.location.pathname}${window.location.search}`,
       shareUrl: shell.dataset.tasteShareUrl || `/share/${shell.dataset.tasteSessionId}`,
@@ -84,7 +128,7 @@
       sessionId,
       title: meta ? meta.title : "Loved names",
       context: meta ? meta.context : context || "Loved name",
-      listUrl: meta ? meta.listUrl : "/pet",
+      listUrl: meta ? meta.listUrl : `/${verticalSlug}`,
       shareUrl: meta ? meta.shareUrl : "",
       lovedNames,
       savedAt: new Date().toISOString(),
@@ -158,16 +202,49 @@
     });
   }
 
+  function clearLegacyVerticalHistory() {
+    if (key === legacyKey) return;
+
+    const remaining = readStoredItems(legacyKey).filter((item) => !itemBelongsToVertical(item));
+    if (remaining.length) {
+      window.localStorage.setItem(legacyKey, JSON.stringify(remaining.slice(0, 12)));
+    } else {
+      window.localStorage.removeItem(legacyKey);
+    }
+  }
+
+  function clearHistory() {
+    const confirmed = window.confirm(
+      `Clear saved ${verticalName} loved names and searches from this browser?`
+    );
+    if (!confirmed) return;
+
+    window.localStorage.setItem(key, "[]");
+    clearLegacyVerticalHistory();
+    render();
+
+    const status = document.querySelector("[data-taste-history-status]");
+    if (status) {
+      status.textContent = "History cleared.";
+    }
+  }
+
   function render() {
     const history = readHistory();
     renderLovedSummary(history);
     renderDrawer(history);
+
+    const clearButton = document.querySelector("[data-taste-history-clear]");
+    if (clearButton) {
+      clearButton.disabled = history.length === 0;
+    }
   }
 
   function bindDialog() {
     const dialog = document.querySelector("[data-taste-history-dialog]");
     const openButton = document.querySelector("[data-taste-history-open]");
     const closeButton = document.querySelector("[data-taste-history-close]");
+    const clearButton = document.querySelector("[data-taste-history-clear]");
     if (!dialog || !openButton) return;
 
     openButton.addEventListener("click", () => {
@@ -183,15 +260,22 @@
       closeButton.addEventListener("click", () => dialog.close());
     }
 
+    if (clearButton) {
+      clearButton.addEventListener("click", clearHistory);
+    }
+
     dialog.addEventListener("click", (event) => {
       if (event.target === dialog) dialog.close();
     });
   }
 
-  window.NamEnginePetTasteHistory = {
+  window.NamEngineTasteHistory = {
     add: addLovedName,
     render,
+    clear: clearHistory,
+    key,
   };
+  window.NamEnginePetTasteHistory = window.NamEngineTasteHistory;
 
   upsertCurrentSession();
   bindDialog();

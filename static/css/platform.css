@@ -1439,6 +1439,34 @@ button {
   margin-top: 4px;
 }
 
+.taste-history-dialog-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 22px 22px;
+}
+
+.taste-history-dialog-footer p {
+  margin: 0;
+  color: #607086;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.taste-history-clear-button {
+  min-height: 40px;
+  padding: 9px 12px;
+  color: #7f1d1d;
+  background: #fff7f7;
+  border: 1px solid #fecaca;
+}
+
+.taste-history-clear-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 .results-header-links {
   display: flex;
   flex-wrap: wrap;

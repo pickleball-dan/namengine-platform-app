@@ -55,12 +55,13 @@
       }
 
       const data = await response.json();
+      const tasteHistory = window.NamEngineTasteHistory || window.NamEnginePetTasteHistory;
       if (
         value === "love" &&
-        window.NamEnginePetTasteHistory &&
-        typeof window.NamEnginePetTasteHistory.add === "function"
+        tasteHistory &&
+        typeof tasteHistory.add === "function"
       ) {
-        window.NamEnginePetTasteHistory.add(button.dataset.resultName, "Loved from results");
+        tasteHistory.add(button.dataset.resultName, "Loved from results");
       }
       if (status) {
         const counts = data.reaction_counts;

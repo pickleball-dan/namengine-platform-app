@@ -76,7 +76,7 @@
     </form>
 
     {% if vertical.slug in ["pet", "baby"] %}
-      <aside class="taste-history-panel" aria-label="Taste history">
+      <aside class="taste-history-panel" aria-label="Taste history" data-taste-vertical="{{ vertical.slug }}">
         <h2>Taste history</h2>
         <p>Names and lists you loved during this visit will collect here.</p>
         <ul data-taste-history-list>
@@ -100,6 +100,12 @@
         <ul class="taste-history-searches" data-taste-history-drawer-list>
           <li>No saved taste history yet.</li>
         </ul>
+        <div class="taste-history-dialog-footer">
+          <button class="taste-history-clear-button" type="button" data-taste-history-clear>
+            Clear history
+          </button>
+          <p data-taste-history-status aria-live="polite"></p>
+        </div>
       </dialog>
     {% endif %}
   </section>
