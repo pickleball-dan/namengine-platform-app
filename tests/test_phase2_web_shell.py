@@ -62,7 +62,10 @@ class PhaseTwoWebShellTest(unittest.TestCase):
         self.assertIn('id="baby-intake-form"', body)
         self.assertIn('action="/baby/results"', body)
         self.assertIn("images/baby-logo.svg", body)
-        self.assertNotIn("required", body)
+        self.assertIn("Required", body)
+        self.assertIn('id="gender" name="gender" required', body)
+        self.assertIn('id="style" name="style" required', body)
+        self.assertIn('id="sound" name="sound" required', body)
         self.assertIn("Optional", body)
 
     def test_unknown_vertical_404s(self):

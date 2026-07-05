@@ -100,6 +100,30 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertEqual(questions["style"].section, "Name style")
         self.assertEqual(questions["vibe"].section, "Fit and feeling")
 
+    def test_baby_intake_requires_one_signal_per_section(self):
+        questions = {question.id: question for question in VERTICALS["baby"].intake_questions}
+
+        self.assertTrue(questions["gender"].required)
+        self.assertTrue(questions["style"].required)
+        self.assertTrue(questions["sound"].required)
+        self.assertEqual(questions["gender"].section, "About your baby")
+        self.assertEqual(questions["style"].section, "Name style")
+        self.assertEqual(questions["sound"].section, "Fit and feeling")
+
+        required_by_section = {}
+        for question in VERTICALS["baby"].intake_questions:
+            if question.required:
+                required_by_section.setdefault(question.section, []).append(question.id)
+
+        self.assertEqual(
+            required_by_section,
+            {
+                "About your baby": ["gender"],
+                "Name style": ["style"],
+                "Fit and feeling": ["sound"],
+            },
+        )
+
     def test_pet_intake_other_dropdown_has_custom_entry_field(self):
         response = self.client.get("/pet")
         body = response.get_data(as_text=True)

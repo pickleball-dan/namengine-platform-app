@@ -258,6 +258,7 @@ BABY = VerticalConfig(
         Question(
             "gender",
             "Any gender direction?",
+            required=True,
             choices=BABY_GENDER_OPTIONS,
             section="About your baby",
         ),
@@ -284,6 +285,7 @@ BABY = VerticalConfig(
         Question(
             "style",
             "What style do you naturally like?",
+            required=True,
             choices=BABY_STYLE_OPTIONS,
             section="Name style",
         ),
@@ -302,6 +304,7 @@ BABY = VerticalConfig(
         Question(
             "sound",
             "What sound should the name have?",
+            required=True,
             choices=BABY_SOUND_OPTIONS,
             section="Fit and feeling",
         ),
