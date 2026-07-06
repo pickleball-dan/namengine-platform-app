@@ -28,7 +28,7 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
         body = response.get_data(as_text=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn("images/pet/namengine-pet-logo-transparent.png", body)
+        self.assertIn("images/pet-logo.svg", body)
         self.assertIn("images/pet/namengine-pet-card-share-v3.jpg", body)
         self.assertIn("vertical-page-logo", body)
 

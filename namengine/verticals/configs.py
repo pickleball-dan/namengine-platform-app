@@ -300,7 +300,7 @@ PET = VerticalConfig(
         "line": "rgba(69, 48, 34, 0.11)",
     },
     assets={
-        "logo": "images/pet/namengine-pet-logo-transparent.png",
+        "logo": "images/pet-logo.svg",
         "share_image": "images/pet/namengine-pet-card-share-v3.jpg",
     },
 )
@@ -410,7 +410,7 @@ BABY = VerticalConfig(
         "line": "rgba(41, 52, 79, 0.13)",
     },
     assets={
-        "logo": "images/baby/namengine-baby-logo.png",
+        "logo": "images/baby-logo.svg",
         "share_image": "images/baby/namengine-baby-share.png",
     },
 )
@@ -527,7 +527,7 @@ BUSINESS = VerticalConfig(
         "line": "rgba(22, 32, 51, 0.12)",
     },
     assets={
-        "logo": "images/business/namengine-business-logo.png",
+        "logo": "images/business-logo.svg",
         "share_image": "images/business/namengine-business-share.png",
     },
 )
