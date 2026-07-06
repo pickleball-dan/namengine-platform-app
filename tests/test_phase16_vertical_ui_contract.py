@@ -84,7 +84,7 @@ def _png_rgba_size_and_corner_alpha(path):
     return width, height, color_type, corners
 
 
-def _png_opaque_cyan_pixel_count(path, box):
+def _png_opaque_color_pixel_count(path, box, color):
     data = path.read_bytes()
     if data[:8] != b"\x89PNG\r\n\x1a\n":
         raise AssertionError(f"{path} is not a PNG")
@@ -116,7 +116,7 @@ def _png_opaque_cyan_pixel_count(path, box):
     stride = width * 4
     previous = [0] * stride
     cursor = 0
-    cyan_pixels = 0
+    matching_pixels = 0
     for y in range(height):
         filter_type = raw[cursor]
         cursor += 1
@@ -149,11 +149,13 @@ def _png_opaque_cyan_pixel_count(path, box):
             for x in range(x1, x2):
                 idx = x * 4
                 r, g, b, a = reconstructed[idx : idx + 4]
-                if a > 0 and r < 80 and g > 120 and b > 120:
-                    cyan_pixels += 1
+                if color == "cyan" and a > 0 and r < 80 and g > 120 and b > 120:
+                    matching_pixels += 1
+                elif color == "red" and a > 0 and r > 170 and g < 140 and b < 150:
+                    matching_pixels += 1
         previous = reconstructed
 
-    return cyan_pixels
+    return matching_pixels
 
 
 class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
@@ -205,15 +207,24 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn("--accent: #2f9486", body)
         self.assertIn("--accent-pet: #fcba76", body)
 
-    def test_baby_pages_use_plus_wordmark_logo(self):
+    def test_baby_pages_use_supplied_baby_logo(self):
         response = self.client.get("/baby")
         body = response.get_data(as_text=True)
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("vertical-baby", body)
         self.assertIn("images/baby/namengine-baby-logo.png", body)
+        self.assertIn("images/baby/namengine-baby-share.png", body)
         self.assertIn('alt="NamEngine Baby logo"', body)
         self.assertIn("identity-preview", body)
+
+    def test_home_page_uses_supplied_baby_logo_card(self):
+        response = self.client.get("/")
+        body = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("vertical-card-logo-wordmark", body)
+        self.assertIn("images/baby/namengine-baby-logo.png", body)
 
     def test_baby_header_uses_baby_wordmark_not_generic_brand(self):
         response = self.client.get("/baby")
@@ -230,29 +241,31 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn("images/baby/namengine-baby-logo.png", header)
         self.assertNotIn("<span>NamEngine</span>", header)
 
-    def test_baby_page_logo_matches_pet_transparent_png_canvas(self):
+    def test_baby_logo_is_transparent_png_with_baby_mark(self):
         static_root = Path(self.app.static_folder)
         baby_logo = static_root / VERTICALS["baby"].assets["page_logo"]
-        pet_logo = static_root / VERTICALS["pet"].assets["logo"]
 
         baby_width, baby_height, baby_color_type, baby_corner_alpha = (
             _png_rgba_size_and_corner_alpha(baby_logo)
         )
-        pet_width, pet_height, _pet_color_type, _pet_corner_alpha = (
-            _png_rgba_size_and_corner_alpha(pet_logo)
-        )
 
         self.assertEqual(baby_color_type, 6)
-        self.assertEqual((baby_width, baby_height), (pet_width, pet_height))
+        self.assertGreater(baby_width, 500)
+        self.assertGreater(baby_height, 450)
         self.assertEqual(baby_corner_alpha, [0, 0, 0, 0])
 
-    def test_baby_page_logo_contains_namengine_plus_mark(self):
+        self.assertGreater(
+            _png_opaque_color_pixel_count(baby_logo, (310, 165, 520, 330), "red"),
+            1000,
+        )
+
+    def test_baby_page_logo_contains_namengine_cyan_mark(self):
         static_root = Path(self.app.static_folder)
         baby_logo = static_root / VERTICALS["baby"].assets["page_logo"]
 
         self.assertGreater(
-            _png_opaque_cyan_pixel_count(baby_logo, (760, 500, 990, 720)),
-            5000,
+            _png_opaque_color_pixel_count(baby_logo, (0, 190, 220, 360), "cyan"),
+            1000,
         )
 
     def test_pet_intake_matches_first_edition_question_contract(self):

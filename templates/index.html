@@ -15,8 +15,9 @@
   <section class="vertical-grid" aria-label="Naming verticals">
     {% for slug, item in verticals.items() %}
       <a class="vertical-card" href="{{ item.route_prefix }}">
-        {% if item.assets.get("logo") %}
-          <img class="vertical-card-logo" src="{{ url_for('static', filename=item.assets.get('logo')) }}" alt="" width="38" height="38">
+        {% set card_logo = item.assets.get("card_logo", item.assets.get("logo")) %}
+        {% if card_logo %}
+          <img class="vertical-card-logo {% if item.assets.get('card_logo') %}vertical-card-logo-wordmark{% endif %}" src="{{ url_for('static', filename=card_logo) }}" alt="" {% if not item.assets.get('card_logo') %}width="38" height="38"{% endif %}>
         {% endif %}
         <span class="vertical-name">{{ item.display_name }}</span>
         <span class="vertical-label">{{ item.object_label }}</span>
