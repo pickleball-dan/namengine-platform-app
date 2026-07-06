@@ -223,27 +223,25 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         body = response.get_data(as_text=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn("vertical-card-logo-wordmark", body)
         self.assertIn("images/baby/namengine-baby-logo.png", body)
+        self.assertNotIn("vertical-card-logo-wordmark", body)
 
-    def test_baby_header_uses_baby_wordmark_not_generic_brand(self):
+    def test_baby_graphics_follow_pet_asset_slots(self):
         response = self.client.get("/baby")
         body = response.get_data(as_text=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            VERTICALS["baby"].assets["header_logo"],
-            "images/baby/namengine-baby-logo.png",
-        )
-        self.assertIn("brand-logo-wordmark", body)
-        self.assertIn('alt="NamEngine Baby"', body)
+        self.assertNotIn("header_logo", VERTICALS["baby"].assets)
+        self.assertNotIn("card_logo", VERTICALS["baby"].assets)
+        self.assertNotIn("page_logo", VERTICALS["baby"].assets)
+        self.assertNotIn("brand-logo-wordmark", body)
         header = body.split("</header>", 1)[0]
         self.assertIn("images/baby/namengine-baby-logo.png", header)
-        self.assertNotIn("<span>NamEngine</span>", header)
+        self.assertIn("<span>NamEngine</span>", header)
 
     def test_baby_logo_is_transparent_png_with_baby_mark(self):
         static_root = Path(self.app.static_folder)
-        baby_logo = static_root / VERTICALS["baby"].assets["page_logo"]
+        baby_logo = static_root / VERTICALS["baby"].assets["logo"]
 
         baby_width, baby_height, baby_color_type, baby_corner_alpha = (
             _png_rgba_size_and_corner_alpha(baby_logo)
@@ -261,7 +259,7 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
 
     def test_baby_page_logo_contains_namengine_cyan_mark(self):
         static_root = Path(self.app.static_folder)
-        baby_logo = static_root / VERTICALS["baby"].assets["page_logo"]
+        baby_logo = static_root / VERTICALS["baby"].assets["logo"]
 
         self.assertGreater(
             _png_opaque_color_pixel_count(baby_logo, (0, 190, 220, 360), "cyan"),

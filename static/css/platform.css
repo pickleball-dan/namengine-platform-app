@@ -62,7 +62,7 @@ a {
 .brand-logo-wordmark {
   width: min(150px, 46vw);
   height: auto;
-  max-height: 136px;
+  max-height: 42px;
 }
 
 .site-nav {
@@ -146,6 +146,9 @@ h1 {
 .vertical-card-logo-wordmark {
   width: min(138px, 100%);
   height: auto;
+  max-height: 42px;
+  object-fit: contain;
+  object-position: left center;
 }
 
 .vertical-card:hover {
