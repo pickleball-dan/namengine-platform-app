@@ -21,6 +21,7 @@ BABY_GIRL_INCOMPATIBLE_NAMES = {
     "calvin",
     "cassian",
     "dashiell",
+    "elian",
     "emil",
     "felix",
     "finnian",
@@ -147,7 +148,12 @@ def filter_results_for_brief(
     if vertical.slug != "baby":
         return results
 
-    return [result for result in results if is_baby_name_allowed_for_gender(brief, result.name)]
+    return [
+        result
+        for result in results
+        if is_baby_name_allowed_for_gender(brief, result.name)
+        and not is_name_explicitly_avoided(brief, result.name)
+    ]
 
 
 def is_baby_name_allowed_for_gender(brief: NamingBrief, name: str) -> bool:
@@ -158,6 +164,12 @@ def is_baby_name_allowed_for_gender(brief: NamingBrief, name: str) -> bool:
     if gender == "boy":
         return clean_name not in BABY_BOY_INCOMPATIBLE_NAMES
     return True
+
+
+def is_name_explicitly_avoided(brief: NamingBrief, name: str) -> bool:
+    clean_name = _clean_name_key(name)
+    avoid = {_clean_name_key(item) for item in brief.avoid}
+    return clean_name in avoid
 
 
 def _validate_pet_name(brief: NamingBrief, name: str) -> list[ValidationResult]:
@@ -242,6 +254,7 @@ def _validate_baby_name(brief: NamingBrief, name: str) -> list[ValidationResult]
     avoid = {item.lower() for item in brief.avoid}
     syllable_count = _estimate_syllables(clean_name)
     validation = [
+        _baby_gender_direction_validation(brief, clean_name),
         _baby_pronunciation_validation(clean_name, syllable_count),
         _baby_initials_validation(brief, clean_name),
         _baby_popularity_validation(clean_name),
@@ -249,6 +262,46 @@ def _validate_baby_name(brief: NamingBrief, name: str) -> list[ValidationResult]
     if avoid:
         validation.append(_pet_avoid_validation(clean_name, avoid))
     return validation
+
+
+def _baby_gender_direction_validation(
+    brief: NamingBrief,
+    clean_name: str,
+) -> ValidationResult:
+    gender = str(brief.inputs.get("gender", "")).strip().lower()
+    if gender == "girl" and clean_name in BABY_GIRL_INCOMPATIBLE_NAMES:
+        return ValidationResult(
+            module="baby_gender_direction",
+            status=ValidationStatus.FAIL,
+            label="Gender direction",
+            message="This reads masculine for a Girl search and should not be shown.",
+            score=0.0,
+            confidence=0.96,
+            metadata={"gender": "Girl"},
+        )
+    if gender == "boy" and clean_name in BABY_BOY_INCOMPATIBLE_NAMES:
+        return ValidationResult(
+            module="baby_gender_direction",
+            status=ValidationStatus.FAIL,
+            label="Gender direction",
+            message="This reads feminine for a Boy search and should not be shown.",
+            score=0.0,
+            confidence=0.96,
+            metadata={"gender": "Boy"},
+        )
+    if gender in {"girl", "boy"}:
+        message = f"Compatible with the requested {gender.title()} direction."
+    else:
+        message = "Flexible for the requested naming direction."
+    return ValidationResult(
+        module="baby_gender_direction",
+        status=ValidationStatus.PASS,
+        label="Gender direction",
+        message=message,
+        score=0.9,
+        confidence=0.82,
+        metadata={"gender": gender or "unspecified"},
+    )
 
 
 def _baby_pronunciation_validation(clean_name: str, syllable_count: int) -> ValidationResult:

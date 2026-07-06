@@ -35,6 +35,7 @@ from namengine.core import (
     vertical_theme_style,
 )
 from namengine.core.schemas import NameResult, NamingBrief, to_plain_data
+from namengine.core.validation import filter_results_for_brief
 from namengine.verticals import VERTICALS, get_vertical
 
 
@@ -311,6 +312,9 @@ def create_app() -> Flask:
         snapshot = get_session_snapshot(session_id)
         if snapshot and snapshot["results"]:
             names = _names_from_snapshot(snapshot)
+            if not _cached_names_match_current_rules(vertical, brief, names):
+                names = generate_names(vertical, brief)
+                save_session(session_id, vertical.slug, brief, names)
         else:
             names = generate_names(vertical, brief)
             save_session(session_id, vertical.slug, brief, names)
@@ -566,6 +570,21 @@ def _taste_profile_from_snapshot(snapshot: dict):
 
 def _names_from_snapshot(snapshot: dict) -> list[NameResult]:
     return [NameResult(**json_loads(row["result_json"])) for row in snapshot["results"]]
+
+
+def _cached_names_match_current_rules(
+    vertical,
+    brief: NamingBrief,
+    names: list[NameResult],
+) -> bool:
+    if vertical.slug != "baby":
+        return True
+    if len(filter_results_for_brief(vertical, brief, names)) != len(names):
+        return False
+    return all(
+        "baby_gender_direction" in {item.module for item in name.validation}
+        for name in names
+    )
 
 
 def _try_generate_keepsake(chosen_id: str):
