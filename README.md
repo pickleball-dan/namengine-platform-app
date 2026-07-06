@@ -217,6 +217,8 @@ workflow:
 - Business fallback name pools
 - result labels for positioning, brand fit, and launch risks
 - directional validation for domain signal, category fit, and launch risk
+- GoDaddy domain quick-check panels when `GODADDY_API_KEY` and
+  `GODADDY_API_SECRET` are configured
 - taste history and refinement through the shared platform flow
 
 Launch notes live in `docs/business-vertical-launch-2026-07-06.md`.

@@ -1,14 +1,23 @@
 import unittest
 import struct
 import zlib
+import os
 from pathlib import Path
+from unittest.mock import patch
 
 from app import create_app
 from namengine.core import (
     REQUIRED_ASSET_KEYS,
     REQUIRED_THEME_KEYS,
+    build_brief,
+    generate_names,
     validate_vertical_ui_contract,
     vertical_theme_style,
+)
+from namengine.core.domain_availability import (
+    build_domain_info,
+    domain_slug,
+    domain_status_from_godaddy,
 )
 from namengine.verticals import VERTICALS
 
@@ -398,10 +407,11 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         )
 
     def test_business_results_use_business_validation_and_labels(self):
-        response = self.client.get(
-            "/business/results?business_description=AI+operations+consulting"
-            "&industry=Consulting&audience=B2B+buyers&style=Clear+and+credible"
-        )
+        with patch.dict(os.environ, {"GODADDY_API_KEY": "", "GODADDY_API_SECRET": ""}):
+            response = self.client.get(
+                "/business/results?business_description=AI+operations+consulting"
+                "&industry=Consulting&audience=B2B+buyers&style=Clear+and+credible"
+            )
         body = response.get_data(as_text=True)
 
         self.assertEqual(response.status_code, 200)
@@ -410,7 +420,43 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn("Domain signal", body)
         self.assertIn("Category fit", body)
         self.assertIn("Launch risk", body)
+        self.assertIn("Domain quick check", body)
+        self.assertIn("Quick GoDaddy check, not guaranteed. Verify before purchase.", body)
+        self.assertIn("Not checked", body)
         self.assertNotIn("Validation has not been configured", body)
+
+    def test_business_generation_attaches_domain_quick_check_metadata(self):
+        brief = build_brief(
+            VERTICALS["business"],
+            {
+                "business_description": "AI operations consulting",
+                "industry": "Consulting",
+                "audience": "B2B buyers",
+                "style": "Clear and credible",
+            },
+        )
+
+        with patch.dict(os.environ, {"GODADDY_API_KEY": "", "GODADDY_API_SECRET": ""}):
+            names = generate_names(VERTICALS["business"], brief, use_ai=False)
+
+        domain_info = names[0].metadata["domain_info"]
+        self.assertEqual(domain_info["primary"], "northmark.com")
+        self.assertEqual(domain_info["display_status"]["status"], "not_checked")
+
+    def test_business_domain_slug_and_godaddy_status_mapping(self):
+        self.assertEqual(domain_slug("Arc & Anchor"), "arcanchor")
+        self.assertEqual(build_domain_info("Signal House")["primary"], "signalhouse.com")
+        self.assertEqual(
+            domain_status_from_godaddy("signalhouse.com", {"available": True})["status"],
+            "available",
+        )
+        self.assertEqual(
+            domain_status_from_godaddy(
+                "signalhouse.com",
+                {"available": True, "premium": True},
+            )["status"],
+            "premium",
+        )
 
     def test_pet_intake_other_dropdown_has_custom_entry_field(self):
         response = self.client.get("/pet")

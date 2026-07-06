@@ -36,6 +36,11 @@
       <a class="button-link secondary-button" href="/{{ vertical.slug }}?{{ session.brief_json|brief_query_string }}">Adjust direction</a>
     </div>
 
+    {% set domain_info = result.metadata.get("domain_info") if result.metadata else None %}
+    {% if domain_info %}
+      {% include "_domain_info.html" %}
+    {% endif %}
+
     <div class="chosen-detail-grid detail-page-grid">
       <section class="chosen-detail">
         <h2>Why this name?</h2>

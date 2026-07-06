@@ -816,6 +816,85 @@ button {
   gap: 8px;
 }
 
+.domain-info {
+  display: grid;
+  gap: 8px;
+  padding: 12px 14px;
+  color: #18212f;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.88), var(--accent-soft)),
+    var(--surface);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--accent-pet);
+  border-radius: 8px;
+}
+
+.domain-info-label {
+  margin: 0;
+  color: #687386;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.domain-primary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.domain-primary {
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: var(--accent-deep);
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.domain-status {
+  flex: 0 0 auto;
+  padding: 5px 8px;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 900;
+  background: #f8fafc;
+  border: 1px solid #d8e0eb;
+  border-radius: 999px;
+}
+
+.domain-status-available {
+  color: #166534;
+  background: #f0fdf4;
+  border-color: #86efac;
+}
+
+.domain-status-taken {
+  color: #7f1d1d;
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.domain-status-premium {
+  color: #7c4a03;
+  background: #fffbeb;
+  border-color: #f1d48a;
+}
+
+.domain-status-not-checked,
+.domain-status-unknown {
+  color: #475569;
+  background: #f8fafc;
+  border-color: #d8e0eb;
+}
+
+.domain-note {
+  margin: 0;
+  color: #687386;
+  font-size: 12px;
+  font-weight: 750;
+}
+
 .validation-pill {
   display: grid;
   gap: 2px;

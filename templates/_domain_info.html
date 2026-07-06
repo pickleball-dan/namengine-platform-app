@@ -1,0 +1,13 @@
+<div class="domain-info" aria-label="Domain quick check">
+  <p class="domain-info-label">Domain quick check</p>
+  <div class="domain-primary-row">
+    <p class="domain-primary">{{ domain_info.display_domain or domain_info.primary }}</p>
+    {% if domain_info.display_status and domain_info.display_status.label %}
+      <span class="domain-status domain-status-{{ domain_info.display_status.class }}">{{ domain_info.display_status.label }}</span>
+    {% endif %}
+  </div>
+  {% if domain_info.note %}
+    <p class="domain-note">{{ domain_info.note }}</p>
+  {% endif %}
+  <p class="domain-note">Quick GoDaddy check, not guaranteed. Verify before purchase.</p>
+</div>

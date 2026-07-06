@@ -53,6 +53,11 @@
             {% endif %}
           </div>
 
+          {% set domain_info = item.metadata.get("domain_info") if item.metadata else None %}
+          {% if domain_info %}
+            {% include "_domain_info.html" %}
+          {% endif %}
+
           <section>
             <h3>{{ vertical.result_field_labels.get("why_this_name", "Why this name?") }}</h3>
             <p>{{ item.why_this_name }}</p>

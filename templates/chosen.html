@@ -64,6 +64,11 @@
       <a class="button-link" href="/{{ chosen.vertical }}">Start another</a>
     </div>
 
+    {% set domain_info = result.metadata.get("domain_info") if result.metadata else None %}
+    {% if domain_info %}
+      {% include "_domain_info.html" %}
+    {% endif %}
+
     <div class="chosen-detail-grid">
       <section class="chosen-detail">
         <h2>Why this name?</h2>

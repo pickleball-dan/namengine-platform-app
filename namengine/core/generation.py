@@ -10,6 +10,7 @@ from namengine.core.schemas import (
     TasteProfile,
     VerticalConfig,
 )
+from namengine.core.domain_availability import enrich_business_domain_info
 from namengine.core.validation import is_baby_name_allowed_for_gender, validate_results
 
 
@@ -339,6 +340,8 @@ def generate_names(
             previous_names=previous_names or [],
         )
         if routed:
+            if vertical.slug == "business":
+                return enrich_business_domain_info(routed)
             return routed
 
     return generate_fallback_names(
@@ -615,7 +618,8 @@ def _generate_business_fallback_names(
             )
         )
 
-    return validate_results(vertical, brief, results)[:result_count]
+    validated = validate_results(vertical, brief, results)[:result_count]
+    return enrich_business_domain_info(validated)
 
 
 def _business_fit_note(industry: str, audience: str, style: str) -> str:

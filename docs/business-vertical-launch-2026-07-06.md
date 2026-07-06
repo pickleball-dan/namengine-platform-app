@@ -63,6 +63,27 @@ Validation modules:
 These checks are directional product QA. They do not replace legal, trademark,
 domain, or social-handle review.
 
+## Domain Quick Check
+
+Business results include a compact domain quick-check panel when names are
+generated. The panel shows one practical display domain, a GoDaddy-derived
+availability badge when credentials are configured, and this fixed disclaimer:
+
+`Quick GoDaddy check, not guaranteed. Verify before purchase.`
+
+Runtime configuration:
+
+- `GODADDY_API_KEY`
+- `GODADDY_API_SECRET`
+- `GODADDY_API_BASE`, optional, defaults to `https://api.godaddy.com`
+- `GODADDY_TIMEOUT_SECONDS`, optional, defaults to `4`
+- `DOMAIN_CACHE_PATH`, optional, defaults beside `NAMENGINE_DB_PATH`
+- `DOMAIN_CACHE_TTL_SECONDS`, optional, defaults to six hours
+- `DOMAIN_UNKNOWN_CACHE_TTL_SECONDS`, optional, defaults to fifteen minutes
+
+When GoDaddy credentials are missing, results still render with `Not checked`
+instead of blocking generation.
+
 ## QA Checklist
 
 - `/business` uses the Business logo and share image.
@@ -71,6 +92,7 @@ domain, or social-handle review.
 - `/business/results` shows Business fallback names when AI is unavailable.
 - Business results do not show pet or baby fallback copy.
 - Business validation does not show `validation_not_configured`.
+- Business result cards show the domain quick-check panel and disclaimer.
 - Header logo remains compact like Pet.
 - Home card logo remains in the shared `38x38` slot.
 - Full regression suite passes.

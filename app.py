@@ -601,6 +601,7 @@ def _cached_names_match_current_rules(
     if vertical.slug == "business":
         return all(
             "business_domain" in {item.module for item in name.validation}
+            and isinstance(name.metadata.get("domain_info"), dict)
             for name in names
         )
     return True
