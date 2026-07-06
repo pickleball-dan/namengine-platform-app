@@ -90,6 +90,12 @@ def build_generation_prompt(
         },
         "taste_profile": _taste_profile_payload(taste_profile),
         "previous_names": previous_names,
+        "diversity_rules": {
+            "do_not_repeat_previous_names": True,
+            "treat_previous_names_as_hard_exclusions": True,
+            "avoid_close_variants_of_previous_names": True,
+            "broaden_style_origin_and_sound_lanes_after_round_one": round_number >= 2,
+        },
         "validation_expectations": list(vertical.validation_modules),
         "output_contract": {
             "format": "json",

@@ -104,6 +104,8 @@ class PhaseElevenAIGenerationTest(unittest.TestCase):
         self.assertEqual(prompt["round_goal"], "Finalists: produce the most choose-worthy names only.")
         self.assertEqual(prompt["brief"]["inputs"]["species"], "Dog")
         self.assertEqual(prompt["previous_names"], ["Milo"])
+        self.assertTrue(prompt["diversity_rules"]["do_not_repeat_previous_names"])
+        self.assertTrue(prompt["diversity_rules"]["treat_previous_names_as_hard_exclusions"])
         self.assertEqual(prompt["output_contract"]["top_level_key"], "names")
 
     def test_parse_ai_response_dedupes_and_maps_to_name_results(self):

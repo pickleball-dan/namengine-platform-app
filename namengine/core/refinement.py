@@ -59,7 +59,7 @@ def refine_session(
     brief.notes = instruction
 
     taste_summary = taste_profile.summary if taste_profile else build_reaction_effect_summary(snapshot)
-    previous_names = _all_result_names(snapshot)
+    previous_names = _all_chain_result_names(snapshot)
     results = generate_names(
         vertical,
         brief,
@@ -96,9 +96,17 @@ def _names_for_reaction(snapshot: dict, value: str) -> list[str]:
     ]
 
 
-def _all_result_names(snapshot: dict) -> list[str]:
-    return [
-        str(row["name"])
-        for row in snapshot.get("results", [])
-        if row.get("name")
-    ]
+def _all_chain_result_names(snapshot: dict) -> list[str]:
+    names: list[str] = []
+    seen: set[str] = set()
+    current = snapshot
+    while current is not None:
+        for row in current.get("results", []):
+            name = str(row.get("name", "")).strip()
+            key = name.lower()
+            if name and key not in seen:
+                names.append(name)
+                seen.add(key)
+        parent_id = current.get("session", {}).get("parent_session_id")
+        current = get_session_snapshot(parent_id) if parent_id else None
+    return names

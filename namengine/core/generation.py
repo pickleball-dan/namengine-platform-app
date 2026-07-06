@@ -113,15 +113,29 @@ BABY_REFINED_POOL = [
     ("Elian", "EL-ee-un", "Lyrical and uncommon while staying readable."),
     ("Maeve", "MAYV", "Compact, elegant, and strong."),
     ("Silas", "SY-lus", "Tailored, warm, and old-soul."),
+    ("Celia", "SEE-lee-uh", "Gentle, melodic, and quietly classic."),
+    ("Noemi", "no-EH-mee", "Lyrical, international, and warm."),
+    ("Romy", "ROH-mee", "Bright, compact, and stylish."),
+    ("Ansel", "AN-sul", "Softly tailored with an artistic old-soul feel."),
+    ("Bennett", "BEN-it", "Polished, friendly, and surname-rooted."),
+    ("Luca", "LOO-kuh", "Warm, global, and easy to love."),
+    ("Mira", "MEER-uh", "Clear, graceful, and gently celestial."),
+    ("Owen", "OH-en", "Warm, familiar, and grounded."),
 ]
 
 BABY_FINALIST_POOL = [
-    ("Clara", "KLAIR-uh", "Clear, classic, and gently bright."),
-    ("Maren", "MAIR-en", "Calm, uncommon, and easy to wear."),
-    ("Iris", "EYE-ris", "Floral, crisp, and quietly distinctive."),
-    ("Miles", "MYLZ", "Warm, polished, and friendly."),
-    ("Ada", "AY-duh", "Brief, vintage, and substantial."),
-    ("Silas", "SY-lus", "Tailored, warm, and old-soul."),
+    ("Elodie", "EL-oh-dee", "Romantic, musical, and uncommon but readable."),
+    ("June", "JOON", "Clear, vintage, and gently sunny."),
+    ("Louisa", "loo-EE-zuh", "Classic, literary, and warmer than formal."),
+    ("Margot", "MAR-go", "Polished, vintage, and quietly stylish."),
+    ("Arthur", "AR-thur", "Classic, sturdy, and bookish without feeling stiff."),
+    ("Felix", "FEE-liks", "Bright, joyful, and old-world friendly."),
+    ("Graham", "GRAY-um", "Tailored, calm, and understated."),
+    ("Hollis", "HOL-is", "Gentle, surname-style, and gender-flexible."),
+    ("Ivy", "EYE-vee", "Botanical, brief, and lively."),
+    ("Rafael", "rah-fy-EL", "Warm, elegant, and international."),
+    ("Serena", "suh-REE-nuh", "Calm, graceful, and familiar without feeling flat."),
+    ("Tessa", "TESS-uh", "Bright, friendly, and unfussy."),
 ]
 
 BABY_EXTRA_POOL = [
@@ -133,6 +147,59 @@ BABY_EXTRA_POOL = [
     ("Reid", "REED", "Clean, strong, and understated."),
     ("Soren", "SOR-en", "Distinctive, calm, and literary."),
     ("Vera", "VAIR-uh", "Clear, vintage, and quietly confident."),
+    ("Alden", "ALL-den", "Gentle, literary, and quietly substantial."),
+    ("Alma", "AHL-muh", "Warm, vintage, and soulful."),
+    ("Beatrice", "BEE-uh-tris", "Classic, lively, and full of character."),
+    ("Cassian", "KASS-ee-un", "Ancient-feeling, elegant, and distinctive."),
+    ("Daphne", "DAF-nee", "Botanical, bright, and mythic without feeling heavy."),
+    ("Emil", "EH-meel", "Compact, European, and soft-spoken."),
+    ("Flora", "FLOR-uh", "Garden-like, vintage, and easy to say."),
+    ("Greta", "GREH-tuh", "Strong, crisp, and old-world."),
+    ("Harlan", "HAR-lun", "Grounded, surname-rooted, and warm."),
+    ("Ida", "EYE-duh", "Brief, vintage, and quietly strong."),
+    ("Leona", "lee-OH-nuh", "Warm, strong, and graceful."),
+    ("Matteo", "mah-TAY-oh", "Lyrical, global, and friendly."),
+    ("Nico", "NEE-koh", "Compact, stylish, and easygoing."),
+    ("Opal", "OH-pul", "Gemstone-inspired, vintage, and gentle."),
+    ("Petra", "PET-ruh", "Strong, international, and distinctive."),
+    ("Quinn", "KWIN", "Clean, modern, and gender-flexible."),
+    ("Rhea", "REE-uh", "Mythic, brief, and bright."),
+    ("Stellan", "STEL-un", "Calm, Nordic, and tailored."),
+    ("Thea", "THEE-uh", "Soft, classic, and luminous."),
+    ("Zara", "ZAHR-uh", "Sleek, global, and confident."),
+]
+
+BABY_WIDE_EXPLORATION_POOL = [
+    ("Amara", "ah-MAR-uh", "Warm, lyrical, and meaning-rich."),
+    ("Anouk", "ah-NOOK", "Chic, rare, and concise."),
+    ("Aurelia", "aw-REEL-ee-uh", "Golden, romantic, and substantial."),
+    ("Blythe", "BLYTHE", "Bright, vintage, and rare."),
+    ("Cora", "KOR-uh", "Classic, warm, and easy."),
+    ("Dalia", "DAHL-yuh", "Botanical, soft, and international."),
+    ("Esme", "EZ-may", "Literary, tender, and compact."),
+    ("Freya", "FRAY-uh", "Mythic, warm, and current."),
+    ("Imogen", "IM-oh-jen", "Literary, distinctive, and wearable."),
+    ("Liora", "lee-OR-uh", "Light-filled, graceful, and uncommon."),
+    ("Mabel", "MAY-bul", "Cozy, vintage, and affectionate."),
+    ("Nina", "NEE-nuh", "Simple, global, and warm."),
+    ("Orla", "OR-luh", "Compact, Irish-rooted, and bright."),
+    ("Phoebe", "FEE-bee", "Lively, classic, and sunny."),
+    ("Sylvie", "SIL-vee", "Woodland-soft, French-leaning, and familiar enough."),
+    ("Willa", "WIL-uh", "Gentle, literary, and grounded."),
+    ("Ambrose", "AM-brohz", "Old-soul, warm, and distinctive."),
+    ("Calvin", "KAL-vin", "Steady, tailored, and familiar."),
+    ("Dashiell", "DASH-ul", "Literary, stylish, and energetic."),
+    ("Ezra", "EZ-ruh", "Brief, warm, and ancient-modern."),
+    ("Finnian", "FIN-ee-un", "Lively, Irish-rooted, and friendly."),
+    ("Gideon", "GID-ee-un", "Substantial, warm, and uncommon."),
+    ("Jasper", "JAS-per", "Bright, vintage, and nature-adjacent."),
+    ("Kieran", "KEER-un", "Gentle, Celtic-rooted, and readable."),
+    ("Leif", "LAYF", "Nature-touched, Nordic, and clean."),
+    ("Micah", "MY-kuh", "Soft, familiar, and grounded."),
+    ("Otto", "AH-toh", "Brief, vintage, and cheerful."),
+    ("Rhys", "REES", "Crisp, Welsh-rooted, and elegant."),
+    ("Tobias", "toh-BY-us", "Classic, warm, and substantial."),
+    ("Xavier", "ZAY-vee-er", "Distinctive, familiar, and energetic."),
 ]
 
 BABY_NAME_INSIGHTS = {
@@ -152,6 +219,18 @@ BABY_NAME_INSIGHTS = {
     "Elian": "adds lyrical freshness while keeping pronunciation approachable",
     "Maeve": "is compact, elegant, and strong in one syllable",
     "Silas": "has old-soul polish with a warm modern edge",
+    "Elodie": "adds musical romance while staying readable",
+    "June": "feels clear, vintage, and warmly straightforward",
+    "Louisa": "balances classic substance with a softer, literary rhythm",
+    "Margot": "brings polished vintage style without becoming ornate",
+    "Arthur": "offers sturdy classic warmth and a bookish backbone",
+    "Felix": "feels bright and joyful with old-world polish",
+    "Graham": "lands tailored and calm with understated strength",
+    "Hollis": "has a gentle surname feel with flexible modern wearability",
+    "Ivy": "is short, botanical, and lively without being complicated",
+    "Rafael": "adds international warmth and an elegant cadence",
+    "Serena": "feels graceful and calm with an easy familiar shape",
+    "Tessa": "is bright, friendly, and unfussy",
 }
 
 
@@ -319,16 +398,16 @@ def _generate_baby_fallback_names(
 
     pool = BABY_NAME_POOL
     if round_number == 2:
-        pool = BABY_REFINED_POOL
+        pool = BABY_REFINED_POOL + BABY_WIDE_EXPLORATION_POOL
     elif round_number >= 4:
-        pool = BABY_EXTRA_POOL
+        pool = BABY_EXTRA_POOL + BABY_WIDE_EXPLORATION_POOL
     elif round_number >= 3:
-        pool = BABY_FINALIST_POOL
+        pool = BABY_FINALIST_POOL + BABY_EXTRA_POOL + BABY_WIDE_EXPLORATION_POOL
 
-    if round_number >= 4:
-        previous = {name.lower() for name in (previous_names or [])}
+    previous = {name.lower() for name in (previous_names or [])}
+    if previous:
         filtered_pool = [item for item in pool if item[0].lower() not in previous]
-        if filtered_pool:
+        if len(filtered_pool) >= min(6, vertical.default_result_count):
             pool = filtered_pool
 
     results: list[NameResult] = []

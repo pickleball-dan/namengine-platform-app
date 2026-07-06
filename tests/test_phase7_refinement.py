@@ -10,7 +10,7 @@ from namengine.core import (
     refine_session,
     save_reaction,
 )
-from namengine.verticals import PET
+from namengine.verticals import BABY, PET
 
 
 class PhaseSevenRefinementTest(unittest.TestCase):
@@ -37,6 +37,15 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         save_reaction(build_reaction(session_id, "pet-1", "love"))
         save_reaction(build_reaction(session_id, "pet-2", "no"))
         save_reaction(build_reaction(session_id, "pet-3", "maybe"))
+        return session_id
+
+    def _seed_baby_round_one(self):
+        query = b"gender=Girl&style=Classic&sound=Soft"
+        session_id = make_session_id("baby", query)
+        self.client.get(f"/baby/results?{query.decode('utf-8')}")
+        save_reaction(build_reaction(session_id, "baby-1", "love"))
+        save_reaction(build_reaction(session_id, "baby-2", "maybe"))
+        save_reaction(build_reaction(session_id, "baby-3", "no"))
         return session_id
 
     def test_reaction_effect_summary_is_short_and_directional(self):
@@ -169,6 +178,33 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         self.assertNotEqual(round_four_id, f"{round_three_id}-r4")
         self.assertEqual(len(extra_results), 6)
         self.assertFalse(finalist_names & extra_names)
+
+    def test_baby_refinement_does_not_repeat_any_prior_round_names(self):
+        session_id = self._seed_baby_round_one()
+        round_one = get_session_snapshot(session_id)
+        round_one_names = {row["name"] for row in round_one["results"]}
+
+        round_two_id, _, round_two_results = refine_session(
+            session_id,
+            BABY,
+            instruction="fresh but still classic",
+        )
+        for index, _ in enumerate(round_two_results, start=1):
+            save_reaction(build_reaction(round_two_id, f"baby-{index}", "maybe"))
+
+        round_three_id, _, round_three_results = refine_session(
+            round_two_id,
+            BABY,
+            instruction="expand the horizon",
+        )
+        round_two_names = {result.name for result in round_two_results}
+        round_three_names = {result.name for result in round_three_results}
+        round_three = get_session_snapshot(round_three_id)
+
+        self.assertEqual(round_three["session"]["round_number"], 3)
+        self.assertEqual(len(round_three_results), 6)
+        self.assertFalse(round_three_names & round_one_names)
+        self.assertFalse(round_three_names & round_two_names)
 
     def test_refine_route_rejects_missing_session(self):
         response = self.client.post("/refine", data={"session_id": "missing"})

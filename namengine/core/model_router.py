@@ -46,7 +46,7 @@ def generate_with_router(
         candidates,
         count=count or _count_for_round(vertical, round_number),
         previous_names=previous_names or [],
-        allow_previous_fill=round_number < 4,
+        allow_previous_fill=vertical.slug != "baby" and round_number < 4,
     )
     return [candidate.result for candidate in selected]
 
