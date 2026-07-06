@@ -207,6 +207,20 @@ fallback name pools, validation modules, and chosen-name keepsake treatment.
 The selected-name image prompt uses a baby blanket with the chosen name
 embroidered on it, not a baby photo.
 
+## Phase 18 Business Vertical Launch
+
+Business now uses the shared vertical system as a launch-ready founder/operator
+workflow:
+
+- grouped intake for business context, name style, and launch fit
+- Business-specific palette, logo, and share image
+- Business fallback name pools
+- result labels for positioning, brand fit, and launch risks
+- directional validation for domain signal, category fit, and launch risk
+- taste history and refinement through the shared platform flow
+
+Launch notes live in `docs/business-vertical-launch-2026-07-06.md`.
+
 ## Vertical Graphics Framework
 
 Pet is the visual standard for new verticals. Use

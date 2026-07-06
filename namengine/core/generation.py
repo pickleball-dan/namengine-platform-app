@@ -233,6 +233,67 @@ BABY_NAME_INSIGHTS = {
     "Tessa": "is bright, friendly, and unfussy",
 }
 
+BUSINESS_NAME_POOL = [
+    ("Northmark", "NORTH-mark", "Credible, directional, and built for a scalable brand."),
+    ("Brightline", "BRYTE-line", "Clear, energetic, and easy to picture on a launch card."),
+    ("Crestwell", "KREST-wel", "Polished and optimistic with a practical business sound."),
+    ("Signal House", "SIG-nul hows", "Memorable, strategic, and strong for a service brand."),
+    ("Launchmere", "LAWNCH-meer", "Founder-friendly with a modern momentum cue."),
+    ("Fieldstone", "FEELD-stohn", "Grounded, trustworthy, and substantial."),
+    ("Motive Lane", "MOH-tiv lane", "Human, purposeful, and flexible across categories."),
+    ("Arc & Anchor", "ARK and AN-kur", "Balanced between momentum and trust."),
+]
+
+BUSINESS_REFINED_POOL = [
+    ("Kindred Works", "KIN-drid werks", "Warm, professional, and relationship-led."),
+    ("Blueframe", "BLOO-fraym", "Structured, modern, and easy to brand visually."),
+    ("Goldleaf", "GOHLD-leef", "Premium and approachable with a refined finish."),
+    ("Tradecraft", "TRAYD-kraft", "Skilled, practical, and category-flexible."),
+    ("Vista & Co.", "VIS-tuh and koh", "Open, polished, and ready for a broader offer."),
+    ("Foundry Point", "FOWN-dree poynt", "Maker-minded with a clear launch signal."),
+    ("Noble Signal", "NOH-bul SIG-nul", "Credible and memorable without feeling cold."),
+    ("Relay North", "REE-lay NORTH", "Energetic, operational, and easy to extend."),
+]
+
+BUSINESS_FINALIST_POOL = [
+    ("Northmark", "NORTH-mark", "Credible, directional, and built for a scalable brand."),
+    ("Brightline", "BRYTE-line", "Clear, energetic, and easy to picture on a launch card."),
+    ("Signal House", "SIG-nul hows", "Memorable, strategic, and strong for a service brand."),
+    ("Kindred Works", "KIN-drid werks", "Warm, professional, and relationship-led."),
+    ("Blueframe", "BLOO-fraym", "Structured, modern, and easy to brand visually."),
+    ("Foundry Point", "FOWN-dree poynt", "Maker-minded with a clear launch signal."),
+]
+
+BUSINESS_EXTRA_POOL = [
+    ("Oakline", "OHK-line", "Grounded and simple with durable brand texture."),
+    ("Beacon & Field", "BEE-kun and FEELD", "Clear guidance plus practical reach."),
+    ("Summitry", "SUH-mit-ree", "Aspirational, compact, and ownable."),
+    ("Coppernote", "KAH-per-noht", "Warm and distinctive with an editorial feel."),
+    ("Truecourse", "TROO-kors", "Confident, useful, and directionally clear."),
+    ("Hearthmark", "HARTH-mark", "Warm, trusted, and suited to people-centered work."),
+    ("Lumen Yard", "LOO-men yard", "Bright, creative, and approachable."),
+    ("Atlas Bloom", "AT-lus BLOOM", "Growth-oriented with a broader market feel."),
+]
+
+BUSINESS_NAME_INSIGHTS = {
+    "Northmark": "suggests direction, durability, and a business with a clear point of view",
+    "Brightline": "signals clarity and momentum while staying easy to say and remember",
+    "Crestwell": "feels credible and optimistic without locking the company into one narrow service",
+    "Signal House": "frames the business as strategic, memorable, and built around clear communication",
+    "Launchmere": "adds launch energy while staying softer than a hard-tech name",
+    "Fieldstone": "creates trust through grounded, durable imagery",
+    "Motive Lane": "keeps the name human and purpose-driven while leaving room to grow",
+    "Arc & Anchor": "balances forward motion with stability",
+    "Kindred Works": "suggests relationship, care, and useful work",
+    "Blueframe": "feels structured, visual, and modern enough for a brand system",
+    "Goldleaf": "adds a premium cue without sounding cold",
+    "Tradecraft": "signals skill, process, and practical credibility",
+    "Vista & Co.": "creates room for a broad, polished service offer",
+    "Foundry Point": "suggests making, building, and a clear market position",
+    "Noble Signal": "combines trust with a memorable communication cue",
+    "Relay North": "sounds active, operational, and directionally useful",
+}
+
 
 def slugify(value: str) -> str:
     clean = re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
@@ -298,6 +359,14 @@ def generate_fallback_names(
 ) -> list[NameResult]:
     if vertical.slug == "baby":
         return _generate_baby_fallback_names(
+            vertical=vertical,
+            brief=brief,
+            round_number=round_number,
+            taste_summary=taste_summary,
+            previous_names=previous_names or [],
+        )
+    if vertical.slug == "business":
+        return _generate_business_fallback_names(
             vertical=vertical,
             brief=brief,
             round_number=round_number,
@@ -460,6 +529,101 @@ def _generate_baby_fallback_names(
         )
 
     return validate_results(vertical, brief, results)[:result_count]
+
+
+def _generate_business_fallback_names(
+    vertical: VerticalConfig,
+    brief: NamingBrief,
+    round_number: int,
+    taste_summary: str = "",
+    previous_names: list[str] | None = None,
+) -> list[NameResult]:
+    business_description = _brief_text(brief, "business_description")
+    industry = _brief_text(brief, "industry", "business")
+    audience = _brief_text(brief, "audience", "customers")
+    style = _brief_text(brief, "style", "credible and launch-ready")
+    domain_preference = _brief_text(brief, "domain_preference")
+    avoid_text = ", ".join(brief.avoid)
+
+    pool = BUSINESS_NAME_POOL
+    if round_number == 2:
+        pool = BUSINESS_REFINED_POOL
+    elif round_number >= 4:
+        pool = BUSINESS_EXTRA_POOL
+    elif round_number >= 3:
+        pool = BUSINESS_FINALIST_POOL
+
+    previous = {name.lower() for name in (previous_names or [])}
+    if previous:
+        filtered_pool = [item for item in pool if item[0].lower() not in previous]
+        if len(filtered_pool) >= min(6, vertical.default_result_count):
+            pool = filtered_pool
+
+    result_count = 6 if round_number >= 3 else vertical.default_result_count
+    results: list[NameResult] = []
+    for index, (name, pronunciation, opener) in enumerate(pool, start=1):
+        clean_name = _clean_name_key(name)
+        risks = [
+            "Run trademark, domain, and social-handle checks before committing."
+        ]
+        if clean_name in {_clean_name_key(item) for item in brief.avoid}:
+            risks.insert(0, "This name matches something in the avoid list.")
+        if len(clean_name) > 13 or "and" in clean_name:
+            risks.append("Longer brand shape; test email, logo, and handle fit.")
+        if domain_preference == "Exact .com matters":
+            risks.append("Exact .com priority may require a modifier or alternate spelling.")
+
+        insight = BUSINESS_NAME_INSIGHTS.get(
+            name,
+            "balances memorability, category flexibility, and a credible launch feel",
+        )
+        context = (
+            f" for {audience.lower()}" if audience and audience != "Other" else ""
+        )
+        why = (
+            f"{name} works because it {insight}. It stays in the "
+            f"{style.lower()} lane while giving a {industry.lower()} brand room to grow{context}."
+        )
+        if business_description:
+            why += f" It should be tested against the core offer: {business_description}."
+        if taste_summary:
+            why += f" {taste_summary}"
+        if avoid_text:
+            why += f" It also stays mindful of your avoid list: {avoid_text}."
+
+        results.append(
+            NameResult(
+                id=f"{vertical.slug}-{index}",
+                name=name,
+                slug=slugify(name),
+                pronunciation=pronunciation,
+                tagline=opener,
+                meaning=(
+                    "A business name shaped for category fit, memorability, "
+                    "brand stretch, and practical launch review."
+                ),
+                why_this_name=why,
+                fit_note=_business_fit_note(industry, audience, style),
+                risks=risks,
+                tags=["brandable", "launch-ready", "business"],
+                scores={
+                    "memorability": 0.88 if len(clean_name) <= 11 else 0.78,
+                    "category_fit": 0.82 if industry else 0.68,
+                    "launch_readiness": 0.72,
+                },
+                metadata={"source": "business_fallback", "round_number": round_number},
+            )
+        )
+
+    return validate_results(vertical, brief, results)[:result_count]
+
+
+def _business_fit_note(industry: str, audience: str, style: str) -> str:
+    audience_note = f" for {audience.lower()}" if audience and audience != "Other" else ""
+    return (
+        f"Best if you want a {style.lower()} name that can signal "
+        f"{industry.lower()} credibility{audience_note} without boxing in future growth."
+    )
 
 
 def _filter_baby_pool_for_brief(

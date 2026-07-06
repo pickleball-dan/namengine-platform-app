@@ -116,6 +116,63 @@ BABY_INSPIRATION_OPTIONS = (
     "Modern favorites",
 )
 
+BUSINESS_STAGE_OPTIONS = (
+    "Idea stage",
+    "Launching soon",
+    "Already operating",
+    "Rebrand or rename",
+)
+BUSINESS_AUDIENCE_OPTIONS = (
+    "Consumers",
+    "Local customers",
+    "B2B buyers",
+    "Creators or fans",
+    "Premium clients",
+    "Families",
+    "Technical users",
+    "Other",
+)
+BUSINESS_STYLE_OPTIONS = (
+    "Clear and credible",
+    "Modern and energetic",
+    "Premium and refined",
+    "Friendly and approachable",
+    "Bold and memorable",
+    "Invented but pronounceable",
+    "Classic and trustworthy",
+)
+BUSINESS_DISTINCTIVENESS_OPTIONS = (
+    "Very clear and descriptive",
+    "Mostly clear",
+    "Balanced",
+    "Mostly distinctive",
+    "Highly ownable",
+)
+BUSINESS_NAME_SHAPE_OPTIONS = (
+    "Real word",
+    "Compound",
+    "Invented but readable",
+    "Founder or heritage",
+    "Short and punchy",
+    "Descriptive phrase",
+)
+BUSINESS_INSPIRATION_OPTIONS = (
+    "Category",
+    "Customer outcome",
+    "Founder story",
+    "Place",
+    "Craft or process",
+    "Technology",
+    "Signal or momentum",
+    "Other",
+)
+BUSINESS_DOMAIN_OPTIONS = (
+    "Exact .com matters",
+    "Open to modifiers",
+    "Social handle matters most",
+    "Domain can come later",
+)
+
 
 PET = VerticalConfig(
     slug="pet",
@@ -365,15 +422,89 @@ BUSINESS = VerticalConfig(
     object_label="business name",
     route_prefix="/business",
     intake_questions=(
-        Question("business_description", "What does the business do?", required=True),
-        Question("audience", "Who is it for?"),
-        Question("industry", "What industry or category is it in?"),
-        Question("style", "What should the name signal?"),
-        Question("avoid", "Anything to avoid?"),
+        Question(
+            "business_description",
+            "What does the business do?",
+            kind="textarea",
+            required=True,
+            placeholder="Describe the offer, customer problem, or core service in plain language.",
+            section="About the business",
+        ),
+        Question(
+            "industry",
+            "Industry or category",
+            placeholder="Wellness, SaaS, home services, coaching, retail...",
+            section="About the business",
+        ),
+        Question(
+            "stage",
+            "Where is the business now?",
+            choices=BUSINESS_STAGE_OPTIONS,
+            section="About the business",
+        ),
+        Question(
+            "audience",
+            "Primary audience",
+            required=True,
+            choices=BUSINESS_AUDIENCE_OPTIONS,
+            section="About the business",
+        ),
+        Question(
+            "notes",
+            "Anything else we should understand?",
+            kind="textarea",
+            placeholder="Mission, edge, geography, competitors, founder story, or customer promise...",
+            section="About the business",
+        ),
+        Question(
+            "style",
+            "What should the name signal?",
+            required=True,
+            choices=BUSINESS_STYLE_OPTIONS,
+            section="Name style",
+        ),
+        Question(
+            "name_shape",
+            "Preferred name shape",
+            choices=BUSINESS_NAME_SHAPE_OPTIONS,
+            section="Name style",
+        ),
+        Question(
+            "timeless_vs_distinctive",
+            "How distinctive should it feel?",
+            choices=BUSINESS_DISTINCTIVENESS_OPTIONS,
+            section="Name style",
+        ),
+        Question(
+            "cultural_context",
+            "Name inspiration",
+            choices=BUSINESS_INSPIRATION_OPTIONS,
+            section="Name style",
+        ),
+        Question(
+            "domain_preference",
+            "Domain and handle priority",
+            choices=BUSINESS_DOMAIN_OPTIONS,
+            section="Launch fit",
+        ),
+        Question(
+            "partner_alignment",
+            "Decision tension",
+            kind="textarea",
+            placeholder="Too corporate vs too playful, clear vs ownable, local vs scalable...",
+            section="Launch fit",
+        ),
+        Question(
+            "avoid",
+            "Anything to avoid?",
+            placeholder="Words, sounds, competitors, initials, legal concerns...",
+            section="Launch fit",
+        ),
     ),
     prompt_context=(
         "Generate business names that balance brandability, category fit, "
-        "pronunciation, memorability, and practical launch risk."
+        "memorability, pronunciation, domain or handle flexibility, and "
+        "practical launch risk."
     ),
     result_field_labels={
         "tagline": "Positioning hint",
@@ -383,16 +514,21 @@ BUSINESS = VerticalConfig(
     },
     validation_modules=("business_domain", "business_category_fit", "business_similarity"),
     theme={
-        "accent": "#d9a441",
-        "surface": "#f7f9fc",
+        "accent": "#27476e",
+        "accent_deep": "#162033",
+        "accent_pet": "#d9a441",
+        "accent_soft": "rgba(39, 71, 110, 0.13)",
+        "accent_warm_soft": "rgba(217, 164, 65, 0.22)",
+        "surface": "rgba(247, 249, 252, 0.96)",
         "page": "#f5f7fb",
         "card": "#ffffff",
         "ink": "#162033",
         "muted": "#5d687c",
+        "line": "rgba(22, 32, 51, 0.12)",
     },
     assets={
-        "logo": "images/business-logo.svg",
-        "share_image": "images/business-share.svg",
+        "logo": "images/business/namengine-business-logo.png",
+        "share_image": "images/business/namengine-business-share.png",
     },
 )
 

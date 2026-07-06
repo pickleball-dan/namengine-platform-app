@@ -86,6 +86,12 @@ def display_brief_items(vertical, brief) -> list[dict[str, str]]:
         "vibe": "Personality",
         "cultural_context": "Inspiration",
         "partner_alignment": "Torn between",
+        "business_description": "Business",
+        "industry": "Category",
+        "stage": "Stage",
+        "audience": "Audience",
+        "name_shape": "Name shape",
+        "domain_preference": "Domain priority",
     }
 
     items: list[dict[str, str]] = []
@@ -585,14 +591,19 @@ def _cached_names_match_current_rules(
     brief: NamingBrief,
     names: list[NameResult],
 ) -> bool:
-    if vertical.slug != "baby":
-        return True
-    if len(filter_results_for_brief(vertical, brief, names)) != len(names):
-        return False
-    return all(
-        "baby_gender_direction" in {item.module for item in name.validation}
-        for name in names
-    )
+    if vertical.slug == "baby":
+        if len(filter_results_for_brief(vertical, brief, names)) != len(names):
+            return False
+        return all(
+            "baby_gender_direction" in {item.module for item in name.validation}
+            for name in names
+        )
+    if vertical.slug == "business":
+        return all(
+            "business_domain" in {item.module for item in name.validation}
+            for name in names
+        )
+    return True
 
 
 def _try_generate_keepsake(chosen_id: str):

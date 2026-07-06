@@ -117,6 +117,8 @@ def validate_result(
         return _validate_pet_name(brief, result.name)
     if vertical.slug == "baby":
         return _validate_baby_name(brief, result.name)
+    if vertical.slug == "business":
+        return _validate_business_name(brief, result.name)
     return [
         ValidationResult(
             module="validation_not_configured",
@@ -262,6 +264,109 @@ def _validate_baby_name(brief: NamingBrief, name: str) -> list[ValidationResult]
     if avoid:
         validation.append(_pet_avoid_validation(clean_name, avoid))
     return validation
+
+
+def _validate_business_name(brief: NamingBrief, name: str) -> list[ValidationResult]:
+    clean_name = _clean_name_key(name)
+    avoid = {_clean_name_key(item) for item in brief.avoid}
+    validation = [
+        _business_domain_validation(clean_name, name),
+        _business_category_fit_validation(brief),
+        _business_similarity_validation(brief, clean_name),
+    ]
+    if avoid:
+        validation.append(_business_avoid_validation(clean_name, avoid))
+    return validation
+
+
+def _business_domain_validation(clean_name: str, display_name: str) -> ValidationResult:
+    has_ampersand = "&" in display_name
+    if 4 <= len(clean_name) <= 13 and not has_ampersand:
+        return ValidationResult(
+            module="business_domain",
+            status=ValidationStatus.PASS,
+            label="Domain signal",
+            message="Compact enough to test as a domain or social handle.",
+            score=0.84,
+            confidence=0.68,
+            metadata={"letters": len(clean_name)},
+        )
+    return ValidationResult(
+        module="business_domain",
+        status=ValidationStatus.WARN,
+        label="Domain signal",
+        message="Test modifiers, punctuation, and handle fit before launch.",
+        score=0.64,
+        confidence=0.66,
+        metadata={"letters": len(clean_name)},
+    )
+
+
+def _business_category_fit_validation(brief: NamingBrief) -> ValidationResult:
+    industry = str(brief.inputs.get("industry", "")).strip()
+    description = str(brief.inputs.get("business_description", "")).strip()
+    if industry or description:
+        return ValidationResult(
+            module="business_category_fit",
+            status=ValidationStatus.PASS,
+            label="Category fit",
+            message="Business context is present; judge whether the name signals the right lane.",
+            score=0.82,
+            confidence=0.7,
+            metadata={"has_industry": bool(industry), "has_description": bool(description)},
+        )
+    return ValidationResult(
+        module="business_category_fit",
+        status=ValidationStatus.UNKNOWN,
+        label="Category fit",
+        message="Add industry or offer context to check category fit more clearly.",
+        score=0.55,
+        confidence=0.55,
+    )
+
+
+def _business_similarity_validation(
+    brief: NamingBrief,
+    clean_name: str,
+) -> ValidationResult:
+    avoid = {_clean_name_key(item) for item in brief.avoid}
+    if clean_name in avoid:
+        return ValidationResult(
+            module="business_similarity",
+            status=ValidationStatus.FAIL,
+            label="Launch risk",
+            message="This appears in the avoid list and should not move forward.",
+            score=0.0,
+            confidence=0.92,
+        )
+    return ValidationResult(
+        module="business_similarity",
+        status=ValidationStatus.WARN,
+        label="Launch risk",
+        message="Do trademark, competitor, domain, and social checks before committing.",
+        score=0.62,
+        confidence=0.7,
+    )
+
+
+def _business_avoid_validation(clean_name: str, avoid: set[str]) -> ValidationResult:
+    if clean_name in avoid:
+        return ValidationResult(
+            module="avoid_match",
+            status=ValidationStatus.FAIL,
+            label="Avoid list",
+            message="This name matches something the user asked to avoid.",
+            score=0.0,
+            confidence=1.0,
+        )
+    return ValidationResult(
+        module="avoid_match",
+        status=ValidationStatus.PASS,
+        label="Avoid list",
+        message="Does not match the avoid list.",
+        score=1.0,
+        confidence=1.0,
+    )
 
 
 def _baby_gender_direction_validation(

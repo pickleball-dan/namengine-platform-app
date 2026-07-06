@@ -10,16 +10,22 @@
         <img class="vertical-page-logo" src="{{ url_for('static', filename=page_logo) }}" alt="NamEngine {{ vertical.display_name }} logo">
       {% endif %}
       <p class="eyebrow">NamEngine {{ vertical.display_name }}</p>
-      <h1>Let’s shape the right {{ vertical.object_label }}.</h1>
+      <h1>
+        {% if vertical.slug == "business" %}
+          Find a name your business can grow into.
+        {% elif vertical.slug == "character" %}
+          Find a name that belongs in the story.
+        {% else %}
+          Let’s shape the right {{ vertical.object_label }}.
+        {% endif %}
+      </h1>
       <p>{{ vertical.prompt_context }}</p>
-      {% if vertical.slug in ["pet", "baby"] %}
-        <div class="hero-actions">
-          <a class="button-link" href="#{{ vertical.slug }}-intake-form">Start discovering names</a>
-          {% if vertical.slug == "pet" %}
-            <a class="button-link secondary-button" href="/pet/original">Create an original pet name</a>
-          {% endif %}
-        </div>
-      {% endif %}
+      <div class="hero-actions">
+        <a class="button-link" href="#{{ vertical.slug }}-intake-form">Start discovering names</a>
+        {% if vertical.slug == "pet" %}
+          <a class="button-link secondary-button" href="/pet/original">Create an original pet name</a>
+        {% endif %}
+      </div>
       {% if page_logo %}
         <div class="identity-preview">
           <img src="{{ url_for('static', filename=page_logo) }}" alt="" width="54" height="54">
@@ -27,14 +33,28 @@
           <h2>
             {% if vertical.slug == "baby" %}
               Built for names that feel tender now and substantial later.
+            {% elif vertical.slug == "business" %}
+              Built for names that can carry a real offer into market.
+            {% elif vertical.slug == "character" %}
+              Built for names that match role, world, and reader memory.
             {% else %}
               Built for names that sound good out loud and feel like them.
             {% endif %}
           </h2>
           <div class="identity-preview-points" aria-label="Name fit checks">
-            <span>Sound</span>
-            <span>Style</span>
-            <span>{% if vertical.slug == "baby" %}Family fit{% else %}Personality{% endif %}</span>
+            {% if vertical.slug == "business" %}
+              <span>Category fit</span>
+              <span>Memorability</span>
+              <span>Launch risk</span>
+            {% elif vertical.slug == "character" %}
+              <span>Genre</span>
+              <span>Role</span>
+              <span>World fit</span>
+            {% else %}
+              <span>Sound</span>
+              <span>Style</span>
+              <span>{% if vertical.slug == "baby" %}Family fit{% else %}Personality{% endif %}</span>
+            {% endif %}
           </div>
         </div>
       {% endif %}
@@ -76,7 +96,7 @@
       <button type="submit">Generate {{ vertical.display_name }} Names</button>
     </form>
 
-    {% if vertical.slug in ["pet", "baby"] %}
+    {% if vertical.slug in ["pet", "baby", "business"] %}
       <aside class="taste-history-panel" aria-label="Taste history" data-taste-vertical="{{ vertical.slug }}">
         <h2>Taste history</h2>
         <p>Names and lists you loved during this visit will collect here.</p>
@@ -112,7 +132,7 @@
   </section>
   {% include "progress_overlay.html" %}
   <script src="{{ url_for('static', filename='js/progress.js') }}"></script>
-  {% if vertical.slug in ["pet", "baby"] %}
+  {% if vertical.slug in ["pet", "baby", "business"] %}
     <script src="{{ url_for('static', filename='js/taste-history.js') }}"></script>
   {% endif %}
 {% endblock %}

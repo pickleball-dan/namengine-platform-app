@@ -218,6 +218,21 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn('alt="NamEngine Baby logo"', body)
         self.assertIn("identity-preview", body)
 
+    def test_business_pages_use_business_graphics_and_copy(self):
+        response = self.client.get("/business")
+        body = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("vertical-business", body)
+        self.assertIn("images/business/namengine-business-logo.png", body)
+        self.assertIn("images/business/namengine-business-share.png", body)
+        self.assertIn("Find a name your business can grow into.", body)
+        self.assertIn("Category fit", body)
+        self.assertIn("Memorability", body)
+        self.assertIn("Launch risk", body)
+        self.assertIn("--accent: #27476e", body)
+        self.assertIn("--accent-pet: #d9a441", body)
+
     def test_home_page_uses_supplied_baby_logo_card(self):
         response = self.client.get("/")
         body = response.get_data(as_text=True)
@@ -239,6 +254,19 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn("images/baby/namengine-baby-logo.png", header)
         self.assertIn("<span>NamEngine</span>", header)
 
+    def test_business_graphics_follow_pet_asset_slots(self):
+        response = self.client.get("/business")
+        body = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn("header_logo", VERTICALS["business"].assets)
+        self.assertNotIn("card_logo", VERTICALS["business"].assets)
+        self.assertNotIn("page_logo", VERTICALS["business"].assets)
+        self.assertNotIn("brand-logo-wordmark", body)
+        header = body.split("</header>", 1)[0]
+        self.assertIn("images/business/namengine-business-logo.png", header)
+        self.assertIn("<span>NamEngine</span>", header)
+
     def test_baby_logo_is_transparent_png_with_baby_mark(self):
         static_root = Path(self.app.static_folder)
         baby_logo = static_root / VERTICALS["baby"].assets["logo"]
@@ -256,6 +284,19 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
             _png_opaque_color_pixel_count(baby_logo, (310, 165, 520, 330), "red"),
             1000,
         )
+
+    def test_business_logo_is_transparent_png(self):
+        static_root = Path(self.app.static_folder)
+        business_logo = static_root / VERTICALS["business"].assets["logo"]
+
+        width, height, color_type, corner_alpha = _png_rgba_size_and_corner_alpha(
+            business_logo
+        )
+
+        self.assertEqual(color_type, 6)
+        self.assertGreater(width, 500)
+        self.assertGreater(height, 450)
+        self.assertEqual(corner_alpha, [0, 0, 0, 0])
 
     def test_baby_page_logo_contains_namengine_cyan_mark(self):
         static_root = Path(self.app.static_folder)
@@ -329,6 +370,47 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
                 "Fit and feeling": ["sound"],
             },
         )
+
+    def test_business_intake_requires_one_signal_per_launch_section(self):
+        questions = {question.id: question for question in VERTICALS["business"].intake_questions}
+
+        self.assertTrue(questions["business_description"].required)
+        self.assertTrue(questions["audience"].required)
+        self.assertTrue(questions["style"].required)
+        self.assertEqual(questions["business_description"].section, "About the business")
+        self.assertEqual(questions["style"].section, "Name style")
+        self.assertEqual(questions["domain_preference"].section, "Launch fit")
+        self.assertEqual(questions["business_description"].kind, "textarea")
+        self.assertIn("Modern and energetic", questions["style"].choices)
+        self.assertIn("Exact .com matters", questions["domain_preference"].choices)
+
+        required_by_section = {}
+        for question in VERTICALS["business"].intake_questions:
+            if question.required:
+                required_by_section.setdefault(question.section, []).append(question.id)
+
+        self.assertEqual(
+            required_by_section,
+            {
+                "About the business": ["business_description", "audience"],
+                "Name style": ["style"],
+            },
+        )
+
+    def test_business_results_use_business_validation_and_labels(self):
+        response = self.client.get(
+            "/business/results?business_description=AI+operations+consulting"
+            "&industry=Consulting&audience=B2B+buyers&style=Clear+and+credible"
+        )
+        body = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Brand fit", body)
+        self.assertIn("Launch risks", body)
+        self.assertIn("Domain signal", body)
+        self.assertIn("Category fit", body)
+        self.assertIn("Launch risk", body)
+        self.assertNotIn("Validation has not been configured", body)
 
     def test_pet_intake_other_dropdown_has_custom_entry_field(self):
         response = self.client.get("/pet")
