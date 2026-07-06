@@ -11,9 +11,10 @@ from namengine.core import (
     save_session,
     validate_result,
 )
+from namengine.core.validation import filter_results_for_brief
 from namengine.core.schemas import NameResult, ValidationStatus
 from namengine.core.generation import slugify
-from namengine.verticals import PET
+from namengine.verticals import BABY, PET
 
 
 class PhaseTenValidationTest(unittest.TestCase):
@@ -92,6 +93,17 @@ class PhaseTenValidationTest(unittest.TestCase):
         rows = get_validation_results(session_id)
 
         self.assertEqual(len(rows), 16)
+
+    def test_baby_girl_validation_filters_masculine_name(self):
+        brief = build_brief(BABY, {"gender": "Girl", "style": "Classic", "sound": "Soft"})
+        results = [
+            NameResult(id="baby-1", name="Arthur", slug=slugify("Arthur")),
+            NameResult(id="baby-2", name="Eloise", slug=slugify("Eloise")),
+        ]
+
+        filtered = filter_results_for_brief(BABY, brief, results)
+
+        self.assertEqual([result.name for result in filtered], ["Eloise"])
 
 
 if __name__ == "__main__":

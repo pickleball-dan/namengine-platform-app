@@ -10,7 +10,7 @@ from namengine.core.schemas import (
     TasteProfile,
     VerticalConfig,
 )
-from namengine.core.validation import validate_results
+from namengine.core.validation import is_baby_name_allowed_for_gender, validate_results
 
 
 PET_NAME_POOL = [
@@ -404,6 +404,9 @@ def _generate_baby_fallback_names(
     elif round_number >= 3:
         pool = BABY_FINALIST_POOL + BABY_EXTRA_POOL + BABY_WIDE_EXPLORATION_POOL
 
+    result_count = 6 if round_number >= 3 else vertical.default_result_count
+    pool = _filter_baby_pool_for_gender(brief, pool, minimum_count=result_count)
+
     previous = {name.lower() for name in (previous_names or [])}
     if previous:
         filtered_pool = [item for item in pool if item[0].lower() not in previous]
@@ -456,6 +459,37 @@ def _generate_baby_fallback_names(
             )
         )
 
-    if round_number >= 3:
-        return validate_results(vertical, brief, results[:6])
-    return validate_results(vertical, brief, results[: vertical.default_result_count])
+    return validate_results(vertical, brief, results)[:result_count]
+
+
+def _filter_baby_pool_for_gender(
+    brief: NamingBrief,
+    pool: list[tuple[str, str, str]],
+    minimum_count: int,
+) -> list[tuple[str, str, str]]:
+    filtered_pool = [
+        item for item in pool if is_baby_name_allowed_for_gender(brief, item[0])
+    ]
+    if len(filtered_pool) >= minimum_count:
+        return filtered_pool
+
+    supplemental_pool = (
+        BABY_NAME_POOL
+        + BABY_REFINED_POOL
+        + BABY_FINALIST_POOL
+        + BABY_EXTRA_POOL
+        + BABY_WIDE_EXPLORATION_POOL
+    )
+    seen = {item[0].lower() for item in filtered_pool}
+    for item in supplemental_pool:
+        name = item[0]
+        if name.lower() in seen or not is_baby_name_allowed_for_gender(brief, name):
+            continue
+        filtered_pool.append(item)
+        seen.add(name.lower())
+        if len(filtered_pool) >= minimum_count:
+            return filtered_pool
+
+    if len(filtered_pool) < min(6, len(pool)):
+        return pool
+    return filtered_pool

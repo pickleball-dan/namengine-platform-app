@@ -13,6 +13,99 @@ from namengine.core.schemas import (
 
 VOWELS = set("aeiouy")
 
+BABY_GIRL_INCOMPATIBLE_NAMES = {
+    "ambrose",
+    "ansel",
+    "arthur",
+    "bennett",
+    "calvin",
+    "cassian",
+    "dashiell",
+    "emil",
+    "felix",
+    "finnian",
+    "gideon",
+    "graham",
+    "harlan",
+    "hugo",
+    "jasper",
+    "jonah",
+    "julian",
+    "kieran",
+    "leif",
+    "luca",
+    "matteo",
+    "micah",
+    "miles",
+    "nico",
+    "otto",
+    "owen",
+    "rafael",
+    "reid",
+    "rhys",
+    "silas",
+    "soren",
+    "stellan",
+    "theo",
+    "tobias",
+    "xavier",
+}
+
+BABY_BOY_INCOMPATIBLE_NAMES = {
+    "ada",
+    "alma",
+    "amara",
+    "anouk",
+    "anya",
+    "aurelia",
+    "beatrice",
+    "blythe",
+    "calla",
+    "celia",
+    "clara",
+    "cora",
+    "dalia",
+    "daphne",
+    "elodie",
+    "eloise",
+    "esme",
+    "flora",
+    "freya",
+    "greta",
+    "ida",
+    "imogen",
+    "iris",
+    "ivy",
+    "june",
+    "lena",
+    "leona",
+    "liora",
+    "louisa",
+    "lyra",
+    "mabel",
+    "maeve",
+    "maren",
+    "margot",
+    "maya",
+    "mira",
+    "nina",
+    "noemi",
+    "nora",
+    "opal",
+    "orla",
+    "petra",
+    "phoebe",
+    "rhea",
+    "romy",
+    "serena",
+    "sylvie",
+    "tessa",
+    "thea",
+    "vera",
+    "willa",
+    "zara",
+}
+
 
 def validate_result(
     vertical: VerticalConfig,
@@ -39,14 +132,36 @@ def validate_results(
     brief: NamingBrief,
     results: list[NameResult],
 ) -> list[NameResult]:
+    results = filter_results_for_brief(vertical, brief, results)
     for result in results:
         result.validation = validate_result(vertical, brief, result)
         result.scores.update(_scores_from_validation(result.validation))
     return results
 
 
+def filter_results_for_brief(
+    vertical: VerticalConfig,
+    brief: NamingBrief,
+    results: list[NameResult],
+) -> list[NameResult]:
+    if vertical.slug != "baby":
+        return results
+
+    return [result for result in results if is_baby_name_allowed_for_gender(brief, result.name)]
+
+
+def is_baby_name_allowed_for_gender(brief: NamingBrief, name: str) -> bool:
+    gender = str(brief.inputs.get("gender", "")).strip().lower()
+    clean_name = _clean_name_key(name)
+    if gender == "girl":
+        return clean_name not in BABY_GIRL_INCOMPATIBLE_NAMES
+    if gender == "boy":
+        return clean_name not in BABY_BOY_INCOMPATIBLE_NAMES
+    return True
+
+
 def _validate_pet_name(brief: NamingBrief, name: str) -> list[ValidationResult]:
-    clean_name = "".join(character for character in name.lower() if character.isalpha())
+    clean_name = _clean_name_key(name)
     avoid = {item.lower() for item in brief.avoid}
     syllable_count = _estimate_syllables(clean_name)
     length = len(clean_name)
@@ -123,7 +238,7 @@ def _pet_avoid_validation(clean_name: str, avoid: set[str]) -> ValidationResult:
 
 
 def _validate_baby_name(brief: NamingBrief, name: str) -> list[ValidationResult]:
-    clean_name = "".join(character for character in name.lower() if character.isalpha())
+    clean_name = _clean_name_key(name)
     avoid = {item.lower() for item in brief.avoid}
     syllable_count = _estimate_syllables(clean_name)
     validation = [
@@ -215,6 +330,10 @@ def _estimate_syllables(clean_name: str) -> int:
     if clean_name.endswith("e") and groups > 1:
         groups -= 1
     return max(groups, 1)
+
+
+def _clean_name_key(name: str) -> str:
+    return "".join(character for character in name.lower() if character.isalpha())
 
 
 def _scores_from_validation(validation: list[ValidationResult]) -> dict[str, float]:

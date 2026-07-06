@@ -206,6 +206,29 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         self.assertFalse(round_three_names & round_one_names)
         self.assertFalse(round_three_names & round_two_names)
 
+    def test_baby_girl_refinement_excludes_masculine_fallback_names(self):
+        session_id = self._seed_baby_round_one()
+        round_two_id, _, round_two_results = refine_session(
+            session_id,
+            BABY,
+            instruction="fresh but still classic",
+        )
+        for index, _ in enumerate(round_two_results, start=1):
+            save_reaction(build_reaction(round_two_id, f"baby-{index}", "maybe"))
+
+        _, _, round_three_results = refine_session(
+            round_two_id,
+            BABY,
+            instruction="expand the horizon",
+        )
+        result_names = {result.name for result in round_two_results + round_three_results}
+
+        self.assertNotIn("Arthur", result_names)
+        self.assertFalse(
+            result_names
+            & {"Arthur", "Felix", "Graham", "Hugo", "Miles", "Jonah", "Silas", "Theo"}
+        )
+
     def test_refine_route_rejects_missing_session(self):
         response = self.client.post("/refine", data={"session_id": "missing"})
 
