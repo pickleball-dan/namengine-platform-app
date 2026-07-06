@@ -89,6 +89,188 @@ main {
   padding: 36px 0;
 }
 
+.home-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.86fr);
+  gap: 36px;
+  align-items: center;
+  padding: 38px 0 42px;
+}
+
+.home-hero-copy > p:not(.eyebrow) {
+  max-width: 650px;
+  margin: 18px 0 0;
+  color: #4d596b;
+  font-size: 18px;
+}
+
+.home-brand-lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.home-brand-lockup .eyebrow {
+  margin: 0;
+}
+
+.home-brand-mark {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  color: #18212f;
+  background:
+    linear-gradient(135deg, rgba(242, 184, 75, 0.3), rgba(47, 148, 134, 0.18)),
+    #ffffff;
+  border: 1px solid rgba(24, 33, 47, 0.13);
+  border-radius: 8px;
+  box-shadow: 0 14px 34px rgba(24, 33, 47, 0.09);
+}
+
+.home-brand-mark span {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.home-secondary-button {
+  color: #18212f;
+  background: #ffffff;
+  border-color: #cfd7e3;
+}
+
+.home-proof-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 22px;
+}
+
+.home-proof-strip span {
+  padding: 8px 10px;
+  color: #3f4c60;
+  font-size: 13px;
+  font-weight: 900;
+  background: rgba(255, 255, 255, 0.76);
+  border: 1px solid rgba(24, 33, 47, 0.1);
+  border-radius: 999px;
+}
+
+.home-visual-panel {
+  display: grid;
+  gap: 16px;
+  padding: 22px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(246, 248, 252, 0.9)),
+    var(--surface);
+  border: 1px solid rgba(24, 33, 47, 0.11);
+  border-radius: 8px;
+  box-shadow: 0 22px 54px rgba(24, 33, 47, 0.11);
+}
+
+.home-panel-heading {
+  display: grid;
+  gap: 4px;
+}
+
+.home-panel-heading span {
+  color: #687386;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.home-panel-heading strong {
+  max-width: 320px;
+  color: #18212f;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 28px;
+  line-height: 1.12;
+}
+
+.home-signal-stack {
+  display: grid;
+  gap: 10px;
+}
+
+.home-signal-card {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  min-height: 74px;
+  padding: 12px;
+  text-decoration: none;
+  background:
+    linear-gradient(90deg, var(--signal-soft), rgba(255, 255, 255, 0.82)),
+    #ffffff;
+  border: 1px solid rgba(24, 33, 47, 0.1);
+  border-left: 4px solid var(--signal-accent);
+  border-radius: 8px;
+}
+
+.home-signal-card img {
+  display: block;
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+}
+
+.home-signal-card span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.home-signal-card strong {
+  color: #18212f;
+  font-size: 15px;
+}
+
+.home-signal-card small {
+  color: #687386;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.home-signal-card em {
+  padding: 7px 9px;
+  color: #18212f;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 900;
+  white-space: nowrap;
+  background: color-mix(in srgb, var(--signal-warm) 24%, white);
+  border-radius: 999px;
+}
+
+.home-verticals,
+.home-system-panel {
+  padding: 32px 0 0;
+}
+
+.section-heading {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+
+.section-heading .eyebrow {
+  margin: 0;
+}
+
+.section-heading h2 {
+  max-width: 620px;
+  margin: 0;
+  color: var(--accent-deep);
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(30px, 4vw, 44px);
+  line-height: 1.08;
+}
+
 .eyebrow {
   margin: 0 0 10px;
   color: var(--muted);
@@ -153,6 +335,113 @@ h1 {
 
 .vertical-card:hover {
   border-color: #aeb9c9;
+}
+
+.home-vertical-card {
+  position: relative;
+  min-height: 220px;
+  align-content: start;
+  gap: 14px;
+  overflow: hidden;
+  background:
+    linear-gradient(155deg, rgba(255, 255, 255, 0.95), var(--card-soft)),
+    var(--card);
+  border-color: rgba(24, 33, 47, 0.11);
+}
+
+.home-vertical-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: var(--card-accent);
+}
+
+.home-vertical-card::after {
+  content: "";
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  width: 34px;
+  height: 34px;
+  background:
+    linear-gradient(135deg, var(--card-warm-soft), rgba(255, 255, 255, 0.6));
+  border: 1px solid rgba(24, 33, 47, 0.08);
+  border-radius: 8px;
+  transform: rotate(8deg);
+}
+
+.home-vertical-card:hover {
+  border-color: color-mix(in srgb, var(--card-accent) 48%, #dde3ec);
+}
+
+.home-vertical-card .vertical-card-logo {
+  position: relative;
+  z-index: 1;
+  width: 38px;
+  height: 38px;
+  margin-bottom: 0;
+  object-fit: contain;
+}
+
+.home-card-copy {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 2px;
+}
+
+.home-card-points {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+  margin-top: auto;
+}
+
+.home-card-points span {
+  padding: 6px 8px;
+  color: #18212f;
+  font-size: 12px;
+  font-weight: 900;
+  background: rgba(255, 255, 255, 0.74);
+  border: 1px solid rgba(24, 33, 47, 0.09);
+  border-radius: 999px;
+}
+
+.home-system-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.home-system-grid div {
+  display: grid;
+  gap: 7px;
+  min-height: 146px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(24, 33, 47, 0.1);
+  border-radius: 8px;
+}
+
+.system-number {
+  color: #687386;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.home-system-grid strong {
+  color: #18212f;
+  font-size: 16px;
+}
+
+.home-system-grid p {
+  margin: 0;
+  color: #607086;
+  font-size: 14px;
+  font-weight: 650;
 }
 
 .vertical-name {
@@ -1808,7 +2097,9 @@ button {
     padding-top: 16px;
   }
 
+  .home-hero,
   .vertical-grid,
+  .home-system-grid,
   .intake-shell,
   .brief-summary dl,
   .decision-strip,
@@ -1872,6 +2163,40 @@ button {
 
   h1 {
     font-size: 40px;
+  }
+
+  .home-hero {
+    gap: 22px;
+    padding: 24px 0 28px;
+  }
+
+  .home-hero-copy > p:not(.eyebrow) {
+    font-size: 16px;
+  }
+
+  .home-visual-panel {
+    padding: 18px;
+  }
+
+  .home-panel-heading strong {
+    font-size: 24px;
+  }
+
+  .home-signal-card {
+    grid-template-columns: 42px minmax(0, 1fr);
+  }
+
+  .home-signal-card em {
+    justify-self: start;
+    grid-column: 2;
+  }
+
+  .home-vertical-card {
+    min-height: 178px;
+  }
+
+  .home-system-grid div {
+    min-height: auto;
   }
 
   .intake-form,
