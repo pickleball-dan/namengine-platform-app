@@ -248,26 +248,23 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("home-hero", body)
-        self.assertIn("home-visual-panel", body)
-        self.assertIn("home-system-panel", body)
-        self.assertIn("home-vertical-card", body)
-        self.assertIn("images/pet/namengine-pet-logo-transparent.png", body)
-        self.assertIn("images/baby/namengine-baby-logo.png", body)
-        self.assertIn("images/business/namengine-business-logo.png", body)
-        self.assertIn("--card-accent: #27476e", body)
-        self.assertIn("Domain signal", body)
-        self.assertNotIn("vertical-card-logo-wordmark", body)
+        self.assertIn("home-logo-grid", body)
+        self.assertIn("home-logo-card", body)
+        self.assertIn("namengine-pet-card-logo.png", body)
+        self.assertIn("namengine-baby-card-logo.png", body)
+        self.assertIn("namengine-business-card-logo.png", body)
+        self.assertIn("namengine-character-card-logo.png", body)
+        self.assertIn("Pick your vertical", body)
+        self.assertIn("The TASTE ENGINE", body)
 
     def test_home_page_graphics_have_css_contract(self):
         css_path = Path(self.app.static_folder) / "css" / "platform.css"
         css = css_path.read_text(encoding="utf-8")
 
         self.assertIn(".home-hero", css)
-        self.assertIn(".home-visual-panel", css)
-        self.assertIn(".home-signal-card", css)
-        self.assertIn(".home-vertical-card", css)
-        self.assertIn(".home-card-points", css)
-        self.assertIn(".home-system-panel", css)
+        self.assertIn(".home-logo-grid", css)
+        self.assertIn(".home-logo-card", css)
+        self.assertIn(".home-logo-card-img", css)
 
     def test_baby_graphics_follow_pet_asset_slots(self):
         response = self.client.get("/baby")

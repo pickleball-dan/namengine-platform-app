@@ -14,7 +14,7 @@ class PhaseTwoWebShellTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         body = response.get_data(as_text=True)
-        self.assertIn("The AI Taste Engine", body)
+        self.assertIn("The TASTE ENGINE", body)
         self.assertIn('href="/pet"', body)
         self.assertIn('href="/baby"', body)
         self.assertIn('href="/business"', body)

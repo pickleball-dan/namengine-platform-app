@@ -2251,3 +2251,69 @@ button {
     display: none;
   }
 }
+
+/* ── Home logo-card grid ───────────────────────────────────────────── */
+.home-logo-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  padding: 3rem 1.5rem 4rem;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+@media (max-width: 640px) {
+  .home-logo-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    padding: 2rem 1rem 3rem;
+  }
+}
+
+.home-logo-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border: 1.5px solid rgba(0,0,0,0.08);
+  border-radius: 20px;
+  padding: 2rem 1rem;
+  transition: box-shadow 0.18s, transform 0.18s;
+  aspect-ratio: 1;
+  text-decoration: none;
+  border-top: 3px solid var(--card-accent, #18212f);
+}
+
+.home-logo-card:hover {
+  box-shadow: 0 6px 24px rgba(0,0,0,0.10);
+  transform: translateY(-2px);
+}
+
+.home-logo-card-img {
+  width: 100%;
+  max-width: 160px;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+/* ── Home hero pick-vertical button ────────────────────────────────── */
+.home-pick-vertical {
+  background: var(--ink, #18212f);
+  color: #fff !important;
+  padding: 0.85rem 2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-block;
+  transition: opacity 0.15s;
+}
+.home-pick-vertical:hover { opacity: 0.85; }
+
+/* ── Clean hero (no right panel) ───────────────────────────────────── */
+.home-hero {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 4rem 1.5rem 2rem;
+  text-align: center;
+}

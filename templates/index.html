@@ -6,114 +6,34 @@
   <section class="home-hero" aria-labelledby="home-title">
     <div class="home-hero-copy">
       <div class="home-brand-lockup" aria-label="NamEngine">
-        <div class="home-brand-mark" aria-hidden="true">
-          <span>N</span>
-        </div>
-        <p class="eyebrow">The AI Taste Engine</p>
+        <p class="eyebrow">The TASTE ENGINE</p>
       </div>
       <h1 id="home-title">Find the name that feels right.</h1>
       <p>
         NamEngine shapes names around the thing you are naming, then learns from
-        your reactions so each list gets closer to your taste.
+        your reactions until it feels just right.
       </p>
       <div class="hero-actions">
-        <a class="button-link" href="/pet">Start with Pet</a>
-        <a class="button-link home-secondary-button" href="/business">Name a Business</a>
-      </div>
-      <div class="home-proof-strip" aria-label="Platform strengths">
-        <span>Vertical context</span>
-        <span>Taste learning</span>
-        <span>Launch checks</span>
+        <a class="button-link home-pick-vertical" href="#verticals">Pick your vertical ↓</a>
       </div>
     </div>
-
-    <aside class="home-visual-panel" aria-label="NamEngine naming preview">
-      <div class="home-panel-heading">
-        <span>App family</span>
-        <strong>One engine, tuned per naming job.</strong>
-      </div>
-      <div class="home-signal-stack">
-        {% for slug, item in verticals.items() %}
-          {% if slug in ["pet", "baby", "business"] %}
-            <a class="home-signal-card" href="{{ item.route_prefix }}" style="--signal-accent: {{ item.theme.get('accent', '#18212f') }}; --signal-warm: {{ item.theme.get('accent_pet', '#f2b84b') }}; --signal-soft: {{ item.theme.get('accent_soft', 'rgba(24, 33, 47, 0.08)') }};">
-              {% if item.assets.get("logo") %}
-                <img src="{{ url_for('static', filename=item.assets.get('logo')) }}" alt="" width="42" height="42">
-              {% endif %}
-              <span>
-                <strong>{{ item.display_name }}</strong>
-                <small>{{ item.object_label }}</small>
-              </span>
-              <em>
-                {% if slug == "business" %}Domain signal{% elif slug == "baby" %}Family fit{% else %}Callability{% endif %}
-              </em>
-            </a>
-          {% endif %}
-        {% endfor %}
-      </div>
-    </aside>
   </section>
 
-  <section class="home-verticals" aria-labelledby="verticals-title">
-    <div class="section-heading">
-      <p class="eyebrow">Choose a vertical</p>
-      <h2 id="verticals-title">Each path uses the same Namegine rhythm.</h2>
-    </div>
-    <div class="vertical-grid" aria-label="Naming verticals">
+  <section class="home-verticals" id="verticals" aria-labelledby="verticals-title">
+    <div class="vertical-grid home-logo-grid" aria-label="Naming verticals">
     {% for slug, item in verticals.items() %}
-      <a class="vertical-card home-vertical-card" href="{{ item.route_prefix }}" style="--card-accent: {{ item.theme.get('accent', '#18212f') }}; --card-deep: {{ item.theme.get('accent_deep', '#18212f') }}; --card-warm: {{ item.theme.get('accent_pet', '#f2b84b') }}; --card-soft: {{ item.theme.get('accent_soft', 'rgba(24, 33, 47, 0.08)') }}; --card-warm-soft: {{ item.theme.get('accent_warm_soft', 'rgba(242, 184, 75, 0.16)') }};">
-        {% set card_logo = item.assets.get("logo") %}
-        {% if card_logo %}
-          <img class="vertical-card-logo" src="{{ url_for('static', filename=card_logo) }}" alt="" width="38" height="38">
-        {% endif %}
-        <span class="home-card-copy">
-          <span class="vertical-name">{{ item.display_name }}</span>
-          <span class="vertical-label">{{ item.object_label }}</span>
-        </span>
-        <span class="home-card-points" aria-label="{{ item.display_name }} signals">
-          {% if slug == "business" %}
-            <span>Brand fit</span>
-            <span>Domain signal</span>
-            <span>Launch risk</span>
-          {% elif slug == "baby" %}
-            <span>Family fit</span>
-            <span>Sound</span>
-            <span>Initials</span>
-          {% elif slug == "character" %}
-            <span>Genre</span>
-            <span>Role</span>
-            <span>Era</span>
-          {% else %}
-            <span>Callability</span>
-            <span>Personality</span>
-            <span>Warmth</span>
-          {% endif %}
-        </span>
+      {% set card_logos = {
+        'pet': 'images/pet/namengine-pet-card-logo.png',
+        'baby': 'images/baby/namengine-baby-card-logo.png',
+        'business': 'images/business/namengine-business-card-logo.png',
+        'character': 'images/character/namengine-character-card-logo.png'
+      } %}
+      <a class="home-logo-card" href="{{ item.route_prefix }}" aria-label="{{ item.display_name }}" style="--card-accent: {{ item.theme.get('accent', '#18212f') }};">
+        <img src="{{ url_for('static', filename=card_logos.get(slug, item.assets.get('logo', ''))) }}" alt="{{ item.display_name }}" class="home-logo-card-img">
       </a>
     {% endfor %}
     </div>
   </section>
 
-  <section class="home-system-panel" aria-labelledby="system-title">
-    <div class="section-heading">
-      <p class="eyebrow">How the app works</p>
-      <h2 id="system-title">The same product system, not four separate designs.</h2>
-    </div>
-    <div class="home-system-grid">
-      <div>
-        <span class="system-number">01</span>
-        <strong>Context first</strong>
-        <p>Every vertical asks for the signals that matter to that naming decision.</p>
-      </div>
-      <div>
-        <span class="system-number">02</span>
-        <strong>React and refine</strong>
-        <p>Love, Maybe, and No teach the next list without making the user start over.</p>
-      </div>
-      <div>
-        <span class="system-number">03</span>
-        <strong>Check the fit</strong>
-        <p>Validation panels stay specific: callability, family fit, domain signal, or story logic.</p>
-      </div>
-    </div>
-  </section>
+
 {% endblock %}
