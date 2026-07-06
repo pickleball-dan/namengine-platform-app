@@ -248,12 +248,12 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("home-hero", body)
-        self.assertIn("home-logo-grid", body)
-        self.assertIn("home-logo-card", body)
-        self.assertIn("namengine-pet-card-logo.png", body)
-        self.assertIn("namengine-baby-card-logo.png", body)
-        self.assertIn("namengine-business-card-logo.png", body)
-        self.assertIn("namengine-character-card-logo.png", body)
+        self.assertIn("home-vertical-grid", body)
+        self.assertIn("home-vert-card", body)
+        self.assertIn("namengine-pet-card-logo", body)
+        self.assertIn("namengine-baby-card-logo", body)
+        self.assertIn("namengine-business-card-logo", body)
+        self.assertIn("namengine-character-card-logo", body)
         self.assertIn("Pick your vertical", body)
         self.assertIn("The TASTE ENGINE", body)
 
@@ -262,9 +262,9 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         css = css_path.read_text(encoding="utf-8")
 
         self.assertIn(".home-hero", css)
-        self.assertIn(".home-logo-grid", css)
-        self.assertIn(".home-logo-card", css)
-        self.assertIn(".home-logo-card-img", css)
+        self.assertIn(".home-vertical-grid", css)
+        self.assertIn(".home-vert-card", css)
+        self.assertIn(".home-vert-logo", css)
 
     def test_baby_graphics_follow_pet_asset_slots(self):
         response = self.client.get("/baby")

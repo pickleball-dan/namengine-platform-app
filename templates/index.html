@@ -3,37 +3,41 @@
 {% block title %}NamEngine{% endblock %}
 
 {% block content %}
-  <section class="home-hero" aria-labelledby="home-title">
-    <div class="home-hero-copy">
-      <div class="home-brand-lockup" aria-label="NamEngine">
-        <p class="eyebrow">The TASTE ENGINE</p>
-      </div>
-      <h1 id="home-title">Find the name that feels right.</h1>
-      <p>
-        NamEngine shapes names around the thing you are naming, then learns from
-        your reactions until it feels just right.
-      </p>
-      <div class="hero-actions">
-        <a class="button-link home-pick-vertical" href="#verticals">Pick your vertical ↓</a>
-      </div>
-    </div>
-  </section>
+<section class="home-hero">
+  <div class="home-hero-inner">
+    <p class="home-eyebrow">The TASTE ENGINE</p>
+    <h1 class="home-headline">Find the name<br>that feels right.</h1>
+    <p class="home-sub">
+      NamEngine shapes names around the thing you are naming, then learns from
+      your reactions until it feels just right.
+    </p>
+    <a class="home-cta" href="#verticals">Pick your vertical &darr;</a>
+  </div>
+</section>
 
-  <section class="home-verticals" id="verticals" aria-labelledby="verticals-title">
-    <div class="vertical-grid home-logo-grid" aria-label="Naming verticals">
-    {% for slug, item in verticals.items() %}
-      {% set card_logos = {
-        'pet': 'images/pet/namengine-pet-card-logo.png',
-        'baby': 'images/baby/namengine-baby-card-logo.png',
-        'business': 'images/business/namengine-business-card-logo.png',
-        'character': 'images/character/namengine-character-card-logo.png'
-      } %}
-      <a class="home-logo-card" href="{{ item.route_prefix }}" aria-label="{{ item.display_name }}" style="--card-accent: {{ item.theme.get('accent', '#18212f') }};">
-        <img src="{{ url_for('static', filename=card_logos.get(slug, item.assets.get('logo', ''))) }}" alt="{{ item.display_name }}" class="home-logo-card-img">
-      </a>
-    {% endfor %}
-    </div>
-  </section>
+<section class="home-verticals" id="verticals" aria-label="Choose a vertical">
+  <div class="home-vertical-grid">
 
+    <a class="home-vert-card" href="/pet" aria-label="NamEngine Pet">
+      <img src="{{ url_for('static', filename='images/pet/namengine-pet-card-logo.png') }}"
+           alt="NamEngine Pet" class="home-vert-logo">
+    </a>
 
+    <a class="home-vert-card" href="/baby" aria-label="NamEngine Baby">
+      <img src="{{ url_for('static', filename='images/baby/namengine-baby-card-logo.jpg') }}"
+           alt="NamEngine Baby" class="home-vert-logo">
+    </a>
+
+    <a class="home-vert-card" href="/business" aria-label="NamEngine Business">
+      <img src="{{ url_for('static', filename='images/business/namengine-business-card-logo.jpg') }}"
+           alt="NamEngine Business" class="home-vert-logo">
+    </a>
+
+    <a class="home-vert-card" href="/character" aria-label="NamEngine Character">
+      <img src="{{ url_for('static', filename='images/character/namengine-character-card-logo.png') }}"
+           alt="NamEngine Character" class="home-vert-logo">
+    </a>
+
+  </div>
+</section>
 {% endblock %}
