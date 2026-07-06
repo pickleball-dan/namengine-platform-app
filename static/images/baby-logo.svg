@@ -1,11 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Baby">
-  <rect width="96" height="96" rx="20" fill="#f0f4ff"/>
-  <!-- Baby head -->
-  <circle cx="48" cy="36" r="18" fill="#c5d6f7"/>
-  <!-- Face highlight -->
-  <circle cx="41" cy="33" r="3" fill="#fff" opacity=".7"/>
-  <!-- Swaddle body -->
-  <path d="M20 60 Q20 80 48 80 Q76 80 76 60 Q76 44 48 50 Q20 44 20 60Z" fill="#bed0f5"/>
-  <!-- Swaddle stripe -->
-  <path d="M24 65 Q48 62 72 65" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" opacity=".8"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="NamEngine Baby">
+  <rect width="96" height="96" rx="22" fill="#f9fbff"/>
+  <path d="M20 27c0-5 4-9 9-9h38c5 0 9 4 9 9v42c0 5-4 9-9 9H29c-5 0-9-4-9-9z" fill="#dbe6ff"/>
+  <path d="M20 35h56v10H20z" fill="#f7c6d4"/>
+  <path d="M31 56c6-7 28-7 34 0" fill="none" stroke="#29344f" stroke-width="4" stroke-linecap="round"/>
+  <path d="M34 62h28" stroke="#29344f" stroke-width="4" stroke-linecap="round"/>
+  <path d="M28 27c5 5 35 5 40 0" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" opacity=".85"/>
 </svg>

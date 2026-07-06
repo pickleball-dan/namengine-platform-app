@@ -197,12 +197,12 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
                     asset_path = Path(self.app.static_folder) / vertical.assets[asset_key]
                     self.assertTrue(asset_path.is_file(), asset_path)
 
-    def test_pet_logo_asset_exists_and_is_svg(self):
+    def test_pet_logo_asset_is_transparent_png(self):
         logo_path = Path(self.app.static_folder) / VERTICALS["pet"].assets["logo"]
-        self.assertTrue(logo_path.is_file(), logo_path)
-        self.assertTrue(logo_path.suffix == ".svg", logo_path)
-        content = logo_path.read_text(encoding="utf-8")
-        self.assertIn("<svg", content)
+        data = logo_path.read_bytes()
+
+        self.assertEqual(data[:8], b"\x89PNG\r\n\x1a\n")
+        self.assertEqual(data[25], 6)
 
     def test_pet_pages_use_vertical_logo_and_theme(self):
         response = self.client.get("/pet")
@@ -210,7 +210,7 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("vertical-pet", body)
-        self.assertIn("images/pet-logo.svg", body)
+        self.assertIn("images/pet/namengine-pet-logo-transparent.png", body)
         self.assertIn("identity-preview", body)
         self.assertIn("og:image", body)
         self.assertIn("--accent: #2f9486", body)
@@ -222,7 +222,7 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("vertical-baby", body)
-        self.assertIn("images/baby-logo.svg", body)
+        self.assertIn("images/baby/namengine-baby-logo.png", body)
         self.assertIn("images/baby/namengine-baby-share.png", body)
         self.assertIn('alt="NamEngine Baby logo"', body)
         self.assertIn("identity-preview", body)
@@ -233,7 +233,7 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("vertical-business", body)
-        self.assertIn("images/business-logo.svg", body)
+        self.assertIn("images/business/namengine-business-logo.png", body)
         self.assertIn("images/business/namengine-business-share.png", body)
         self.assertIn("Find a name your business can grow into.", body)
         self.assertIn("Category fit", body)
@@ -251,9 +251,9 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn("home-visual-panel", body)
         self.assertIn("home-system-panel", body)
         self.assertIn("home-vertical-card", body)
-        self.assertIn("images/pet-logo.svg", body)
-        self.assertIn("images/baby-logo.svg", body)
-        self.assertIn("images/business-logo.svg", body)
+        self.assertIn("images/pet/namengine-pet-logo-transparent.png", body)
+        self.assertIn("images/baby/namengine-baby-logo.png", body)
+        self.assertIn("images/business/namengine-business-logo.png", body)
         self.assertIn("--card-accent: #27476e", body)
         self.assertIn("Domain signal", body)
         self.assertNotIn("vertical-card-logo-wordmark", body)
@@ -279,7 +279,7 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertNotIn("page_logo", VERTICALS["baby"].assets)
         self.assertNotIn("brand-logo-wordmark", body)
         header = body.split("</header>", 1)[0]
-        self.assertIn("images/baby-logo.svg", header)
+        self.assertIn("images/baby/namengine-baby-logo.png", header)
         self.assertIn("<span>NamEngine</span>", header)
 
     def test_business_graphics_follow_pet_asset_slots(self):
@@ -292,31 +292,48 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertNotIn("page_logo", VERTICALS["business"].assets)
         self.assertNotIn("brand-logo-wordmark", body)
         header = body.split("</header>", 1)[0]
-        self.assertIn("images/business-logo.svg", header)
+        self.assertIn("images/business/namengine-business-logo.png", header)
         self.assertIn("<span>NamEngine</span>", header)
 
-    def test_baby_logo_asset_exists_and_is_svg(self):
+    def test_baby_logo_is_transparent_png_with_baby_mark(self):
         static_root = Path(self.app.static_folder)
         baby_logo = static_root / VERTICALS["baby"].assets["logo"]
-        self.assertTrue(baby_logo.is_file(), baby_logo)
-        self.assertTrue(baby_logo.suffix == ".svg", baby_logo)
-        content = baby_logo.read_text(encoding="utf-8")
-        self.assertIn("<svg", content)
 
-    def test_business_logo_asset_exists_and_is_svg(self):
+        baby_width, baby_height, baby_color_type, baby_corner_alpha = (
+            _png_rgba_size_and_corner_alpha(baby_logo)
+        )
+
+        self.assertEqual(baby_color_type, 6)
+        self.assertGreater(baby_width, 500)
+        self.assertGreater(baby_height, 450)
+        self.assertEqual(baby_corner_alpha, [0, 0, 0, 0])
+
+        self.assertGreater(
+            _png_opaque_color_pixel_count(baby_logo, (310, 165, 520, 330), "red"),
+            1000,
+        )
+
+    def test_business_logo_is_transparent_png(self):
         static_root = Path(self.app.static_folder)
         business_logo = static_root / VERTICALS["business"].assets["logo"]
-        self.assertTrue(business_logo.is_file(), business_logo)
-        self.assertTrue(business_logo.suffix == ".svg", business_logo)
-        content = business_logo.read_text(encoding="utf-8")
-        self.assertIn("<svg", content)
 
-    def test_baby_logo_svg_contains_expected_elements(self):
+        width, height, color_type, corner_alpha = _png_rgba_size_and_corner_alpha(
+            business_logo
+        )
+
+        self.assertEqual(color_type, 6)
+        self.assertGreater(width, 500)
+        self.assertGreater(height, 450)
+        self.assertEqual(corner_alpha, [0, 0, 0, 0])
+
+    def test_baby_page_logo_contains_namengine_cyan_mark(self):
         static_root = Path(self.app.static_folder)
         baby_logo = static_root / VERTICALS["baby"].assets["logo"]
-        content = baby_logo.read_text(encoding="utf-8")
-        self.assertIn("<svg", content)
-        self.assertIn("Baby", content)
+
+        self.assertGreater(
+            _png_opaque_color_pixel_count(baby_logo, (0, 190, 220, 360), "cyan"),
+            1000,
+        )
 
     def test_pet_intake_matches_first_edition_question_contract(self):
         questions = {question.id: question for question in VERTICALS["pet"].intake_questions}
