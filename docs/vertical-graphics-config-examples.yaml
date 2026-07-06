@@ -1,0 +1,147 @@
+# Starter graphics briefs for NamEngine vertical launches.
+# Copy one entry, tune it, then translate the approved choices into VerticalConfig.theme,
+# VerticalConfig.assets, intake groups, result labels, and visual QA checks.
+
+baby:
+  vertical_name: Baby
+  object_label: baby name
+  emotional_tone:
+    - tender
+    - thoughtful
+    - future-facing
+  primary_audience:
+    - expecting parents
+    - naming partners
+  color_direction:
+    grounding: "#7d95c7"
+    deep: "#29344f"
+    warm: "#f0b8c8"
+    page: "#f7fbff"
+  illustration_theme:
+    - baby keepsake blanket
+    - embroidered name
+    - family-fit cue
+  hero_headline_style: direct and emotionally clear
+  background_motif: soft keepsake paper
+  result_card_design: practical parent decision card
+  supporting_visual_elements:
+    - pronunciation
+    - initials
+    - meaning
+    - family fit
+
+pet:
+  vertical_name: Pet
+  object_label: pet name
+  emotional_tone:
+    - warm
+    - companionable
+    - playful but polished
+  primary_audience:
+    - pet parents
+    - families choosing an everyday call name
+  color_direction:
+    grounding: "#2f9486"
+    deep: "#26364d"
+    warm: "#fcba76"
+    page: "#fff1df"
+  illustration_theme:
+    - paw
+    - callability cue
+    - personality cue
+  hero_headline_style: warm and practical
+  background_motif: soft cream surface
+  result_card_design: callability and personality fit card
+  supporting_visual_elements:
+    - sound
+    - style
+    - personality
+    - everyday-use risk
+
+business:
+  vertical_name: Business
+  object_label: business name
+  emotional_tone:
+    - credible
+    - energetic
+    - launch-ready
+  primary_audience:
+    - founders
+    - operators
+    - small business owners
+  color_direction:
+    grounding: "#27476e"
+    deep: "#162033"
+    warm: "#d9a441"
+    page: "#f5f7fb"
+  illustration_theme:
+    - launch card
+    - briefcase
+    - signal sparkle
+  hero_headline_style: growth-oriented and concrete
+  background_motif: subtle launch notes or grid
+  result_card_design: brand decision card with launch risks
+  supporting_visual_elements:
+    - category fit
+    - memorability
+    - domain signal
+    - social/trademark caution
+
+character:
+  vertical_name: Character
+  object_label: character name
+  emotional_tone:
+    - imaginative
+    - precise
+    - story-aware
+  primary_audience:
+    - writers
+    - game creators
+    - worldbuilders
+  color_direction:
+    grounding: "#6f5bd8"
+    deep: "#1f1830"
+    warm: "#c9a46a"
+    page: "#fbf8ff"
+  illustration_theme:
+    - book
+    - map
+    - mask
+    - genre artifact
+  hero_headline_style: story-fit focused
+  background_motif: subtle manuscript or map texture
+  result_card_design: story role and genre fit card
+  supporting_visual_elements:
+    - genre fit
+    - era fit
+    - role
+    - pronunciation
+
+product:
+  vertical_name: Product
+  object_label: product name
+  emotional_tone:
+    - clear
+    - useful
+    - market-ready
+  primary_audience:
+    - makers
+    - product teams
+    - indie founders
+  color_direction:
+    grounding: "#2f7d62"
+    deep: "#1e293b"
+    warm: "#f2c14e"
+    page: "#f7faf8"
+  illustration_theme:
+    - package tag
+    - shelf card
+    - prototype sketch
+  hero_headline_style: utility and memorability focused
+  background_motif: subtle product card grid
+  result_card_design: launch-readiness card
+  supporting_visual_elements:
+    - use case
+    - category fit
+    - naming family
+    - launch risk

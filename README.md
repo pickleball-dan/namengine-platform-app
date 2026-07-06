@@ -207,6 +207,18 @@ fallback name pools, validation modules, and chosen-name keepsake treatment.
 The selected-name image prompt uses a baby blanket with the chosen name
 embroidered on it, not a baby photo.
 
+## Vertical Graphics Framework
+
+Pet is the visual standard for new verticals. Use
+`docs/vertical-graphics-template.md` before launching a new naming category,
+then start from `docs/vertical-graphics-config-examples.yaml` to define the
+vertical's tone, audience, palette, motif, hero direction, result-card treatment,
+and supporting visual elements.
+
+The framework keeps every vertical visually distinct while preserving the
+NamEngine identity: calm, intelligent, warm, refined, simple, emotionally aware,
+and discovery-focused.
+
 ## Verify
 
 ```powershell
