@@ -215,6 +215,21 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn('alt="NamEngine Baby logo"', body)
         self.assertIn("identity-preview", body)
 
+    def test_baby_header_uses_baby_wordmark_not_generic_brand(self):
+        response = self.client.get("/baby")
+        body = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            VERTICALS["baby"].assets["header_logo"],
+            "images/baby/namengine-baby-logo.png",
+        )
+        self.assertIn("brand-logo-wordmark", body)
+        self.assertIn('alt="NamEngine Baby"', body)
+        header = body.split("</header>", 1)[0]
+        self.assertIn("images/baby/namengine-baby-logo.png", header)
+        self.assertNotIn("<span>NamEngine</span>", header)
+
     def test_baby_page_logo_matches_pet_transparent_png_canvas(self):
         static_root = Path(self.app.static_folder)
         baby_logo = static_root / VERTICALS["baby"].assets["page_logo"]

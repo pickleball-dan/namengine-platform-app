@@ -18,10 +18,14 @@
   <body {% if vertical is defined %}class="vertical-{{ vertical.slug }}" style="{{ vertical_theme_style(vertical) }}"{% endif %}>
     <header class="site-header">
       <a class="brand" href="/">
-        {% if vertical is defined and vertical.assets.get("logo") %}
-          <img class="brand-logo" src="{{ url_for('static', filename=vertical.assets.get('logo')) }}" alt="" width="34" height="34">
+        {% if vertical is defined and vertical.assets.get("header_logo") %}
+          <img class="brand-logo brand-logo-wordmark" src="{{ url_for('static', filename=vertical.assets.get('header_logo')) }}" alt="NamEngine {{ vertical.display_name }}">
+        {% else %}
+          {% if vertical is defined and vertical.assets.get("logo") %}
+            <img class="brand-logo" src="{{ url_for('static', filename=vertical.assets.get('logo')) }}" alt="" width="34" height="34">
+          {% endif %}
+          <span>NamEngine</span>
         {% endif %}
-        <span>NamEngine</span>
       </a>
       <nav class="site-nav" aria-label="Verticals">
         {% for slug, item in verticals.items() %}

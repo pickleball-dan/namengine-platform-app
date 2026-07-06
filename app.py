@@ -34,7 +34,7 @@ from namengine.core import (
     StorageError,
     vertical_theme_style,
 )
-from namengine.core.schemas import NameResult, NamingBrief, to_plain_data
+from namengine.core.schemas import NameResult, NamingBrief, ValidationResult, to_plain_data
 from namengine.core.validation import filter_results_for_brief
 from namengine.verticals import VERTICALS, get_vertical
 
@@ -569,7 +569,15 @@ def _taste_profile_from_snapshot(snapshot: dict):
 
 
 def _names_from_snapshot(snapshot: dict) -> list[NameResult]:
-    return [NameResult(**json_loads(row["result_json"])) for row in snapshot["results"]]
+    names: list[NameResult] = []
+    for row in snapshot["results"]:
+        data = json_loads(row["result_json"])
+        data["validation"] = [
+            item if isinstance(item, ValidationResult) else ValidationResult(**item)
+            for item in data.get("validation", [])
+        ]
+        names.append(NameResult(**data))
+    return names
 
 
 def _cached_names_match_current_rules(

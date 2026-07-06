@@ -59,6 +59,12 @@ a {
   border-radius: 0;
 }
 
+.brand-logo-wordmark {
+  width: min(210px, 58vw);
+  height: auto;
+  max-height: 74px;
+}
+
 .site-nav {
   display: flex;
   gap: 16px;
