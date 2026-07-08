@@ -9,6 +9,17 @@ from namengine.core.schemas import VerticalConfig
 
 REQUIRED_THEME_KEYS = ("accent", "surface", "page", "card", "ink", "muted")
 REQUIRED_ASSET_KEYS = ("logo", "share_image")
+REQUIRED_VISUAL_FIELDS = (
+    "audience",
+    "emotional_tone",
+    "main_colors",
+    "accent_colors",
+    "background_style",
+    "icon_style",
+    "illustration_style",
+    "hero_message",
+    "result_card_style",
+)
 
 
 def vertical_theme_style(vertical: VerticalConfig | None) -> str:
@@ -26,11 +37,16 @@ def validate_vertical_ui_contract(vertical: VerticalConfig, static_root: str | P
     errors: list[str] = []
     missing_theme = [key for key in REQUIRED_THEME_KEYS if key not in vertical.theme]
     missing_assets = [key for key in REQUIRED_ASSET_KEYS if key not in vertical.assets]
+    missing_visual = [
+        key for key in REQUIRED_VISUAL_FIELDS if not getattr(vertical.visual, key, None)
+    ]
 
     if missing_theme:
         errors.append(f"{vertical.slug} missing theme keys: {', '.join(missing_theme)}")
     if missing_assets:
         errors.append(f"{vertical.slug} missing asset keys: {', '.join(missing_assets)}")
+    if missing_visual:
+        errors.append(f"{vertical.slug} missing visual config: {', '.join(missing_visual)}")
 
     static_path = Path(static_root)
     for key in REQUIRED_ASSET_KEYS:

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from namengine.core import Question, VerticalConfig
+from namengine.core import Question, VerticalConfig, VerticalVisualConfig
 
 
 PET_DISCOVERY_STYLE_OPTIONS = (
@@ -173,6 +173,66 @@ BUSINESS_DOMAIN_OPTIONS = (
     "Domain can come later",
 )
 
+PRODUCT_STAGE_OPTIONS = (
+    "Concept",
+    "Prototype",
+    "Ready to launch",
+    "Already selling",
+    "Renaming",
+)
+PRODUCT_AUDIENCE_OPTIONS = (
+    "Everyday consumers",
+    "Premium buyers",
+    "Parents or families",
+    "Creative professionals",
+    "Technical users",
+    "Wellness customers",
+    "Fans or collectors",
+    "Other",
+)
+PRODUCT_STYLE_OPTIONS = (
+    "Clear and shelf-ready",
+    "Modern and sleek",
+    "Warm and approachable",
+    "Premium and refined",
+    "Playful and memorable",
+    "Invented but readable",
+    "Functional and descriptive",
+)
+PRODUCT_NAME_SHAPE_OPTIONS = (
+    "Real word",
+    "Compound",
+    "Invented but readable",
+    "Short and punchy",
+    "Descriptive phrase",
+    "Line extension",
+)
+PRODUCT_DISTINCTIVENESS_OPTIONS = (
+    "Very clear and descriptive",
+    "Mostly clear",
+    "Balanced",
+    "Mostly distinctive",
+    "Highly ownable",
+)
+PRODUCT_INSPIRATION_OPTIONS = (
+    "Product benefit",
+    "Material or ingredient",
+    "Customer ritual",
+    "Shape or form",
+    "Place",
+    "Technology",
+    "Feeling or outcome",
+    "Other",
+)
+PRODUCT_CHANNEL_OPTIONS = (
+    "Online store",
+    "Retail shelf",
+    "Marketplace listing",
+    "App store",
+    "Crowdfunding",
+    "Wholesale catalog",
+)
+
 
 PET = VerticalConfig(
     slug="pet",
@@ -303,6 +363,25 @@ PET = VerticalConfig(
         "logo": "images/pet/namengine-pet-logo-transparent.png",
         "share_image": "images/pet/namengine-pet-card-share-v3.jpg",
     },
+    visual=VerticalVisualConfig(
+        audience=("pet parents", "families choosing an everyday call name"),
+        emotional_tone=("warm", "companionable", "playful but polished"),
+        main_colors=("#2f9486", "#26364d"),
+        accent_colors=("#fcba76", "#fff1df"),
+        background_style="soft cream surface with a quiet warm wash",
+        icon_style="simple rounded animal cues with compact warmth",
+        illustration_style="editorial minimal with paw and callability motifs",
+        hero_message="Let’s shape the right pet name.",
+        hero_support=(
+            "Generate pet names that are easy to call, memorable, emotionally warm, "
+            "and matched to the animal's personality and household context."
+        ),
+        identity_statement=(
+            "Built for names that sound good out loud and feel like them."
+        ),
+        identity_points=("Sound", "Style", "Personality"),
+        result_card_style="callability and personality fit card",
+    ),
 )
 
 
@@ -413,6 +492,25 @@ BABY = VerticalConfig(
         "logo": "images/baby/namengine-baby-logo.png",
         "share_image": "images/baby/namengine-baby-share.png",
     },
+    visual=VerticalVisualConfig(
+        audience=("expecting parents", "naming partners"),
+        emotional_tone=("tender", "thoughtful", "future-facing"),
+        main_colors=("#7d95c7", "#29344f"),
+        accent_colors=("#f0b8c8", "#f7fbff"),
+        background_style="soft keepsake paper with a breathable nursery wash",
+        icon_style="soft-outline keepsake cues with rounded detail",
+        illustration_style="editorial minimal with blanket and embroidery motifs",
+        hero_message="Let’s shape the right baby name.",
+        hero_support=(
+            "Generate baby names with warmth, pronunciation clarity, cultural care, "
+            "and enough explanation to help parents judge fit."
+        ),
+        identity_statement=(
+            "Built for names that feel tender now and substantial later."
+        ),
+        identity_points=("Sound", "Style", "Family fit"),
+        result_card_style="practical parent decision card",
+    ),
 )
 
 
@@ -530,6 +628,160 @@ BUSINESS = VerticalConfig(
         "logo": "images/business/namengine-business-logo.png",
         "share_image": "images/business/namengine-business-share.png",
     },
+    visual=VerticalVisualConfig(
+        audience=("founders", "operators", "small business owners"),
+        emotional_tone=("credible", "energetic", "launch-ready"),
+        main_colors=("#27476e", "#162033"),
+        accent_colors=("#d9a441", "#f5f7fb"),
+        background_style="subtle launch-notes grid with clean light panels",
+        icon_style="clean signal markers with restrained startup energy",
+        illustration_style="editorial launch-card motifs with minimal sparkle",
+        hero_message="Find a name your business can grow into.",
+        hero_support=(
+            "Generate business names that balance brandability, category fit, "
+            "memorability, pronunciation, domain or handle flexibility, and practical launch risk."
+        ),
+        identity_statement=(
+            "Built for names that can carry a real offer into market."
+        ),
+        identity_points=("Category fit", "Memorability", "Launch risk"),
+        result_card_style="brand decision card with launch risks",
+    ),
+)
+
+
+PRODUCT = VerticalConfig(
+    slug="product",
+    display_name="Product",
+    object_label="product name",
+    route_prefix="/product",
+    intake_questions=(
+        Question(
+            "product_description",
+            "What is the product?",
+            kind="textarea",
+            required=True,
+            placeholder="Describe the product, what it does, and what makes it useful.",
+            section="About the product",
+        ),
+        Question(
+            "category",
+            "Product category",
+            placeholder="Skincare, kitchen tool, app, gear, toy, supplement...",
+            section="About the product",
+        ),
+        Question(
+            "stage",
+            "Where is the product now?",
+            choices=PRODUCT_STAGE_OPTIONS,
+            section="About the product",
+        ),
+        Question(
+            "audience",
+            "Primary buyer or user",
+            required=True,
+            choices=PRODUCT_AUDIENCE_OPTIONS,
+            section="About the product",
+        ),
+        Question(
+            "notes",
+            "Anything else we should understand?",
+            kind="textarea",
+            placeholder="Ingredients, materials, use case, product promise, competitors, constraints...",
+            section="About the product",
+        ),
+        Question(
+            "style",
+            "What should the name signal?",
+            required=True,
+            choices=PRODUCT_STYLE_OPTIONS,
+            section="Name style",
+        ),
+        Question(
+            "name_shape",
+            "Preferred name shape",
+            choices=PRODUCT_NAME_SHAPE_OPTIONS,
+            section="Name style",
+        ),
+        Question(
+            "timeless_vs_distinctive",
+            "How distinctive should it feel?",
+            choices=PRODUCT_DISTINCTIVENESS_OPTIONS,
+            section="Name style",
+        ),
+        Question(
+            "cultural_context",
+            "Name inspiration",
+            choices=PRODUCT_INSPIRATION_OPTIONS,
+            section="Name style",
+        ),
+        Question(
+            "sales_channel",
+            "Where will people first meet it?",
+            choices=PRODUCT_CHANNEL_OPTIONS,
+            section="Shelf fit",
+        ),
+        Question(
+            "partner_alignment",
+            "Decision tension",
+            kind="textarea",
+            placeholder="Clear vs ownable, premium vs friendly, feature-led vs feeling-led...",
+            section="Shelf fit",
+        ),
+        Question(
+            "avoid",
+            "Anything to avoid?",
+            placeholder="Words, sounds, competitors, claims, ingredients, initials...",
+            section="Shelf fit",
+        ),
+    ),
+    prompt_context=(
+        "Generate product names that balance shelf clarity, buyer appeal, "
+        "category fit, memorability, packaging flexibility, and practical launch risk."
+    ),
+    result_field_labels={
+        "tagline": "Shelf signal",
+        "why_this_name": "Why this name?",
+        "fit_note": "Product fit",
+        "risks": "Shelf risks",
+    },
+    validation_modules=("product_shelf_fit", "product_category_fit", "product_claim_risk"),
+    theme={
+        "accent": "#b8654b",
+        "accent_deep": "#2f2430",
+        "accent_pet": "#e3b04f",
+        "accent_soft": "rgba(184, 101, 75, 0.14)",
+        "accent_warm_soft": "rgba(227, 176, 79, 0.22)",
+        "surface": "rgba(255, 250, 246, 0.96)",
+        "page": "#fff7ef",
+        "card": "#ffffff",
+        "ink": "#241d24",
+        "muted": "#71636a",
+        "line": "rgba(47, 36, 48, 0.12)",
+    },
+    assets={
+        "logo": "images/product-logo.svg",
+        "share_image": "images/product-share.svg",
+    },
+    visual=VerticalVisualConfig(
+        audience=("makers", "founders", "product teams"),
+        emotional_tone=("tactile", "polished", "shelf-ready"),
+        main_colors=("#b8654b", "#2f2430"),
+        accent_colors=("#e3b04f", "#fff7ef"),
+        background_style="soft packaging paper with restrained product-card panels",
+        icon_style="simple package, label, and shelf cues with rounded edges",
+        illustration_style="editorial product-label motifs with a tactile launch feel",
+        hero_message="Find a name your product can wear in the real world.",
+        hero_support=(
+            "Generate product names that balance shelf clarity, buyer appeal, "
+            "category fit, memorability, packaging flexibility, and practical launch risk."
+        ),
+        identity_statement=(
+            "Built for names that work on a package, listing, and first impression."
+        ),
+        identity_points=("Shelf clarity", "Buyer appeal", "Launch risk"),
+        result_card_style="shelf-readiness and buyer appeal card",
+    ),
 )
 
 
@@ -555,17 +807,41 @@ CHARACTER = VerticalConfig(
     },
     validation_modules=("character_genre_fit", "character_era_fit"),
     theme={
-        "accent": "#9a7cff",
-        "surface": "#f7f3ff",
+        "accent": "#6f5bd8",
+        "accent_deep": "#1f1830",
+        "accent_pet": "#c9a46a",
+        "accent_soft": "rgba(111, 91, 216, 0.14)",
+        "accent_warm_soft": "rgba(201, 164, 106, 0.20)",
+        "surface": "rgba(248, 244, 255, 0.96)",
         "page": "#fbf8ff",
         "card": "#ffffff",
         "ink": "#1f1830",
         "muted": "#6c6380",
+        "line": "rgba(31, 24, 48, 0.11)",
     },
     assets={
         "logo": "images/character-logo.svg",
         "share_image": "images/character-share.svg",
     },
+    visual=VerticalVisualConfig(
+        audience=("writers", "game creators", "worldbuilders"),
+        emotional_tone=("imaginative", "precise", "story-aware"),
+        main_colors=("#6f5bd8", "#1f1830"),
+        accent_colors=("#c9a46a", "#fbf8ff"),
+        background_style="subtle manuscript or map texture on a light page",
+        icon_style="bookish story artifacts with clean serif-adjacent shapes",
+        illustration_style="editorial fantasy-notebook cues kept restrained",
+        hero_message="Find a name that belongs in the story.",
+        hero_support=(
+            "Generate character names with genre fit, memorability, era/world "
+            "consistency, and a clear sense of story role."
+        ),
+        identity_statement=(
+            "Built for names that match role, world, and reader memory."
+        ),
+        identity_points=("Genre", "Role", "World fit"),
+        result_card_style="story role and genre fit card",
+    ),
 )
 
 
@@ -573,6 +849,7 @@ VERTICALS = {
     PET.slug: PET,
     BABY.slug: BABY,
     BUSINESS.slug: BUSINESS,
+    PRODUCT.slug: PRODUCT,
     CHARACTER.slug: CHARACTER,
 }
 

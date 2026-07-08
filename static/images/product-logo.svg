@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-labelledby="title desc">
+  <title id="title">NamEngine Product logo</title>
+  <desc id="desc">A warm product label mark for the Product vertical.</desc>
+  <defs>
+    <linearGradient id="paper" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#fff7ef"/>
+      <stop offset="1" stop-color="#f2dac4"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="420" fill="none"/>
+  <g transform="translate(104 54)">
+    <rect x="88" y="38" width="256" height="304" rx="42" fill="url(#paper)" stroke="#2f2430" stroke-width="16"/>
+    <rect x="126" y="92" width="180" height="78" rx="22" fill="#b8654b"/>
+    <path d="M142 214h148" stroke="#2f2430" stroke-width="18" stroke-linecap="round"/>
+    <path d="M164 258h104" stroke="#2f2430" stroke-width="18" stroke-linecap="round" opacity=".72"/>
+    <circle cx="326" cy="60" r="42" fill="#e3b04f" stroke="#2f2430" stroke-width="14"/>
+    <path d="M324 38v44M302 60h44" stroke="#2f2430" stroke-width="10" stroke-linecap="round"/>
+  </g>
+</svg>

@@ -51,6 +51,22 @@ class Question:
 
 
 @dataclass(frozen=True, slots=True)
+class VerticalVisualConfig:
+    audience: tuple[str, ...] = ()
+    emotional_tone: tuple[str, ...] = ()
+    main_colors: tuple[str, ...] = ()
+    accent_colors: tuple[str, ...] = ()
+    background_style: str = ""
+    icon_style: str = ""
+    illustration_style: str = ""
+    hero_message: str = ""
+    hero_support: str = ""
+    identity_statement: str = ""
+    identity_points: tuple[str, ...] = ()
+    result_card_style: str = ""
+
+
+@dataclass(frozen=True, slots=True)
 class VerticalConfig:
     slug: str
     display_name: str
@@ -62,6 +78,7 @@ class VerticalConfig:
     validation_modules: tuple[str, ...] = ()
     theme: dict[str, str] = field(default_factory=dict)
     assets: dict[str, str] = field(default_factory=dict)
+    visual: VerticalVisualConfig = field(default_factory=VerticalVisualConfig)
     default_result_count: int = 8
 
 

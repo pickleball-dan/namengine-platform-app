@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">NamEngine Product share card</title>
+  <desc id="desc">A shelf-ready product naming share image.</desc>
+  <rect width="1200" height="630" fill="#fff7ef"/>
+  <circle cx="1000" cy="120" r="180" fill="#e3b04f" opacity=".28"/>
+  <circle cx="170" cy="530" r="210" fill="#b8654b" opacity=".14"/>
+  <rect x="92" y="86" width="1016" height="458" rx="54" fill="#ffffff" stroke="#2f2430" stroke-width="10"/>
+  <g transform="translate(146 144)">
+    <rect x="0" y="0" width="178" height="238" rx="32" fill="#fff7ef" stroke="#2f2430" stroke-width="12"/>
+    <rect x="32" y="44" width="114" height="58" rx="17" fill="#b8654b"/>
+    <path d="M38 144h102M58 184h62" stroke="#2f2430" stroke-width="13" stroke-linecap="round"/>
+    <circle cx="164" cy="20" r="32" fill="#e3b04f" stroke="#2f2430" stroke-width="10"/>
+  </g>
+  <text x="390" y="228" fill="#2f2430" font-family="Georgia, serif" font-size="74" font-weight="700">Namegine Product</text>
+  <text x="392" y="302" fill="#71636a" font-family="Inter, Arial, sans-serif" font-size="34">Shelf-ready names with buyer appeal.</text>
+  <rect x="392" y="354" width="214" height="54" rx="27" fill="#b8654b"/>
+  <text x="424" y="391" fill="#ffffff" font-family="Inter, Arial, sans-serif" font-size="25" font-weight="700">Product fit</text>
+</svg>

@@ -9,6 +9,7 @@ from app import create_app
 from namengine.core import (
     REQUIRED_ASSET_KEYS,
     REQUIRED_THEME_KEYS,
+    REQUIRED_VISUAL_FIELDS,
     build_brief,
     generate_names,
     validate_vertical_ui_contract,
@@ -182,6 +183,23 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
                 self.assertTrue(set(REQUIRED_THEME_KEYS) <= set(vertical.theme))
                 self.assertTrue(set(REQUIRED_ASSET_KEYS) <= set(vertical.assets))
 
+    def test_every_vertical_has_visual_launch_config(self):
+        for vertical in VERTICALS.values():
+            with self.subTest(vertical=vertical.slug):
+                for field_name in REQUIRED_VISUAL_FIELDS:
+                    self.assertTrue(getattr(vertical.visual, field_name), field_name)
+
+    def test_baby_visual_config_matches_reference_contract(self):
+        baby_visual = VERTICALS["baby"].visual
+
+        self.assertEqual(baby_visual.audience, ("expecting parents", "naming partners"))
+        self.assertEqual(
+            baby_visual.emotional_tone,
+            ("tender", "thoughtful", "future-facing"),
+        )
+        self.assertEqual(baby_visual.hero_message, "Let’s shape the right baby name.")
+        self.assertEqual(baby_visual.result_card_style, "practical parent decision card")
+
     def test_vertical_theme_style_exports_css_variables(self):
         style = vertical_theme_style(VERTICALS["pet"])
 
@@ -213,6 +231,7 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn("images/pet/namengine-pet-logo-transparent.png", body)
         self.assertIn("identity-preview", body)
         self.assertIn("og:image", body)
+        self.assertIn("Let’s shape the right pet name.", body)
         self.assertIn("--accent: #2f9486", body)
         self.assertIn("--accent-pet: #fcba76", body)
 
@@ -226,6 +245,9 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn("images/baby/namengine-baby-share.png", body)
         self.assertIn('alt="NamEngine Baby logo"', body)
         self.assertIn("identity-preview", body)
+        self.assertIn("Let’s shape the right baby name.", body)
+        self.assertIn("Built for names that feel tender now and substantial later.", body)
+        self.assertIn("Family fit", body)
 
     def test_business_pages_use_business_graphics_and_copy(self):
         response = self.client.get("/business")
@@ -242,6 +264,29 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn("--accent: #27476e", body)
         self.assertIn("--accent-pet: #d9a441", body)
 
+    def test_product_pages_use_visual_contract_copy(self):
+        response = self.client.get("/product")
+        body = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("vertical-product", body)
+        self.assertIn("images/product-logo.svg", body)
+        self.assertIn("images/product-share.svg", body)
+        self.assertIn("Find a name your product can wear in the real world.", body)
+        self.assertIn("Built for names that work on a package, listing, and first impression.", body)
+        self.assertIn("Shelf clarity", body)
+        self.assertIn("--accent: #b8654b", body)
+        self.assertIn("--accent-pet: #e3b04f", body)
+
+    def test_character_pages_use_visual_contract_copy(self):
+        response = self.client.get("/character")
+        body = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Find a name that belongs in the story.", body)
+        self.assertIn("Built for names that match role, world, and reader memory.", body)
+        self.assertIn("World fit", body)
+
     def test_home_page_uses_vertical_graphics_system(self):
         response = self.client.get("/")
         body = response.get_data(as_text=True)
@@ -249,13 +294,28 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("home-hero", body)
         self.assertIn("home-vertical-grid", body)
-        self.assertIn("home-vert-card", body)
-        self.assertIn("namengine-pet-card-logo", body)
-        self.assertIn("namengine-baby-card-logo", body)
-        self.assertIn("namengine-business-card-logo", body)
-        self.assertIn("namengine-character-card-logo", body)
+        self.assertIn("home-vertical-card", body)
+        self.assertIn("images/pet/namengine-pet-logo-transparent.png", body)
+        self.assertIn("images/baby/namengine-baby-logo.png", body)
+        self.assertIn("images/business/namengine-business-logo.png", body)
+        self.assertIn("images/product-logo.svg", body)
+        self.assertIn("images/character-logo.svg", body)
         self.assertIn("Pick your vertical", body)
         self.assertIn("The TASTE ENGINE", body)
+        self.assertIn("One Namegine frame. Distinct emotional lanes.", body)
+
+    def test_home_page_cards_use_visual_config_copy(self):
+        response = self.client.get("/")
+        body = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Let’s shape the right pet name.", body)
+        self.assertIn("Let’s shape the right baby name.", body)
+        self.assertIn("Find a name your business can grow into.", body)
+        self.assertIn("Find a name your product can wear in the real world.", body)
+        self.assertIn("practical parent decision card", body)
+        self.assertIn("brand decision card with launch risks", body)
+        self.assertIn("shelf-readiness and buyer appeal card", body)
 
     def test_home_page_graphics_have_css_contract(self):
         css_path = Path(self.app.static_folder) / "css" / "platform.css"
@@ -440,6 +500,67 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn("Quick GoDaddy check, not guaranteed. Verify before purchase.", body)
         self.assertIn("Not checked", body)
         self.assertNotIn("Validation has not been configured", body)
+
+    def test_product_intake_requires_one_signal_per_shelf_section(self):
+        questions = {question.id: question for question in VERTICALS["product"].intake_questions}
+
+        self.assertTrue(questions["product_description"].required)
+        self.assertTrue(questions["audience"].required)
+        self.assertTrue(questions["style"].required)
+        self.assertEqual(questions["product_description"].section, "About the product")
+        self.assertEqual(questions["style"].section, "Name style")
+        self.assertEqual(questions["sales_channel"].section, "Shelf fit")
+        self.assertEqual(questions["product_description"].kind, "textarea")
+        self.assertIn("Clear and shelf-ready", questions["style"].choices)
+        self.assertIn("Retail shelf", questions["sales_channel"].choices)
+
+        required_by_section = {}
+        for question in VERTICALS["product"].intake_questions:
+            if question.required:
+                required_by_section.setdefault(question.section, []).append(question.id)
+
+        self.assertEqual(
+            required_by_section,
+            {
+                "About the product": ["product_description", "audience"],
+                "Name style": ["style"],
+            },
+        )
+
+    def test_product_results_use_product_validation_and_labels(self):
+        response = self.client.get(
+            "/product/results?product_description=Reusable+hydration+bottle"
+            "&category=Drinkware&audience=Everyday+consumers&style=Clear+and+shelf-ready"
+            "&sales_channel=Retail+shelf"
+        )
+        body = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Product fit", body)
+        self.assertIn("Shelf risks", body)
+        self.assertIn("Shelf fit", body)
+        self.assertIn("Category fit", body)
+        self.assertIn("Launch risk", body)
+        self.assertIn("Hearthkit", body)
+        self.assertNotIn("Validation has not been configured", body)
+        self.assertNotIn("pet-ready", body)
+
+    def test_product_generation_uses_product_fallback_pool(self):
+        brief = build_brief(
+            VERTICALS["product"],
+            {
+                "product_description": "Reusable hydration bottle",
+                "category": "Drinkware",
+                "audience": "Everyday consumers",
+                "style": "Clear and shelf-ready",
+            },
+        )
+
+        names = generate_names(VERTICALS["product"], brief, use_ai=False)
+
+        self.assertEqual(names[0].name, "Hearthkit")
+        self.assertEqual(names[0].metadata["source"], "product_fallback")
+        self.assertIn("product", names[0].tags)
 
     def test_business_generation_attaches_domain_quick_check_metadata(self):
         brief = build_brief(

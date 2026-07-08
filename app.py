@@ -92,6 +92,9 @@ def display_brief_items(vertical, brief) -> list[dict[str, str]]:
         "audience": "Audience",
         "name_shape": "Name shape",
         "domain_preference": "Domain priority",
+        "product_description": "Product",
+        "category": "Category",
+        "sales_channel": "Sales channel",
     }
 
     items: list[dict[str, str]] = []

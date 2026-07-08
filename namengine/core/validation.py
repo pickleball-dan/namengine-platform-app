@@ -119,6 +119,8 @@ def validate_result(
         return _validate_baby_name(brief, result.name)
     if vertical.slug == "business":
         return _validate_business_name(brief, result.name)
+    if vertical.slug == "product":
+        return _validate_product_name(brief, result.name)
     return [
         ValidationResult(
             module="validation_not_configured",
@@ -366,6 +368,86 @@ def _business_avoid_validation(clean_name: str, avoid: set[str]) -> ValidationRe
         message="Does not match the avoid list.",
         score=1.0,
         confidence=1.0,
+    )
+
+
+def _validate_product_name(brief: NamingBrief, name: str) -> list[ValidationResult]:
+    clean_name = _clean_name_key(name)
+    avoid = {_clean_name_key(item) for item in brief.avoid}
+    validation = [
+        _product_shelf_fit_validation(clean_name, name),
+        _product_category_fit_validation(brief),
+        _product_claim_risk_validation(brief, clean_name),
+    ]
+    if avoid:
+        validation.append(_business_avoid_validation(clean_name, avoid))
+    return validation
+
+
+def _product_shelf_fit_validation(clean_name: str, display_name: str) -> ValidationResult:
+    has_ampersand = "&" in display_name
+    if 4 <= len(clean_name) <= 13 and not has_ampersand:
+        return ValidationResult(
+            module="product_shelf_fit",
+            status=ValidationStatus.PASS,
+            label="Shelf fit",
+            message="Compact enough to test on packaging, thumbnails, and short listings.",
+            score=0.84,
+            confidence=0.7,
+            metadata={"letters": len(clean_name)},
+        )
+    return ValidationResult(
+        module="product_shelf_fit",
+        status=ValidationStatus.WARN,
+        label="Shelf fit",
+        message="Test small-label readability, SKU fit, and marketplace display before launch.",
+        score=0.64,
+        confidence=0.66,
+        metadata={"letters": len(clean_name)},
+    )
+
+
+def _product_category_fit_validation(brief: NamingBrief) -> ValidationResult:
+    category = str(brief.inputs.get("category", "")).strip()
+    description = str(brief.inputs.get("product_description", "")).strip()
+    if category or description:
+        return ValidationResult(
+            module="product_category_fit",
+            status=ValidationStatus.PASS,
+            label="Category fit",
+            message="Product context is present; judge whether the name signals the right buying lane.",
+            score=0.82,
+            confidence=0.7,
+            metadata={"has_category": bool(category), "has_description": bool(description)},
+        )
+    return ValidationResult(
+        module="product_category_fit",
+        status=ValidationStatus.UNKNOWN,
+        label="Category fit",
+        message="Add product category or description to check fit more clearly.",
+        score=0.55,
+        confidence=0.55,
+    )
+
+
+def _product_claim_risk_validation(brief: NamingBrief, clean_name: str) -> ValidationResult:
+    avoid = {_clean_name_key(item) for item in brief.avoid}
+    if clean_name in avoid:
+        return ValidationResult(
+            module="product_claim_risk",
+            status=ValidationStatus.FAIL,
+            label="Launch risk",
+            message="This appears in the avoid list and should not move forward.",
+            score=0.0,
+            confidence=0.92,
+        )
+    return ValidationResult(
+        module="product_claim_risk",
+        status=ValidationStatus.WARN,
+        label="Launch risk",
+        message="Check trademark, regulated claims, competitor similarity, and channel rules before committing.",
+        score=0.62,
+        confidence=0.7,
     )
 
 

@@ -295,6 +295,67 @@ BUSINESS_NAME_INSIGHTS = {
     "Relay North": "sounds active, operational, and directionally useful",
 }
 
+PRODUCT_NAME_POOL = [
+    ("Hearthkit", "HARTH-kit", "Warm, useful, and ready for a package label."),
+    ("Lumaform", "LOO-muh-form", "Bright, tactile, and flexible across product lines."),
+    ("Kindle & Co.", "KIN-dul and koh", "Friendly, giftable, and easy to frame visually."),
+    ("Brightpack", "BRYTE-pak", "Clear, energetic, and direct for shelf or listing use."),
+    ("Fieldmint", "FEELD-mint", "Fresh, natural, and product-ready without feeling generic."),
+    ("Nestory", "NES-tor-ee", "Cozy, memorable, and lightly invented."),
+    ("Vela Goods", "VAY-luh goods", "Warm, polished, and premium without being cold."),
+    ("Oakhue", "OHK-hyoo", "Grounded, tactile, and visually distinctive."),
+]
+
+PRODUCT_REFINED_POOL = [
+    ("Labelwise", "LAY-bul-wyze", "Practical, smart, and easy to understand."),
+    ("Softcraft", "SOFT-kraft", "Tactile and maker-minded with warm shelf appeal."),
+    ("Copperleaf", "KAH-per-leef", "Warm, premium, and visually rich."),
+    ("Dailywell", "DAY-lee-wel", "Routine-friendly and clear for consumer products."),
+    ("Motive Kit", "MOH-tiv kit", "Purposeful, useful, and modular."),
+    ("Bloomcase", "BLOOM-kays", "Fresh and package-ready with optimistic lift."),
+    ("Trueform", "TROO-form", "Confident, simple, and product-line friendly."),
+    ("Havenly", "HAY-vun-lee", "Soft, comforting, and buyer-friendly."),
+]
+
+PRODUCT_FINALIST_POOL = [
+    ("Hearthkit", "HARTH-kit", "Warm, useful, and ready for a package label."),
+    ("Lumaform", "LOO-muh-form", "Bright, tactile, and flexible across product lines."),
+    ("Fieldmint", "FEELD-mint", "Fresh, natural, and product-ready without feeling generic."),
+    ("Vela Goods", "VAY-luh goods", "Warm, polished, and premium without being cold."),
+    ("Softcraft", "SOFT-kraft", "Tactile and maker-minded with warm shelf appeal."),
+    ("Trueform", "TROO-form", "Confident, simple, and product-line friendly."),
+]
+
+PRODUCT_EXTRA_POOL = [
+    ("Goodlabel", "GOOD-lay-bul", "Plainspoken and trustworthy for packaging."),
+    ("Morrow Made", "MOR-oh mayd", "Thoughtful, crafted, and line-extension friendly."),
+    ("Tendril", "TEN-dril", "Organic, compact, and visually distinctive."),
+    ("Northgoods", "NORTH-goodz", "Practical, durable, and consumer-ready."),
+    ("Linenly", "LIN-en-lee", "Soft, tactile, and approachable."),
+    ("Arcwell", "ARK-wel", "Simple, structured, and wellness-adjacent."),
+    ("Madebright", "MAYD-brite", "Optimistic, clear, and retail-friendly."),
+    ("Pouch & Point", "POWCH and POYNT", "Memorable and packaging-forward."),
+]
+
+PRODUCT_NAME_INSIGHTS = {
+    "Hearthkit": "signals warmth, utility, and a product that belongs in everyday routines",
+    "Lumaform": "combines brightness with shape, making it flexible for visual packaging",
+    "Kindle & Co.": "feels friendly and giftable while leaving room for a broader line",
+    "Brightpack": "makes the product context immediate and keeps the sound energetic",
+    "Fieldmint": "adds freshness and natural texture without overexplaining the category",
+    "Nestory": "suggests cozy use and a lightly invented brandable shape",
+    "Vela Goods": "feels polished and tangible, with room for a product family",
+    "Oakhue": "pairs grounded material imagery with a visual color cue",
+    "Labelwise": "signals practical clarity and product decision support",
+    "Softcraft": "leans tactile, warm, and maker-minded",
+    "Copperleaf": "adds premium warmth and a strong packaging image",
+    "Dailywell": "connects the product to routine and everyday benefit",
+    "Motive Kit": "frames the product as useful, modular, and purposeful",
+    "Bloomcase": "suggests freshness and containment in a package-friendly shape",
+    "Trueform": "feels clear, confident, and extensible across product variants",
+    "Havenly": "creates comfort and buyer warmth with a soft consumer sound",
+}
+
 
 def slugify(value: str) -> str:
     clean = re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
@@ -370,6 +431,14 @@ def generate_fallback_names(
         )
     if vertical.slug == "business":
         return _generate_business_fallback_names(
+            vertical=vertical,
+            brief=brief,
+            round_number=round_number,
+            taste_summary=taste_summary,
+            previous_names=previous_names or [],
+        )
+    if vertical.slug == "product":
+        return _generate_product_fallback_names(
             vertical=vertical,
             brief=brief,
             round_number=round_number,
@@ -622,11 +691,107 @@ def _generate_business_fallback_names(
     return enrich_business_domain_info(validated)
 
 
+def _generate_product_fallback_names(
+    vertical: VerticalConfig,
+    brief: NamingBrief,
+    round_number: int,
+    taste_summary: str = "",
+    previous_names: list[str] | None = None,
+) -> list[NameResult]:
+    product_description = _brief_text(brief, "product_description")
+    category = _brief_text(brief, "category", "product")
+    audience = _brief_text(brief, "audience", "buyers")
+    style = _brief_text(brief, "style", "clear and shelf-ready")
+    sales_channel = _brief_text(brief, "sales_channel")
+    avoid_text = ", ".join(brief.avoid)
+
+    pool = PRODUCT_NAME_POOL
+    if round_number == 2:
+        pool = PRODUCT_REFINED_POOL
+    elif round_number >= 4:
+        pool = PRODUCT_EXTRA_POOL
+    elif round_number >= 3:
+        pool = PRODUCT_FINALIST_POOL
+
+    previous = {name.lower() for name in (previous_names or [])}
+    if previous:
+        filtered_pool = [item for item in pool if item[0].lower() not in previous]
+        if len(filtered_pool) >= min(6, vertical.default_result_count):
+            pool = filtered_pool
+
+    result_count = 6 if round_number >= 3 else vertical.default_result_count
+    results: list[NameResult] = []
+    for index, (name, pronunciation, opener) in enumerate(pool, start=1):
+        clean_name = _clean_name_key(name)
+        risks = [
+            "Check trademark, category claims, packaging fit, and marketplace similarity before launch."
+        ]
+        if clean_name in {_clean_name_key(item) for item in brief.avoid}:
+            risks.insert(0, "This name matches something in the avoid list.")
+        if len(clean_name) > 13 or "and" in clean_name:
+            risks.append("Longer product shape; test label, SKU, and small-screen listing fit.")
+        if sales_channel == "Retail shelf":
+            risks.append("Retail shelf use needs an extra quick-read test at package distance.")
+
+        insight = PRODUCT_NAME_INSIGHTS.get(
+            name,
+            "balances shelf clarity, buyer appeal, and product-line flexibility",
+        )
+        context = (
+            f" for {audience.lower()}" if audience and audience != "Other" else ""
+        )
+        why = (
+            f"{name} works because it {insight}. It stays in the "
+            f"{style.lower()} lane while giving a {category.lower()} product a clear first impression{context}."
+        )
+        if product_description:
+            why += f" It should be tested against the product promise: {product_description}."
+        if taste_summary:
+            why += f" {taste_summary}"
+        if avoid_text:
+            why += f" It also stays mindful of your avoid list: {avoid_text}."
+
+        results.append(
+            NameResult(
+                id=f"{vertical.slug}-{index}",
+                name=name,
+                slug=slugify(name),
+                pronunciation=pronunciation,
+                tagline=opener,
+                meaning=(
+                    "A product name shaped for shelf clarity, buyer appeal, "
+                    "category fit, and launch review."
+                ),
+                why_this_name=why,
+                fit_note=_product_fit_note(category, audience, style, sales_channel),
+                risks=risks,
+                tags=["shelf-ready", "buyer-friendly", "product"],
+                scores={
+                    "shelf_clarity": 0.88 if len(clean_name) <= 11 else 0.76,
+                    "buyer_appeal": 0.82,
+                    "launch_readiness": 0.7,
+                },
+                metadata={"source": "product_fallback", "round_number": round_number},
+            )
+        )
+
+    return validate_results(vertical, brief, results)[:result_count]
+
+
 def _business_fit_note(industry: str, audience: str, style: str) -> str:
     audience_note = f" for {audience.lower()}" if audience and audience != "Other" else ""
     return (
         f"Best if you want a {style.lower()} name that can signal "
         f"{industry.lower()} credibility{audience_note} without boxing in future growth."
+    )
+
+
+def _product_fit_note(category: str, audience: str, style: str, sales_channel: str) -> str:
+    audience_note = f" for {audience.lower()}" if audience and audience != "Other" else ""
+    channel_note = f" in a {sales_channel.lower()} context" if sales_channel else ""
+    return (
+        f"Best if you want a {style.lower()} name that gives a "
+        f"{category.lower()} product a clear buyer signal{audience_note}{channel_note}."
     )
 
 

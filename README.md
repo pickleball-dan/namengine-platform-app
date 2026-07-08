@@ -235,6 +235,10 @@ The framework keeps every vertical visually distinct while preserving the
 NamEngine identity: calm, intelligent, warm, refined, simple, emotionally aware,
 and discovery-focused.
 
+The live implementation contract now also includes a typed `VerticalVisualConfig`
+inside each `VerticalConfig`. See `docs/vertical-config-schema.md` for the field
+shape and `docs/vertical-launch-checklist.md` for the launch checklist.
+
 ## Verify
 
 ```powershell

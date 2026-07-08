@@ -10,16 +10,8 @@
         <img class="vertical-page-logo" src="{{ url_for('static', filename=page_logo) }}" alt="NamEngine {{ vertical.display_name }} logo">
       {% endif %}
       <p class="eyebrow">NamEngine {{ vertical.display_name }}</p>
-      <h1>
-        {% if vertical.slug == "business" %}
-          Find a name your business can grow into.
-        {% elif vertical.slug == "character" %}
-          Find a name that belongs in the story.
-        {% else %}
-          Let’s shape the right {{ vertical.object_label }}.
-        {% endif %}
-      </h1>
-      <p>{{ vertical.prompt_context }}</p>
+      <h1>{{ vertical.visual.hero_message or ("Let’s shape the right " ~ vertical.object_label ~ ".") }}</h1>
+      <p>{{ vertical.visual.hero_support or vertical.prompt_context }}</p>
       <div class="hero-actions">
         <a class="button-link" href="#{{ vertical.slug }}-intake-form">Start discovering names</a>
         {% if vertical.slug == "pet" %}
@@ -30,31 +22,11 @@
         <div class="identity-preview">
           <img src="{{ url_for('static', filename=page_logo) }}" alt="" width="54" height="54">
           <p class="identity-preview-label">{{ vertical.display_name }} name fit</p>
-          <h2>
-            {% if vertical.slug == "baby" %}
-              Built for names that feel tender now and substantial later.
-            {% elif vertical.slug == "business" %}
-              Built for names that can carry a real offer into market.
-            {% elif vertical.slug == "character" %}
-              Built for names that match role, world, and reader memory.
-            {% else %}
-              Built for names that sound good out loud and feel like them.
-            {% endif %}
-          </h2>
+          <h2>{{ vertical.visual.identity_statement or ("Built for names that fit the real decision, not just the vibe.") }}</h2>
           <div class="identity-preview-points" aria-label="Name fit checks">
-            {% if vertical.slug == "business" %}
-              <span>Category fit</span>
-              <span>Memorability</span>
-              <span>Launch risk</span>
-            {% elif vertical.slug == "character" %}
-              <span>Genre</span>
-              <span>Role</span>
-              <span>World fit</span>
-            {% else %}
-              <span>Sound</span>
-              <span>Style</span>
-              <span>{% if vertical.slug == "baby" %}Family fit{% else %}Personality{% endif %}</span>
-            {% endif %}
+            {% for point in vertical.visual.identity_points or ("Sound", "Style", "Fit") %}
+              <span>{{ point }}</span>
+            {% endfor %}
           </div>
         </div>
       {% endif %}

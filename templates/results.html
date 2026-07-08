@@ -12,6 +12,7 @@
     data-taste-share-url="/share/{{ session_id }}"
     data-taste-title="{{ vertical.display_name }} Round {{ round_number }}"
     data-taste-context="{{ names|length }} names · {{ display_brief_items(vertical, brief)|length }} direction selections"
+    data-result-card-style="{{ vertical.visual.result_card_style }}"
   >
     <div class="results-heading">
       {% set page_logo = vertical.assets.get("page_logo", vertical.assets.get("logo")) %}

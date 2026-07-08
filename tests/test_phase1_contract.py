@@ -14,7 +14,7 @@ from namengine.verticals import VERTICALS
 
 class PhaseOneContractTest(unittest.TestCase):
     def test_vertical_slugs_are_unique_and_route_ready(self):
-        self.assertEqual(set(VERTICALS), {"baby", "business", "character", "pet"})
+        self.assertEqual(set(VERTICALS), {"baby", "business", "character", "pet", "product"})
         for slug, config in VERTICALS.items():
             self.assertEqual(config.slug, slug)
             self.assertTrue(config.route_prefix.startswith("/"))

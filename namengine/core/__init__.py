@@ -65,6 +65,7 @@ from .schemas import (
     ValidationResult,
     ValidationStatus,
     VerticalConfig,
+    VerticalVisualConfig,
 )
 from .storage import (
     get_database_path,
@@ -90,6 +91,7 @@ from .validation import validate_result, validate_results
 from .vertical_ui import (
     REQUIRED_ASSET_KEYS,
     REQUIRED_THEME_KEYS,
+    REQUIRED_VISUAL_FIELDS,
     validate_vertical_ui_contract,
     vertical_theme_style,
 )
@@ -166,11 +168,13 @@ __all__ = [
     "ReactionValue",
     "REQUIRED_ASSET_KEYS",
     "REQUIRED_THEME_KEYS",
+    "REQUIRED_VISUAL_FIELDS",
     "RefinementRequest",
     "TasteProfile",
     "ValidationResult",
     "ValidationStatus",
     "VerticalConfig",
+    "VerticalVisualConfig",
     "validate_vertical_ui_contract",
     "update_chosen_metadata",
     "validate_result",
