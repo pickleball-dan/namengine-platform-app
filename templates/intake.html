@@ -68,7 +68,7 @@
       <button type="submit">Generate {{ vertical.display_name }} Names</button>
     </form>
 
-    {% if vertical.slug in ["pet", "baby", "business"] %}
+    {% if vertical.slug in ["pet", "baby", "business", "product"] %}
       <aside class="taste-history-panel" aria-label="Taste history" data-taste-vertical="{{ vertical.slug }}">
         <h2>Taste history</h2>
         <p>Names and lists you loved during this visit will collect here.</p>
@@ -104,7 +104,7 @@
   </section>
   {% include "progress_overlay.html" %}
   <script src="{{ url_for('static', filename='js/progress.js') }}"></script>
-  {% if vertical.slug in ["pet", "baby", "business"] %}
+  {% if vertical.slug in ["pet", "baby", "business", "product"] %}
     <script src="{{ url_for('static', filename='js/taste-history.js') }}"></script>
   {% endif %}
 {% endblock %}

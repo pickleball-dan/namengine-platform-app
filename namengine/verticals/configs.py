@@ -760,8 +760,8 @@ PRODUCT = VerticalConfig(
         "line": "rgba(47, 36, 48, 0.12)",
     },
     assets={
-        "logo": "images/product-logo.svg",
-        "share_image": "images/product-share.svg",
+        "logo": "images/product/namengine-product-logo.png",
+        "share_image": "images/product/namengine-product-share.png",
     },
     visual=VerticalVisualConfig(
         audience=("makers", "founders", "product teams"),
