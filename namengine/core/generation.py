@@ -252,6 +252,20 @@ BABY_HERITAGE_POOL = [
     ("Idris", "ID-ris", "African, Arabic, and Welsh-rooted, concise, and strong.", "african arab_middle_eastern welsh"),
     ("Zuberi", "zoo-BEH-ree", "African-rooted, distinctive, and strong.", "african"),
     ("Amari", "ah-MAR-ee", "African-rooted in many modern uses, lyrical, and wearable.", "african"),
+    ("Aaliyah", "ah-LEE-yah", "Melodic, modern-classic, and strongly familiar in African American naming culture.", "african_american black arab_middle_eastern"),
+    ("Imani", "ee-MAH-nee", "Swahili-rooted, bright, and meaningful with strong African American usage.", "african african_american black swahili"),
+    ("Nia", "NEE-ah", "Short, bright, and meaningful with Swahili/Kwanzaa resonance.", "african african_american black swahili"),
+    ("Zora", "ZOR-uh", "Literary, vivid, and deeply connected to African American cultural history.", "african_american black literary"),
+    ("Sanaa", "sah-NAH", "Artful, luminous, and familiar through modern African American usage.", "african_american black arab_middle_eastern"),
+    ("Ayana", "eye-AH-nah", "Lyrical, warm, and used across African and African American contexts.", "african african_american black"),
+    ("Zahara", "zah-HAH-rah", "Floral, radiant, and international with African and Arabic resonance.", "african african_american black arab_middle_eastern"),
+    ("Asha", "AH-shah", "Short, hopeful, and cross-cultural with African and Indian resonance.", "african african_american black indian swahili"),
+    ("Eshe", "EH-shay", "Swahili-rooted, distinctive, and graceful.", "african african_american black swahili"),
+    ("Zuri", "ZOO-ree", "Swahili-rooted, bright, and modern with a beautiful meaning.", "african african_american black swahili"),
+    ("Amina", "ah-MEE-nah", "African and Arabic-rooted, warm, and classic across many communities.", "african african_american black arab_middle_eastern"),
+    ("Makena", "mah-KEN-ah", "East African-rooted, sunny, and distinctive while staying readable.", "african african_american black"),
+    ("Kenya", "KEN-yah", "Place-rooted, bright, and familiar with African American usage.", "african african_american black"),
+    ("Maya", "MY-ah", "Warm, musical, and strongly familiar across African American and multicultural families.", "african_american black"),
     ("Omar", "OH-mar", "Arabic-rooted, warm, and widely recognizable.", "arab_middle_eastern"),
     ("Samir", "sah-MEER", "Arabic-rooted, friendly, and melodic.", "arab_middle_eastern"),
     ("Zayn", "ZAYN", "Arabic-rooted, compact, and polished.", "arab_middle_eastern"),
@@ -414,7 +428,7 @@ def _baby_heritage_pool_items() -> list[tuple[str, str, str]]:
 
 BABY_NAME_INSIGHTS = {
     "Eloise": "carries a polished literary feeling with a soft, graceful rhythm",
-    "Maya": "is short, warm, and easy across languages and generations",
+    "Maya": "is short, warm, musical, and familiar across African American and multicultural families",
     "Clara": "feels clear and timeless, with a bright sound that is easy to spell",
     "Julian": "balances gentle sounds with a tailored, grown-up shape",
     "Theo": "has friendly warmth and a current classic feel without becoming fussy",
@@ -441,6 +455,19 @@ BABY_NAME_INSIGHTS = {
     "Ellington": "adds musical polish and a heritage-rich surname cadence",
     "Frederick": "balances classic strength with historical substance",
     "Bayard": "feels rare, principled, and historically meaningful",
+    "Aaliyah": "adds a melodic modern-classic feel with strong African American familiarity",
+    "Imani": "brings Swahili-rooted meaning, brightness, and an easy everyday sound",
+    "Nia": "is short, bright, and meaningful with a music-friendly rhythm",
+    "Zora": "carries literary spark and African American cultural depth",
+    "Sanaa": "feels artful, luminous, and modern without losing warmth",
+    "Ayana": "offers a lyrical shape with African and African American resonance",
+    "Zahara": "feels radiant, floral, and globally graceful",
+    "Asha": "is brief, hopeful, and cross-cultural with a gentle sound",
+    "Eshe": "is distinctive, graceful, and Swahili-rooted",
+    "Zuri": "is bright, modern, and Swahili-rooted with a beautiful meaning",
+    "Amina": "feels warm, classic, and deeply cross-cultural",
+    "Makena": "is sunny, distinctive, and readable",
+    "Kenya": "is place-rooted, bright, and familiar in African American usage",
     "Giovanni": "is classic, unmistakably Italian, and warm with substantial history",
     "Leonardo": "feels Italian-rooted, artistic, recognizable, and strong",
     "Lorenzo": "is lyrical, classic, and clearly Italian without feeling obscure",
@@ -989,12 +1016,16 @@ def _heritage_groups_from_tokens(tokens: set[str]) -> set[str]:
 
 
 def _requested_heritage_groups(brief: NamingBrief) -> set[str]:
-    tokens: set[str] = set()
+    groups: set[str] = set()
     for key in ("family_context", "cultural_heritage", "cultural_context", "notes"):
         value = brief.inputs.get(key)
         if value:
-            tokens.update(_taste_tokens_for_field(key, str(value)))
-    return _heritage_groups_from_tokens(tokens)
+            # Evaluate each field separately. "African American" should map to
+            # that specific lane, but a separate Cultural heritage = "African"
+            # should still add the broader African lane instead of being hidden
+            # by the word "American" from family context.
+            groups.update(_heritage_groups_from_tokens(_taste_tokens_for_field(key, str(value))))
+    return groups
 
 
 USER_TEXT_KEYS = {
@@ -1014,7 +1045,7 @@ USER_TEXT_KEYS = {
 NAME_TRAITS = {
     # Baby
     "eloise": "classic elegant literary soft warm polished graceful",
-    "maya": "warm simple familiar global soft",
+    "maya": "african american black warm musical familiar global soft multicultural",
     "clara": "classic clear timeless gentle bright familiar",
     "julian": "classic soft tailored timeless intelligent gentle",
     "theo": "classic warm friendly modern familiar",
@@ -1084,6 +1115,19 @@ NAME_TRAITS = {
     "ellington": "african american black heritage historical history musical jazz polished surname distinctive cultural",
     "frederick": "african american black heritage historical history classic strong recognizable substantial cultural",
     "bayard": "african american black heritage historical history civil rights rare principled distinctive strong cultural",
+    "aaliyah": "african american black heritage melodic modern classic musical familiar lyrical bright cultural",
+    "imani": "african african american black swahili heritage meaningful bright modern warm cultural",
+    "nia": "african african american black swahili heritage short bright musical modern meaningful cultural",
+    "zora": "african american black heritage literary bright vivid distinctive cultural",
+    "sanaa": "african american black heritage artful luminous musical modern bright cultural",
+    "ayana": "african african american black heritage lyrical warm graceful modern cultural",
+    "zahara": "african african american black arabic heritage floral radiant graceful bright cultural",
+    "asha": "african african american black swahili indian heritage hopeful short warm soft cultural",
+    "eshe": "african african american black swahili heritage graceful distinctive soft cultural",
+    "zuri": "african african american black swahili heritage bright modern beautiful distinctive cultural",
+    "amina": "african african american black arabic heritage warm classic graceful cultural",
+    "makena": "african african american black heritage sunny distinctive modern readable cultural",
+    "kenya": "african african american black heritage place bright familiar modern cultural",
     "giovanni": "italian italy mediterranean heritage classic strong recognizable lyrical cultural",
     "leonardo": "italian italy mediterranean heritage classic strong artistic recognizable cultural",
     "lorenzo": "italian italy mediterranean heritage classic strong lyrical recognizable cultural",

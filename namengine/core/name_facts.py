@@ -11,6 +11,34 @@ from typing import Any
 
 
 BABY_NAME_FACTS: dict[str, dict[str, Any]] = {
+    "aaliyah": {
+        "origin_meaning": "Arabic/Hebrew-rooted in many sources; often associated with high, exalted, or rising.",
+        "approx_usage": "Approx. US use: very familiar in recent decades; especially recognizable in modern African American naming culture.",
+        "famous_namesakes": ["Aaliyah", "Aaliyah Edwards"],
+        "nicknames_variants": ["Aliyah", "Alia", "Leah"],
+        "similar_names": ["Imani", "Sanaa", "Zaria", "Amara"],
+    },
+    "amina": {
+        "origin_meaning": "Arabic-rooted name used across many African and Muslim communities; often linked with trustworthy or faithful.",
+        "approx_usage": "Approx. US use: recognizable but not overused; cross-cultural and heritage-forward.",
+        "famous_namesakes": ["Amina Mama", "Queen Amina of Zazzau"],
+        "nicknames_variants": ["Aminah", "Mina", "Amira"],
+        "similar_names": ["Amara", "Asha", "Imani", "Zahara"],
+    },
+    "asha": {
+        "origin_meaning": "Cross-cultural name with Sanskrit and Swahili associations; often connected with hope or life.",
+        "approx_usage": "Approx. US use: uncommon but readable; short, warm, and international.",
+        "famous_namesakes": ["Asha Bhosle", "Asha Rangappa"],
+        "nicknames_variants": ["Ashia", "Ashanti", "Ash"],
+        "similar_names": ["Nia", "Zuri", "Amina", "Ayana"],
+    },
+    "ayana": {
+        "origin_meaning": "Used across several cultures; often presented with African, Ethiopian, or Sanskrit associations depending on source.",
+        "approx_usage": "Approx. US use: uncommon-to-familiar; lyrical and easy to pronounce.",
+        "famous_namesakes": ["Ayana Mathis", "Ayana Elizabeth Johnson"],
+        "nicknames_variants": ["Aya", "Yana", "Aiyana"],
+        "similar_names": ["Aaliyah", "Amara", "Zahara", "Imani"],
+    },
     "ada": {
         "origin_meaning": "Germanic roots; often connected with nobility, brightness, or adornment.",
         "approx_usage": "Approx. US use: familiar vintage choice; historically tens of thousands of recorded births.",
@@ -223,10 +251,10 @@ BABY_NAME_FACTS: dict[str, dict[str, Any]] = {
     },
     "maya": {
         "origin_meaning": "Multicultural name with Sanskrit, Hebrew, Greek, and Spanish-language associations; meanings vary by tradition.",
-        "approx_usage": "Approx. US use: very familiar; widely used across recent decades.",
+        "approx_usage": "Approx. US use: very familiar; widely used across recent decades and strongly recognizable in African American culture.",
         "famous_namesakes": ["Maya Angelou", "Maya Rudolph"],
         "nicknames_variants": ["Maia", "Maja", "May"],
-        "similar_names": ["Mira", "Lena", "Nina", "Mila"],
+        "similar_names": ["Imani", "Nia", "Mira", "Zora"],
     },
     "miles": {
         "origin_meaning": "English/Latin-rooted name; meanings vary, often linked with soldier or gracious.",
@@ -241,6 +269,48 @@ BABY_NAME_FACTS: dict[str, dict[str, Any]] = {
         "famous_namesakes": ["Mira Nair", "Mira Sorvino"],
         "nicknames_variants": ["Meera", "Mirabel", "Mirella"],
         "similar_names": ["Maya", "Lena", "Nina", "Mila"],
+    },
+    "nia": {
+        "origin_meaning": "Swahili-associated name connected with purpose, especially through Kwanzaa tradition.",
+        "approx_usage": "Approx. US use: familiar but not everywhere; short, bright, and culturally resonant.",
+        "famous_namesakes": ["Nia Long", "Nia DaCosta"],
+        "nicknames_variants": ["Nya", "Niah"],
+        "similar_names": ["Zuri", "Imani", "Asha", "Maya"],
+    },
+    "imani": {
+        "origin_meaning": "Swahili-rooted name associated with faith.",
+        "approx_usage": "Approx. US use: familiar modern choice with strong African American usage.",
+        "famous_namesakes": ["Imani Perry", "Imani Hakim"],
+        "nicknames_variants": ["Mani", "Iman", "Imanie"],
+        "similar_names": ["Aaliyah", "Nia", "Zuri", "Sanaa"],
+    },
+    "kenya": {
+        "origin_meaning": "Place name from the East African country Kenya.",
+        "approx_usage": "Approx. US use: familiar place-rooted name; especially recognizable in African American naming contexts.",
+        "famous_namesakes": ["Kenya Moore", "Kenya Barris"],
+        "nicknames_variants": ["Kenya", "Kenia"],
+        "similar_names": ["Zora", "Nia", "Amina", "Zahara"],
+    },
+    "sanaa": {
+        "origin_meaning": "Arabic-rooted name often linked with art, brilliance, or radiance depending on source.",
+        "approx_usage": "Approx. US use: uncommon-to-familiar; modern and recognizable through pop culture.",
+        "famous_namesakes": ["Sanaa Lathan"],
+        "nicknames_variants": ["Sana", "Sanah"],
+        "similar_names": ["Aaliyah", "Imani", "Zahara", "Amara"],
+    },
+    "zora": {
+        "origin_meaning": "Slavic-rooted in many sources; often linked with dawn. Strong African American literary association.",
+        "approx_usage": "Approx. US use: uncommon but recognizable; vintage-literary and distinctive.",
+        "famous_namesakes": ["Zora Neale Hurston"],
+        "nicknames_variants": ["Zorah", "Zori"],
+        "similar_names": ["Zuri", "Nia", "Maya", "Sanaa"],
+    },
+    "zuri": {
+        "origin_meaning": "Swahili-rooted; commonly associated with beautiful.",
+        "approx_usage": "Approx. US use: familiar and rising; bright, modern, and heritage-forward.",
+        "famous_namesakes": ["Zuri Hall", "Zuri Adele"],
+        "nicknames_variants": ["Zurie", "Zuzu"],
+        "similar_names": ["Nia", "Imani", "Zora", "Asha"],
     },
     "noemi": {
         "origin_meaning": "Italian/Spanish/Hungarian form related to Naomi; pleasantness.",
