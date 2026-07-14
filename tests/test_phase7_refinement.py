@@ -54,7 +54,7 @@ class PhaseSevenRefinementTest(unittest.TestCase):
 
         summary = build_reaction_effect_summary(snapshot)
 
-        self.assertIn("We leaned toward Milo.", summary)
+        self.assertIn("We leaned toward Rosie.", summary)
         self.assertIn("We moved away from Juniper.", summary)
 
     def test_refine_session_creates_round_two_child(self):
@@ -71,7 +71,7 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         self.assertEqual(child["session"]["parent_session_id"], session_id)
         self.assertEqual(child["session"]["refinement_prompt"], "shorter and warmer")
         self.assertEqual(len(results), 8)
-        self.assertIn("Milo", brief.liked_examples)
+        self.assertIn("Rosie", brief.liked_examples)
         self.assertIn("Juniper", brief.rejected_examples)
 
     def test_refine_route_renders_round_two(self):
@@ -87,7 +87,7 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         self.assertNotIn("Get finalists", body)
         self.assertIn("Ready for a fresh list?", body)
         self.assertIn("Generate New List", body)
-        self.assertIn("Benny", body)
+        self.assertIn("Hazel", body)
 
     def test_progress_refine_redirects_to_saved_results_page(self):
         session_id = self._seed_round_one()

@@ -29,7 +29,7 @@ class PhaseFourteenProgressExperienceTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         body = response.get_data(as_text=True)
-        self.assertIn("data-progress-form", body)
+        self.assertIn('action="/pet/feelings"', body)
         self.assertIn("Building a shortlist around this identity", body)
         self.assertIn("A few quick checks before the list appears.", body)
         self.assertIn("Finding names for this identity", body)

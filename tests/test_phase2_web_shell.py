@@ -41,7 +41,8 @@ class PhaseTwoWebShellTest(unittest.TestCase):
         self.assertIn('<option value="Cat">Cat</option>', body)
         self.assertIn('<option value="Balanced mix">Balanced mix</option>', body)
         self.assertIn('<option value="Very important">Very important</option>', body)
-        self.assertIn('action="/pet/results"', body)
+        self.assertIn('action="/pet/feelings"', body)
+        self.assertNotIn('data-progress-form novalidate', body)
         self.assertIn("novalidate", body)
 
     def test_baby_intake_renders_baby_specific_structure(self):
@@ -60,7 +61,8 @@ class PhaseTwoWebShellTest(unittest.TestCase):
         self.assertIn("Family fit", body)
         self.assertIn("Taste history", body)
         self.assertIn('id="baby-intake-form"', body)
-        self.assertIn('action="/baby/results"', body)
+        self.assertIn('action="/baby/feelings"', body)
+        self.assertNotIn('data-progress-form novalidate', body)
         self.assertIn("images/baby/namengine-baby-logo.png", body)
         self.assertIn('data-taste-vertical="baby"', body)
         self.assertIn("data-taste-history-clear", body)

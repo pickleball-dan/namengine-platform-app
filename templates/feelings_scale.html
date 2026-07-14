@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}NamEngine {{ vertical.display_name }} Feelings Scale{% endblock %}
+
+{% block content %}
+  <section class="feelings-shell">
+    <div class="feelings-heading">
+      {% set page_logo = vertical.assets.get("page_logo", vertical.assets.get("logo")) %}
+      {% if page_logo %}
+        <img class="vertical-page-logo small" src="{{ url_for('static', filename=page_logo) }}" alt="NamEngine {{ vertical.display_name }} logo">
+      {% endif %}
+      <p class="eyebrow">NamEngine {{ vertical.display_name }}</p>
+      <h1>Feelings Scale</h1>
+      <p>What do I feel strong about? Move the {{ center_icon.noun }} toward an area you feel is more important.</p>
+    </div>
+
+    <form class="feelings-form" action="{{ vertical.route_prefix }}/results" method="get" data-progress-form>
+      {% for key, value in source.items() %}
+        {% if value not in ("", none) and not key.startswith("taste_strength_") %}
+          <input type="hidden" name="{{ key }}" value="{{ value }}">
+        {% endif %}
+      {% endfor %}
+
+      <div class="feelings-card" data-feelings-scale>
+        <div class="feelings-orb" style="--x: 50%; --y: 47%;" data-feelings-orb aria-label="Taste balance control">
+          {% for section in sections %}
+            <span class="feelings-orb-label feelings-orb-label-{{ loop.index }}">{{ section }}</span>
+          {% endfor %}
+          <span class="feelings-move-arrow nw" aria-hidden="true">↖</span>
+          <span class="feelings-move-arrow ne" aria-hidden="true">↗</span>
+          <span class="feelings-move-arrow sw" aria-hidden="true">↙</span>
+          <span class="feelings-move-arrow se" aria-hidden="true">↘</span>
+          <div class="feelings-center feelings-center-{{ center_icon.kind }}" data-feelings-center aria-label="{{ center_icon.label }} taste tuner">
+            <span class="feelings-icon" aria-hidden="true"></span>
+          </div>
+        </div>
+
+        <div class="feelings-rows">
+          {% for section in sections %}
+            {% set default_strength = 34 if loop.index == 1 else 33 %}
+            {% set strength_field = section_strength_field(section) %}
+            {% set saved_strength = source.get(strength_field, default_strength) %}
+            <div class="feelings-row" data-feelings-row="{{ loop.index0 }}">
+              <input type="hidden" name="{{ strength_field }}" value="{{ saved_strength }}" data-feelings-input>
+              <div class="feelings-row-head">
+                <span>{{ section }}</span>
+                <strong data-feelings-label>Balanced</strong>
+              </div>
+              <div class="feelings-bar"><span style="width: {{ saved_strength }}%;" data-feelings-fill></span></div>
+            </div>
+          {% endfor %}
+        </div>
+
+        <p class="feelings-hint">NamEngine will still honor everything you entered.</p>
+        <button type="submit">Generate {{ vertical.display_name }} Names</button>
+      </div>
+    </form>
+  </section>
+  {% include "progress_overlay.html" %}
+  <script src="{{ url_for('static', filename='js/feelings-scale.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/progress.js') }}"></script>
+{% endblock %}

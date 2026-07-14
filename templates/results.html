@@ -8,7 +8,7 @@
     data-session-id="{{ session_id }}"
     data-taste-vertical="{{ vertical.slug }}"
     data-taste-session-id="{{ session_id }}"
-    data-taste-list-url="{{ request.full_path }}"
+    data-taste-list-url="{{ url_for('session_results', session_id=session_id) }}"
     data-taste-share-url="/share/{{ session_id }}"
     data-taste-title="{{ vertical.display_name }} Round {{ round_number }}"
     data-taste-context="{{ names|length }} names · {{ display_brief_items(vertical, brief)|length }} direction selections"
@@ -46,6 +46,11 @@
             </a>
           {% endfor %}
         </dl>
+        {% if feelings_scale_enabled(vertical) %}
+          <p>
+            <a class="button-link secondary-button" href="{{ vertical.route_prefix }}/feelings" data-adjust-feelings>Adjust Feelings Scale</a>
+          </p>
+        {% endif %}
         <p class="reaction-counts">
           Loved {{ reaction_counts.love }} · Maybe {{ reaction_counts.maybe }} · No {{ reaction_counts.no }}
         </p>
@@ -191,6 +196,7 @@
   </section>
   {% include "progress_overlay.html" %}
   <script src="{{ url_for('static', filename='js/progress.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/feelings-return.js') }}"></script>
   <script src="{{ url_for('static', filename='js/taste-history.js') }}"></script>
   <script src="{{ url_for('static', filename='js/reactions.js') }}"></script>
 {% endblock %}

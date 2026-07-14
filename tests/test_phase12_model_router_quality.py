@@ -54,7 +54,8 @@ class PhaseTwelveModelRouterQualityTest(unittest.TestCase):
         self.assertEqual(provider_results[0].status, "error")
         self.assertEqual(provider_results[1].provider, ModelProvider.FALLBACK)
         self.assertEqual(provider_results[1].status, "ok")
-        self.assertEqual(provider_results[1].names[0].name, "Milo")
+        self.assertEqual(provider_results[1].names[0].metadata["source"], "phase3_fallback")
+        self.assertEqual(len(provider_results[1].names), 8)
 
     def test_score_and_select_candidates_dedupe_previous_names(self):
         brief = build_brief(PET, {"species": "Dog", "style": "Warm"})

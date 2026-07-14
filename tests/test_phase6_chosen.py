@@ -60,9 +60,9 @@ class PhaseSixChosenNameTest(unittest.TestCase):
         snapshot = get_chosen_snapshot(chosen.id)
 
         self.assertIsNotNone(snapshot)
-        self.assertEqual(snapshot["chosen"]["name"], "Milo")
+        self.assertEqual(snapshot["chosen"]["name"], results[0].name)
         self.assertEqual(snapshot["chosen"]["vertical"], "pet")
-        self.assertEqual(snapshot["result"]["name"], "Milo")
+        self.assertEqual(snapshot["result"]["name"], results[0].name)
 
     def test_choose_route_redirects_to_chosen_page(self):
         query = b"species=Dog&personality=Gentle&style=Warm"
@@ -147,11 +147,11 @@ class PhaseSixChosenNameTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         body = response.get_data(as_text=True)
-        self.assertIn("Milo", body)
+        self.assertIn("Rosie", body)
         self.assertIn("Why this name?", body)
         self.assertIn("share-preview", body)
         self.assertIn("Final pick", body)
-        self.assertIn("Meet Milo", body)
+        self.assertIn("Meet Rosie", body)
         self.assertNotIn("chosen-hero", body)
         self.assertNotIn("share-preview-logo", body)
         self.assertNotIn("share-preview-brand", body)
@@ -185,7 +185,7 @@ class PhaseSixChosenNameTest(unittest.TestCase):
         self.assertNotIn("Color", body)
         self.assertNotIn("Honey", body)
         self.assertNotIn("Age", body)
-        self.assertIn("Milo", body)
+        self.assertIn("Theo", body)
 
         snapshot = get_chosen_snapshot(chosen_id)
         self.assertEqual(snapshot["chosen"]["metadata"]["pet_portrait"]["status"], "not_configured")

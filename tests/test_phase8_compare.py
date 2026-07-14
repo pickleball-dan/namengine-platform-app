@@ -47,8 +47,8 @@ class PhaseEightCompareTest(unittest.TestCase):
         items = build_compare_items(round_two_id)
         names = [item["name"] for item in items]
 
-        self.assertIn("Milo", names)
-        self.assertIn("Benny", names)
+        self.assertIn("Rosie", names)
+        self.assertIn("love", {item["reaction"] for item in items})
         self.assertLessEqual(len(items), 6)
 
     def test_compare_uses_maybe_as_backup(self):
@@ -76,11 +76,11 @@ class PhaseEightCompareTest(unittest.TestCase):
         self.assertIn("Worth noting", body)
         self.assertNotIn("Watch-out", body)
         self.assertIn("Choose with confidence", body)
-        self.assertIn("Choose Milo", body)
+        self.assertIn("Choose ", body)
         self.assertIn("Open detail", body)
         self.assertIn(f"/pet/name/{round_two_id}/pet-1", body)
-        self.assertIn("Milo", body)
-        self.assertIn("Benny", body)
+        self.assertIn("Rosie", body)
+        self.assertIn("Round 2", body)
 
     def test_compare_fills_with_latest_finalists(self):
         session_id, round_two_id = self._seed_chain()

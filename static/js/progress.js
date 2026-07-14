@@ -4,12 +4,14 @@
   const eyebrow = document.querySelector("[data-progress-eyebrow]");
   const visual = document.querySelector("[data-progress-visual]");
   const steps = Array.from(document.querySelectorAll("[data-progress-step]"));
-  const forms = Array.from(document.querySelectorAll("[data-progress-form]"));
+  const forms = Array.from(document.querySelectorAll("form"));
   const minimumProgressMs = 10000;
 
-  if (!overlay || !current || !steps.length || !forms.length) {
+  if (!forms.length) {
     return;
   }
+
+  const canShowProgress = Boolean(overlay && current && steps.length);
 
   let timer = null;
   let submittingForm = null;
@@ -83,6 +85,7 @@
   }
 
   function showProgress() {
+    if (!canShowProgress) return;
     overlay.hidden = false;
     activateStep(0);
     let index = 0;
@@ -232,6 +235,10 @@
         focusFirstInvalid(form);
         return;
       }
+      if (!form.matches("[data-progress-form]") || !canShowProgress) {
+        return;
+      }
+
       event.preventDefault();
       if (timer) {
         window.clearInterval(timer);

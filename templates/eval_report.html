@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}Taste Engine Eval Report{% endblock %}
+
+{% block content %}
+  <section class="engine-audit-shell eval-report-shell">
+    <div class="engine-audit-heading">
+      <p class="eyebrow">Dev only</p>
+      <h1>Taste Engine Eval Report</h1>
+      <p>Fixture-based regression view for taste separation, candidate capture, and engine behavior.</p>
+      <div class="engine-audit-actions">
+        <a class="button-link secondary-button" href="{{ url_for('eval_report') }}">Fallback / all fixtures</a>
+        <a class="button-link secondary-button" href="{{ url_for('eval_report', ai=1, limit=2) }}">AI smoke / first 2</a>
+      </div>
+    </div>
+
+    <div class="engine-audit-grid eval-summary-grid">
+      <article class="engine-audit-card">
+        <h2>Run summary</h2>
+        <dl class="engine-audit-kv compact">
+          <dt>Mode</dt><dd>{% if use_ai %}AI{% else %}Fallback{% endif %}</dd>
+          <dt>Fixture count</dt><dd>{{ summary.fixture_count }}</dd>
+          <dt>Limit</dt><dd>{{ limit or 'none' }}</dd>
+          <dt>Providers</dt><dd>{{ summary.providers|join(', ') }}</dd>
+          <dt>Pipelines</dt><dd>{{ summary.pipelines|join(', ') }}</dd>
+          <dt>Signal hits</dt><dd>{{ summary.signal_hit_count }}</dd>
+        </dl>
+      </article>
+
+      <article class="engine-audit-card">
+        <h2>Contrast checks</h2>
+        <dl class="engine-audit-kv compact">
+          <dt>Total</dt><dd>{{ summary.contrast_count }}</dd>
+          <dt>Passed</dt><dd>{{ summary.contrast_pass_count }}</dd>
+          <dt>Failed</dt><dd>{{ summary.contrast_count - summary.contrast_pass_count }}</dd>
+        </dl>
+      </article>
+    </div>
+
+    <article class="engine-audit-card engine-audit-card-wide eval-contrast-card">
+      <h2>Contrast groups</h2>
+      <div class="eval-table-wrap">
+        <table class="eval-table">
+          <thead>
+            <tr>
+              <th>Group</th>
+              <th>Fixture A</th>
+              <th>Fixture B</th>
+              <th>Top 3 overlap</th>
+              <th>Full overlap</th>
+              <th>Unique difference</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for contrast in contrasts %}
+              <tr class="{% if contrast.passed %}eval-pass{% else %}eval-fail{% endif %}">
+                <td>{{ contrast.group }}</td>
+                <td>{{ contrast.fixture_a }}</td>
+                <td>{{ contrast.fixture_b }}</td>
+                <td>{{ contrast.top3_overlap }}</td>
+                <td>{{ contrast.full_overlap }}</td>
+                <td>{{ contrast.unique_difference }}</td>
+                <td>{% if contrast.passed %}Pass{% else %}Watch{% endif %}</td>
+              </tr>
+            {% else %}
+              <tr><td colspan="7">No contrast checks for this fixture subset.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </article>
+
+    <div class="eval-fixture-grid">
+      {% for result in results %}
+        {% set first = result.names[0] if result.names else none %}
+        {% set metadata = first.metadata if first else {} %}
+        {% set strategy = metadata.get('taste_strategy', {}) %}
+        {% set candidate_pool = metadata.get('candidate_pool', []) %}
+        {% set rejected = metadata.get('rejected_candidates', []) %}
+        {% set ai_calls = metadata.get('ai_calls', []) %}
+        {% set usage = {'input_tokens': 0, 'output_tokens': 0, 'total_tokens': 0} %}
+        {% set latency = namespace(total=0) %}
+        {% for call in ai_calls %}
+          {% set latency.total = latency.total + (call.get('latency_ms') or 0) %}
+        {% endfor %}
+
+        <article class="engine-audit-card eval-fixture-card">
+          <div class="eval-fixture-heading">
+            <p class="eyebrow">{{ result.fixture.vertical }} · {{ result.fixture.contrast_group or 'no contrast group' }}</p>
+            <h2>{{ result.fixture.label }}</h2>
+            <p class="eval-fixture-id">{{ result.fixture.id }}</p>
+          </div>
+
+          <dl class="engine-audit-kv compact">
+            <dt>Provider</dt><dd>{{ result.provider }}</dd>
+            <dt>Pipeline</dt><dd>{{ result.pipeline }}</dd>
+            <dt>Model</dt><dd>{{ result.model }}</dd>
+            <dt>Prompt</dt><dd>{{ result.prompt_version }}</dd>
+            <dt>Latency</dt><dd>{{ latency.total }} ms</dd>
+            <dt>Candidate pool</dt><dd>{{ candidate_pool|length }}</dd>
+            <dt>Rejected</dt><dd>{{ rejected|length }}</dd>
+            <dt>Signal hits</dt><dd>{{ result.signal_hits|join(', ') }}</dd>
+          </dl>
+
+          <details class="eval-details" open>
+            <summary>Final names</summary>
+            <ol class="eval-name-list">
+              {% for name in result.top_names[:8] %}
+                <li>{{ name }}</li>
+              {% endfor %}
+            </ol>
+          </details>
+
+          <details class="eval-details">
+            <summary>Intake + Feelings Scale</summary>
+            <dl class="engine-audit-kv compact">
+              {% for key, value in result.fixture.inputs.items() %}
+                <dt>{{ key }}</dt><dd>{{ value }}</dd>
+              {% endfor %}
+              {% for key, value in result.fixture.feelings.items() %}
+                <dt>{{ key }}</dt><dd>{{ value }}</dd>
+              {% endfor %}
+            </dl>
+          </details>
+
+          <details class="eval-details" {% if strategy %}open{% endif %}>
+            <summary>Taste thesis</summary>
+            {% if strategy %}
+              <p>{{ strategy.taste_thesis }}</p>
+              <p><strong>Priority:</strong> {{ strategy.priority_interpretation }}</p>
+            {% else %}
+              <p>No taste thesis captured for this run.</p>
+            {% endif %}
+          </details>
+
+          <details class="eval-details">
+            <summary>Candidate pool preview</summary>
+            {% if candidate_pool %}
+              <ol class="eval-name-list">
+                {% for candidate in candidate_pool[:8] %}
+                  <li><strong>{{ candidate.name }}</strong> — {{ candidate.decision }} · {{ candidate.territory }}</li>
+                {% endfor %}
+              </ol>
+            {% else %}
+              <p>No candidate pool captured.</p>
+            {% endif %}
+          </details>
+
+          <details class="eval-details">
+            <summary>Rejected preview</summary>
+            {% if rejected %}
+              <ol class="eval-name-list">
+                {% for candidate in rejected[:8] %}
+                  <li><strong>{{ candidate.name }}</strong> lost to {{ candidate.lost_to }} — {{ candidate.rejection_reason }}</li>
+                {% endfor %}
+              </ol>
+            {% else %}
+              <p>No rejected candidates captured.</p>
+            {% endif %}
+          </details>
+        </article>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}

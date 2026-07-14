@@ -1,0 +1,225 @@
+[
+  {
+    "id": "baby-classic-soft-familiar",
+    "label": "Baby · Classic soft familiar",
+    "vertical": "baby",
+    "inputs": {
+      "gender": "Girl",
+      "discovery_style": "Classic favorites",
+      "style": "Classic",
+      "timeless_vs_distinctive": "More timeless",
+      "familiarity_preference": "Familiar but not overused",
+      "sound": "Soft and lyrical",
+      "family_context": "Last name Miller, sibling Henry",
+      "notes": "Warm, gentle, easy to love, not trendy."
+    },
+    "feelings": {
+      "taste_strength_about_your_baby": 20,
+      "taste_strength_name_style": 55,
+      "taste_strength_fit_and_feeling": 25
+    },
+    "expected_signals": ["classic", "warm", "gentle", "soft", "familiar"],
+    "contrast_group": "baby-style-core"
+  },
+  {
+    "id": "baby-rare-strong-distinctive",
+    "label": "Baby · Rare strong distinctive",
+    "vertical": "baby",
+    "inputs": {
+      "gender": "Girl",
+      "discovery_style": "Unexpected finds",
+      "style": "Strong and tailored",
+      "timeless_vs_distinctive": "Strongly distinctive",
+      "familiarity_preference": "Memorable and rarer",
+      "sound": "Strong",
+      "family_context": "Needs to stand apart from very common family names",
+      "notes": "Bold, rare, distinctive, confident, not frilly."
+    },
+    "feelings": {
+      "taste_strength_about_your_baby": 15,
+      "taste_strength_name_style": 70,
+      "taste_strength_fit_and_feeling": 15
+    },
+    "expected_signals": ["rare", "strong", "distinctive", "confident", "bold"],
+    "contrast_group": "baby-style-core"
+  },
+  {
+    "id": "baby-literary-nature",
+    "label": "Baby · Literary nature",
+    "vertical": "baby",
+    "inputs": {
+      "gender": "Girl",
+      "discovery_style": "Balanced mix",
+      "style": "Nature-inspired",
+      "timeless_vs_distinctive": "Balanced",
+      "familiarity_preference": "Memorable and rarer",
+      "sound": "Soft and lyrical",
+      "cultural_context": "Literature",
+      "notes": "Literary, botanical, poetic, but still wearable."
+    },
+    "feelings": {
+      "taste_strength_about_your_baby": 15,
+      "taste_strength_name_style": 45,
+      "taste_strength_fit_and_feeling": 40
+    },
+    "expected_signals": ["literary", "nature", "botanical", "poetic", "wearable"],
+    "contrast_group": "baby-style-core"
+  },
+  {
+    "id": "baby-scandinavian-minimalist",
+    "label": "Baby · Scandinavian minimalist",
+    "vertical": "baby",
+    "inputs": {
+      "gender": "Neutral",
+      "discovery_style": "Unexpected finds",
+      "style": "Modern",
+      "timeless_vs_distinctive": "More distinctive",
+      "familiarity_preference": "Memorable and rarer",
+      "sound": "Crisp and simple",
+      "notes": "Scandinavian minimalist, clean, calm, spare, not elaborate."
+    },
+    "feelings": {
+      "taste_strength_about_your_baby": 20,
+      "taste_strength_name_style": 45,
+      "taste_strength_fit_and_feeling": 35
+    },
+    "expected_signals": ["scandinavian", "minimalist", "clean", "calm", "simple"],
+    "contrast_group": "baby-style-core"
+  },
+  {
+    "id": "baby-vintage-revival",
+    "label": "Baby · Vintage revival",
+    "vertical": "baby",
+    "inputs": {
+      "gender": "Girl",
+      "discovery_style": "Balanced mix",
+      "style": "Vintage",
+      "timeless_vs_distinctive": "More timeless",
+      "familiarity_preference": "Familiar but not overused",
+      "sound": "Warm",
+      "notes": "Vintage revival, old-soul charm, warm, substantial, not dusty."
+    },
+    "feelings": {
+      "taste_strength_about_your_baby": 18,
+      "taste_strength_name_style": 62,
+      "taste_strength_fit_and_feeling": 20
+    },
+    "expected_signals": ["vintage", "old-soul", "warm", "substantial", "revival"],
+    "contrast_group": "baby-style-core"
+  },
+  {
+    "id": "baby-family-context-led",
+    "label": "Baby · Family context led",
+    "vertical": "baby",
+    "inputs": {
+      "gender": "Boy",
+      "discovery_style": "Balanced mix",
+      "style": "Classic",
+      "timeless_vs_distinctive": "More timeless",
+      "familiarity_preference": "Familiar but not overused",
+      "sound": "Warm",
+      "family_context": "Last name Thompson, siblings Clara and August, honor middle name James",
+      "notes": "The name must fit with Clara and August and feel natural with James."
+    },
+    "feelings": {
+      "taste_strength_about_your_baby": 70,
+      "taste_strength_name_style": 15,
+      "taste_strength_fit_and_feeling": 15
+    },
+    "expected_signals": ["sibling", "family", "honor", "classic", "warm"],
+    "contrast_group": "baby-priority"
+  },
+  {
+    "id": "baby-sound-led-playful",
+    "label": "Baby · Sound-led playful",
+    "vertical": "baby",
+    "inputs": {
+      "gender": "Girl",
+      "discovery_style": "Unexpected finds",
+      "style": "Modern",
+      "timeless_vs_distinctive": "Balanced",
+      "familiarity_preference": "Memorable and rarer",
+      "sound": "Playful",
+      "notes": "Bouncy, bright, fun to say, lively, not overly serious."
+    },
+    "feelings": {
+      "taste_strength_about_your_baby": 10,
+      "taste_strength_name_style": 20,
+      "taste_strength_fit_and_feeling": 70
+    },
+    "expected_signals": ["playful", "bright", "bouncy", "lively", "sound"],
+    "contrast_group": "baby-priority"
+  },
+  {
+    "id": "pet-dog-callable-friendly",
+    "label": "Pet · Dog callable friendly",
+    "vertical": "pet",
+    "inputs": {
+      "pet_type": "Dog",
+      "style": "Classic",
+      "vibe": "Playful",
+      "notes": "Friendly rescue dog, easy to call at the park, loyal and warm."
+    },
+    "feelings": {
+      "taste_strength_about_your_pet": 70,
+      "taste_strength_name_style": 15,
+      "taste_strength_fit_and_feeling": 15
+    },
+    "expected_signals": ["dog", "callable", "friendly", "loyal", "warm"],
+    "contrast_group": "pet-type"
+  },
+  {
+    "id": "pet-cat-elegant-mythic",
+    "label": "Pet · Cat elegant mythic",
+    "vertical": "pet",
+    "inputs": {
+      "pet_type": "Cat",
+      "style": "Uncommon but usable",
+      "vibe": "Elegant",
+      "notes": "Elegant black cat, a little mythic, stylish, not silly."
+    },
+    "feelings": {
+      "taste_strength_about_your_pet": 55,
+      "taste_strength_name_style": 25,
+      "taste_strength_fit_and_feeling": 20
+    },
+    "expected_signals": ["cat", "elegant", "mythic", "stylish", "uncommon"],
+    "contrast_group": "pet-type"
+  },
+  {
+    "id": "business-modern-luxury",
+    "label": "Business · Modern luxury",
+    "vertical": "business",
+    "inputs": {
+      "business_description": "Premium home fragrance studio",
+      "audience": "Design-conscious customers who want quiet luxury",
+      "style": "Premium and polished",
+      "notes": "Modern luxury, restrained, editorial, expensive but not flashy."
+    },
+    "feelings": {
+      "taste_strength_about_the_business": 35,
+      "taste_strength_name_style": 45,
+      "taste_strength_launch_fit": 20
+    },
+    "expected_signals": ["premium", "luxury", "restrained", "editorial", "polished"],
+    "contrast_group": "business-positioning"
+  },
+  {
+    "id": "business-clear-trustworthy",
+    "label": "Business · Clear trustworthy",
+    "vertical": "business",
+    "inputs": {
+      "business_description": "Bookkeeping and operations support for small businesses",
+      "audience": "Busy founders who need clarity and trust",
+      "style": "Clear and trustworthy",
+      "notes": "Practical, clear, reassuring, no gimmicks, easy to understand."
+    },
+    "feelings": {
+      "taste_strength_about_the_business": 45,
+      "taste_strength_name_style": 25,
+      "taste_strength_launch_fit": 30
+    },
+    "expected_signals": ["clear", "trustworthy", "practical", "reassuring", "founders"],
+    "contrast_group": "business-positioning"
+  }
+]

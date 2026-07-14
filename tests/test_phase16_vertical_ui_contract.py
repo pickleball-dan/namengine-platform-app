@@ -572,7 +572,7 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn("Shelf fit", body)
         self.assertIn("Category fit", body)
         self.assertIn("Launch risk", body)
-        self.assertIn("Hearthkit", body)
+        self.assertIn("Brightpack", body)
         self.assertNotIn("Validation has not been configured", body)
         self.assertNotIn("pet-ready", body)
 
@@ -589,7 +589,7 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
 
         names = generate_names(VERTICALS["product"], brief, use_ai=False)
 
-        self.assertEqual(names[0].name, "Hearthkit")
+        self.assertEqual(names[0].name, "Brightpack")
         self.assertEqual(names[0].metadata["source"], "product_fallback")
         self.assertIn("product", names[0].tags)
 

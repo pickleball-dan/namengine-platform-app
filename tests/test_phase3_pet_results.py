@@ -65,8 +65,8 @@ class PhaseThreePetResultsTest(unittest.TestCase):
         explanations = {result.name: result.why_this_name for result in results}
 
         self.assertIn("bright repeated sounds", explanations["Rory"])
-        self.assertIn("cozy and affectionate", explanations["Maple"])
-        self.assertNotEqual(explanations["Rory"], explanations["Maple"])
+        self.assertIn("friendly, rounded sound", explanations["Ollie"])
+        self.assertNotEqual(explanations["Rory"], explanations["Ollie"])
 
     def test_pet_results_route_renders_name_cards(self):
         response = self.client.get(

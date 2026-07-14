@@ -45,9 +45,9 @@ class PhaseNineTasteProfileTest(unittest.TestCase):
         snapshot = get_session_snapshot(session_id)
 
         self.assertEqual(profile.session_id, session_id)
-        self.assertEqual(profile.loved_names, ["Milo"])
+        self.assertEqual(profile.loved_names, ["Rosie"])
         self.assertEqual(profile.rejected_names, ["Juniper"])
-        self.assertIn("Strongest signal: Milo.", profile.summary)
+        self.assertIn("Strongest signal: Rosie.", profile.summary)
         self.assertIsNotNone(snapshot["taste_profile"])
 
     def test_react_api_returns_refreshed_taste_profile(self):
@@ -62,8 +62,8 @@ class PhaseNineTasteProfileTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 201)
         data = response.get_json()
-        self.assertEqual(data["taste_profile"]["loved_names"], ["Milo"])
-        self.assertIn("Strongest signal: Milo.", data["taste_profile"]["summary"])
+        self.assertEqual(data["taste_profile"]["loved_names"], ["Rosie"])
+        self.assertIn("Strongest signal: Rosie.", data["taste_profile"]["summary"])
 
     def test_results_reload_shows_existing_taste_profile(self):
         session_id = self._seed_round_one()
@@ -74,14 +74,14 @@ class PhaseNineTasteProfileTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         body = response.get_data(as_text=True)
         self.assertIn("Taste profile", body)
-        self.assertIn("Strongest signal: Milo.", body)
+        self.assertIn("Strongest signal: Rosie.", body)
 
     def test_refinement_uses_profile_summary(self):
         session_id = self._seed_round_one()
 
         _, _, results = refine_session(session_id, PET, instruction="warmer")
 
-        self.assertIn("Strongest signal: Milo.", results[0].why_this_name)
+        self.assertIn("Strongest signal: Rosie.", results[0].why_this_name)
 
     def test_compare_shows_taste_profile(self):
         session_id = self._seed_round_one()
@@ -92,8 +92,9 @@ class PhaseNineTasteProfileTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         body = response.get_data(as_text=True)
         self.assertIn("Taste profile", body)
-        self.assertIn("Strongest signal: Milo.", body)
+        self.assertIn("Strongest signal: Rosie.", body)
 
 
 if __name__ == "__main__":
     unittest.main()
+

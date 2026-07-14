@@ -32,7 +32,7 @@
       {% endif %}
     </div>
 
-    <form id="{{ vertical.slug }}-intake-form" class="intake-form" action="{{ vertical.route_prefix }}/results" method="get" data-progress-form novalidate>
+    <form id="{{ vertical.slug }}-intake-form" class="intake-form" action="{% if feelings_scale_enabled(vertical) %}{{ vertical.route_prefix }}/feelings{% else %}{{ vertical.route_prefix }}/results{% endif %}" method="get"{% if not feelings_scale_enabled(vertical) %} data-progress-form{% endif %} novalidate>
       {% for group in grouped_questions(vertical) %}
         <fieldset class="intake-section">
           <legend>{{ group.title }}</legend>
@@ -65,7 +65,7 @@
         </fieldset>
       {% endfor %}
 
-      <button type="submit">Generate {{ vertical.display_name }} Names</button>
+      <button type="submit">{% if feelings_scale_enabled(vertical) %}Continue to Feelings Scale{% else %}Generate {{ vertical.display_name }} Names{% endif %}</button>
     </form>
 
     {% if vertical.slug in ["pet", "baby", "business", "product"] %}

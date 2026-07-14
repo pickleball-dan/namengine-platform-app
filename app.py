@@ -17,6 +17,7 @@ from namengine.core import (
     build_reaction,
     build_taste_profile,
     build_trust_cue,
+    compare_contrast_groups,
     ensure_keepsake_for_chosen,
     generate_names,
     get_reaction_counts,
@@ -26,12 +27,15 @@ from namengine.core import (
     keepsake_preview_for_chosen,
     get_taste_profile,
     keepsake_runtime_config,
+    load_taste_engine_fixtures,
     prepare_keepsake_for_chosen,
     refine_session,
+    run_taste_engine_fixture_set,
     save_reaction,
     save_chosen_name,
     save_session,
     StorageError,
+    summarize_taste_engine_eval,
     vertical_theme_style,
 )
 from namengine.core.schemas import NameResult, NamingBrief, ValidationResult, to_plain_data
@@ -59,14 +63,78 @@ def grouped_questions(vertical) -> list[dict]:
     return groups
 
 
+def feeling_section_titles(vertical) -> list[str]:
+    return [group["title"] for group in grouped_questions(vertical) if group["title"] != "Tell us what matters"]
+
+
+def feelings_scale_enabled(vertical) -> bool:
+    return len(feeling_section_titles(vertical)) >= 2
+
+
+def section_strength_field(section_title: str) -> str:
+    return "taste_strength_" + slugify_for_field(section_title)
+
+
+def slugify_for_field(value: str) -> str:
+    return "".join(character if character.isalnum() else "_" for character in value.lower()).strip("_") or "section"
+
+
+def feeling_center_icon(vertical, source=None) -> dict[str, str]:
+    source = source or {}
+    if vertical.slug == "baby":
+        return {"kind": "baby", "noun": "baby", "label": "baby"}
+    if vertical.slug == "business":
+        return {"kind": "building", "noun": "building", "label": "building"}
+    if vertical.slug == "product":
+        return {"kind": "product", "noun": "product", "label": "product"}
+    if vertical.slug == "pet":
+        pet_type = str(source.get("pet_type") or source.get("species") or "pet").strip().lower()
+        pet_kind = pet_type if pet_type in {"dog", "cat", "horse", "bird", "rabbit", "reptile"} else "other"
+        noun = pet_kind if pet_kind != "other" else "pet"
+        return {"kind": f"pet-{pet_kind}", "noun": noun, "label": noun}
+    return {"kind": "namengine", "noun": "mark", "label": "NamEngine mark"}
+
+
+def apply_taste_strength_inputs(brief, source) -> None:
+    strengths: dict[str, int] = {}
+    for key, value in source.items():
+        if not str(key).startswith("taste_strength_"):
+            continue
+        try:
+            strength = int(float(value))
+        except (TypeError, ValueError):
+            continue
+        strength = max(0, min(100, strength))
+        brief.inputs[str(key)] = strength
+        strengths[str(key)[len("taste_strength_") :]] = strength
+
+    if strengths:
+        strongest = max(strengths.items(), key=lambda item: item[1])
+        readable = strongest[0].replace("_", " ")
+        brief.inputs["taste_focus"] = (
+            f"Let {readable} guide this list most while still honoring every intake answer."
+        )
+
+
 def intake_edit_url(vertical, brief, field_id: str) -> str:
     query = {
         key: value
         for key, value in brief.inputs.items()
-        if key not in {"species", "personality"} and value not in ("", None)
+        if key not in {"species", "personality"}
+        and not str(key).startswith("taste_")
+        and value not in ("", None)
     }
     query["edit"] = field_id
     return f"{vertical.route_prefix}?{urlencode(query)}"
+
+
+def feelings_scale_edit_url(vertical, brief) -> str:
+    query = {
+        key: value
+        for key, value in brief.inputs.items()
+        if key not in {"species", "personality", "taste_focus"} and value not in ("", None)
+    }
+    return f"{vertical.route_prefix}/feelings?{urlencode(query)}"
 
 
 def display_brief_items(vertical, brief) -> list[dict[str, str]]:
@@ -99,7 +167,7 @@ def display_brief_items(vertical, brief) -> list[dict[str, str]]:
 
     items: list[dict[str, str]] = []
     for key, value in brief.inputs.items():
-        if key in hidden_keys or value in ("", None):
+        if key in hidden_keys or str(key).startswith("taste_") or value in ("", None):
             continue
         label = label_overrides.get(key, key.replace("_", " ").title())
         items.append(
@@ -249,6 +317,11 @@ def create_app() -> Flask:
             "grouped_questions": grouped_questions,
             "display_brief_items": display_brief_items,
             "intake_edit_url": intake_edit_url,
+            "feelings_scale_edit_url": feelings_scale_edit_url,
+            "feelings_scale_enabled": feelings_scale_enabled,
+            "feeling_section_titles": feeling_section_titles,
+            "section_strength_field": section_strength_field,
+            "feeling_center_icon": feeling_center_icon,
         }
 
     app.add_template_filter(brief_query_string, "brief_query_string")
@@ -264,6 +337,28 @@ def create_app() -> Flask:
 
         vertical = get_vertical(vertical_slug)
         return render_template("intake.html", vertical=vertical)
+
+
+    @app.get("/<vertical_slug>/feelings")
+    def feelings_scale(vertical_slug: str):
+        if vertical_slug not in VERTICALS:
+            abort(404)
+
+        vertical = get_vertical(vertical_slug)
+        if not feelings_scale_enabled(vertical):
+            query = _query_string_from_mapping(_normalize_other_inputs(request.args.to_dict(flat=True)))
+            return redirect(f"{vertical.route_prefix}/results?{query}")
+
+        source = _normalize_other_inputs(request.args.to_dict(flat=True))
+        brief = build_brief(vertical, source)
+        return render_template(
+            "feelings_scale.html",
+            vertical=vertical,
+            brief=brief,
+            source=source,
+            sections=feeling_section_titles(vertical),
+            center_icon=feeling_center_icon(vertical, source),
+        )
 
     @app.get("/pet/original")
     def pet_original():
@@ -283,6 +378,7 @@ def create_app() -> Flask:
         source["discovery_style"] = source.get("discovery_style") or "Completely original"
         source["original_mode"] = "true"
         brief = build_brief(vertical, source)
+        apply_taste_strength_inputs(brief, source)
         for key in ("starting_letter", "length_preference", "avoid_feel", "original_mode"):
             if source.get(key):
                 brief.inputs[key] = source[key]
@@ -316,6 +412,7 @@ def create_app() -> Flask:
         vertical = get_vertical(vertical_slug)
         source = _normalize_other_inputs(request.args.to_dict(flat=True))
         brief = build_brief(vertical, source)
+        apply_taste_strength_inputs(brief, source)
 
         session_id = make_session_id(vertical.slug, _query_string_from_mapping(source).encode("utf-8"))
         snapshot = get_session_snapshot(session_id)
@@ -481,6 +578,44 @@ def create_app() -> Flask:
             taste_profile=taste_profile,
         )
 
+    @app.get("/dev/engine-audit/<session_id>")
+    def engine_audit(session_id: str):
+        snapshot = get_session_snapshot(session_id)
+        if snapshot is None:
+            abort(404)
+
+        vertical = get_vertical(snapshot["session"]["vertical"])
+        return render_template(
+            "engine_audit.html",
+            vertical=vertical,
+            session=snapshot["session"],
+            brief=json_loads(snapshot["session"]["brief_json"]),
+            names=_names_from_snapshot(snapshot),
+            reaction_counts=get_reaction_counts(session_id),
+            audit=_engine_audit_from_snapshot(snapshot),
+        )
+
+    @app.get("/dev/eval-report")
+    def eval_report():
+        fixtures = load_taste_engine_fixtures()
+        limit = _positive_int(request.args.get("limit"))
+        use_ai = request.args.get("ai") == "1"
+        if limit:
+            fixtures = fixtures[:limit]
+
+        results = run_taste_engine_fixture_set(fixtures, use_ai=use_ai)
+        summary = summarize_taste_engine_eval(results)
+        contrasts = compare_contrast_groups(results)
+        return render_template(
+            "eval_report.html",
+            fixtures=fixtures,
+            results=results,
+            summary=summary,
+            contrasts=contrasts,
+            use_ai=use_ai,
+            limit=limit,
+        )
+
     @app.get("/<vertical_slug>/name/<session_id>/<result_id>")
     def name_detail(vertical_slug: str, session_id: str, result_id: str):
         if vertical_slug not in VERTICALS:
@@ -587,6 +722,59 @@ def _names_from_snapshot(snapshot: dict) -> list[NameResult]:
         ]
         names.append(NameResult(**data))
     return names
+
+
+def _engine_audit_from_snapshot(snapshot: dict) -> dict:
+    names = _names_from_snapshot(snapshot)
+    first = names[0] if names else None
+    metadata = first.metadata if first else {}
+    ai_calls = metadata.get("ai_calls") if isinstance(metadata.get("ai_calls"), list) else []
+    usage_totals = {"input_tokens": 0, "output_tokens": 0, "total_tokens": 0}
+    total_latency_ms = 0
+    for call in ai_calls:
+        if not isinstance(call, dict):
+            continue
+        try:
+            total_latency_ms += int(call.get("latency_ms") or 0)
+        except (TypeError, ValueError):
+            pass
+        usage = call.get("usage") if isinstance(call.get("usage"), dict) else {}
+        for key in usage_totals:
+            try:
+                usage_totals[key] += int(usage.get(key) or 0)
+            except (TypeError, ValueError):
+                pass
+
+    providers = sorted(
+        {
+            str(name.metadata.get("provider") or name.metadata.get("source") or "unknown")
+            for name in names
+        }
+    )
+    return {
+        "generation_id": metadata.get("generation_id") or snapshot["session"]["id"],
+        "prompt_version": metadata.get("prompt_version", "unknown"),
+        "engine_pipeline": metadata.get("engine_pipeline", "unknown"),
+        "model": metadata.get("model", "unknown"),
+        "providers": providers,
+        "ai_calls": ai_calls,
+        "usage_totals": usage_totals,
+        "total_latency_ms": total_latency_ms,
+        "taste_strategy": metadata.get("taste_strategy", {}),
+        "candidate_pool": metadata.get("candidate_pool", []),
+        "rejected_candidates": metadata.get("rejected_candidates", []),
+        "result_metadata": metadata,
+    }
+
+
+def _positive_int(value) -> int | None:
+    if value in (None, ""):
+        return None
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError):
+        return None
+    return parsed if parsed > 0 else None
 
 
 def _cached_names_match_current_rules(

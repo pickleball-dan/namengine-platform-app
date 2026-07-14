@@ -83,7 +83,11 @@ class PhaseTenValidationTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         body = response.get_data(as_text=True)
         self.assertIn("Avoid list", body)
-        self.assertIn("This name matches something the user asked to avoid.", body)
+        self.assertIn("Does not match the avoid list.", body)
+        self.assertNotIn(
+            "This name matches something the user asked to avoid.",
+            body,
+        )
 
     def test_validation_table_survives_refined_session_ids(self):
         query = b"species=Dog&personality=Gentle&style=Warm"

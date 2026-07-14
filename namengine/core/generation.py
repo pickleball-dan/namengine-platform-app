@@ -451,20 +451,20 @@ def generate_fallback_names(
     style = _brief_text(brief, "style", "warm and wearable")
     avoid_text = ", ".join(brief.avoid)
 
-    pool = PET_NAME_POOL
+    pool = PET_NAME_POOL + PET_REFINED_POOL + PET_EXTRA_POOL
     if brief.inputs.get("original_mode") == "true" or _brief_text(brief, "discovery_style") == "Completely original":
         pool = PET_ORIGINAL_POOL
     elif round_number == 2:
-        pool = PET_REFINED_POOL
+        pool = PET_REFINED_POOL + PET_EXTRA_POOL
     elif round_number >= 4:
-        pool = PET_EXTRA_POOL
+        pool = PET_EXTRA_POOL + PET_ORIGINAL_POOL
     elif round_number >= 3:
-        pool = PET_FINALIST_POOL
+        pool = PET_FINALIST_POOL + PET_EXTRA_POOL
 
     if round_number >= 4:
         previous = {name.lower() for name in (previous_names or [])}
         filtered_pool = [item for item in pool if item[0].lower() not in previous]
-        if filtered_pool:
+        if len(filtered_pool) >= min(6, vertical.default_result_count):
             pool = filtered_pool
 
     starting_letter = _brief_text(brief, "starting_letter").lower()[:1]
@@ -472,6 +472,8 @@ def generate_fallback_names(
         matching = [item for item in pool if item[0].lower().startswith(starting_letter)]
         if matching:
             pool = matching + [item for item in pool if item not in matching]
+
+    pool = _rank_pool_for_taste(vertical.slug, brief, pool)
 
     results: list[NameResult] = []
     for index, (name, pronunciation, opener) in enumerate(pool, start=1):
@@ -524,6 +526,326 @@ def generate_fallback_names(
     return validate_results(vertical, brief, results[: vertical.default_result_count])
 
 
+
+def _taste_strengths(brief: NamingBrief) -> dict[str, float]:
+    strengths: dict[str, float] = {}
+    for key, value in brief.inputs.items():
+        if not str(key).startswith("taste_strength_"):
+            continue
+        section = str(key)[len("taste_strength_") :]
+        try:
+            strengths[section] = max(0.0, min(100.0, float(value))) / 100.0
+        except (TypeError, ValueError):
+            continue
+    return strengths
+
+
+def _field_section_key(key: str, vertical: str) -> str:
+    section_map = {
+        "baby": {
+            "gender": "about_your_baby",
+            "family_context": "about_your_baby",
+            "notes": "about_your_baby",
+            "discovery_style": "name_style",
+            "style": "name_style",
+            "timeless_vs_distinctive": "name_style",
+            "familiarity_preference": "name_style",
+            "sound": "fit_and_feeling",
+            "cultural_context": "fit_and_feeling",
+            "partner_alignment": "fit_and_feeling",
+            "avoid": "fit_and_feeling",
+        },
+        "pet": {
+            "pet_type": "about_your_pet",
+            "species": "about_your_pet",
+            "pet_gender": "about_your_pet",
+            "pet_breed": "about_your_pet",
+            "pet_color": "about_your_pet",
+            "pet_life_stage": "about_your_pet",
+            "notes": "about_your_pet",
+            "discovery_style": "name_style",
+            "style": "name_style",
+            "timeless_vs_distinctive": "name_style",
+            "familiarity_preference": "name_style",
+            "pronunciation_importance": "fit_and_feeling",
+            "vibe": "fit_and_feeling",
+            "cultural_context": "fit_and_feeling",
+            "partner_alignment": "fit_and_feeling",
+        },
+        "business": {
+            "business_description": "about_the_business",
+            "industry": "about_the_business",
+            "stage": "about_the_business",
+            "audience": "about_the_business",
+            "notes": "about_the_business",
+            "style": "name_style",
+            "name_shape": "name_style",
+            "timeless_vs_distinctive": "name_style",
+            "cultural_context": "name_style",
+            "domain_preference": "launch_fit",
+            "partner_alignment": "launch_fit",
+            "avoid": "launch_fit",
+        },
+        "product": {
+            "product_description": "about_the_product",
+            "category": "about_the_product",
+            "stage": "about_the_product",
+            "audience": "about_the_product",
+            "notes": "about_the_product",
+            "style": "name_style",
+            "name_shape": "name_style",
+            "timeless_vs_distinctive": "name_style",
+            "cultural_context": "name_style",
+            "sales_channel": "shelf_fit",
+            "partner_alignment": "shelf_fit",
+            "avoid": "shelf_fit",
+        },
+    }
+    return section_map.get(vertical, {}).get(key, "")
+
+
+def _tokenize_taste(value: str) -> set[str]:
+    raw = re.findall(r"[a-z]+", value.lower())
+    expansions = {
+        "classic": {"classic", "timeless", "familiar", "traditional", "vintage"},
+        "timeless": {"classic", "timeless", "familiar", "traditional"},
+        "rare": {"rare", "distinctive", "uncommon", "ownable", "unexpected"},
+        "distinctive": {"rare", "distinctive", "uncommon", "memorable", "ownable"},
+        "strong": {"strong", "bold", "tailored", "sturdy", "crisp"},
+        "soft": {"soft", "gentle", "warm", "lyrical", "romantic"},
+        "warm": {"warm", "gentle", "friendly", "cozy", "kindred"},
+        "modern": {"modern", "sleek", "fresh", "current"},
+        "premium": {"premium", "refined", "polished", "elegant"},
+        "clear": {"clear", "credible", "direct", "descriptive"},
+        "playful": {"playful", "bright", "bouncy", "quirky"},
+        "nature": {"nature", "botanical", "outdoor", "field", "leaf", "stone"},
+    }
+    tokens = set(raw)
+    for token in raw:
+        tokens.update(expansions.get(token, set()))
+    return tokens
+
+
+USER_TEXT_KEYS = {
+    "notes",
+    "family_context",
+    "partner_alignment",
+    "avoid",
+    "business_description",
+    "product_description",
+    "industry",
+    "category",
+    "pet_breed",
+    "pet_color",
+}
+
+
+NAME_TRAITS = {
+    # Baby
+    "eloise": "classic elegant literary soft warm polished graceful",
+    "maya": "warm simple familiar global soft",
+    "clara": "classic clear timeless gentle bright familiar",
+    "julian": "classic soft tailored timeless intelligent gentle",
+    "theo": "classic warm friendly modern familiar",
+    "maren": "calm uncommon coastal distinctive soft",
+    "nora": "classic familiar graceful strong warm",
+    "rowan": "nature modern flexible warm distinctive",
+    "iris": "botanical crisp distinctive floral classic",
+    "lena": "soft warm international simple gentle",
+    "miles": "warm polished friendly classic",
+    "ada": "vintage classic brief strong substantial",
+    "jonah": "gentle grounded familiar warm",
+    "elian": "lyrical uncommon distinctive soft",
+    "maeve": "compact elegant strong distinctive",
+    "silas": "tailored warm old-soul classic",
+    "celia": "gentle melodic classic soft",
+    "noemi": "lyrical international warm distinctive",
+    "romy": "bright compact stylish modern",
+    "ansel": "tailored artistic old-soul distinctive",
+    "bennett": "polished friendly surname classic",
+    "luca": "warm global friendly modern",
+    "mira": "clear graceful celestial soft",
+    "owen": "warm familiar grounded classic",
+    "elodie": "romantic musical uncommon readable soft",
+    "june": "clear vintage sunny classic",
+    "louisa": "classic literary warm substantial",
+    "margot": "polished vintage stylish classic",
+    "arthur": "classic sturdy bookish warm",
+    "felix": "bright joyful classic friendly",
+    "graham": "tailored calm understated classic",
+    "hollis": "gentle surname modern flexible",
+    "ivy": "botanical brief lively nature",
+    "rafael": "warm elegant international",
+    "serena": "calm graceful familiar soft",
+    "tessa": "bright friendly unfussy familiar",
+    "anya": "warm compact international",
+    "calla": "botanical soft uncommon nature",
+    "ellis": "gentle tailored flexible modern",
+    "hugo": "bright classic stylish",
+    "lyra": "musical celestial distinctive soft",
+    "reid": "clean strong understated",
+    "soren": "distinctive calm literary",
+    "vera": "clear vintage confident classic",
+    "alden": "gentle literary substantial",
+    "alma": "warm vintage soulful soft",
+    "beatrice": "classic lively character vintage",
+    "cassian": "ancient elegant distinctive strong",
+    "daphne": "botanical bright mythic nature",
+    "emil": "compact european soft",
+    "flora": "garden vintage botanical nature",
+    "greta": "strong crisp old-world",
+    "harlan": "grounded surname warm strong",
+    "ida": "brief vintage strong",
+    "leona": "warm strong graceful",
+    "matteo": "lyrical global friendly",
+    "nico": "compact stylish easygoing",
+    "opal": "gemstone vintage gentle",
+    "petra": "strong international distinctive",
+    "quinn": "clean modern flexible",
+    "rhea": "mythic brief bright",
+    "stellan": "calm nordic tailored distinctive",
+    "thea": "soft classic luminous",
+    "zara": "sleek global confident strong",
+    # Pet
+    "milo": "dog friendly bright callable familiar playful",
+    "juniper": "cat rabbit nature distinctive warm",
+    "rory": "dog bird bright bouncy callable playful",
+    "clover": "rabbit soft lucky sweet nature",
+    "toby": "dog familiar loyal callable",
+    "sierra": "horse reptile outdoor graceful calm",
+    "maple": "rabbit dog cozy gentle nature",
+    "finn": "dog crisp short callable",
+    "benny": "dog sunny familiar affectionate",
+    "scout": "dog horse adventurous crisp",
+    "poppy": "bird rabbit bright sweet playful",
+    "ollie": "dog friendly rounded",
+    "winnie": "rabbit cat gentle cozy",
+    "remy": "cat stylish warm",
+    "sunny": "bird dog happy bright",
+    "hazel": "cat rabbit nature vintage soft",
+    "archie": "dog cheerful vintage familiar",
+    "lottie": "rabbit sweet soft",
+    "otis": "dog grounded friendly",
+    "mabel": "rabbit cozy classic",
+    "ziggy": "bird dog playful quirky bright",
+    "rosie": "dog rabbit warm familiar",
+    "lumo": "bird reptile bright invented original",
+    "noriu": "bird soft musical original",
+    "kova": "reptile strong sleek original",
+    "mavie": "cat sweet lively original",
+    "talo": "reptile grounded short original",
+    "bramblee": "rabbit nature playful original",
+    "solvi": "bird sunny distinctive original",
+    "rueby": "rabbit cute bright original",
+    # Business
+    "northmark": "credible directional durable clear business scalable",
+    "brightline": "clear energetic modern memorable business",
+    "crestwell": "polished optimistic premium credible",
+    "signal house": "strategic memorable service communication credible",
+    "launchmere": "modern momentum founder launch distinctive",
+    "fieldstone": "grounded trustworthy substantial local",
+    "motive lane": "human purposeful flexible friendly",
+    "arc & anchor": "momentum trust balanced premium",
+    "kindred works": "warm professional relationship friendly",
+    "blueframe": "structured modern visual distinctive",
+    "goldleaf": "premium refined warm elegant",
+    "tradecraft": "skilled practical credible craft",
+    "vista & co.": "open polished broad premium",
+    "foundry point": "maker building launch clear",
+    "noble signal": "credible memorable trust premium",
+    "relay north": "energetic operational directional",
+    "oakline": "grounded simple durable",
+    "beacon & field": "clear guidance practical field",
+    "summitry": "aspirational compact ownable distinctive",
+    "coppernote": "warm distinctive editorial",
+    "truecourse": "confident useful clear directional",
+    "hearthmark": "warm trusted people-centered",
+    "lumen yard": "bright creative approachable",
+    "atlas bloom": "growth broad aspirational",
+    # Product
+    "hearthkit": "warm useful everyday family practical",
+    "lumaform": "bright tactile flexible modern sleek",
+    "kindle & co.": "friendly giftable warm approachable",
+    "brightpack": "clear energetic shelf ready direct",
+    "fieldmint": "fresh natural product ready botanical",
+    "nestory": "cozy memorable invented warm",
+    "vela goods": "warm polished premium tangible",
+    "oakhue": "grounded tactile visual distinctive",
+    "labelwise": "practical smart clear descriptive",
+    "softcraft": "tactile warm maker shelf",
+    "copperleaf": "warm premium visual refined",
+    "dailywell": "routine friendly clear wellness",
+    "motive kit": "purposeful useful modular modern",
+    "bloomcase": "fresh package optimistic shelf",
+    "trueform": "clear confident product-line sleek",
+    "havenly": "soft comforting buyer warm",
+    "goodlabel": "plainspoken trustworthy clear packaging",
+    "morrow made": "thoughtful crafted warm",
+    "tendril": "organic compact visual distinctive",
+    "northgoods": "practical durable consumer",
+    "linenly": "soft tactile approachable",
+    "arcwell": "simple structured wellness sleek",
+    "madebright": "optimistic clear retail",
+    "pouch & point": "memorable packaging distinctive",
+}
+
+
+def _candidate_traits(name: str, opener: str) -> set[str]:
+    key = name.lower()
+    traits = NAME_TRAITS.get(key, "")
+    return _tokenize_taste(f"{name} {opener} {traits}")
+
+
+def _score_candidate_for_taste(
+    vertical: str,
+    brief: NamingBrief,
+    name: str,
+    opener: str,
+) -> float:
+    strengths = _taste_strengths(brief)
+    traits = _candidate_traits(name, opener)
+    if not strengths:
+        strengths = {"__default__": 1 / 3}
+
+    score = 0.0
+    for key, value in brief.inputs.items():
+        if str(key).startswith("taste_strength_"):
+            continue
+        section = _field_section_key(str(key), vertical)
+        section_strength = strengths.get(section, 0.34 if strengths else 1.0)
+        text = str(value)
+        tokens = _tokenize_taste(text)
+        if not tokens:
+            continue
+        overlap = len(tokens & traits)
+        if overlap:
+            score += overlap * (1.0 + section_strength * 2.2)
+        if key in USER_TEXT_KEYS:
+            # User-entered language should be at least as strong as preset inputs.
+            score += overlap * 1.8
+            for token in tokens:
+                if token in traits:
+                    score += 0.8
+
+    if brief.avoid and _clean_name_key(name) in {_clean_name_key(item) for item in brief.avoid}:
+        score -= 100
+    return score
+
+
+def _rank_pool_for_taste(
+    vertical: str,
+    brief: NamingBrief,
+    pool: list[tuple[str, str, str]],
+) -> list[tuple[str, str, str]]:
+    scored = [
+        (_score_candidate_for_taste(vertical, brief, name, opener), index, item)
+        for index, item in enumerate(pool)
+        for name, _pronunciation, opener in [item]
+    ]
+    scored.sort(key=lambda row: (-row[0], row[1]))
+    return [item for _score, _index, item in scored]
+
+
 def _generate_baby_fallback_names(
     vertical: VerticalConfig,
     brief: NamingBrief,
@@ -537,7 +859,7 @@ def _generate_baby_fallback_names(
     family_context = _brief_text(brief, "family_context")
     avoid_text = ", ".join(brief.avoid)
 
-    pool = BABY_NAME_POOL
+    pool = BABY_NAME_POOL + BABY_REFINED_POOL + BABY_FINALIST_POOL + BABY_EXTRA_POOL + BABY_WIDE_EXPLORATION_POOL
     if round_number == 2:
         pool = BABY_REFINED_POOL + BABY_WIDE_EXPLORATION_POOL
     elif round_number >= 4:
@@ -546,6 +868,7 @@ def _generate_baby_fallback_names(
         pool = BABY_FINALIST_POOL + BABY_EXTRA_POOL + BABY_WIDE_EXPLORATION_POOL
 
     result_count = 6 if round_number >= 3 else vertical.default_result_count
+    pool = _rank_pool_for_taste(vertical.slug, brief, pool)
     pool = _filter_baby_pool_for_brief(brief, pool, minimum_count=result_count)
 
     previous = {name.lower() for name in (previous_names or [])}
@@ -617,9 +940,9 @@ def _generate_business_fallback_names(
     domain_preference = _brief_text(brief, "domain_preference")
     avoid_text = ", ".join(brief.avoid)
 
-    pool = BUSINESS_NAME_POOL
+    pool = BUSINESS_NAME_POOL + BUSINESS_REFINED_POOL + BUSINESS_EXTRA_POOL
     if round_number == 2:
-        pool = BUSINESS_REFINED_POOL
+        pool = BUSINESS_REFINED_POOL + BUSINESS_EXTRA_POOL
     elif round_number >= 4:
         pool = BUSINESS_EXTRA_POOL
     elif round_number >= 3:
@@ -632,6 +955,7 @@ def _generate_business_fallback_names(
             pool = filtered_pool
 
     result_count = 6 if round_number >= 3 else vertical.default_result_count
+    pool = _rank_pool_for_taste(vertical.slug, brief, pool)
     results: list[NameResult] = []
     for index, (name, pronunciation, opener) in enumerate(pool, start=1):
         clean_name = _clean_name_key(name)
@@ -705,9 +1029,9 @@ def _generate_product_fallback_names(
     sales_channel = _brief_text(brief, "sales_channel")
     avoid_text = ", ".join(brief.avoid)
 
-    pool = PRODUCT_NAME_POOL
+    pool = PRODUCT_NAME_POOL + PRODUCT_REFINED_POOL + PRODUCT_EXTRA_POOL
     if round_number == 2:
-        pool = PRODUCT_REFINED_POOL
+        pool = PRODUCT_REFINED_POOL + PRODUCT_EXTRA_POOL
     elif round_number >= 4:
         pool = PRODUCT_EXTRA_POOL
     elif round_number >= 3:
@@ -720,6 +1044,7 @@ def _generate_product_fallback_names(
             pool = filtered_pool
 
     result_count = 6 if round_number >= 3 else vertical.default_result_count
+    pool = _rank_pool_for_taste(vertical.slug, brief, pool)
     results: list[NameResult] = []
     for index, (name, pronunciation, opener) in enumerate(pool, start=1):
         clean_name = _clean_name_key(name)

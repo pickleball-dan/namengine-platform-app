@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block title %}Engine Audit · {{ session.id }}{% endblock %}
+
+{% block content %}
+  <section class="engine-audit-shell">
+    <div class="engine-audit-heading">
+      <p class="eyebrow">Dev only</p>
+      <h1>Engine Audit</h1>
+      <p>{{ vertical.display_name }} · {{ session.id }}</p>
+      <div class="engine-audit-actions">
+        <a class="button-link secondary-button" href="{{ url_for('session_results', session_id=session.id) }}">Open results</a>
+        <a class="button-link secondary-button" href="{{ vertical.route_prefix }}">New run</a>
+      </div>
+    </div>
+
+    <div class="engine-audit-grid">
+      <article class="engine-audit-card engine-audit-card-wide">
+        <h2>Run</h2>
+        <dl class="engine-audit-kv">
+          <dt>Generation ID</dt><dd>{{ audit.generation_id }}</dd>
+          <dt>Prompt version</dt><dd>{{ audit.prompt_version }}</dd>
+          <dt>Pipeline</dt><dd>{{ audit.engine_pipeline }}</dd>
+          <dt>Model</dt><dd>{{ audit.model }}</dd>
+          <dt>Provider</dt><dd>{{ audit.providers|join(', ') }}</dd>
+          <dt>Round</dt><dd>{{ session.round_number }}</dd>
+          <dt>Latency</dt><dd>{{ audit.total_latency_ms }} ms</dd>
+          <dt>Tokens</dt>
+          <dd>
+            input {{ audit.usage_totals.input_tokens }} · output {{ audit.usage_totals.output_tokens }} · total {{ audit.usage_totals.total_tokens }}
+          </dd>
+          <dt>Feedback</dt>
+          <dd>Love {{ reaction_counts.love }} · Maybe {{ reaction_counts.maybe }} · No {{ reaction_counts.no }}</dd>
+        </dl>
+      </article>
+
+      <article class="engine-audit-card">
+        <h2>Intake</h2>
+        <dl class="engine-audit-kv compact">
+          {% for key, value in brief.inputs.items() %}
+            <dt>{{ key }}</dt><dd>{{ value }}</dd>
+          {% endfor %}
+          {% if brief.notes %}<dt>notes</dt><dd>{{ brief.notes }}</dd>{% endif %}
+          {% if brief.avoid %}<dt>avoid</dt><dd>{{ brief.avoid|join(', ') }}</dd>{% endif %}
+        </dl>
+      </article>
+
+      <article class="engine-audit-card">
+        <h2>Feelings Scale</h2>
+        <dl class="engine-audit-kv compact">
+          {% for key, value in brief.inputs.items() %}
+            {% if key.startswith('taste_strength_') or key == 'taste_focus' %}
+              <dt>{{ key }}</dt><dd>{{ value }}</dd>
+            {% endif %}
+          {% endfor %}
+        </dl>
+      </article>
+
+      <article class="engine-audit-card engine-audit-card-wide">
+        <h2>Taste thesis</h2>
+        {% set strategy = audit.taste_strategy %}
+        {% if strategy %}
+          <p class="engine-audit-thesis">{{ strategy.taste_thesis }}</p>
+          <dl class="engine-audit-kv">
+            <dt>Priority</dt><dd>{{ strategy.priority_interpretation }}</dd>
+            <dt>Diversity</dt><dd>{{ strategy.diversity_plan }}</dd>
+          </dl>
+        {% else %}
+          <p>No taste strategy captured. This likely came from fallback or an older session.</p>
+        {% endif %}
+      </article>
+
+      {% if strategy %}
+        <article class="engine-audit-card">
+          <h2>Naming territories</h2>
+          {% for territory in strategy.naming_territories %}
+            <section class="engine-audit-mini">
+              <h3>{{ territory.label }}</h3>
+              <p>{{ territory.description }}</p>
+              <small>{{ territory.example_style }}{% if territory.risk %} · Risk: {{ territory.risk }}{% endif %}</small>
+            </section>
+          {% endfor %}
+        </article>
+
+        <article class="engine-audit-card">
+          <h2>Rubric</h2>
+          {% for item in strategy.candidate_rubric %}
+            <section class="engine-audit-mini">
+              <h3>{{ item.criterion }}{% if item.weight is defined %} · {{ item.weight }}{% endif %}</h3>
+              <p>{{ item.what_good_looks_like }}</p>
+            </section>
+          {% endfor %}
+        </article>
+
+        <article class="engine-audit-card">
+          <h2>Constraints</h2>
+          <h3>Hard</h3>
+          <ul>{% for item in strategy.hard_constraints %}<li>{{ item }}</li>{% endfor %}</ul>
+          <h3>Soft</h3>
+          <ul>{% for item in strategy.soft_preferences %}<li>{{ item }}</li>{% endfor %}</ul>
+        </article>
+
+        <article class="engine-audit-card">
+          <h2>Anti-patterns</h2>
+          <ul>{% for item in strategy.anti_patterns %}<li>{{ item }}</li>{% endfor %}</ul>
+        </article>
+      {% endif %}
+
+      <article class="engine-audit-card engine-audit-card-wide">
+        <h2>Candidate pool</h2>
+        <div class="engine-audit-name-grid">
+          {% for candidate in audit.candidate_pool %}
+            <section class="engine-audit-name">
+              <h3>{{ loop.index }}. {{ candidate.name }}</h3>
+              <p>{{ candidate.rationale }}</p>
+              <dl class="engine-audit-kv compact">
+                <dt>Territory</dt><dd>{{ candidate.territory }}</dd>
+                <dt>Decision</dt><dd>{{ candidate.decision }}</dd>
+                <dt>Strengths</dt><dd>{{ candidate.strengths|join(', ') }}</dd>
+                <dt>Risks</dt><dd>{{ candidate.risks|join(', ') }}</dd>
+                <dt>Scores</dt><dd>{{ candidate.scores }}</dd>
+              </dl>
+            </section>
+          {% else %}
+            <p>No candidate pool captured. This likely came from fallback or an older session.</p>
+          {% endfor %}
+        </div>
+      </article>
+
+      <article class="engine-audit-card engine-audit-card-wide">
+        <h2>Rejected candidates</h2>
+        <div class="engine-audit-name-grid">
+          {% for candidate in audit.rejected_candidates %}
+            <section class="engine-audit-name">
+              <h3>{{ loop.index }}. {{ candidate.name }}</h3>
+              <p>{{ candidate.rejection_reason }}</p>
+              <dl class="engine-audit-kv compact">
+                <dt>Territory</dt><dd>{{ candidate.territory }}</dd>
+                <dt>Lost to</dt><dd>{{ candidate.lost_to }}</dd>
+                <dt>Score summary</dt><dd>{{ candidate.score_summary }}</dd>
+              </dl>
+            </section>
+          {% else %}
+            <p>No rejected candidates captured. This likely came from fallback or an older session.</p>
+          {% endfor %}
+        </div>
+      </article>
+
+      <article class="engine-audit-card engine-audit-card-wide">
+        <h2>Final names</h2>
+        <div class="engine-audit-name-grid">
+          {% for name in names %}
+            <section class="engine-audit-name">
+              <h3>{{ loop.index }}. {{ name.name }}</h3>
+              <p>{{ name.tagline }}</p>
+              <dl class="engine-audit-kv compact">
+                <dt>Scores</dt><dd>{{ name.scores }}</dd>
+                <dt>Provider</dt><dd>{{ name.metadata.get('provider') or name.metadata.get('source') }}</dd>
+                <dt>Quality</dt><dd>{{ name.metadata.get('quality_score', 'n/a') }}</dd>
+              </dl>
+            </section>
+          {% endfor %}
+        </div>
+      </article>
+
+      <article class="engine-audit-card engine-audit-card-wide">
+        <h2>AI calls</h2>
+        {% for call in audit.ai_calls %}
+          <details class="engine-audit-call">
+            <summary>{{ call.stage }} · {{ call.latency_ms }} ms · {{ call.model }}</summary>
+            <pre>{{ call|tojson(indent=2) }}</pre>
+          </details>
+        {% else %}
+          <p>No AI call metadata captured.</p>
+        {% endfor %}
+      </article>
+    </div>
+  </section>
+{% endblock %}
