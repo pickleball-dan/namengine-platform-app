@@ -2100,7 +2100,10 @@ button {
   }
 
   main {
-    padding-top: 16px;
+    width: 100%;
+    max-width: 100%;
+    padding: 16px 14px 56px;
+    overflow: hidden;
   }
 
   .home-hero,
@@ -2233,9 +2236,58 @@ button {
     min-height: auto;
   }
 
+  .intake-shell,
+  .feelings-shell,
+  .results-shell,
+  .intake-form,
+  .intake-section,
+  .brief-summary,
+  .direction-disclosure,
+  .share-preview,
+  .field,
+  .field input,
+  .field select,
+  .field textarea {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+
   .intake-form,
   .share-preview {
-    padding: 18px;
+    padding: 14px;
+  }
+
+  .intake-section,
+  .brief-summary {
+    padding: 14px;
+    overflow: hidden;
+  }
+
+  .brief-summary dl {
+    width: 100%;
+    gap: 10px;
+  }
+
+  .brief-summary-item,
+  .brief-summary dt,
+  .brief-summary dd,
+  .brief-summary-item dt,
+  .brief-summary-item dd,
+  .field span,
+  .field small {
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+
+  .direction-disclosure summary {
+    flex-wrap: wrap;
+  }
+
+  .direction-disclosure summary strong {
+    margin-left: 0;
   }
 
   .share-preview.has-portrait {
