@@ -390,28 +390,39 @@ def generate_names(
     previous_names: list[str] | None = None,
     use_ai: bool = True,
 ) -> list[NameResult]:
-    if use_ai:
-        from namengine.core.model_router import generate_with_router
-
-        routed = generate_with_router(
-            vertical=vertical,
-            brief=brief,
-            round_number=round_number,
-            taste_profile=taste_profile,
-            previous_names=previous_names or [],
-        )
-        if routed:
-            if vertical.slug == "business":
-                return enrich_business_domain_info(routed)
-            return routed
-
-    return generate_fallback_names(
+    fallback = generate_fallback_names(
         vertical=vertical,
         brief=brief,
         round_number=round_number,
         taste_summary=taste_summary,
         previous_names=previous_names or [],
     )
+
+    if use_ai:
+        try:
+            from namengine.core.model_router import generate_with_router
+
+            routed = generate_with_router(
+                vertical=vertical,
+                brief=brief,
+                round_number=round_number,
+                taste_profile=taste_profile,
+                previous_names=previous_names or [],
+            )
+        except Exception as exc:  # pragma: no cover - production safety net
+            for name in fallback:
+                name.metadata["ai_requested"] = True
+                name.metadata["ai_fell_back"] = True
+                name.metadata["ai_fallback_reason"] = type(exc).__name__
+                name.metadata["ai_fallback_message"] = str(exc)[:500]
+            return fallback
+
+        if routed:
+            if vertical.slug == "business":
+                return enrich_business_domain_info(routed)
+            return routed
+
+    return fallback
 
 
 def generate_fallback_names(

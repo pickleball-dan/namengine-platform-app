@@ -296,6 +296,16 @@ class PhaseElevenAIGenerationTest(unittest.TestCase):
         self.assertEqual(mocked.call_args.kwargs["taste_profile"].summary, profile.summary)
         self.assertGreaterEqual(len(mocked.call_args.kwargs["previous_names"]), 1)
 
+    def test_results_route_falls_back_when_router_raises(self):
+        with patch("namengine.core.model_router.generate_with_router", side_effect=RuntimeError("router boom")):
+            response = self.client.get("/baby/results?gender=Boy&style=Classic&sound=Soft")
+
+        self.assertEqual(response.status_code, 200)
+        body = response.get_data(as_text=True)
+        self.assertIn("NamEngine Baby Results", body)
+        self.assertIn("Baby names shaped from your taste", body)
+        self.assertIn("Validation", body)
+
 
 if __name__ == "__main__":
     unittest.main()
