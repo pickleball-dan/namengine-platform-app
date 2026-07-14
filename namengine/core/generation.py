@@ -208,6 +208,17 @@ BABY_WIDE_EXPLORATION_POOL = [
     ("Ellington", "EL-ing-tun", "Musical, polished, and heritage-rich with a distinctive surname style."),
     ("Frederick", "FRED-er-ik", "Classic, strong, and historically substantial."),
     ("Bayard", "BAY-ard", "Rare, principled, and historically meaningful."),
+    ("Giovanni", "joh-VAH-nee", "Classic, unmistakably Italian, and warm with substantial history."),
+    ("Leonardo", "lee-oh-NAR-doh", "Italian-rooted, artistic, recognizable, and strong."),
+    ("Lorenzo", "loh-REN-zoh", "Lyrical, classic, and clearly Italian without feeling obscure."),
+    ("Dante", "DAHN-tay", "Literary, strong, and Italian-rooted with a distinctive shape."),
+    ("Marco", "MAR-koh", "Familiar, compact, and warmly Italian."),
+    ("Enzo", "EN-zoh", "Compact, energetic, and unmistakably Italian."),
+    ("Alessio", "ah-LESS-ee-oh", "Lyrical, warm, and Italian-rooted while staying readable."),
+    ("Rocco", "ROH-koh", "Strong, distinctive, and Italian-rooted."),
+    ("Santino", "san-TEE-noh", "Warm, distinctive, and heritage-rich."),
+    ("Vittorio", "vee-TOR-ee-oh", "Substantial, classic, and deeply Italian in cadence."),
+    ("Elio", "EH-lee-oh", "Bright, compact, and Mediterranean-feeling."),
 ]
 
 BABY_NAME_INSIGHTS = {
@@ -239,6 +250,17 @@ BABY_NAME_INSIGHTS = {
     "Ellington": "adds musical polish and a heritage-rich surname cadence",
     "Frederick": "balances classic strength with historical substance",
     "Bayard": "feels rare, principled, and historically meaningful",
+    "Giovanni": "is classic, unmistakably Italian, and warm with substantial history",
+    "Leonardo": "feels Italian-rooted, artistic, recognizable, and strong",
+    "Lorenzo": "is lyrical, classic, and clearly Italian without feeling obscure",
+    "Dante": "brings literary strength and an Italian-rooted distinctive shape",
+    "Marco": "is familiar, compact, and warmly Italian",
+    "Enzo": "feels compact, energetic, and unmistakably Italian",
+    "Alessio": "is lyrical, warm, and Italian-rooted while staying readable",
+    "Rocco": "feels strong, distinctive, and Italian-rooted",
+    "Santino": "is warm, distinctive, and heritage-rich",
+    "Vittorio": "has substantial classic weight and a deeply Italian cadence",
+    "Elio": "feels bright, compact, and Mediterranean",
     "Felix": "feels bright and joyful with old-world polish",
     "Graham": "lands tailored and calm with understated strength",
     "Hollis": "has a gentle surname feel with flexible modern wearability",
@@ -646,10 +668,33 @@ def _tokenize_taste(value: str) -> set[str]:
         "clear": {"clear", "credible", "direct", "descriptive"},
         "playful": {"playful", "bright", "bouncy", "quirky"},
         "nature": {"nature", "botanical", "outdoor", "field", "leaf", "stone"},
+        "italian": {"italian", "italy", "mediterranean"},
+        "italy": {"italian", "italy", "mediterranean"},
     }
     tokens = set(raw)
     for token in raw:
         tokens.update(expansions.get(token, set()))
+    return tokens
+
+
+GENERIC_CONTEXT_TOKENS = {
+    "background",
+    "context",
+    "cultural",
+    "culture",
+    "family",
+    "heritage",
+    "inspiration",
+}
+
+
+def _taste_tokens_for_field(key: str, value: str) -> set[str]:
+    tokens = _tokenize_taste(value)
+    if key in {"family_context", "cultural_context"}:
+        # Generic words like "heritage" and "family" should tell us which
+        # response bucket matters, but they should not make every heritage-tagged
+        # candidate look relevant. Specific identity tokens must carry the match.
+        tokens -= GENERIC_CONTEXT_TOKENS
     return tokens
 
 
@@ -690,7 +735,7 @@ NAME_TRAITS = {
     "romy": "bright compact stylish modern",
     "ansel": "tailored artistic old-soul distinctive",
     "bennett": "polished friendly surname classic",
-    "luca": "warm global friendly modern",
+    "luca": "italian italy mediterranean warm global friendly modern recognizable",
     "mira": "clear graceful celestial soft",
     "owen": "warm familiar grounded classic",
     "elodie": "romantic musical uncommon readable soft",
@@ -724,8 +769,8 @@ NAME_TRAITS = {
     "harlan": "grounded surname warm strong",
     "ida": "brief vintage strong",
     "leona": "warm strong graceful",
-    "matteo": "lyrical global friendly",
-    "nico": "compact stylish easygoing",
+    "matteo": "italian italy mediterranean lyrical global friendly classic recognizable",
+    "nico": "italian italy mediterranean compact stylish easygoing recognizable",
     "opal": "gemstone vintage gentle",
     "petra": "strong international distinctive",
     "quinn": "clean modern flexible",
@@ -740,6 +785,17 @@ NAME_TRAITS = {
     "ellington": "african american black heritage historical history musical jazz polished surname distinctive cultural",
     "frederick": "african american black heritage historical history classic strong recognizable substantial cultural",
     "bayard": "african american black heritage historical history civil rights rare principled distinctive strong cultural",
+    "giovanni": "italian italy mediterranean heritage classic strong recognizable lyrical cultural",
+    "leonardo": "italian italy mediterranean heritage classic strong artistic recognizable cultural",
+    "lorenzo": "italian italy mediterranean heritage classic strong lyrical recognizable cultural",
+    "dante": "italian italy mediterranean heritage literary classic strong distinctive recognizable cultural",
+    "marco": "italian italy mediterranean heritage classic strong familiar recognizable cultural",
+    "enzo": "italian italy mediterranean heritage compact strong distinctive recognizable cultural",
+    "alessio": "italian italy mediterranean heritage lyrical distinctive recognizable cultural",
+    "rocco": "italian italy mediterranean heritage strong distinctive familiar cultural",
+    "santino": "italian italy mediterranean heritage warm classic distinctive cultural",
+    "vittorio": "italian italy mediterranean heritage classic strong distinctive cultural",
+    "elio": "italian italy mediterranean heritage warm compact lyrical distinctive cultural",
     # Pet
     "milo": "dog friendly bright callable familiar playful",
     "juniper": "cat rabbit nature distinctive warm",
@@ -848,7 +904,7 @@ def _score_candidate_for_taste(
         section = _field_section_key(str(key), vertical)
         section_strength = strengths.get(section, 0.34 if strengths else 1.0)
         text = str(value)
-        tokens = _tokenize_taste(text)
+        tokens = _taste_tokens_for_field(str(key), text)
         if not tokens:
             continue
         overlap = len(tokens & traits)

@@ -127,6 +127,35 @@ class PhaseTwentyFeelingsScaleTest(unittest.TestCase):
         )
         self.assertNotIn("Arthur", names[:6])
 
+    def test_baby_fallback_respects_italian_heritage_without_cross_contamination(self):
+        baby = get_vertical("baby")
+        brief = build_brief(
+            baby,
+            {
+                "gender": "Boy",
+                "family_context": "Italian heritage",
+                "discovery_style": "Unexpected finds",
+                "style": "Classic",
+                "timeless_vs_distinctive": "Strongly distinctive",
+                "familiarity_preference": "Recognizable but not overused",
+                "sound": "Strong",
+                "cultural_context": "Family heritage",
+                "taste_strength_about_your_baby": "34",
+                "taste_strength_name_style": "33",
+                "taste_strength_fit_and_feeling": "33",
+            },
+        )
+
+        names = [result.name for result in generate_names(baby, brief, use_ai=False)[:8]]
+
+        self.assertIn(names[0], {"Dante", "Giovanni", "Leonardo", "Lorenzo", "Vittorio"})
+        self.assertGreaterEqual(
+            len({"Giovanni", "Leonardo", "Lorenzo", "Dante", "Marco", "Enzo", "Rocco", "Vittorio"} & set(names[:8])),
+            6,
+        )
+        self.assertFalse({"Malcolm", "Langston", "Booker", "Thurgood", "Bayard"} & set(names[:6]))
+        self.assertNotIn("Arthur", names[:6])
+
     def test_baby_fallback_changes_for_major_taste_changes(self):
         baby = get_vertical("baby")
         classic = build_brief(
