@@ -16,7 +16,11 @@
   <div class="beta-hero-copy">
     <p class="eyebrow">Founding beta</p>
     <h1>NamEngine Baby — find the name that feels right.</h1>
-    <p>Start with a free first round, then unlock deeper taste discovery, fresh rounds, shortlist support, and a clearer final direction.</p>
+    {% if paid %}
+      <p>You have unlocked deeper taste discovery, fresh rounds, shortlist support, and a clearer final direction.</p>
+    {% else %}
+      <p>Start with a free first round, then unlock deeper taste discovery, fresh rounds, shortlist support, and a clearer final direction.</p>
+    {% endif %}
     {% if not paid %}
       <div class="beta-price-card">
         <span>Founding beta</span>

@@ -74,7 +74,9 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("Payment received", text)
+        self.assertIn("You have unlocked deeper taste discovery", text)
         self.assertIn("Start Baby name discovery", text)
+        self.assertNotIn("Start with a free first round", text)
         self.assertNotIn("Join paid beta", text)
         self.assertNotIn("https://buy.stripe.com/test_example", text)
 
