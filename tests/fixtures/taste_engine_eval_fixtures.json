@@ -18,7 +18,13 @@
       "taste_strength_name_style": 55,
       "taste_strength_fit_and_feeling": 25
     },
-    "expected_signals": ["classic", "warm", "gentle", "soft", "familiar"],
+    "expected_signals": [
+      "classic",
+      "warm",
+      "gentle",
+      "soft",
+      "familiar"
+    ],
     "contrast_group": "baby-style-core"
   },
   {
@@ -40,7 +46,13 @@
       "taste_strength_name_style": 70,
       "taste_strength_fit_and_feeling": 15
     },
-    "expected_signals": ["rare", "strong", "distinctive", "confident", "bold"],
+    "expected_signals": [
+      "rare",
+      "strong",
+      "distinctive",
+      "confident",
+      "bold"
+    ],
     "contrast_group": "baby-style-core"
   },
   {
@@ -62,7 +74,13 @@
       "taste_strength_name_style": 45,
       "taste_strength_fit_and_feeling": 40
     },
-    "expected_signals": ["literary", "nature", "botanical", "poetic", "wearable"],
+    "expected_signals": [
+      "literary",
+      "nature",
+      "botanical",
+      "poetic",
+      "wearable"
+    ],
     "contrast_group": "baby-style-core"
   },
   {
@@ -83,7 +101,13 @@
       "taste_strength_name_style": 45,
       "taste_strength_fit_and_feeling": 35
     },
-    "expected_signals": ["scandinavian", "minimalist", "clean", "calm", "simple"],
+    "expected_signals": [
+      "scandinavian",
+      "minimalist",
+      "clean",
+      "calm",
+      "simple"
+    ],
     "contrast_group": "baby-style-core"
   },
   {
@@ -104,7 +128,13 @@
       "taste_strength_name_style": 62,
       "taste_strength_fit_and_feeling": 20
     },
-    "expected_signals": ["vintage", "old-soul", "warm", "substantial", "revival"],
+    "expected_signals": [
+      "vintage",
+      "old-soul",
+      "warm",
+      "substantial",
+      "revival"
+    ],
     "contrast_group": "baby-style-core"
   },
   {
@@ -126,7 +156,13 @@
       "taste_strength_name_style": 15,
       "taste_strength_fit_and_feeling": 15
     },
-    "expected_signals": ["sibling", "family", "honor", "classic", "warm"],
+    "expected_signals": [
+      "sibling",
+      "family",
+      "honor",
+      "classic",
+      "warm"
+    ],
     "contrast_group": "baby-priority"
   },
   {
@@ -147,7 +183,13 @@
       "taste_strength_name_style": 20,
       "taste_strength_fit_and_feeling": 70
     },
-    "expected_signals": ["playful", "bright", "bouncy", "lively", "sound"],
+    "expected_signals": [
+      "playful",
+      "bright",
+      "bouncy",
+      "lively",
+      "sound"
+    ],
     "contrast_group": "baby-priority"
   },
   {
@@ -165,7 +207,13 @@
       "taste_strength_name_style": 15,
       "taste_strength_fit_and_feeling": 15
     },
-    "expected_signals": ["dog", "callable", "friendly", "loyal", "warm"],
+    "expected_signals": [
+      "dog",
+      "callable",
+      "friendly",
+      "loyal",
+      "warm"
+    ],
     "contrast_group": "pet-type"
   },
   {
@@ -183,7 +231,13 @@
       "taste_strength_name_style": 25,
       "taste_strength_fit_and_feeling": 20
     },
-    "expected_signals": ["cat", "elegant", "mythic", "stylish", "uncommon"],
+    "expected_signals": [
+      "cat",
+      "elegant",
+      "mythic",
+      "stylish",
+      "uncommon"
+    ],
     "contrast_group": "pet-type"
   },
   {
@@ -201,7 +255,13 @@
       "taste_strength_name_style": 45,
       "taste_strength_launch_fit": 20
     },
-    "expected_signals": ["premium", "luxury", "restrained", "editorial", "polished"],
+    "expected_signals": [
+      "premium",
+      "luxury",
+      "restrained",
+      "editorial",
+      "polished"
+    ],
     "contrast_group": "business-positioning"
   },
   {
@@ -219,7 +279,247 @@
       "taste_strength_name_style": 25,
       "taste_strength_launch_fit": 30
     },
-    "expected_signals": ["clear", "trustworthy", "practical", "reassuring", "founders"],
+    "expected_signals": [
+      "clear",
+      "trustworthy",
+      "practical",
+      "reassuring",
+      "founders"
+    ],
     "contrast_group": "business-positioning"
+  },
+  {
+    "id": "baby-italian-heritage-classic-not-obvious",
+    "label": "Baby · Italian heritage classic not obvious",
+    "vertical": "baby",
+    "inputs": {
+      "gender": "Boy",
+      "discovery_style": "Balanced mix",
+      "style": "Classic",
+      "timeless_vs_distinctive": "Mostly timeless",
+      "familiarity_preference": "Recognizable but not overused",
+      "sound": "Warm",
+      "cultural_context": "Italian heritage",
+      "family_context": "Italian on one side of the family, but we do not want the most obvious choices.",
+      "notes": "Warm, classic, Italian-rooted, not trendy, not too common, works in the US. Avoid anything cartoonish or overly dramatic."
+    },
+    "feelings": {
+      "taste_strength_about_your_baby": 30,
+      "taste_strength_name_style": 45,
+      "taste_strength_fit_and_feeling": 25
+    },
+    "expected_signals": [
+      "italian",
+      "classic",
+      "warm",
+      "heritage",
+      "not trendy"
+    ],
+    "contrast_group": "baby-heritage-hard"
+  },
+  {
+    "id": "baby-blended-irish-scottish-subtle",
+    "label": "Baby · Blended Irish Scottish subtle",
+    "vertical": "baby",
+    "inputs": {
+      "gender": "Gender-neutral",
+      "discovery_style": "Unexpected finds",
+      "style": "Modern",
+      "timeless_vs_distinctive": "Mostly distinctive",
+      "familiarity_preference": "A little less common",
+      "sound": "Calm",
+      "cultural_context": "Irish and Scottish family heritage",
+      "family_context": "Blended Irish and Scottish background; we want a nod, not a costume.",
+      "notes": "Subtle Celtic feel, calm, wearable, modern, not overly Gaelic-looking, not hard to pronounce."
+    },
+    "feelings": {
+      "taste_strength_about_your_baby": 45,
+      "taste_strength_name_style": 30,
+      "taste_strength_fit_and_feeling": 25
+    },
+    "expected_signals": [
+      "irish",
+      "scottish",
+      "subtle",
+      "calm",
+      "wearable"
+    ],
+    "contrast_group": "baby-heritage-hard"
+  },
+  {
+    "id": "baby-classic-not-common-avoid-trendy",
+    "label": "Baby · Classic not common avoid trendy",
+    "vertical": "baby",
+    "inputs": {
+      "gender": "Girl",
+      "discovery_style": "Classic favorites",
+      "style": "Classic",
+      "timeless_vs_distinctive": "Strongly timeless",
+      "familiarity_preference": "Recognizable but not overused",
+      "sound": "Elegant",
+      "family_context": "Sibling names are Clara and Theodore; last name is short and sharp.",
+      "notes": "Classic, elegant, not common, not trendy, no nickname-first names, no influencer baby-name feel.",
+      "avoid": "Olivia, Sophia, Harper, Luna"
+    },
+    "feelings": {
+      "taste_strength_about_your_baby": 35,
+      "taste_strength_name_style": 50,
+      "taste_strength_fit_and_feeling": 15
+    },
+    "expected_signals": [
+      "classic",
+      "elegant",
+      "not common",
+      "not trendy",
+      "sibling"
+    ],
+    "contrast_group": "baby-style-hard"
+  },
+  {
+    "id": "pet-dog-tough-look-gentle-heart",
+    "label": "Pet · Dog tough look gentle heart",
+    "vertical": "pet",
+    "inputs": {
+      "pet_type": "Dog",
+      "style": "Strong and tailored",
+      "vibe": "Gentle",
+      "notes": "Big rescue dog with a tough look but gentle heart. Name should be warm, callable at the park, not macho, not goofy."
+    },
+    "feelings": {
+      "taste_strength_about_your_pet": 65,
+      "taste_strength_name_style": 15,
+      "taste_strength_fit_and_feeling": 20
+    },
+    "expected_signals": [
+      "dog",
+      "gentle",
+      "tough",
+      "callable",
+      "warm"
+    ],
+    "contrast_group": "pet-personality-hard"
+  },
+  {
+    "id": "pet-cat-regal-quirky-not-silly",
+    "label": "Pet · Cat regal quirky not silly",
+    "vertical": "pet",
+    "inputs": {
+      "pet_type": "Cat",
+      "style": "Uncommon but usable",
+      "vibe": "Regal",
+      "notes": "Elegant cat with a weird little personality. Regal and quirky, but not silly, not meme-y, not too human."
+    },
+    "feelings": {
+      "taste_strength_about_your_pet": 55,
+      "taste_strength_name_style": 20,
+      "taste_strength_fit_and_feeling": 25
+    },
+    "expected_signals": [
+      "cat",
+      "regal",
+      "quirky",
+      "elegant",
+      "uncommon"
+    ],
+    "contrast_group": "pet-personality-hard"
+  },
+  {
+    "id": "pet-rabbit-soft-playful-not-cutesy",
+    "label": "Pet · Rabbit soft playful not cutesy",
+    "vertical": "pet",
+    "inputs": {
+      "pet_type": "Rabbit",
+      "style": "Soft and romantic",
+      "vibe": "Playful",
+      "notes": "Small rabbit, soft and playful, but avoid sugar-sweet cutesy names. Gentle, bright, easy to say."
+    },
+    "feelings": {
+      "taste_strength_about_your_pet": 60,
+      "taste_strength_name_style": 10,
+      "taste_strength_fit_and_feeling": 30
+    },
+    "expected_signals": [
+      "rabbit",
+      "soft",
+      "playful",
+      "gentle",
+      "bright"
+    ],
+    "contrast_group": "pet-personality-hard"
+  },
+  {
+    "id": "business-bookkeeping-clear-domain-flex",
+    "label": "Business · Bookkeeping clear domain flex",
+    "vertical": "business",
+    "inputs": {
+      "business_description": "Bookkeeping and operations support for service businesses that hate messy finances.",
+      "audience": "Busy founders who need clarity and trust",
+      "style": "Clear and credible",
+      "domain_preference": "Open to modifiers",
+      "notes": "Needs to feel clear, trustworthy, practical, calm, and launch-ready. Avoid clever puns and generic consulting names. Domain can use a modifier."
+    },
+    "feelings": {
+      "taste_strength_about_the_business": 50,
+      "taste_strength_name_style": 20,
+      "taste_strength_launch_fit": 30
+    },
+    "expected_signals": [
+      "bookkeeping",
+      "clear",
+      "trustworthy",
+      "practical",
+      "domain"
+    ],
+    "contrast_group": "business-hard-positioning"
+  },
+  {
+    "id": "business-premium-wellness-not-spa-cliche",
+    "label": "Business · Premium wellness not spa cliché",
+    "vertical": "business",
+    "inputs": {
+      "business_description": "Premium wellness studio offering recovery, mobility, and breathwork sessions.",
+      "audience": "Premium clients",
+      "style": "Premium and refined",
+      "domain_preference": "Social handle matters most",
+      "notes": "Premium, calm, editorial, modern wellness. Avoid spa clichés, crystals, overused words like glow, aura, bliss, and zen."
+    },
+    "feelings": {
+      "taste_strength_about_the_business": 35,
+      "taste_strength_name_style": 45,
+      "taste_strength_launch_fit": 20
+    },
+    "expected_signals": [
+      "premium",
+      "wellness",
+      "calm",
+      "editorial",
+      "modern"
+    ],
+    "contrast_group": "business-hard-positioning"
+  },
+  {
+    "id": "business-founder-heritage-modern-service",
+    "label": "Business · Founder heritage modern service",
+    "vertical": "business",
+    "inputs": {
+      "business_description": "Boutique home-services company started by a second-generation founder.",
+      "audience": "Local customers",
+      "style": "Friendly and approachable",
+      "domain_preference": "Exact .com matters",
+      "notes": "Should hint at founder story and family heritage without sounding old-fashioned. Friendly, modern, trustworthy, local-service ready."
+    },
+    "feelings": {
+      "taste_strength_about_the_business": 55,
+      "taste_strength_name_style": 25,
+      "taste_strength_launch_fit": 20
+    },
+    "expected_signals": [
+      "founder",
+      "heritage",
+      "friendly",
+      "modern",
+      "trustworthy"
+    ],
+    "contrast_group": "business-hard-positioning"
   }
 ]

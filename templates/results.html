@@ -191,7 +191,16 @@
       <div class="bottom-next-actions">
         <a class="button-link compare-link" href="/compare/{{ session_id }}">Compare favorites</a>
         <a class="button-link secondary-button" href="/share/{{ session_id }}">Share list</a>
+        {% if vertical.slug == "baby" %}
+          <a class="button-link secondary-button" href="/baby/beta">Unlock paid beta depth</a>
+        {% endif %}
       </div>
+    </section>
+
+    <section class="results-disclaimer" aria-label="Important naming disclaimer">
+      <strong>Important:</strong>
+      <span>NamEngine suggestions are exploratory. Review cultural fit, family fit, legal/business availability, and official requirements before relying on a name.</span>
+      <a href="/disclaimers">Read disclaimers</a>
     </section>
   </section>
   {% include "progress_overlay.html" %}

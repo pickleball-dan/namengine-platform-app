@@ -1,0 +1,28 @@
+{% set page_title = "Data Protection" %}
+{% set page_intro = "A plain-English view of how the beta should protect user trust." %}
+{% extends "legal_base.html" %}
+
+{% block legal_content %}
+<h2>Data minimization</h2>
+<p>Only provide information that is useful for the naming decision. NamEngine does not need sensitive personal data to generate names.</p>
+
+<h2>What not to submit</h2>
+<p>Do not submit Social Security numbers, payment card numbers, passwords, medical records, legal case details, private family secrets, or sensitive information about children.</p>
+
+<h2>Third-party processors</h2>
+<p>NamEngine may use hosting, AI, analytics, email, and payment providers to operate the product. These providers should be configured through server-side keys and environment variables, not exposed in public code.</p>
+
+<h2>Deletion requests</h2>
+<p>During beta, users should be able to request deletion of submitted naming data. The operator may need a session link, payment email, or other context to locate the relevant record.</p>
+
+<h2>Security practices before paid launch</h2>
+<ul>
+  <li>Store API keys and payment keys in Render environment variables or equivalent secret storage.</li>
+  <li>Keep payment processing with Stripe or another payment processor.</li>
+  <li>Do not commit secrets or service-account JSON files to the repository.</li>
+  <li>Run mobile, desktop, payment, and legal-link smoke tests before deploy.</li>
+</ul>
+
+<h2>Beta limitation</h2>
+<p>This page describes intended beta practices. It should be reviewed and tightened before broader public launch or before serving users in jurisdictions with specific privacy requirements.</p>
+{% endblock %}

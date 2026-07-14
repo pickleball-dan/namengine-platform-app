@@ -1,0 +1,29 @@
+{% set page_title = "Privacy Policy" %}
+{% set page_intro = "How NamEngine handles the information people share while exploring names." %}
+{% extends "legal_base.html" %}
+
+{% block legal_content %}
+<h2>What we collect</h2>
+<p>NamEngine collects the information you choose to provide in the naming flow, such as style preferences, notes, names to avoid, reactions, shortlist actions, and feedback. We may also collect basic technical information needed to run and protect the service, such as timestamps, session identifiers, browser/device signals, and error logs.</p>
+
+<h2>How we use it</h2>
+<p>We use this information to generate naming suggestions, improve recommendations across rounds, help you return to saved work during a session, understand product quality, prevent abuse, and operate the beta.</p>
+
+<h2>AI processing</h2>
+<p>Some inputs may be sent to AI model providers to generate or refine name suggestions. Do not enter secrets, financial information, health information, government identifiers, or anything you would not want processed by a third-party service provider.</p>
+
+<h2>Payments</h2>
+<p>Payments, if enabled, are handled by a payment processor such as Stripe. NamEngine should not store full card numbers. Payment processors may collect payment, billing, fraud-prevention, and transaction data under their own policies.</p>
+
+<h2>Children’s information</h2>
+<p>NamEngine is intended for adults making naming decisions. It is not directed to children, and users should not submit personal information about children beyond ordinary naming context.</p>
+
+<h2>Retention and deletion</h2>
+<p>During beta, naming sessions and feedback may be retained to operate the service and improve quality. To request deletion of your submitted beta data, contact the NamEngine operator with enough context to identify the session or email used.</p>
+
+<h2>Security</h2>
+<p>We use practical security measures appropriate for a beta product, including server-side environment variables for secrets and limiting payment handling to payment processors. No online service can guarantee perfect security.</p>
+
+<h2>Contact</h2>
+<p>For privacy, deletion, or data questions, use the contact channel provided on the beta invitation or checkout page.</p>
+{% endblock %}

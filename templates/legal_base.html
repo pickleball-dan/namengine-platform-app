@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }} · NamEngine{% endblock %}
+
+{% block content %}
+<section class="legal-shell">
+  <div class="legal-heading">
+    <p class="eyebrow">NamEngine trust center</p>
+    <h1>{{ page_title }}</h1>
+    <p>{{ page_intro }}</p>
+  </div>
+
+  <div class="legal-notice">
+    <strong>Beta notice:</strong>
+    <span>These pages are practical launch copy for NamEngine’s beta. They should be reviewed by qualified counsel before a broad public launch.</span>
+  </div>
+
+  <div class="legal-content">
+    {% block legal_content %}{% endblock %}
+  </div>
+</section>
+{% endblock %}

@@ -527,6 +527,21 @@ BUSINESS_EXTRA_POOL = [
     ("Atlas Bloom", "AT-lus BLOOM", "Growth-oriented with a broader market feel."),
 ]
 
+BUSINESS_WIDE_EXPLORATION_POOL = [
+    ("Clearhaven", "KLEER-hay-vun", "Reassuring, clear, and built around trust."),
+    ("Northledger", "NORTH-led-jer", "Practical, organized, and especially strong for operations or bookkeeping."),
+    ("Steadywise", "STED-ee-wise", "Calm, trustworthy, and founder-friendly."),
+    ("Plainmark", "PLAYN-mark", "Simple, credible, and refreshingly direct."),
+    ("Anchorwell", "AN-kur-wel", "Stable, supportive, and professional."),
+    ("Ledger & Loom", "LED-jer and LOOM", "Detailed, practical, and warm for service work."),
+    ("Trueframe", "TROO-fraym", "Structured, honest, and easy to brand."),
+    ("Clarity Yard", "KLAIR-ih-tee yard", "Clear, approachable, and useful."),
+    ("Founderside", "FOWN-der-side", "Supportive, founder-focused, and easy to understand."),
+    ("Brightdesk", "BRYTE-desk", "Clear, practical, and suited to everyday business support."),
+    ("North & Noble", "NORTH and NOH-bul", "Trustworthy, polished, and directional."),
+    ("Workhaven", "WERK-hay-vun", "Reassuring, useful, and people-centered."),
+]
+
 BUSINESS_NAME_INSIGHTS = {
     "Northmark": "suggests direction, durability, and a business with a clear point of view",
     "Brightline": "signals clarity and momentum while staying easy to say and remember",
@@ -715,20 +730,21 @@ def generate_fallback_names(
     style = _brief_text(brief, "style", "warm and wearable")
     avoid_text = ", ".join(brief.avoid)
 
+    result_count = 6 if round_number >= 3 else vertical.default_result_count
     pool = PET_NAME_POOL + PET_REFINED_POOL + PET_EXTRA_POOL
     if brief.inputs.get("original_mode") == "true" or _brief_text(brief, "discovery_style") == "Completely original":
         pool = PET_ORIGINAL_POOL
     elif round_number == 2:
-        pool = PET_REFINED_POOL + PET_EXTRA_POOL
+        pool = PET_REFINED_POOL + PET_EXTRA_POOL + PET_ORIGINAL_POOL
     elif round_number >= 4:
-        pool = PET_EXTRA_POOL + PET_ORIGINAL_POOL
+        pool = PET_EXTRA_POOL + PET_ORIGINAL_POOL + PET_REFINED_POOL + PET_FINALIST_POOL
     elif round_number >= 3:
-        pool = PET_FINALIST_POOL + PET_EXTRA_POOL
+        pool = PET_FINALIST_POOL + PET_EXTRA_POOL + PET_ORIGINAL_POOL + PET_REFINED_POOL
 
-    if round_number >= 4:
-        previous = {name.lower() for name in (previous_names or [])}
+    previous = {name.lower() for name in (previous_names or [])}
+    if previous:
         filtered_pool = [item for item in pool if item[0].lower() not in previous]
-        if len(filtered_pool) >= min(6, vertical.default_result_count):
+        if len(filtered_pool) >= result_count:
             pool = filtered_pool
 
     starting_letter = _brief_text(brief, "starting_letter").lower()[:1]
@@ -785,9 +801,7 @@ def generate_fallback_names(
             )
         )
 
-    if round_number >= 3:
-        return validate_results(vertical, brief, results[:6])
-    return validate_results(vertical, brief, results[: vertical.default_result_count])
+    return validate_results(vertical, brief, results[:result_count])
 
 
 
@@ -1364,21 +1378,20 @@ def _generate_business_fallback_names(
     domain_preference = _brief_text(brief, "domain_preference")
     avoid_text = ", ".join(brief.avoid)
 
+    result_count = 6 if round_number >= 3 else vertical.default_result_count
     pool = BUSINESS_NAME_POOL + BUSINESS_REFINED_POOL + BUSINESS_EXTRA_POOL
     if round_number == 2:
-        pool = BUSINESS_REFINED_POOL + BUSINESS_EXTRA_POOL
+        pool = BUSINESS_REFINED_POOL + BUSINESS_EXTRA_POOL + BUSINESS_WIDE_EXPLORATION_POOL
     elif round_number >= 4:
-        pool = BUSINESS_EXTRA_POOL
+        pool = BUSINESS_WIDE_EXPLORATION_POOL + BUSINESS_EXTRA_POOL + BUSINESS_REFINED_POOL + BUSINESS_FINALIST_POOL
     elif round_number >= 3:
-        pool = BUSINESS_FINALIST_POOL
+        pool = BUSINESS_FINALIST_POOL + BUSINESS_EXTRA_POOL + BUSINESS_WIDE_EXPLORATION_POOL + BUSINESS_REFINED_POOL
 
     previous = {name.lower() for name in (previous_names or [])}
     if previous:
         filtered_pool = [item for item in pool if item[0].lower() not in previous]
-        if len(filtered_pool) >= min(6, vertical.default_result_count):
+        if len(filtered_pool) >= result_count:
             pool = filtered_pool
-
-    result_count = 6 if round_number >= 3 else vertical.default_result_count
     pool = _rank_pool_for_taste(vertical.slug, brief, pool)
     results: list[NameResult] = []
     for index, (name, pronunciation, opener) in enumerate(pool, start=1):

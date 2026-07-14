@@ -14,9 +14,25 @@
       <p>{{ vertical.visual.hero_support or vertical.prompt_context }}</p>
       <div class="hero-actions">
         <a class="button-link" href="#{{ vertical.slug }}-intake-form">Start discovering names</a>
-        {% if vertical.slug == "pet" %}
+        {% if vertical.slug == "baby" %}
+          <a class="button-link secondary-button" href="/baby/beta">See paid beta</a>
+        {% elif vertical.slug == "pet" %}
           <a class="button-link secondary-button" href="/pet/original">Create an original pet name</a>
         {% endif %}
+      </div>
+      <div class="trust-strip intake-trust-strip" aria-label="Beta trust notes">
+        <div>
+          <strong>AI-assisted</strong>
+          <span>Suggestions are exploratory, not guarantees.</span>
+        </div>
+        <div>
+          <strong>Private context</strong>
+          <span>Do not enter sensitive personal data.</span>
+        </div>
+        <div>
+          <strong>Your judgment</strong>
+          <span>Review fit before choosing or launching a name.</span>
+        </div>
       </div>
       {% if page_logo %}
         <div class="identity-preview">

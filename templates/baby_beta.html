@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}NamEngine Baby Founding Beta{% endblock %}
+
+{% block content %}
+{% if paid %}
+<section class="paid-success-panel" aria-label="Payment success">
+  <p class="eyebrow">Payment received</p>
+  <h1>You’re in the NamEngine Baby founding beta.</h1>
+  <p>Start or continue your Baby name discovery below. Keep your Stripe receipt for your records while beta access is being tested.</p>
+  <a class="button-link" href="/baby">Start Baby name discovery</a>
+</section>
+{% endif %}
+
+<section class="beta-hero">
+  <div class="beta-hero-copy">
+    <p class="eyebrow">Founding beta</p>
+    <h1>NamEngine Baby — find the name that feels right.</h1>
+    <p>Start with a free first round, then unlock deeper taste discovery, fresh rounds, shortlist support, and a clearer final direction.</p>
+    <div class="beta-price-card">
+      <span>Founding beta</span>
+      <strong>{{ beta_price }}</strong>
+      <small>One-time beta access while we validate the paid experience.</small>
+    </div>
+    <div class="hero-actions">
+      <a class="button-link" href="/baby">Try the first round</a>
+      {% if stripe_payment_link %}
+        <a class="button-link secondary-button" href="{{ stripe_payment_link }}">Join paid beta</a>
+      {% else %}
+        <a class="button-link secondary-button" href="#founding-access">Request founding access</a>
+      {% endif %}
+    </div>
+  </div>
+  <aside class="beta-trust-card" aria-label="Beta trust summary">
+    <h2>What paid beta includes</h2>
+    <ul>
+      <li>Multiple guided name-discovery rounds</li>
+      <li>Save, compare, and share shortlist tools</li>
+      <li>Optional cultural / heritage direction</li>
+      <li>Plain-English fit notes and risks</li>
+      <li>Clear limitations and data-protection expectations</li>
+    </ul>
+  </aside>
+</section>
+
+<section class="beta-grid" aria-label="Paid beta details">
+  <article>
+    <h2>Free first</h2>
+    <p>Use the Baby flow and get an initial taste-shaped list before paying. The goal is to feel whether NamEngine understands your lane.</p>
+  </article>
+  <article>
+    <h2>Paid depth</h2>
+    <p>The paid beta is for deeper rounds, sharper refinement, shortlist confidence, and a clearer final decision path.</p>
+  </article>
+  <article>
+    <h2>Important limitations</h2>
+    <p>No name generator can guarantee family approval, cultural fit, official acceptance, availability, or future associations. NamEngine helps discovery; you make the decision.</p>
+  </article>
+</section>
+
+<section class="trust-strip beta-trust-strip" aria-label="Trust and data protection">
+  <div>
+    <strong>Private by default</strong>
+    <span>Your inputs should be treated as naming context, not public content.</span>
+  </div>
+  <div>
+    <strong>No sensitive data needed</strong>
+    <span>Do not submit medical, financial, legal, or government-identifying information.</span>
+  </div>
+  <div>
+    <strong>Beta transparency</strong>
+    <span>AI suggestions are exploratory and need your own judgment.</span>
+  </div>
+</section>
+
+<section id="founding-access" class="beta-final-cta">
+  <p class="eyebrow">Founding access</p>
+  <h2>Want to be one of the first paid beta users?</h2>
+  {% if stripe_payment_link %}
+    <p>Checkout is available now. You’ll get one-time founding beta access for deeper Baby name discovery.</p>
+    <a class="button-link" href="{{ stripe_payment_link }}">Join paid beta</a>
+  {% else %}
+    <p>Founding access is opening in a small batch first. Try the first round now, then use the invitation channel to request paid beta access.</p>
+    <a class="button-link" href="/baby">Try the first round</a>
+  {% endif %}
+</section>
+{% endblock %}

@@ -109,6 +109,14 @@ from .vertical_ui import (
     validate_vertical_ui_contract,
     vertical_theme_style,
 )
+from .engine_audit import (
+    EngineAuditRow,
+    run_engine_audit,
+    run_fixture_audit,
+    summarize_engine_audit,
+    write_engine_audit_csv,
+    write_engine_audit_json,
+)
 
 __all__ = [
     "build_brief",
@@ -129,6 +137,7 @@ __all__ = [
     "generate_ai_names",
     "generate_names",
     "generate_with_router",
+    "EngineAuditRow",
     "GenerationCandidate",
     "get_chosen_snapshot",
     "get_database_path",
@@ -173,6 +182,8 @@ __all__ = [
     "refine_session",
     "refresh_provider_performance",
     "route_generation",
+    "run_engine_audit",
+    "run_fixture_audit",
     "run_quality_brief",
     "run_taste_engine_fixture",
     "run_taste_engine_fixture_set",
@@ -186,6 +197,7 @@ __all__ = [
     "score_provider_results",
     "select_best_candidates",
     "StorageError",
+    "summarize_engine_audit",
     "summarize_quality_runs",
     "summarize_taste_engine_eval",
     "ReactionValue",
@@ -205,5 +217,7 @@ __all__ = [
     "update_chosen_metadata",
     "validate_result",
     "validate_results",
+    "write_engine_audit_csv",
+    "write_engine_audit_json",
     "vertical_theme_style",
 ]

@@ -3,11 +3,17 @@
 from __future__ import annotations
 
 import logging
+import os
 from threading import Lock, Thread
 from hashlib import sha1
 from urllib.parse import urlencode
 
 from flask import Flask, abort, jsonify, redirect, render_template, request, send_from_directory, url_for
+
+try:
+    from dotenv import load_dotenv
+except ImportError:  # pragma: no cover - Render uses real env vars; local dev may skip dotenv
+    load_dotenv = None
 
 from namengine import CONTRACT_VERSION
 from namengine.core import (
@@ -306,6 +312,8 @@ def save_feedback_submission(source) -> None:
 
 
 def create_app() -> Flask:
+    if load_dotenv is not None:
+        load_dotenv()
     app = Flask(__name__)
 
     @app.context_processor
@@ -329,6 +337,32 @@ def create_app() -> Flask:
     @app.get("/")
     def index():
         return render_template("index.html", verticals=VERTICALS)
+
+    @app.get("/baby/beta")
+    def baby_beta():
+        return render_template(
+            "baby_beta.html",
+            vertical=get_vertical("baby"),
+            stripe_payment_link=os.getenv("NAMENGINE_BABY_BETA_PAYMENT_LINK", "").strip(),
+            beta_price=os.getenv("NAMENGINE_BABY_BETA_PRICE", "$19").strip() or "$19",
+            paid=request.args.get("paid") == "1",
+        )
+
+    @app.get("/privacy")
+    def privacy_policy():
+        return render_template("legal_privacy.html")
+
+    @app.get("/terms")
+    def terms_of_use():
+        return render_template("legal_terms.html")
+
+    @app.get("/disclaimers")
+    def disclaimers():
+        return render_template("legal_disclaimers.html")
+
+    @app.get("/data-protection")
+    def data_protection():
+        return render_template("legal_data_protection.html")
 
     @app.get("/<vertical_slug>")
     def intake(vertical_slug: str):
