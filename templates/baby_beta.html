@@ -17,17 +17,23 @@
     <p class="eyebrow">Founding beta</p>
     <h1>NamEngine Baby — find the name that feels right.</h1>
     <p>Start with a free first round, then unlock deeper taste discovery, fresh rounds, shortlist support, and a clearer final direction.</p>
-    <div class="beta-price-card">
-      <span>Founding beta</span>
-      <strong>{{ beta_price }}</strong>
-      <small>One-time beta access while we validate the paid experience.</small>
-    </div>
+    {% if not paid %}
+      <div class="beta-price-card">
+        <span>Founding beta</span>
+        <strong>{{ beta_price }}</strong>
+        <small>One-time beta access while we validate the paid experience.</small>
+      </div>
+    {% endif %}
     <div class="hero-actions">
-      <a class="button-link" href="/baby">Try the first round</a>
-      {% if stripe_payment_link %}
-        <a class="button-link secondary-button" href="{{ stripe_payment_link }}">Join paid beta</a>
+      {% if paid %}
+        <a class="button-link" href="/baby">Start Baby name discovery</a>
       {% else %}
-        <a class="button-link secondary-button" href="#founding-access">Request founding access</a>
+        <a class="button-link" href="/baby">Try the first round</a>
+        {% if stripe_payment_link %}
+          <a class="button-link secondary-button" href="{{ stripe_payment_link }}">Join paid beta</a>
+        {% else %}
+          <a class="button-link secondary-button" href="#founding-access">Request founding access</a>
+        {% endif %}
       {% endif %}
     </div>
   </div>
@@ -76,7 +82,10 @@
 <section id="founding-access" class="beta-final-cta">
   <p class="eyebrow">Founding access</p>
   <h2>Want to be one of the first paid beta users?</h2>
-  {% if stripe_payment_link %}
+  {% if paid %}
+    <p>Your test payment returned successfully. Continue into the Baby flow and start building your shortlist.</p>
+    <a class="button-link" href="/baby">Start Baby name discovery</a>
+  {% elif stripe_payment_link %}
     <p>Checkout is available now. You’ll get one-time founding beta access for deeper Baby name discovery.</p>
     <a class="button-link" href="{{ stripe_payment_link }}">Join paid beta</a>
   {% else %}

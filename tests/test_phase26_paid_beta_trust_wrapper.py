@@ -61,12 +61,22 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.assertIn("Join paid beta", text)
 
     def test_baby_beta_paid_success_state(self):
-        response = self.app.get("/baby/beta?paid=1")
-        text = response.get_data(as_text=True)
+        previous = os.environ.get("NAMENGINE_BABY_BETA_PAYMENT_LINK")
+        os.environ["NAMENGINE_BABY_BETA_PAYMENT_LINK"] = "https://buy.stripe.com/test_example"
+        try:
+            response = self.app.get("/baby/beta?paid=1")
+            text = response.get_data(as_text=True)
+        finally:
+            if previous is None:
+                os.environ.pop("NAMENGINE_BABY_BETA_PAYMENT_LINK", None)
+            else:
+                os.environ["NAMENGINE_BABY_BETA_PAYMENT_LINK"] = previous
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("Payment received", text)
         self.assertIn("Start Baby name discovery", text)
+        self.assertNotIn("Join paid beta", text)
+        self.assertNotIn("https://buy.stripe.com/test_example", text)
 
     def test_baby_intake_surfaces_paid_beta_and_trust_copy(self):
         response = self.app.get("/baby")
