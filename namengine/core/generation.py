@@ -245,6 +245,173 @@ BABY_WIDE_EXPLORATION_POOL = [
     ("Liang", "LYAHNG", "Chinese-rooted, strong, and melodic."),
 ]
 
+BABY_HERITAGE_POOL = [
+    ("Kwame", "KWAH-may", "African-rooted, warm, and strong with Akan/Ghanaian usage.", "african"),
+    ("Kofi", "KOH-fee", "African-rooted, compact, and warm with Akan/Ghanaian usage.", "african"),
+    ("Omari", "oh-MAR-ee", "African-rooted, substantial, and smooth.", "african"),
+    ("Idris", "ID-ris", "African, Arabic, and Welsh-rooted, concise, and strong.", "african arab_middle_eastern welsh"),
+    ("Zuberi", "zoo-BEH-ree", "African-rooted, distinctive, and strong.", "african"),
+    ("Amari", "ah-MAR-ee", "African-rooted in many modern uses, lyrical, and wearable.", "african"),
+    ("Omar", "OH-mar", "Arabic-rooted, warm, and widely recognizable.", "arab_middle_eastern"),
+    ("Samir", "sah-MEER", "Arabic-rooted, friendly, and melodic.", "arab_middle_eastern"),
+    ("Zayn", "ZAYN", "Arabic-rooted, compact, and polished.", "arab_middle_eastern"),
+    ("Rami", "RAH-mee", "Arabic-rooted, soft, and approachable.", "arab_middle_eastern"),
+    ("Tariq", "tah-REEK", "Arabic-rooted, strong, and distinctive.", "arab_middle_eastern"),
+    ("Aram", "AH-ram", "Armenian-rooted, compact, and ancient-feeling.", "armenian"),
+    ("Levon", "leh-VAHN", "Armenian-rooted, warm, and substantial.", "armenian"),
+    ("Tigran", "tee-GRAHN", "Armenian-rooted, historic, and strong.", "armenian"),
+    ("Suren", "SOO-ren", "Armenian-rooted, smooth, and distinctive.", "armenian"),
+    ("Hayk", "HYKE", "Armenian-rooted, brief, and heritage-rich.", "armenian"),
+    ("Ashot", "AH-shot", "Armenian-rooted, historic, and strong.", "armenian"),
+    ("Banjo", "BAN-joh", "Australian-rooted, literary, and lively.", "australian"),
+    ("Darcy", "DAR-see", "Australian-friendly, surname-style, and warm.", "australian"),
+    ("Jett", "JET", "Australian-modern, crisp, and energetic.", "australian"),
+    ("Clancy", "KLAN-see", "Australian-rooted, surname-style, and distinctive.", "australian"),
+    ("Ned", "NED", "Australian-friendly, vintage, and direct.", "australian"),
+    ("Lachie", "LOCK-ee", "Australian-friendly, warm, and lively.", "australian"),
+    ("Thiago", "chee-AH-goh", "Brazilian Portuguese-rooted, lyrical, and strong.", "brazilian portuguese"),
+    ("Mateus", "mah-TEH-oos", "Brazilian Portuguese-rooted, classic, and warm.", "brazilian portuguese"),
+    ("Caio", "KYE-oh", "Brazilian Portuguese-rooted, compact, and bright.", "brazilian portuguese"),
+    ("Joao", "zhoo-OW", "Portuguese-rooted, classic, and familiar in Brazil.", "brazilian portuguese"),
+    ("Rafael", "rah-fy-EL", "Brazilian-friendly, warm, and internationally recognizable.", "brazilian portuguese spanish"),
+    ("Lucas", "LOO-kahs", "Brazilian Portuguese-friendly, familiar, and warm.", "brazilian portuguese"),
+    ("Lars", "LARZ", "Danish and Scandinavian-rooted, crisp, and classic.", "danish norwegian swedish"),
+    ("Anders", "AN-derz", "Danish and Scandinavian-rooted, sturdy, and familiar.", "danish norwegian swedish"),
+    ("Mikkel", "MIK-el", "Danish-rooted, friendly, and classic.", "danish"),
+    ("Niels", "NEELS", "Danish-rooted, brief, and traditional.", "danish"),
+    ("Bram", "BRAHM", "Dutch-rooted, compact, and strong.", "dutch"),
+    ("Sander", "SAN-der", "Dutch-rooted, friendly, and grounded.", "dutch"),
+    ("Pieter", "PEE-ter", "Dutch-rooted, classic, and warm.", "dutch"),
+    ("Floris", "FLOR-is", "Dutch-rooted, polished, and distinctive.", "dutch"),
+    ("Daan", "DAHN", "Dutch-rooted, compact, and friendly.", "dutch"),
+    ("Thijs", "TICE", "Dutch-rooted, crisp, and distinctive.", "dutch"),
+    ("Alfred", "AL-fred", "English-rooted, classic, and substantial.", "english"),
+    ("Edmund", "ED-mund", "English-rooted, literary, and strong.", "english"),
+    ("Hugh", "HYOO", "English-rooted, brief, and refined.", "english"),
+    ("Percy", "PUR-see", "English-rooted, vintage, and distinctive.", "english"),
+    ("Rupert", "ROO-pert", "English-rooted, polished, and uncommon.", "english"),
+    ("Winston", "WIN-stun", "English-rooted, sturdy, and classic.", "english"),
+    ("Andres", "AHN-dres", "Filipino and Spanish-rooted, warm, and recognizable.", "filipino spanish"),
+    ("Ramon", "rah-MOHN", "Filipino and Spanish-rooted, sturdy, and classic.", "filipino spanish"),
+    ("Lito", "LEE-toh", "Filipino-rooted, compact, and affectionate.", "filipino"),
+    ("Bayan", "BYE-ahn", "Filipino-rooted, meaningful, and distinctive.", "filipino"),
+    ("Jose", "hoh-ZAY", "Filipino-friendly, classic, and familiar.", "filipino spanish mexican"),
+    ("Miguel", "mee-GEL", "Filipino and Spanish-rooted, warm, and classic.", "filipino spanish"),
+    ("Etienne", "ay-TYEN", "French-rooted, refined, and distinctive.", "french"),
+    ("Lucien", "LOO-see-en", "French-rooted, luminous, and literary.", "french"),
+    ("Bastien", "bas-TYEN", "French-rooted, friendly, and modern-classic.", "french"),
+    ("Remy", "REH-mee", "French-rooted, warm, and stylish.", "french"),
+    ("Marcel", "mar-SEL", "French-rooted, polished, and substantial.", "french"),
+    ("Pascal", "pas-KAL", "French-rooted, crisp, and classic.", "french"),
+    ("Otto", "AH-toh", "German-rooted, brief, and vintage.", "german"),
+    ("Fritz", "FRITS", "German-rooted, crisp, and lively.", "german"),
+    ("Klaus", "KLOWSS", "German-rooted, strong, and traditional.", "german"),
+    ("Anselm", "AN-selm", "German-rooted, old-soul, and distinctive.", "german"),
+    ("Luther", "LOO-ther", "German-rooted, sturdy, and historic.", "german"),
+    ("Heinrich", "HINE-rik", "German-rooted, traditional, and strong.", "german"),
+    ("Nikos", "NEE-kohs", "Greek-rooted, friendly, and strong.", "greek"),
+    ("Dimitri", "dih-MEE-tree", "Greek-rooted, lyrical, and substantial.", "greek"),
+    ("Andreas", "ahn-DRAY-ahs", "Greek-rooted, classic, and strong.", "greek"),
+    ("Leander", "lee-AN-der", "Greek-rooted, literary, and distinctive.", "greek"),
+    ("Theo", "THEE-oh", "Greek-rooted, familiar, and warm.", "greek"),
+    ("Stelios", "STEL-ee-ohs", "Greek-rooted, bright, and distinctive.", "greek"),
+    ("Aarav", "AH-ruhv", "Indian-rooted, warm, and modern.", "indian"),
+    ("Rohan", "ROH-hun", "Indian-rooted, strong, and approachable.", "indian"),
+    ("Arjun", "AR-joon", "Indian-rooted, historic, and strong.", "indian"),
+    ("Dev", "DEV", "Indian-rooted, brief, and bright.", "indian"),
+    ("Kiran", "KEER-un", "Indian-rooted, luminous, and gentle.", "indian"),
+    ("Nikhil", "nih-KEEL", "Indian-rooted, polished, and substantial.", "indian"),
+    ("Akio", "AH-kee-oh", "Japanese-rooted, bright, and compact.", "japanese"),
+    ("Hiro", "HEE-roh", "Japanese-rooted, concise, and warm.", "japanese"),
+    ("Kenji", "KEN-jee", "Japanese-rooted, friendly, and recognizable.", "japanese"),
+    ("Ren", "REN", "Japanese-rooted, brief, and modern.", "japanese"),
+    ("Sora", "SOH-rah", "Japanese-rooted, airy, and gentle.", "japanese"),
+    ("Haru", "HAH-roo", "Japanese-rooted, warm, and compact.", "japanese"),
+    ("Ari", "AH-ree", "Jewish-rooted, compact, and warm.", "jewish ashkenazi sephardic hebrew"),
+    ("Eitan", "AY-tahn", "Hebrew-rooted, strong, and modern.", "jewish ashkenazi sephardic hebrew"),
+    ("Noam", "NOH-ahm", "Hebrew-rooted, gentle, and distinctive.", "jewish ashkenazi sephardic hebrew"),
+    ("Rafi", "RAH-fee", "Hebrew-rooted, warm, and approachable.", "jewish sephardic hebrew"),
+    ("Ezra", "EZ-ruh", "Jewish-rooted, ancient-modern, and warm.", "jewish ashkenazi sephardic hebrew"),
+    ("Asher", "ASH-er", "Jewish-rooted, gentle, and familiar.", "jewish ashkenazi sephardic hebrew"),
+    ("Minjun", "MIN-joon", "Korean-rooted, balanced, and modern.", "korean"),
+    ("Jiho", "JEE-hoh", "Korean-rooted, compact, and bright.", "korean"),
+    ("Joon", "JOON", "Korean-rooted, concise, and warm.", "korean"),
+    ("Dohyun", "DOH-hyun", "Korean-rooted, substantial, and modern.", "korean"),
+    ("Hyun", "HYUN", "Korean-rooted, brief, and graceful.", "korean"),
+    ("Seojoon", "SOH-joon", "Korean-rooted, balanced, and modern.", "korean"),
+    ("Mateo", "mah-TAY-oh", "Mexican and Spanish-rooted, warm, and familiar.", "mexican spanish"),
+    ("Santiago", "san-tee-AH-goh", "Mexican and Spanish-rooted, substantial, and classic.", "mexican spanish"),
+    ("Emiliano", "eh-mee-lee-AH-noh", "Mexican and Spanish-rooted, lyrical, and strong.", "mexican spanish"),
+    ("Diego", "dee-AY-goh", "Mexican and Spanish-rooted, friendly, and recognizable.", "mexican spanish"),
+    ("Alejandro", "ah-leh-HAHN-droh", "Mexican and Spanish-rooted, classic, and substantial.", "mexican spanish"),
+    ("Dakota", "duh-KOH-tuh", "Indigenous-rooted but broad; best refined with specific tribal/community context.", "native_american indigenous"),
+    ("Yuma", "YOO-muh", "Indigenous-rooted but broad; best refined with specific tribal/community context.", "native_american indigenous"),
+    ("Tahoma", "tuh-HOH-muh", "Indigenous place-rooted; best refined with specific tribal/community context.", "native_american indigenous"),
+    ("Takoda", "tah-KOH-dah", "Indigenous-rooted but broad; best refined with specific tribal/community context.", "native_american indigenous"),
+    ("Mika", "MEE-kah", "Indigenous-rooted in some contexts but broad; best refined with specific tribal/community context.", "native_american indigenous"),
+    ("Nodin", "NOH-din", "Indigenous-rooted but broad; best refined with specific tribal/community context.", "native_american indigenous"),
+    ("Magnus", "MAG-nus", "Norwegian-rooted, strong, and historic.", "norwegian swedish danish"),
+    ("Sven", "SVEN", "Norwegian and Scandinavian-rooted, brief, and sturdy.", "norwegian swedish"),
+    ("Einar", "EYE-nar", "Norwegian-rooted, distinctive, and strong.", "norwegian"),
+    ("Cyrus", "SY-rus", "Persian-rooted, historic, and strong.", "persian iranian"),
+    ("Darius", "duh-RYE-us", "Persian-rooted, substantial, and classic.", "persian iranian"),
+    ("Kian", "KEE-ahn", "Persian-rooted, warm, and modern.", "persian iranian"),
+    ("Arman", "AR-mahn", "Persian-rooted, smooth, and strong.", "persian iranian"),
+    ("Rostam", "rohs-TAHM", "Persian-rooted, heroic, and distinctive.", "persian iranian"),
+    ("Navid", "nah-VEED", "Persian-rooted, warm, and meaningful.", "persian iranian"),
+    ("Marek", "MAH-rek", "Polish-rooted, strong, and approachable.", "polish"),
+    ("Kazimir", "KAZ-ih-meer", "Polish-rooted, historic, and distinctive.", "polish"),
+    ("Tadeusz", "TAH-deh-oosh", "Polish-rooted, substantial, and traditional.", "polish"),
+    ("Lukasz", "WOO-kash", "Polish-rooted, warm, and classic.", "polish"),
+    ("Janek", "YAH-nek", "Polish-rooted, friendly, and classic.", "polish"),
+    ("Piotr", "PYOTR", "Polish-rooted, traditional, and strong.", "polish"),
+    ("Duarte", "doo-AR-teh", "Portuguese-rooted, polished, and historic.", "portuguese"),
+    ("Tiago", "tee-AH-goh", "Portuguese-rooted, lyrical, and approachable.", "portuguese"),
+    ("Nuno", "NOO-noh", "Portuguese-rooted, compact, and distinctive.", "portuguese"),
+    ("Miguel", "mee-GEL", "Portuguese-rooted, familiar, and warm.", "portuguese spanish"),
+    ("Santiago", "san-tee-AH-goh", "Spanish-rooted, substantial, and classic.", "spanish mexican"),
+    ("Diego", "dee-AY-goh", "Spanish-rooted, friendly, and recognizable.", "spanish mexican"),
+    ("Emilio", "eh-MEE-lee-oh", "Spanish-rooted, warm, and lyrical.", "spanish"),
+    ("Javier", "hah-VYER", "Spanish-rooted, strong, and familiar.", "spanish"),
+    ("Stellan", "STEL-un", "Swedish-rooted, calm, and tailored.", "swedish"),
+    ("Nils", "NEELS", "Swedish-rooted, brief, and classic.", "swedish danish norwegian"),
+    ("Axel", "AK-sel", "Swedish-rooted, strong, and recognizable.", "swedish"),
+    ("Linus", "LYE-nus", "Swedish-rooted, gentle, and bright.", "swedish"),
+    ("Emir", "eh-MEER", "Turkish-rooted, compact, and strong.", "turkish"),
+    ("Kerem", "keh-REM", "Turkish-rooted, warm, and distinctive.", "turkish"),
+    ("Levent", "leh-VENT", "Turkish-rooted, substantial, and polished.", "turkish"),
+    ("Arda", "AR-dah", "Turkish-rooted, brief, and modern.", "turkish"),
+    ("Ozan", "OH-zahn", "Turkish-rooted, lyrical, and distinctive.", "turkish"),
+    ("Deniz", "deh-NEEZ", "Turkish-rooted, smooth, and modern.", "turkish"),
+    ("Taras", "tah-RAHS", "Ukrainian-rooted, historic, and strong.", "ukrainian"),
+    ("Bohdan", "BOH-dahn", "Ukrainian-rooted, substantial, and traditional.", "ukrainian"),
+    ("Mykola", "mih-KOH-lah", "Ukrainian-rooted, classic, and warm.", "ukrainian"),
+    ("Ostap", "OH-stahp", "Ukrainian-rooted, distinctive, and sturdy.", "ukrainian"),
+    ("Danylo", "dah-NIH-loh", "Ukrainian-rooted, lyrical, and familiar.", "ukrainian"),
+    ("Levko", "LEV-koh", "Ukrainian-rooted, compact, and warm.", "ukrainian"),
+    ("Minh", "MIN", "Vietnamese-rooted, concise, and bright.", "vietnamese"),
+    ("An", "AHN", "Vietnamese-rooted, brief, and peaceful.", "vietnamese"),
+    ("Bao", "BOW", "Vietnamese-rooted, compact, and warm.", "vietnamese"),
+    ("Quang", "KWAHNG", "Vietnamese-rooted, bright, and distinctive.", "vietnamese"),
+    ("Duc", "DOOK", "Vietnamese-rooted, brief, and strong.", "vietnamese"),
+    ("Khoa", "KWAH", "Vietnamese-rooted, concise, and bright.", "vietnamese"),
+    ("Emrys", "EM-riss", "Welsh-rooted, mythic, and distinctive.", "welsh"),
+    ("Owain", "OH-wine", "Welsh-rooted, historic, and warm.", "welsh"),
+    ("Cai", "KYE", "Welsh-rooted, compact, and bright.", "welsh"),
+    ("Dylan", "DIL-un", "Welsh-rooted, familiar, and lyrical.", "welsh"),
+    ("Bryn", "BRIN", "Welsh-rooted, brief, and strong.", "welsh"),
+]
+
+BABY_HERITAGE_TRAITS = {
+    name.lower(): f"{groups} heritage cultural classic strong recognizable distinctive"
+    for name, _pronunciation, _opener, groups in BABY_HERITAGE_POOL
+}
+
+
+def _baby_heritage_pool_items() -> list[tuple[str, str, str]]:
+    return [(name, pronunciation, opener) for name, pronunciation, opener, _groups in BABY_HERITAGE_POOL]
+
+
 BABY_NAME_INSIGHTS = {
     "Eloise": "carries a polished literary feeling with a soft, graceful rhythm",
     "Maya": "is short, warm, and easy across languages and generations",
@@ -756,11 +923,39 @@ def _taste_tokens_for_field(key: str, value: str) -> set[str]:
 
 HERITAGE_GROUP_TOKENS = {
     "african_american": {"african", "american", "black"},
-    "italian": {"italian", "italy", "mediterranean"},
+    "african": {"african"},
+    "arab_middle_eastern": {"arab", "arabic", "middle", "eastern"},
+    "armenian": {"armenian", "armenia"},
+    "australian": {"australian", "australia"},
+    "brazilian": {"brazilian", "brazil"},
+    "chinese": {"chinese", "china", "mandarin", "sino"},
+    "danish": {"danish", "denmark"},
+    "dutch": {"dutch", "netherlands"},
+    "english": {"english", "england"},
+    "filipino": {"filipino", "philippines", "tagalog"},
+    "french": {"french", "france"},
+    "german": {"german", "germany"},
+    "greek": {"greek", "greece"},
+    "indian": {"indian", "india"},
     "irish": {"irish", "ireland"},
+    "italian": {"italian", "italy", "mediterranean"},
+    "japanese": {"japanese", "japan"},
+    "jewish": {"jewish", "ashkenazi", "sephardic", "hebrew"},
+    "korean": {"korean", "korea"},
+    "mexican": {"mexican", "mexico"},
+    "native_american": {"native", "indigenous"},
+    "norwegian": {"norwegian", "norway"},
+    "persian": {"persian", "iranian", "iran"},
+    "polish": {"polish", "poland"},
+    "portuguese": {"portuguese", "portugal"},
+    "russian": {"russian", "russia", "slavic"},
     "scottish": {"scottish", "scotland"},
-    "russian": {"russian", "slavic"},
-    "chinese": {"chinese", "mandarin", "sino"},
+    "spanish": {"spanish", "spain"},
+    "swedish": {"swedish", "sweden"},
+    "turkish": {"turkish", "turkey"},
+    "ukrainian": {"ukrainian", "ukraine"},
+    "vietnamese": {"vietnamese", "vietnam"},
+    "welsh": {"welsh", "wales"},
 }
 
 
@@ -770,6 +965,8 @@ def _heritage_groups_from_tokens(tokens: set[str]) -> set[str]:
         if group == "african_american":
             if {"african", "american"} <= tokens or "black" in tokens:
                 groups.add(group)
+            continue
+        if group == "african" and "american" in tokens:
             continue
         if tokens & group_tokens:
             groups.add(group)
@@ -991,9 +1188,10 @@ NAME_TRAITS = {
 }
 
 
-def _candidate_traits(name: str, opener: str) -> set[str]:
+def _candidate_traits(name: str, opener: str, vertical: str = "") -> set[str]:
     key = name.lower()
-    traits = NAME_TRAITS.get(key, "")
+    heritage_traits = BABY_HERITAGE_TRAITS.get(key, "") if vertical == "baby" else ""
+    traits = f"{NAME_TRAITS.get(key, '')} {heritage_traits}"
     return _tokenize_taste(f"{name} {opener} {traits}")
 
 
@@ -1004,7 +1202,7 @@ def _score_candidate_for_taste(
     opener: str,
 ) -> float:
     strengths = _taste_strengths(brief)
-    traits = _candidate_traits(name, opener)
+    traits = _candidate_traits(name, opener, vertical)
     requested_heritage_groups = _requested_heritage_groups(brief)
     candidate_heritage_groups = _heritage_groups_from_tokens(traits)
     if not strengths:
@@ -1054,7 +1252,15 @@ def _rank_pool_for_taste(
         for name, _pronunciation, opener in [item]
     ]
     scored.sort(key=lambda row: (-row[0], row[1]))
-    return [item for _score, _index, item in scored]
+    ranked: list[tuple[str, str, str]] = []
+    seen_names: set[str] = set()
+    for _score, _index, item in scored:
+        clean_name = _clean_name_key(item[0])
+        if clean_name in seen_names:
+            continue
+        ranked.append(item)
+        seen_names.add(clean_name)
+    return ranked
 
 
 def _generate_baby_fallback_names(
@@ -1070,13 +1276,20 @@ def _generate_baby_fallback_names(
     family_context = _brief_text(brief, "family_context")
     avoid_text = ", ".join(brief.avoid)
 
-    pool = BABY_NAME_POOL + BABY_REFINED_POOL + BABY_FINALIST_POOL + BABY_EXTRA_POOL + BABY_WIDE_EXPLORATION_POOL
+    pool = (
+        BABY_NAME_POOL
+        + BABY_REFINED_POOL
+        + BABY_FINALIST_POOL
+        + BABY_EXTRA_POOL
+        + BABY_WIDE_EXPLORATION_POOL
+        + _baby_heritage_pool_items()
+    )
     if round_number == 2:
-        pool = BABY_REFINED_POOL + BABY_WIDE_EXPLORATION_POOL
+        pool = BABY_REFINED_POOL + BABY_WIDE_EXPLORATION_POOL + _baby_heritage_pool_items()
     elif round_number >= 4:
-        pool = BABY_EXTRA_POOL + BABY_WIDE_EXPLORATION_POOL
+        pool = BABY_EXTRA_POOL + BABY_WIDE_EXPLORATION_POOL + _baby_heritage_pool_items()
     elif round_number >= 3:
-        pool = BABY_FINALIST_POOL + BABY_EXTRA_POOL + BABY_WIDE_EXPLORATION_POOL
+        pool = BABY_FINALIST_POOL + BABY_EXTRA_POOL + BABY_WIDE_EXPLORATION_POOL + _baby_heritage_pool_items()
 
     result_count = 6 if round_number >= 3 else vertical.default_result_count
     pool = _rank_pool_for_taste(vertical.slug, brief, pool)
@@ -1357,6 +1570,7 @@ def _filter_baby_pool_for_brief(
         + BABY_FINALIST_POOL
         + BABY_EXTRA_POOL
         + BABY_WIDE_EXPLORATION_POOL
+        + _baby_heritage_pool_items()
     )
     seen = {item[0].lower() for item in filtered_pool}
     for item in supplemental_pool:

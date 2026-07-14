@@ -192,6 +192,70 @@ class PhaseTwentyFeelingsScaleTest(unittest.TestCase):
                 self.assertFalse((wrong_lane_names - expected_names) & set(names[:6]))
                 self.assertNotIn("Arthur", names[:6])
 
+    def test_baby_fallback_has_coverage_for_broad_heritage_requests(self):
+        baby = get_vertical("baby")
+        cases = {
+            "African American heritage": {"Malcolm", "Langston", "Booker", "Thurgood", "Frederick", "Bayard"},
+            "African heritage": {"Kwame", "Kofi", "Omari", "Idris", "Zuberi", "Amari"},
+            "Arab Middle Eastern heritage": {"Idris", "Omar", "Samir", "Zayn", "Rami", "Tariq"},
+            "Armenian heritage": {"Aram", "Levon", "Tigran", "Suren", "Hayk", "Ashot"},
+            "Australian heritage": {"Banjo", "Darcy", "Jett", "Clancy", "Ned", "Lachie"},
+            "Brazilian heritage": {"Rafael", "Thiago", "Mateus", "Caio", "Joao", "Lucas"},
+            "Chinese heritage": {"Liang", "Jian", "Kai", "Jun", "Ming", "Wei"},
+            "Danish heritage": {"Lars", "Anders", "Mikkel", "Niels", "Magnus", "Nils"},
+            "Dutch heritage": {"Bram", "Sander", "Pieter", "Floris", "Daan", "Thijs"},
+            "English heritage": {"Alfred", "Edmund", "Hugh", "Percy", "Rupert", "Winston"},
+            "Filipino heritage": {"Andres", "Ramon", "Lito", "Bayan", "Jose", "Miguel"},
+            "French heritage": {"Etienne", "Lucien", "Bastien", "Remy", "Marcel", "Pascal"},
+            "German heritage": {"Otto", "Fritz", "Klaus", "Anselm", "Luther", "Heinrich"},
+            "Greek heritage": {"Theo", "Nikos", "Dimitri", "Andreas", "Leander", "Stelios"},
+            "Indian heritage": {"Aarav", "Rohan", "Arjun", "Dev", "Kiran", "Nikhil"},
+            "Irish heritage": {"Cillian", "Ronan", "Declan", "Eamon", "Cormac", "Seamus"},
+            "Italian heritage": {"Dante", "Vittorio", "Giovanni", "Leonardo", "Lorenzo", "Marco"},
+            "Japanese heritage": {"Akio", "Hiro", "Kenji", "Ren", "Sora", "Haru"},
+            "Jewish Ashkenazi Sephardic heritage": {"Ezra", "Ari", "Eitan", "Noam", "Asher", "Rafi"},
+            "Korean heritage": {"Minjun", "Jiho", "Joon", "Dohyun", "Hyun", "Seojoon"},
+            "Mexican heritage": {"Jose", "Mateo", "Santiago", "Emiliano", "Diego", "Alejandro"},
+            "Native American Indigenous heritage": {"Dakota", "Yuma", "Takoda", "Mika", "Nodin", "Tahoma"},
+            "Norwegian heritage": {"Lars", "Anders", "Magnus", "Sven", "Einar", "Nils"},
+            "Persian Iranian heritage": {"Cyrus", "Darius", "Kian", "Arman", "Rostam", "Navid"},
+            "Polish heritage": {"Marek", "Kazimir", "Tadeusz", "Lukasz", "Janek", "Piotr"},
+            "Portuguese heritage": {"Rafael", "Thiago", "Mateus", "Caio", "Joao", "Lucas"},
+            "Russian heritage": {"Lev", "Dmitri", "Mikhail", "Viktor", "Nikolai", "Ivan"},
+            "Scottish heritage": {"Duncan", "Lachlan", "Alistair", "Hamish", "Callum", "Ewan"},
+            "Spanish heritage": {"Rafael", "Andres", "Ramon", "Jose", "Miguel", "Mateo"},
+            "Swedish heritage": {"Stellan", "Lars", "Anders", "Magnus", "Sven", "Nils"},
+            "Turkish heritage": {"Emir", "Kerem", "Levent", "Arda", "Ozan", "Deniz"},
+            "Ukrainian heritage": {"Taras", "Bohdan", "Mykola", "Ostap", "Danylo", "Levko"},
+            "Vietnamese heritage": {"Minh", "An", "Bao", "Quang", "Duc", "Khoa"},
+            "Welsh heritage": {"Idris", "Emrys", "Owain", "Cai", "Dylan", "Bryn"},
+        }
+
+        for family_context, expected_names in cases.items():
+            with self.subTest(family_context=family_context):
+                brief = build_brief(
+                    baby,
+                    {
+                        "gender": "Boy",
+                        "family_context": family_context,
+                        "discovery_style": "Unexpected finds",
+                        "style": "Classic",
+                        "timeless_vs_distinctive": "Strongly distinctive",
+                        "familiarity_preference": "Recognizable but not overused",
+                        "sound": "Strong",
+                        "cultural_context": "Family heritage",
+                        "taste_strength_about_your_baby": "34",
+                        "taste_strength_name_style": "33",
+                        "taste_strength_fit_and_feeling": "33",
+                    },
+                )
+
+                names = [result.name for result in generate_names(baby, brief, use_ai=False)[:6]]
+
+                self.assertEqual(len(names), len(set(names)))
+                self.assertGreaterEqual(len(expected_names & set(names)), 5)
+                self.assertNotIn("Arthur", names)
+
     def test_baby_fallback_changes_for_major_taste_changes(self):
         baby = get_vertical("baby")
         classic = build_brief(
