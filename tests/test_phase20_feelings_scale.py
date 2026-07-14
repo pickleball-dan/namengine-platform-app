@@ -51,6 +51,7 @@ class PhaseTwentyFeelingsScaleTest(unittest.TestCase):
         self.assertIn('name="taste_strength_name_style" value="82"', body)
         self.assertIn('name="taste_strength_fit_and_feeling" value="10"', body)
         self.assertIn('data-progress-form', body)
+        self.assertIn('method="post"', body)
 
     def test_feelings_scale_submits_hidden_strengths_to_results(self):
         query = (
@@ -63,6 +64,37 @@ class PhaseTwentyFeelingsScaleTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         body = response.get_data(as_text=True)
+        self.assertIn("Baby names shaped from your taste", body)
+        self.assertNotIn("taste_strength_name_style", body)
+
+    def test_public_feelings_submit_redirects_to_clean_session_url(self):
+        response = self.client.post(
+            "/baby/results",
+            data={
+                "gender": "Boy",
+                "family_context": "african american",
+                "notes": "strong historical relevance",
+                "discovery_style": "Unexpected finds",
+                "style": "Classic",
+                "timeless_vs_distinctive": "Strongly distinctive",
+                "familiarity_preference": "Recognizable but not overused",
+                "sound": "Strong",
+                "cultural_context": "Family heritage",
+                "taste_strength_about_your_baby": "34",
+                "taste_strength_name_style": "33",
+                "taste_strength_fit_and_feeling": "33",
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        location = response.headers["Location"]
+        self.assertIn("/results/session/", location)
+        self.assertNotIn("gender=", location)
+        self.assertNotIn("taste_strength_", location)
+
+        result_response = self.client.get(location)
+        self.assertEqual(result_response.status_code, 200)
+        body = result_response.get_data(as_text=True)
         self.assertIn("Baby names shaped from your taste", body)
         self.assertNotIn("taste_strength_name_style", body)
 

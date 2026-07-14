@@ -404,6 +404,35 @@ def create_app() -> Flask:
             original_mode=True,
         )
 
+    def _create_results_session(vertical, source: dict[str, str]) -> str:
+        source = _normalize_other_inputs(source)
+        brief = build_brief(vertical, source)
+        apply_taste_strength_inputs(brief, source)
+
+        session_id = make_session_id(
+            vertical.slug,
+            _query_string_from_mapping(source).encode("utf-8"),
+        )
+        snapshot = get_session_snapshot(session_id)
+        if snapshot and snapshot["results"]:
+            names = _names_from_snapshot(snapshot)
+            if not _cached_names_match_current_rules(vertical, brief, names):
+                names = generate_names(vertical, brief)
+                save_session(session_id, vertical.slug, brief, names)
+        else:
+            names = generate_names(vertical, brief)
+            save_session(session_id, vertical.slug, brief, names)
+        return session_id
+
+    @app.post("/<vertical_slug>/results")
+    def submit_results(vertical_slug: str):
+        if vertical_slug not in VERTICALS:
+            abort(404)
+
+        vertical = get_vertical(vertical_slug)
+        session_id = _create_results_session(vertical, request.form.to_dict(flat=True))
+        return redirect(url_for("session_results", session_id=session_id))
+
     @app.get("/<vertical_slug>/results")
     def results(vertical_slug: str):
         if vertical_slug not in VERTICALS:

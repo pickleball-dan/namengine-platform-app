@@ -32,7 +32,7 @@
         <button class="choose-button" type="submit">Choose {{ result.name }}</button>
       </form>
       <a class="button-link" href="/compare/{{ session.id }}">Compare favorites</a>
-      <a class="button-link secondary-button" href="/{{ vertical.slug }}/results?{{ session.brief_json|brief_query_string }}">Back to results</a>
+      <a class="button-link secondary-button" href="/results/session/{{ session.id }}">Back to results</a>
       <a class="button-link secondary-button" href="/{{ vertical.slug }}?{{ session.brief_json|brief_query_string }}">Adjust direction</a>
     </div>
 

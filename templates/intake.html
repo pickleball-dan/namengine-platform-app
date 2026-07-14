@@ -32,7 +32,7 @@
       {% endif %}
     </div>
 
-    <form id="{{ vertical.slug }}-intake-form" class="intake-form" action="{% if feelings_scale_enabled(vertical) %}{{ vertical.route_prefix }}/feelings{% else %}{{ vertical.route_prefix }}/results{% endif %}" method="get"{% if not feelings_scale_enabled(vertical) %} data-progress-form{% endif %} novalidate>
+    <form id="{{ vertical.slug }}-intake-form" class="intake-form" action="{% if feelings_scale_enabled(vertical) %}{{ vertical.route_prefix }}/feelings{% else %}{{ vertical.route_prefix }}/results{% endif %}" method="{% if feelings_scale_enabled(vertical) %}get{% else %}post{% endif %}"{% if not feelings_scale_enabled(vertical) %} data-progress-form{% endif %} novalidate>
       {% for group in grouped_questions(vertical) %}
         <fieldset class="intake-section">
           <legend>{{ group.title }}</legend>
