@@ -44,6 +44,7 @@ from namengine.core import (
     summarize_taste_engine_eval,
     vertical_theme_style,
 )
+from namengine.core.name_facts import build_name_fact_card
 from namengine.core.schemas import NameResult, NamingBrief, ValidationResult, to_plain_data
 from namengine.core.validation import filter_results_for_brief
 from namengine.verticals import VERTICALS, get_vertical
@@ -697,6 +698,7 @@ def create_app() -> Flask:
             vertical=vertical,
             session=detail["session"],
             result=detail["result"],
+            name_fact_card=build_name_fact_card(vertical.slug, detail["result"]),
             reaction_counts=detail["reaction_counts"],
             taste_profile=detail["taste_profile"],
         )
@@ -715,6 +717,7 @@ def create_app() -> Flask:
             vertical=get_vertical(snapshot["chosen"]["vertical"]),
             chosen=snapshot["chosen"],
             result=result,
+            name_fact_card=build_name_fact_card(str(snapshot["chosen"]["vertical"]), result),
             session=snapshot["session"],
             portrait=portrait,
         )

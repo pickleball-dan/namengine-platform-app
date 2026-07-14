@@ -1,0 +1,80 @@
+{% if name_fact_card %}
+<section class="name-fact-card" aria-label="Name facts for {{ result.name }}">
+  <div class="name-fact-card-heading">
+    <p class="eyebrow">Name card</p>
+    <h2>{{ result.name }} at a glance</h2>
+    <p>Helpful facts for understanding the name, not just liking the sound.</p>
+  </div>
+
+  <div class="name-fact-grid">
+    <article class="name-fact-panel name-fact-panel-wide">
+      <h3>Meaning & origin</h3>
+      <p>{{ name_fact_card.origin_meaning }}</p>
+    </article>
+
+    {% if name_fact_card.pronunciation %}
+      <article class="name-fact-panel">
+        <h3>Pronunciation</h3>
+        <p>{{ name_fact_card.pronunciation }}</p>
+      </article>
+    {% endif %}
+
+    <article class="name-fact-panel">
+      <h3>Popularity snapshot</h3>
+      <p>{{ name_fact_card.popularity_snapshot }}</p>
+    </article>
+
+    <article class="name-fact-panel">
+      <h3>Famous namesakes</h3>
+      <ul>
+        {% for namesake in name_fact_card.famous_namesakes %}
+          <li>{{ namesake }}</li>
+        {% endfor %}
+      </ul>
+    </article>
+
+    <article class="name-fact-panel">
+      <h3>Nicknames & variants</h3>
+      <ul>
+        {% for variant in name_fact_card.nicknames_variants %}
+          <li>{{ variant }}</li>
+        {% endfor %}
+      </ul>
+    </article>
+
+    <article class="name-fact-panel">
+      <h3>Style / vibe</h3>
+      <div class="name-fact-tags">
+        {% for tag in name_fact_card.style_vibe %}
+          <span>{{ tag }}</span>
+        {% endfor %}
+      </div>
+    </article>
+
+    <article class="name-fact-panel">
+      <h3>Similar names</h3>
+      <ul>
+        {% for similar in name_fact_card.similar_names %}
+          <li>{{ similar }}</li>
+        {% endfor %}
+      </ul>
+    </article>
+
+    <article class="name-fact-panel name-fact-panel-wide">
+      <h3>Good to know</h3>
+      <ul>
+        {% for note in name_fact_card.good_to_know %}
+          <li>{{ note }}</li>
+        {% endfor %}
+      </ul>
+    </article>
+
+    <article class="name-fact-panel name-fact-panel-wide">
+      <h3>Why it fits your brief</h3>
+      <p>{{ name_fact_card.why_it_fits }}</p>
+    </article>
+  </div>
+
+  <p class="name-fact-source-note">{{ name_fact_card.source_note }}</p>
+</section>
+{% endif %}
