@@ -219,6 +219,30 @@ BABY_WIDE_EXPLORATION_POOL = [
     ("Santino", "san-TEE-noh", "Warm, distinctive, and heritage-rich."),
     ("Vittorio", "vee-TOR-ee-oh", "Substantial, classic, and deeply Italian in cadence."),
     ("Elio", "EH-lee-oh", "Bright, compact, and Mediterranean-feeling."),
+    ("Cillian", "KIL-ee-un", "Irish-rooted, distinctive, and strong while staying wearable."),
+    ("Ronan", "ROH-nun", "Irish-rooted, warm, and recognizable without being overused."),
+    ("Eamon", "AY-mun", "Irish-rooted, substantial, and gently classic."),
+    ("Declan", "DEK-lun", "Irish-rooted, strong, and familiar enough for everyday use."),
+    ("Cormac", "KOR-mak", "Irish-rooted, literary, and sturdy."),
+    ("Seamus", "SHAY-mus", "Irish-rooted, warm, and traditional."),
+    ("Lachlan", "LOCK-lun", "Scottish-rooted, strong, and outdoorsy."),
+    ("Callum", "KAL-um", "Scottish-rooted, gentle, and familiar."),
+    ("Duncan", "DUN-kun", "Scottish-rooted, sturdy, and classic."),
+    ("Alistair", "AL-is-ter", "Scottish-rooted, polished, and substantial."),
+    ("Hamish", "HAY-mish", "Scottish-rooted, warm, and distinctive."),
+    ("Ewan", "YOO-un", "Scottish-rooted, compact, and approachable."),
+    ("Nikolai", "NIK-oh-lye", "Russian-rooted, substantial, and elegant."),
+    ("Lev", "LEV", "Russian-rooted, brief, and strong."),
+    ("Dmitri", "DMEE-tree", "Russian-rooted, classic, and distinctive."),
+    ("Mikhail", "mee-KHY-eel", "Russian-rooted, historic, and strong."),
+    ("Ivan", "EYE-vun", "Russian-rooted, classic, and direct."),
+    ("Viktor", "VIK-tor", "Russian-rooted, strong, and recognizable."),
+    ("Kai", "KYE", "Chinese-rooted in many modern uses, compact, and bright."),
+    ("Ming", "MING", "Chinese-rooted, clear, and luminous."),
+    ("Jian", "JYEN", "Chinese-rooted, concise, and strong."),
+    ("Wei", "WAY", "Chinese-rooted, brief, and graceful."),
+    ("Jun", "JOON", "Chinese-rooted, compact, and warm."),
+    ("Liang", "LYAHNG", "Chinese-rooted, strong, and melodic."),
 ]
 
 BABY_NAME_INSIGHTS = {
@@ -261,6 +285,30 @@ BABY_NAME_INSIGHTS = {
     "Santino": "is warm, distinctive, and heritage-rich",
     "Vittorio": "has substantial classic weight and a deeply Italian cadence",
     "Elio": "feels bright, compact, and Mediterranean",
+    "Cillian": "is Irish-rooted, distinctive, and strong while staying wearable",
+    "Ronan": "feels Irish-rooted, warm, and recognizable without being overused",
+    "Eamon": "is Irish-rooted, substantial, and gently classic",
+    "Declan": "feels Irish-rooted, strong, and familiar enough for everyday use",
+    "Cormac": "brings Irish literary roots with sturdy warmth",
+    "Seamus": "is Irish-rooted, warm, and traditional",
+    "Lachlan": "feels Scottish-rooted, strong, and outdoorsy",
+    "Callum": "is Scottish-rooted, gentle, and familiar",
+    "Duncan": "brings sturdy Scottish-rooted classic strength",
+    "Alistair": "feels Scottish-rooted, polished, and substantial",
+    "Hamish": "is Scottish-rooted, warm, and distinctive",
+    "Ewan": "feels Scottish-rooted, compact, and approachable",
+    "Nikolai": "is Russian-rooted, substantial, and elegant",
+    "Lev": "feels Russian-rooted, brief, and strong",
+    "Dmitri": "is Russian-rooted, classic, and distinctive",
+    "Mikhail": "feels Russian-rooted, historic, and strong",
+    "Ivan": "is Russian-rooted, classic, and direct",
+    "Viktor": "feels Russian-rooted, strong, and recognizable",
+    "Kai": "is compact and bright with Chinese-rooted modern use",
+    "Ming": "feels Chinese-rooted, clear, and luminous",
+    "Jian": "is Chinese-rooted, concise, and strong",
+    "Wei": "feels Chinese-rooted, brief, and graceful",
+    "Jun": "is Chinese-rooted, compact, and warm",
+    "Liang": "feels Chinese-rooted, strong, and melodic",
     "Felix": "feels bright and joyful with old-world polish",
     "Graham": "lands tailored and calm with understated strength",
     "Hollis": "has a gentle surname feel with flexible modern wearability",
@@ -670,6 +718,14 @@ def _tokenize_taste(value: str) -> set[str]:
         "nature": {"nature", "botanical", "outdoor", "field", "leaf", "stone"},
         "italian": {"italian", "italy", "mediterranean"},
         "italy": {"italian", "italy", "mediterranean"},
+        "irish": {"irish", "ireland", "gaelic", "celtic"},
+        "ireland": {"irish", "ireland", "gaelic", "celtic"},
+        "scottish": {"scottish", "scotland", "gaelic", "celtic"},
+        "scotland": {"scottish", "scotland", "gaelic", "celtic"},
+        "russian": {"russian", "slavic"},
+        "russia": {"russian", "slavic"},
+        "chinese": {"chinese", "mandarin", "sino"},
+        "china": {"chinese", "mandarin", "sino"},
     }
     tokens = set(raw)
     for token in raw:
@@ -696,6 +752,37 @@ def _taste_tokens_for_field(key: str, value: str) -> set[str]:
         # candidate look relevant. Specific identity tokens must carry the match.
         tokens -= GENERIC_CONTEXT_TOKENS
     return tokens
+
+
+HERITAGE_GROUP_TOKENS = {
+    "african_american": {"african", "american", "black"},
+    "italian": {"italian", "italy", "mediterranean"},
+    "irish": {"irish", "ireland"},
+    "scottish": {"scottish", "scotland"},
+    "russian": {"russian", "slavic"},
+    "chinese": {"chinese", "mandarin", "sino"},
+}
+
+
+def _heritage_groups_from_tokens(tokens: set[str]) -> set[str]:
+    groups: set[str] = set()
+    for group, group_tokens in HERITAGE_GROUP_TOKENS.items():
+        if group == "african_american":
+            if {"african", "american"} <= tokens or "black" in tokens:
+                groups.add(group)
+            continue
+        if tokens & group_tokens:
+            groups.add(group)
+    return groups
+
+
+def _requested_heritage_groups(brief: NamingBrief) -> set[str]:
+    tokens: set[str] = set()
+    for key in ("family_context", "cultural_context", "notes"):
+        value = brief.inputs.get(key)
+        if value:
+            tokens.update(_taste_tokens_for_field(key, str(value)))
+    return _heritage_groups_from_tokens(tokens)
 
 
 USER_TEXT_KEYS = {
@@ -796,6 +883,30 @@ NAME_TRAITS = {
     "santino": "italian italy mediterranean heritage warm classic distinctive cultural",
     "vittorio": "italian italy mediterranean heritage classic strong distinctive cultural",
     "elio": "italian italy mediterranean heritage warm compact lyrical distinctive cultural",
+    "cillian": "irish ireland gaelic celtic heritage strong distinctive recognizable cultural",
+    "ronan": "irish ireland gaelic celtic heritage warm strong recognizable cultural",
+    "eamon": "irish ireland gaelic celtic heritage classic substantial warm cultural",
+    "declan": "irish ireland gaelic celtic heritage strong familiar recognizable cultural",
+    "cormac": "irish ireland gaelic celtic heritage literary sturdy strong cultural",
+    "seamus": "irish ireland gaelic celtic heritage traditional warm recognizable cultural",
+    "lachlan": "scottish scotland gaelic celtic heritage strong outdoorsy distinctive cultural",
+    "callum": "scottish scotland gaelic celtic heritage gentle familiar recognizable cultural",
+    "duncan": "scottish scotland heritage classic sturdy strong recognizable cultural",
+    "alistair": "scottish scotland heritage polished substantial classic distinctive cultural",
+    "hamish": "scottish scotland heritage warm distinctive recognizable cultural",
+    "ewan": "scottish scotland heritage compact approachable recognizable cultural",
+    "nikolai": "russian slavic heritage substantial elegant classic distinctive cultural",
+    "lev": "russian slavic heritage brief strong classic distinctive cultural",
+    "dmitri": "russian slavic heritage classic distinctive recognizable cultural",
+    "mikhail": "russian slavic heritage historic strong classic recognizable cultural",
+    "ivan": "russian slavic heritage classic direct recognizable cultural",
+    "viktor": "russian slavic heritage strong recognizable classic cultural",
+    "kai": "chinese mandarin sino heritage compact bright modern recognizable cultural",
+    "ming": "chinese mandarin sino heritage clear luminous compact cultural",
+    "jian": "chinese mandarin sino heritage concise strong compact cultural",
+    "wei": "chinese mandarin sino heritage brief graceful compact cultural",
+    "jun": "chinese mandarin sino heritage compact warm recognizable cultural",
+    "liang": "chinese mandarin sino heritage strong melodic distinctive cultural",
     # Pet
     "milo": "dog friendly bright callable familiar playful",
     "juniper": "cat rabbit nature distinctive warm",
@@ -894,10 +1005,20 @@ def _score_candidate_for_taste(
 ) -> float:
     strengths = _taste_strengths(brief)
     traits = _candidate_traits(name, opener)
+    requested_heritage_groups = _requested_heritage_groups(brief)
+    candidate_heritage_groups = _heritage_groups_from_tokens(traits)
     if not strengths:
         strengths = {"__default__": 1 / 3}
 
     score = 0.0
+    if requested_heritage_groups:
+        matched_heritage_groups = requested_heritage_groups & candidate_heritage_groups
+        if matched_heritage_groups:
+            score += 28.0 * len(matched_heritage_groups)
+        elif candidate_heritage_groups:
+            # Avoid letting generic style words pull in the wrong heritage lane.
+            score -= 14.0
+
     for key, value in brief.inputs.items():
         if str(key).startswith("taste_strength_"):
             continue

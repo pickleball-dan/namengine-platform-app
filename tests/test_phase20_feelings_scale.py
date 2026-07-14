@@ -156,6 +156,42 @@ class PhaseTwentyFeelingsScaleTest(unittest.TestCase):
         self.assertFalse({"Malcolm", "Langston", "Booker", "Thurgood", "Bayard"} & set(names[:6]))
         self.assertNotIn("Arthur", names[:6])
 
+    def test_baby_fallback_respects_common_named_heritages(self):
+        baby = get_vertical("baby")
+        cases = {
+            "Irish heritage": {"Cillian", "Ronan", "Declan", "Eamon", "Cormac", "Seamus", "Finnian"},
+            "Scottish heritage": {"Duncan", "Lachlan", "Alistair", "Hamish", "Callum", "Ewan"},
+            "Russian heritage": {"Lev", "Dmitri", "Mikhail", "Viktor", "Nikolai", "Ivan"},
+            "Chinese heritage": {"Liang", "Jian", "Kai", "Jun", "Ming", "Wei"},
+        }
+        wrong_lane_names = {"Malcolm", "Langston", "Booker", "Thurgood", "Dante", "Vittorio", "Giovanni"}
+
+        for family_context, expected_names in cases.items():
+            with self.subTest(family_context=family_context):
+                brief = build_brief(
+                    baby,
+                    {
+                        "gender": "Boy",
+                        "family_context": family_context,
+                        "discovery_style": "Unexpected finds",
+                        "style": "Classic",
+                        "timeless_vs_distinctive": "Strongly distinctive",
+                        "familiarity_preference": "Recognizable but not overused",
+                        "sound": "Strong",
+                        "cultural_context": "Family heritage",
+                        "taste_strength_about_your_baby": "34",
+                        "taste_strength_name_style": "33",
+                        "taste_strength_fit_and_feeling": "33",
+                    },
+                )
+
+                names = [result.name for result in generate_names(baby, brief, use_ai=False)[:8]]
+
+                self.assertIn(names[0], expected_names)
+                self.assertGreaterEqual(len(expected_names & set(names[:6])), 5)
+                self.assertFalse((wrong_lane_names - expected_names) & set(names[:6]))
+                self.assertNotIn("Arthur", names[:6])
+
     def test_baby_fallback_changes_for_major_taste_changes(self):
         baby = get_vertical("baby")
         classic = build_brief(
