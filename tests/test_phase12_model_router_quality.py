@@ -94,7 +94,7 @@ class PhaseTwelveModelRouterQualityTest(unittest.TestCase):
     def test_public_generate_names_uses_router(self):
         brief = build_brief(PET, {"species": "Dog", "style": "Warm"})
 
-        names = generate_names(PET, brief)
+        names = generate_names(PET, brief, use_ai=True)
 
         self.assertEqual(len(names), 8)
         self.assertTrue(all(item.metadata["provider"] == "fallback" for item in names))

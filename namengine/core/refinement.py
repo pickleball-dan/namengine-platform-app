@@ -41,6 +41,7 @@ def refine_session(
     parent_session_id: str,
     vertical: VerticalConfig,
     instruction: str = "",
+    use_ai: bool = False,
 ) -> tuple[str, NamingBrief, list]:
     snapshot = get_session_snapshot(parent_session_id)
     if snapshot is None:
@@ -67,6 +68,7 @@ def refine_session(
         taste_summary=taste_summary,
         taste_profile=taste_profile,
         previous_names=previous_names,
+        use_ai=use_ai,
     )
     if next_round >= 4:
         session_id = f"{parent_session_id}-r{next_round}-{uuid4().hex[:8]}"

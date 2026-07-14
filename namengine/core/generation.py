@@ -388,7 +388,7 @@ def generate_names(
     taste_summary: str = "",
     taste_profile: TasteProfile | None = None,
     previous_names: list[str] | None = None,
-    use_ai: bool = True,
+    use_ai: bool = False,
 ) -> list[NameResult]:
     fallback = generate_fallback_names(
         vertical=vertical,
@@ -397,6 +397,8 @@ def generate_names(
         taste_summary=taste_summary,
         previous_names=previous_names or [],
     )
+    for name in fallback:
+        name.metadata.setdefault("provider", "fallback")
 
     if use_ai:
         try:

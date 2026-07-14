@@ -277,7 +277,7 @@ class PhaseElevenAIGenerationTest(unittest.TestCase):
         brief = build_brief(PET, {"species": "Dog", "style": "Warm"})
 
         with patch.dict(os.environ, {}, clear=True):
-            results = generate_names(PET, brief)
+            results = generate_names(PET, brief, use_ai=True)
 
         self.assertEqual(results[0].metadata["provider"], "fallback")
         self.assertIn("Milo", [item.name for item in results])
@@ -291,7 +291,7 @@ class PhaseElevenAIGenerationTest(unittest.TestCase):
 
         with patch("namengine.core.model_router.generate_ai_names") as mocked:
             mocked.side_effect = AIGenerationError("skip live call")
-            refine_session(session_id, PET, instruction="warmer")
+            refine_session(session_id, PET, instruction="warmer", use_ai=True)
 
         self.assertEqual(mocked.call_args.kwargs["taste_profile"].summary, profile.summary)
         self.assertGreaterEqual(len(mocked.call_args.kwargs["previous_names"]), 1)
@@ -305,6 +305,24 @@ class PhaseElevenAIGenerationTest(unittest.TestCase):
         self.assertIn("NamEngine Baby Results", body)
         self.assertIn("Baby names shaped from your taste", body)
         self.assertIn("Validation", body)
+
+    def test_baby_results_complex_query_uses_fast_default_generation(self):
+        url = (
+            "/baby/results?gender=Boy&family_context=african+american"
+            "&notes=strong+historical+relevance&discovery_style=Unexpected+finds"
+            "&style=Classic&timeless_vs_distinctive=Strongly+distinctive"
+            "&familiarity_preference=Recognizable+but+not+overused&sound=Strong"
+            "&cultural_context=Family+heritage&taste_strength_about_your_baby=34"
+            "&taste_strength_name_style=33&taste_strength_fit_and_feeling=33"
+        )
+        with patch("namengine.core.model_router.generate_with_router") as mocked_router:
+            response = self.client.get(url)
+
+        mocked_router.assert_not_called()
+        self.assertEqual(response.status_code, 200)
+        body = response.get_data(as_text=True)
+        self.assertIn("NamEngine Baby Results", body)
+        self.assertIn("Baby names shaped from your taste", body)
 
 
 if __name__ == "__main__":
