@@ -823,6 +823,7 @@ def _field_section_key(key: str, vertical: str) -> str:
         "baby": {
             "gender": "about_your_baby",
             "family_context": "about_your_baby",
+            "cultural_heritage": "about_your_baby",
             "notes": "about_your_baby",
             "discovery_style": "name_style",
             "style": "name_style",
@@ -927,7 +928,7 @@ GENERIC_CONTEXT_TOKENS = {
 
 def _taste_tokens_for_field(key: str, value: str) -> set[str]:
     tokens = _tokenize_taste(value)
-    if key in {"family_context", "cultural_context"}:
+    if key in {"family_context", "cultural_context", "cultural_heritage"}:
         # Generic words like "heritage" and "family" should tell us which
         # response bucket matters, but they should not make every heritage-tagged
         # candidate look relevant. Specific identity tokens must carry the match.
@@ -989,7 +990,7 @@ def _heritage_groups_from_tokens(tokens: set[str]) -> set[str]:
 
 def _requested_heritage_groups(brief: NamingBrief) -> set[str]:
     tokens: set[str] = set()
-    for key in ("family_context", "cultural_context", "notes"):
+    for key in ("family_context", "cultural_heritage", "cultural_context", "notes"):
         value = brief.inputs.get(key)
         if value:
             tokens.update(_taste_tokens_for_field(key, str(value)))

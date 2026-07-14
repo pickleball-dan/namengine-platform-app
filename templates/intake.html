@@ -61,10 +61,13 @@
               {% if question.kind == "textarea" %}
                 <textarea id="{{ question.id }}" name="{{ question.id }}"{% if question.required %} required{% endif %} placeholder="{{ question.placeholder }}">{{ current_value }}</textarea>
               {% elif question.choices %}
+                {% set has_no_preference = "No preference" in question.choices %}
                 <select id="{{ question.id }}" name="{{ question.id }}"{% if question.required %} required{% endif %}{% if has_other_choice %} data-other-select="{{ question.id }}_other"{% endif %}>
-                  <option value="">Choose one</option>
+                  {% if question.required or not has_no_preference %}
+                    <option value="">Choose one</option>
+                  {% endif %}
                   {% for choice in question.choices %}
-                    <option value="{{ choice }}"{% if current_value == choice or (choice == "Other" and other_value) %} selected{% endif %}>{{ choice }}</option>
+                    <option value="{{ choice }}"{% if current_value == choice or (not current_value and not question.required and choice == "No preference") or (choice == "Other" and other_value) %} selected{% endif %}>{{ choice }}</option>
                   {% endfor %}
                 </select>
                 {% if has_other_choice %}
