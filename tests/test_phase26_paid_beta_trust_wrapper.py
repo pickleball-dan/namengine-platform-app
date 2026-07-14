@@ -40,6 +40,8 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("NamEngine Baby", text)
         self.assertIn("Founding beta", text)
+        self.assertIn("What paid beta includes:", text)
+        self.assertIn("beta-includes-list", text)
         self.assertIn("Try the first round", text)
         self.assertTrue("Request founding access" in text or "Join paid beta" in text)
         self.assertNotIn("NAMENGINE_BABY_BETA_PAYMENT_LINK", text)

@@ -3475,3 +3475,56 @@ button {
     line-height: 1.45;
   }
 }
+
+/* Baby beta includes color pass */
+.beta-trust-card {
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(246, 240, 255, 0.88)),
+    radial-gradient(circle at 12% 12%, rgba(240, 184, 200, 0.32), transparent 38%);
+  border-color: rgba(125, 149, 199, 0.22);
+  position: relative;
+  overflow: hidden;
+}
+
+.beta-trust-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 7px;
+  background: linear-gradient(180deg, #7d95c7, #f0b8c8, #f2b84b);
+}
+
+.beta-trust-card h2 {
+  color: #29344f;
+}
+
+.beta-includes-list {
+  display: grid;
+  gap: 12px;
+  padding: 0;
+  margin: 18px 0 0;
+  list-style: none;
+}
+
+.beta-includes-list li {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.64);
+  color: #3f4b63;
+}
+
+.beta-includes-list li span {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  color: #29344f;
+  background: rgba(240, 184, 200, 0.42);
+  font-size: 13px;
+  line-height: 1;
+}
