@@ -98,6 +98,35 @@ class PhaseTwentyFeelingsScaleTest(unittest.TestCase):
         self.assertIn("Baby names shaped from your taste", body)
         self.assertNotIn("taste_strength_name_style", body)
 
+    def test_baby_fallback_respects_african_american_historical_heritage_signal(self):
+        baby = get_vertical("baby")
+        brief = build_brief(
+            baby,
+            {
+                "gender": "Boy",
+                "family_context": "african american",
+                "notes": "strong historical relevance",
+                "discovery_style": "Unexpected finds",
+                "style": "Classic",
+                "timeless_vs_distinctive": "Strongly distinctive",
+                "familiarity_preference": "Recognizable but not overused",
+                "sound": "Strong",
+                "cultural_context": "Family heritage",
+                "taste_strength_about_your_baby": "34",
+                "taste_strength_name_style": "33",
+                "taste_strength_fit_and_feeling": "33",
+            },
+        )
+
+        names = [result.name for result in generate_names(baby, brief, use_ai=False)[:8]]
+
+        self.assertIn(names[0], {"Malcolm", "Langston", "Booker"})
+        self.assertGreaterEqual(
+            len({"Malcolm", "Langston", "Booker", "Thurgood", "Frederick", "Bayard"} & set(names[:6])),
+            4,
+        )
+        self.assertNotIn("Arthur", names[:6])
+
     def test_baby_fallback_changes_for_major_taste_changes(self):
         baby = get_vertical("baby")
         classic = build_brief(
