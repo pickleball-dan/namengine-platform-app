@@ -21,6 +21,12 @@
   box-sizing: border-box;
 }
 
+html,
+body {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
 body {
   margin: 0;
   background:
@@ -2168,6 +2174,18 @@ button {
   .home-hero {
     gap: 22px;
     padding: 24px 0 28px;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .home-hero-copy,
+  .home-visual-panel,
+  .home-signal-stack,
+  .home-signal-card,
+  .home-card-copy,
+  .home-card-points {
+    min-width: 0;
+    max-width: 100%;
   }
 
   .home-hero-copy > p:not(.eyebrow) {
@@ -2184,11 +2202,27 @@ button {
 
   .home-signal-card {
     grid-template-columns: 42px minmax(0, 1fr);
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .home-signal-card small,
+  .home-card-copy p {
+    overflow-wrap: anywhere;
   }
 
   .home-signal-card em {
     justify-self: start;
     grid-column: 2;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .home-card-points span {
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 
   .home-vertical-card {
