@@ -7,7 +7,6 @@ from unittest.mock import patch
 import app as platform_app
 from app import create_app
 from namengine.core.schemas import NameResult, ValidationResult, ValidationStatus
-from namengine.core.storage import get_session_snapshot, save_session
 from namengine.core.briefs import build_brief
 from namengine.verticals import get_vertical
 
@@ -63,14 +62,14 @@ class PhaseThirtyTwoBabyAiPrimaryGenerationTest(unittest.TestCase):
         else:
             os.environ["NAMENGINE_AI_PRIMARY_VERTICALS"] = self.previous_ai_verticals
 
-    def test_baby_results_route_requests_ai_when_openai_is_configured(self):
+    def test_baby_results_route_requests_openai_only_provider_when_configured(self):
         with patch.object(platform_app, "is_ai_generation_configured", return_value=True), patch.object(
-            platform_app, "generate_names", return_value=_ai_names()
+            platform_app, "generate_with_router", return_value=_ai_names()
         ) as mocked_generate:
             response = self.client.get("/baby/results?gender=Girl&style=Playful&cultural_heritage=Japanese")
 
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(mocked_generate.call_args.kwargs["use_ai"])
+        self.assertEqual(mocked_generate.call_args.kwargs["providers"], [platform_app.ModelProvider.OPENAI])
 
     def test_cached_fallback_baby_session_is_stale_when_ai_primary_is_available(self):
         vertical = get_vertical("baby")

@@ -137,10 +137,12 @@ def build_taste_interpreter_prompt(
             "rejected_examples": brief.rejected_examples,
         },
         "taste_profile": _taste_profile_payload(taste_profile),
+        "taste_weighting": _taste_weighting_payload(brief),
         "previous_names": previous_names,
         "interpretation_rules": {
             "user_written_text_is_first_class_signal": True,
             "feelings_scale_changes_strategy_not_just_order": True,
+            "use_slider_weights_to_prioritize_prompt_tradeoffs": True,
             "hard_constraints": ["avoid exact avoid-list matches", "avoid repeats", "respect vertical safety checks"],
             "explain_tradeoffs_internally": True,
             "do_not_generate_final_names": True,
@@ -257,6 +259,7 @@ def build_generation_prompt(
         },
         "taste_strategy": taste_strategy or {},
         "taste_profile": _taste_profile_payload(taste_profile),
+        "taste_weighting": _taste_weighting_payload(brief),
         "previous_names": previous_names,
         "generation_rules": {
             "generate_more_candidates_than_final_count_internally": True,
@@ -266,6 +269,7 @@ def build_generation_prompt(
             "rejected_candidates_must_explain_why_they_lost": True,
             "user_written_text_must_change_candidate_choice_when_specific": True,
             "feelings_scale_priority_must_be_visible_in_name_choice_and_rationale": True,
+            "weight_final_selection_according_to_slider_priorities": True,
             "avoid_generic_ai_name_lists": True,
             "prefer_names_that_can_survive_real_world_use": True,
             "llm_is_creative_source_not_local_pool": True,
@@ -304,6 +308,37 @@ def build_generation_prompt(
                 "risks should be honest and practical",
             ],
         },
+    }
+
+
+def _taste_weighting_payload(brief: NamingBrief) -> dict[str, Any]:
+    weights: dict[str, int] = {}
+    for key, value in brief.inputs.items():
+        if not str(key).startswith("taste_strength_"):
+            continue
+        section = str(key)[len("taste_strength_") :].replace("_", " ").strip()
+        try:
+            score = int(float(value))
+        except (TypeError, ValueError):
+            continue
+        weights[section or key] = max(0, min(100, score))
+
+    if not weights:
+        return {
+            "has_slider_weights": False,
+            "instruction": "No explicit slider weights were supplied; balance all intake signals normally.",
+        }
+
+    ranked = sorted(weights.items(), key=lambda item: item[1], reverse=True)
+    return {
+        "has_slider_weights": True,
+        "weights_0_to_100": dict(ranked),
+        "strongest_signal": ranked[0][0],
+        "instruction": (
+            "Use these slider weights as prompt priorities: higher-weighted sections should shape the final 8 names, "
+            "the rationale, and the rejection tradeoffs more strongly than lower-weighted sections. Do not ignore low-weighted "
+            "sections; treat them as secondary constraints."
+        ),
     }
 
 

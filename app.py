@@ -26,6 +26,7 @@ from namengine.core import (
     compare_contrast_groups,
     ensure_keepsake_for_chosen,
     generate_names,
+    generate_with_router,
     get_reaction_counts,
     is_ai_generation_configured,
     get_chosen_snapshot,
@@ -35,6 +36,7 @@ from namengine.core import (
     get_taste_profile,
     keepsake_runtime_config,
     load_taste_engine_fixtures,
+    ModelProvider,
     prepare_keepsake_for_chosen,
     refine_session,
     run_taste_engine_fixture_set,
@@ -55,6 +57,12 @@ logger = logging.getLogger(__name__)
 _portrait_jobs: set[str] = set()
 _portrait_jobs_lock = Lock()
 MIN_REACTIONS_FOR_REFINEMENT = 3
+
+
+class NameGenerationUnavailable(RuntimeError):
+    """Raised when the production naming engine cannot return honest LLM results."""
+
+
 
 
 def grouped_questions(vertical) -> list[dict]:
@@ -317,6 +325,16 @@ def create_app() -> Flask:
     if load_dotenv is not None:
         load_dotenv()
     app = Flask(__name__)
+
+    @app.errorhandler(NameGenerationUnavailable)
+    def generation_unavailable(exc: NameGenerationUnavailable):
+        return (
+            render_template(
+                "generation_unavailable.html",
+                message=str(exc) or "We could not generate names right now.",
+            ),
+            503,
+        )
 
     @app.context_processor
     def inject_platform_context():
@@ -846,21 +864,29 @@ def _positive_int(value) -> int | None:
 
 
 def _generate_names_for_route(vertical, brief: NamingBrief) -> list[NameResult]:
-    use_ai = _should_use_ai_for_vertical(vertical)
-    try:
-        return generate_names(vertical, brief, use_ai=use_ai)
-    except Exception as exc:  # pragma: no cover - production safety net
-        logger.exception(
-            "Name generation failed for %s with ai=%s; falling back to deterministic engine",
-            vertical.slug,
-            use_ai,
-        )
-        fallback = generate_names(vertical, brief, use_ai=False)
-        for name in fallback:
-            name.metadata["route_generation_fallback"] = True
-            name.metadata["route_generation_fallback_reason"] = type(exc).__name__
-            name.metadata["route_generation_fallback_message"] = str(exc)[:500]
-        return fallback
+    if _should_use_ai_for_vertical(vertical):
+        try:
+            names = generate_with_router(
+                vertical=vertical,
+                brief=brief,
+                providers=[ModelProvider.OPENAI],
+            )
+        except Exception as exc:  # pragma: no cover - live provider behavior
+            logger.exception("LLM generation failed for %s", vertical.slug)
+            raise NameGenerationUnavailable(
+                "We’re having trouble generating this list right now. Please try again shortly."
+            ) from exc
+        if not names:
+            raise NameGenerationUnavailable(
+                "We’re having trouble generating this list right now. Please try again shortly."
+            )
+        for name in names:
+            name.metadata.setdefault("source", "openai")
+            name.metadata.setdefault("provider", "openai")
+            name.metadata["llm_required"] = True
+        return names
+
+    return generate_names(vertical, brief, use_ai=False)
 
 
 def _ai_primary_verticals() -> set[str]:

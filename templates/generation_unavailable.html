@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Generation temporarily unavailable · NamEngine</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/platform.css') }}">
+  </head>
+  <body class="legal-page">
+    <main class="legal-shell">
+      <p class="eyebrow">NamEngine</p>
+      <h1>We couldn’t generate this list right now.</h1>
+      <p>{{ message }}</p>
+      <p>No fallback list was shown, so you do not have to guess whether these names came from the real engine.</p>
+      <p><a class="button-link" href="javascript:history.back()">Go back and try again</a></p>
+    </main>
+  </body>
+</html>
