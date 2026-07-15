@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Recent Engine Audits · NamEngine{% endblock %}
+
+{% block content %}
+  <section class="engine-audit-shell engine-audit-index-shell">
+    <div class="engine-audit-heading">
+      <p class="eyebrow">Dev only</p>
+      <h1>Recent Engine Audits</h1>
+      <p>{{ vertical.display_name }} sessions and generation failures, newest first.</p>
+      <form class="engine-audit-filters" method="get">
+        <label>
+          Vertical
+          <select name="vertical">
+            {% for slug, item in verticals.items() %}
+              <option value="{{ slug }}"{% if slug == selected_vertical %} selected{% endif %}>{{ item.display_name }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>
+          Limit
+          <input name="limit" type="number" min="1" max="200" value="{{ limit }}">
+        </label>
+        <button type="submit">Apply</button>
+      </form>
+    </div>
+
+    <article class="engine-audit-card engine-audit-card-wide">
+      <h2>Successful sessions</h2>
+      <div class="engine-audit-table-wrap">
+        <table class="engine-audit-table">
+          <thead>
+            <tr>
+              <th>Timestamp</th><th>Session</th><th>Round</th><th>Parent</th>
+              <th>Provider / model</th><th>Latency</th><th>Prompt</th><th>Names</th>
+              <th>Love</th><th>Maybe</th><th>No</th><th>Chosen</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for session in sessions %}
+              <tr>
+                <td>{{ session.timestamp }}</td>
+                <td><a href="{{ url_for('engine_audit', session_id=session.session_id) }}">{{ session.session_id }}</a></td>
+                <td>{{ session.round_number }}</td>
+                <td>{{ session.parent_session_id or 'none' }}</td>
+                <td>{{ session.provider }}<br><small>{{ session.model }}</small></td>
+                <td>{{ session.total_latency_ms }} ms</td>
+                <td>{{ session.prompt_version }}</td>
+                <td>{{ session.names_returned }}</td>
+                <td>{{ session.love_count }}</td>
+                <td>{{ session.maybe_count }}</td>
+                <td>{{ session.no_count }}</td>
+                <td>{% if session.chosen_count %}Chosen: {{ session.chosen_name }}{% else %}Not chosen{% endif %}</td>
+              </tr>
+            {% else %}
+              <tr><td colspan="12">No {{ vertical.display_name }} sessions found.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </article>
+
+    <article class="engine-audit-card engine-audit-card-wide engine-audit-failures">
+      <h2>Failed generations</h2>
+      <div class="engine-audit-table-wrap">
+        <table class="engine-audit-table">
+          <thead>
+            <tr>
+              <th>Timestamp</th><th>Vertical</th><th>Provider / model</th><th>Prompt</th>
+              <th>Latency</th><th>Exception</th><th>Safe message</th><th>Customer intake</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for failure in failures %}
+              <tr>
+                <td>{{ failure.created_at }}</td>
+                <td>{{ failure.vertical }}</td>
+                <td>{{ failure.provider }}<br><small>{{ failure.model }}</small></td>
+                <td>{{ failure.prompt_version }}</td>
+                <td>{{ failure.latency_ms }} ms</td>
+                <td>{{ failure.exception_type }}</td>
+                <td>{{ failure.safe_error_message }}</td>
+                <td><details><summary>View intake</summary><pre>{{ failure.customer_intake|safe_audit|tojson(indent=2) }}</pre></details></td>
+              </tr>
+            {% else %}
+              <tr><td colspan="8">No {{ vertical.display_name }} generation failures found.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </article>
+  </section>
+{% endblock %}

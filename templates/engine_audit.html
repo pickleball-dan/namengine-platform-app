@@ -9,6 +9,7 @@
       <h1>Engine Audit</h1>
       <p>{{ vertical.display_name }} · {{ session.id }}</p>
       <div class="engine-audit-actions">
+        <a class="button-link secondary-button" href="{{ url_for('engine_audit_index', vertical=session.vertical) }}">Recent audits</a>
         <a class="button-link secondary-button" href="{{ url_for('session_results', session_id=session.id) }}">Open results</a>
         <a class="button-link secondary-button" href="{{ vertical.route_prefix }}">New run</a>
       </div>
@@ -36,6 +37,7 @@
           </dd>
           <dt>Feedback</dt>
           <dd>Love {{ reaction_counts.love }} · Maybe {{ reaction_counts.maybe }} · No {{ reaction_counts.no }}</dd>
+          <dt>Chosen name</dt><dd>{{ chosen_names[0].name if chosen_names else 'not chosen' }}</dd>
         </dl>
       </article>
 
@@ -177,7 +179,7 @@
               </ul>
               <details class="engine-audit-call">
                 <summary>Raw result metadata</summary>
-                <pre>{{ name.metadata|tojson(indent=2) }}</pre>
+                <pre>{{ name.metadata|safe_audit|tojson(indent=2) }}</pre>
               </details>
             </section>
           {% endfor %}

@@ -135,6 +135,25 @@ def initialize_database(db_path: Path | None = None) -> None:
                 PRIMARY KEY (session_id, provider),
                 FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE CASCADE
             );
+
+            CREATE TABLE IF NOT EXISTS failed_generation_audits (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                created_at TEXT NOT NULL,
+                vertical TEXT NOT NULL,
+                provider TEXT NOT NULL,
+                model TEXT NOT NULL,
+                prompt_version TEXT NOT NULL,
+                latency_ms INTEGER NOT NULL,
+                customer_intake_json TEXT NOT NULL,
+                exception_type TEXT NOT NULL,
+                safe_error_message TEXT NOT NULL
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_failed_generation_audits_vertical_created
+            ON failed_generation_audits(vertical, created_at DESC);
+
+            CREATE INDEX IF NOT EXISTS idx_sessions_vertical_created
+            ON sessions(vertical, created_at DESC);
             """
         )
         _ensure_column(connection, "sessions", "round_number", "INTEGER NOT NULL DEFAULT 1")
@@ -245,6 +264,160 @@ def save_session(
                     ),
                 )
         connection.commit()
+
+
+def save_failed_generation_audit(
+    *,
+    vertical: str,
+    provider: str,
+    model: str,
+    prompt_version: str,
+    latency_ms: int,
+    customer_intake: dict[str, Any],
+    exception_type: str,
+    safe_error_message: str,
+    db_path: Path | None = None,
+) -> int:
+    """Persist a generation failure without storing exception text or tracebacks."""
+    initialize_database(db_path)
+    with closing(connect(db_path)) as connection:
+        cursor = connection.execute(
+            """
+            INSERT INTO failed_generation_audits
+                (created_at, vertical, provider, model, prompt_version, latency_ms,
+                 customer_intake_json, exception_type, safe_error_message)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                utc_now_iso(),
+                vertical,
+                provider,
+                model,
+                prompt_version,
+                max(0, int(latency_ms)),
+                json.dumps(customer_intake),
+                exception_type,
+                safe_error_message,
+            ),
+        )
+        connection.commit()
+        return int(cursor.lastrowid)
+
+
+def get_failed_generation_audits(
+    vertical: str | None = None,
+    limit: int = 50,
+    db_path: Path | None = None,
+) -> list[dict[str, Any]]:
+    initialize_database(db_path)
+    safe_limit = max(1, min(int(limit), 200))
+    query = "SELECT * FROM failed_generation_audits"
+    params: tuple[Any, ...]
+    if vertical:
+        query += " WHERE vertical = ?"
+        params = (vertical, safe_limit)
+    else:
+        params = (safe_limit,)
+    query += " ORDER BY created_at DESC, id DESC LIMIT ?"
+    with closing(connect(db_path)) as connection:
+        rows = connection.execute(query, params).fetchall()
+
+    audits: list[dict[str, Any]] = []
+    for row in rows:
+        audit = dict(row)
+        try:
+            intake = json.loads(audit.pop("customer_intake_json"))
+        except (TypeError, json.JSONDecodeError):
+            intake = {}
+        audit["customer_intake"] = intake if isinstance(intake, dict) else {}
+        audits.append(audit)
+    return audits
+
+
+def get_recent_audit_sessions(
+    vertical: str,
+    limit: int = 50,
+    db_path: Path | None = None,
+) -> list[dict[str, Any]]:
+    """Return compact summaries for recent successful naming sessions."""
+    initialize_database(db_path)
+    safe_limit = max(1, min(int(limit), 200))
+    with closing(connect(db_path)) as connection:
+        rows = connection.execute(
+            """
+            SELECT
+                sessions.id,
+                sessions.vertical,
+                sessions.round_number,
+                sessions.parent_session_id,
+                sessions.created_at,
+                (SELECT COUNT(*) FROM name_results
+                    WHERE session_id = sessions.id) AS names_returned,
+                (SELECT result_json FROM name_results
+                    WHERE session_id = sessions.id ORDER BY id LIMIT 1) AS first_result_json,
+                (SELECT COUNT(*) FROM chosen_names
+                    WHERE session_id = sessions.id) AS chosen_count,
+                (SELECT name FROM chosen_names
+                    WHERE session_id = sessions.id ORDER BY created_at DESC LIMIT 1) AS chosen_name,
+                (SELECT COUNT(*) FROM reactions
+                    WHERE session_id = sessions.id AND value = 'love') AS love_count,
+                (SELECT COUNT(*) FROM reactions
+                    WHERE session_id = sessions.id AND value = 'maybe') AS maybe_count,
+                (SELECT COUNT(*) FROM reactions
+                    WHERE session_id = sessions.id AND value = 'no') AS no_count
+            FROM sessions
+            WHERE sessions.vertical = ?
+            ORDER BY sessions.created_at DESC, sessions.id DESC
+            LIMIT ?
+            """,
+            (vertical, safe_limit),
+        ).fetchall()
+
+    summaries: list[dict[str, Any]] = []
+    for row in rows:
+        result = _json_object(row["first_result_json"])
+        metadata = result.get("metadata") if isinstance(result.get("metadata"), dict) else {}
+        calls = metadata.get("ai_calls") if isinstance(metadata.get("ai_calls"), list) else []
+        latency_ms = sum(_audit_call_latency(call) for call in calls)
+        summaries.append(
+            {
+                "timestamp": row["created_at"],
+                "session_id": row["id"],
+                "vertical": row["vertical"],
+                "round_number": int(row["round_number"]),
+                "parent_session_id": row["parent_session_id"],
+                "provider": str(metadata.get("provider") or metadata.get("source") or "unknown"),
+                "model": str(metadata.get("model") or "unknown"),
+                "total_latency_ms": latency_ms,
+                "prompt_version": str(metadata.get("prompt_version") or "unknown"),
+                "names_returned": int(row["names_returned"] or 0),
+                "love_count": int(row["love_count"] or 0),
+                "maybe_count": int(row["maybe_count"] or 0),
+                "no_count": int(row["no_count"] or 0),
+                "chosen_count": int(row["chosen_count"] or 0),
+                "chosen_name": row["chosen_name"],
+            }
+        )
+    return summaries
+
+
+def _json_object(value: str | None) -> dict[str, Any]:
+    if not value:
+        return {}
+    try:
+        parsed = json.loads(value)
+    except (TypeError, json.JSONDecodeError):
+        return {}
+    return parsed if isinstance(parsed, dict) else {}
+
+
+def _audit_call_latency(call: Any) -> int:
+    if not isinstance(call, dict):
+        return 0
+    try:
+        return max(0, int(call.get("latency_ms") or 0))
+    except (TypeError, ValueError):
+        return 0
 
 
 def save_reaction(reaction: Reaction, db_path: Path | None = None) -> None:
