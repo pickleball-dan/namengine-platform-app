@@ -1976,6 +1976,26 @@ button {
   animation: progress-node-pulse 720ms ease-out;
 }
 
+.progress-visual.is-searching .progress-orbit-one {
+  animation: progress-orbit-spin 9s linear infinite;
+}
+
+.progress-visual.is-searching .progress-orbit-two {
+  animation: progress-orbit-spin 6.5s linear infinite reverse;
+}
+
+.progress-visual.is-searching .progress-node-one {
+  animation: progress-node-drift-one 4.8s ease-in-out infinite;
+}
+
+.progress-visual.is-searching .progress-node-two {
+  animation: progress-node-drift-two 5.4s ease-in-out infinite;
+}
+
+.progress-visual.is-searching .progress-node-three {
+  animation: progress-node-drift-three 5.9s ease-in-out infinite;
+}
+
 .progress-node-one {
   top: 26px;
   left: 50%;
@@ -2089,6 +2109,39 @@ button {
   100% {
     box-shadow: 0 0 0 42px rgba(47, 148, 134, 0), 0 0 0 16px rgba(47, 148, 134, 0.16), 0 16px 34px rgba(24, 33, 47, 0.2);
     transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes progress-orbit-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes progress-node-drift-one {
+  0%, 100% {
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+  50% {
+    transform: translateX(-50%) translateY(10px) scale(1.12);
+  }
+}
+
+@keyframes progress-node-drift-two {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-12px, -8px) scale(1.08);
+  }
+}
+
+@keyframes progress-node-drift-three {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(12px, -10px) scale(1.1);
   }
 }
 

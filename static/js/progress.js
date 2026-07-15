@@ -3,9 +3,16 @@
   const current = document.querySelector("[data-progress-current]");
   const eyebrow = document.querySelector("[data-progress-eyebrow]");
   const visual = document.querySelector("[data-progress-visual]");
+  const note = document.querySelector("[data-progress-note]");
   const steps = Array.from(document.querySelectorAll("[data-progress-step]"));
   const forms = Array.from(document.querySelectorAll("form"));
   const minimumProgressMs = 10000;
+  const longWaitMessages = [
+    "Working hard to get your perfect matches.",
+    "Exploring meaning, sound, and cultural fit.",
+    "Comparing the strongest names against your taste.",
+    "Almost there — shaping the final shortlist."
+  ];
 
   if (!forms.length) {
     return;
@@ -14,6 +21,7 @@
   const canShowProgress = Boolean(overlay && current && steps.length);
 
   let timer = null;
+  let patienceTimer = null;
   let submittingForm = null;
 
   function cleanValue(value) {
@@ -52,8 +60,19 @@
   function personalizeProgress(form) {
     const subject = subjectFor(form);
     const vibe = formValue(form, ["vibe", "style", "tone"]);
+    const culture = formValue(form, "cultural_heritage");
+    const isBaby = subject === "this baby name";
     const feelLine = vibe ? `Matching the ${vibe.toLowerCase()} feel` : "Matching the feel";
-    const labels = [
+    const cultureLine = culture && culture !== "No preference"
+      ? `Exploring ${culture.toLowerCase()} meaning and sound`
+      : "Exploring meaning and sound";
+    const labels = isBaby ? [
+      "Reading your baby-name direction",
+      cultureLine,
+      feelLine,
+      "Checking pronunciation and family fit",
+      "Working hard to get your perfect matches",
+    ] : [
       "Reading the details",
       `Finding names for ${subject}`,
       feelLine,
@@ -62,7 +81,12 @@
     ];
 
     if (eyebrow) {
-      eyebrow.textContent = `Building a shortlist for ${subject}`;
+      eyebrow.textContent = isBaby ? "Building your baby-name shortlist" : `Building a shortlist for ${subject}`;
+    }
+    if (note) {
+      note.textContent = isBaby
+        ? "The name engine is weighing meaning, sound, culture, and family fit. This can take a little longer for richer matches."
+        : "A few quick checks before the list appears.";
     }
     steps.forEach((step, index) => {
       const label = labels[index] || cleanValue(step.dataset.progressHeadline || step.textContent);
@@ -87,6 +111,9 @@
   function showProgress() {
     if (!canShowProgress) return;
     overlay.hidden = false;
+    if (visual) {
+      visual.classList.add("is-searching");
+    }
     activateStep(0);
     let index = 0;
     timer = window.setInterval(() => {
@@ -96,6 +123,18 @@
         window.clearInterval(timer);
       }
     }, Math.max(900, Math.floor(minimumProgressMs / steps.length)));
+
+    let patienceIndex = 0;
+    patienceTimer = window.setInterval(() => {
+      if (!current) return;
+      current.textContent = longWaitMessages[patienceIndex % longWaitMessages.length];
+      patienceIndex += 1;
+      if (visual) {
+        visual.classList.remove("is-pulsing");
+        void visual.offsetWidth;
+        visual.classList.add("is-pulsing");
+      }
+    }, 6500);
   }
 
   window.addEventListener("namengine:progress-step", (event) => {
@@ -242,6 +281,9 @@
       event.preventDefault();
       if (timer) {
         window.clearInterval(timer);
+      }
+      if (patienceTimer) {
+        window.clearInterval(patienceTimer);
       }
       personalizeProgress(form);
       showProgress();
