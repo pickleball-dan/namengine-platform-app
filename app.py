@@ -27,6 +27,7 @@ from namengine.core import (
     ensure_keepsake_for_chosen,
     generate_names,
     get_reaction_counts,
+    is_ai_generation_configured,
     get_chosen_snapshot,
     get_database_path,
     get_session_snapshot,
@@ -422,7 +423,7 @@ def create_app() -> Flask:
         if snapshot and snapshot["results"]:
             names = _names_from_snapshot(snapshot)
         else:
-            names = generate_names(vertical, brief)
+            names = generate_names(vertical, brief, use_ai=_should_use_ai_for_vertical(vertical))
             save_session(session_id, vertical.slug, brief, names)
         taste_profile_row = get_taste_profile(session_id)
         return render_template(
@@ -452,10 +453,10 @@ def create_app() -> Flask:
         if snapshot and snapshot["results"]:
             names = _names_from_snapshot(snapshot)
             if not _cached_names_match_current_rules(vertical, brief, names):
-                names = generate_names(vertical, brief)
+                names = generate_names(vertical, brief, use_ai=_should_use_ai_for_vertical(vertical))
                 save_session(session_id, vertical.slug, brief, names)
         else:
-            names = generate_names(vertical, brief)
+            names = generate_names(vertical, brief, use_ai=_should_use_ai_for_vertical(vertical))
             save_session(session_id, vertical.slug, brief, names)
         return session_id
 
@@ -483,10 +484,10 @@ def create_app() -> Flask:
         if snapshot and snapshot["results"]:
             names = _names_from_snapshot(snapshot)
             if not _cached_names_match_current_rules(vertical, brief, names):
-                names = generate_names(vertical, brief)
+                names = generate_names(vertical, brief, use_ai=_should_use_ai_for_vertical(vertical))
                 save_session(session_id, vertical.slug, brief, names)
         else:
-            names = generate_names(vertical, brief)
+            names = generate_names(vertical, brief, use_ai=_should_use_ai_for_vertical(vertical))
             save_session(session_id, vertical.slug, brief, names)
         taste_profile_row = get_taste_profile(session_id)
         return render_template(
@@ -577,6 +578,7 @@ def create_app() -> Flask:
                 session_id,
                 vertical,
                 instruction=instruction,
+                use_ai=_should_use_ai_for_vertical(vertical),
             )
         except StorageError:
             abort(404)
@@ -843,11 +845,36 @@ def _positive_int(value) -> int | None:
     return parsed if parsed > 0 else None
 
 
+def _ai_primary_verticals() -> set[str]:
+    raw_value = os.getenv("NAMENGINE_AI_PRIMARY_VERTICALS", "baby")
+    if raw_value.strip().lower() in {"", "none", "off", "false", "0"}:
+        return set()
+    if raw_value.strip().lower() in {"all", "*"}:
+        return set(VERTICALS)
+    return {
+        item.strip().lower()
+        for item in raw_value.split(",")
+        if item.strip()
+    }
+
+
+def _should_use_ai_for_vertical(vertical) -> bool:
+    return vertical.slug in _ai_primary_verticals() and is_ai_generation_configured()
+
+
+def _result_is_ai_sourced(name: NameResult) -> bool:
+    source = str(name.metadata.get("source", "")).lower()
+    provider = str(name.metadata.get("provider", "")).lower()
+    return source in {"openai", "ai"} or provider in {"openai", "ai"}
+
+
 def _cached_names_match_current_rules(
     vertical,
     brief: NamingBrief,
     names: list[NameResult],
 ) -> bool:
+    if _should_use_ai_for_vertical(vertical) and not all(_result_is_ai_sourced(name) for name in names):
+        return False
     if vertical.slug == "baby":
         if len(filter_results_for_brief(vertical, brief, names)) != len(names):
             return False
