@@ -260,7 +260,7 @@ def build_generation_prompt(
         "previous_names": previous_names,
         "generation_rules": {
             "generate_more_candidates_than_final_count_internally": True,
-            "target_internal_candidate_pool": max(count * 3, 24),
+            "target_internal_candidate_pool": max(count * 4, 32),
             "show_only_final_count": count,
             "return_candidate_pool_and_rejected_candidates": True,
             "rejected_candidates_must_explain_why_they_lost": True,
@@ -268,7 +268,10 @@ def build_generation_prompt(
             "feelings_scale_priority_must_be_visible_in_name_choice_and_rationale": True,
             "avoid_generic_ai_name_lists": True,
             "prefer_names_that_can_survive_real_world_use": True,
+            "llm_is_creative_source_not_local_pool": True,
+            "do_not_limit_candidates_to_any_preexisting_app_list": True,
         },
+        "baby_generation_guidance": _baby_generation_guidance(vertical, brief),
         "diversity_rules": {
             "do_not_repeat_previous_names": True,
             "treat_previous_names_as_hard_exclusions": True,
@@ -302,6 +305,40 @@ def build_generation_prompt(
             ],
         },
     }
+
+
+def _baby_generation_guidance(vertical: VerticalConfig, brief: NamingBrief) -> dict[str, Any]:
+    if vertical.slug != "baby":
+        return {}
+
+    cultural_heritage = str(brief.inputs.get("cultural_heritage") or "").strip()
+    cultural_context = str(brief.inputs.get("cultural_context") or "").strip()
+    style = str(brief.inputs.get("style") or "").strip()
+    guidance: dict[str, Any] = {
+        "meaning_and_vibe_are_first_class": True,
+        "names_should_feel_like_human_curation_not_database_lookup": True,
+        "include_origin_or_language_context_in_origin_field": True,
+        "meaning_field_should_be_specific_when_known": True,
+        "tagline_should_capture_emotional_vibe": True,
+        "why_this_name_should_connect_style_heritage_sound_and_family_context": True,
+    }
+    if cultural_heritage and cultural_heritage.lower() not in {"no preference", "none"}:
+        guidance.update(
+            {
+                "cultural_heritage_is_primary_creative_source": cultural_heritage,
+                "generate_authentic_culturally_grounded_options": True,
+                "avoid_generic_names_that_only_match_style": True,
+                "consider_modern_traditional_rare_and_easy_to_pronounce_lanes": True,
+                "do_not_stop_after_obvious_or_overused_examples": True,
+                "if_relevant_include_script_or_transliteration_in_origin_or_meaning": True,
+                "final_list_should_show_breadth_within_the_heritage_not_breadth_away_from_it": True,
+            }
+        )
+    if cultural_context:
+        guidance["additional_cultural_context"] = cultural_context
+    if style:
+        guidance["style_signal"] = style
+    return guidance
 
 
 def name_generation_response_format() -> dict[str, Any]:
