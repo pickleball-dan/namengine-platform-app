@@ -902,7 +902,7 @@ def _generate_names_for_route(vertical, brief: NamingBrief) -> list[NameResult]:
 
 
 def _ai_primary_verticals() -> set[str]:
-    raw_value = os.getenv("NAMENGINE_AI_PRIMARY_VERTICALS", "off")
+    raw_value = os.getenv("NAMENGINE_AI_PRIMARY_VERTICALS", "baby")
     if raw_value.strip().lower() in {"", "none", "off", "false", "0"}:
         return set()
     if raw_value.strip().lower() in {"all", "*"}:

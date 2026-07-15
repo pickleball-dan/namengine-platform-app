@@ -19,10 +19,10 @@ class PhaseThirtyFiveAiCostSafetyDefaultsTest(unittest.TestCase):
         else:
             os.environ["NAMENGINE_AI_PRIMARY_VERTICALS"] = self.previous_ai_verticals
 
-    def test_openai_key_alone_does_not_enable_ai_primary_generation(self):
+    def test_baby_defaults_to_ai_primary_when_openai_is_configured(self):
         baby = get_vertical("baby")
         with patch.object(platform_app, "is_ai_generation_configured", return_value=True):
-            self.assertFalse(platform_app._should_use_ai_for_vertical(baby))
+            self.assertTrue(platform_app._should_use_ai_for_vertical(baby))
 
     def test_ai_primary_requires_explicit_vertical_opt_in(self):
         baby = get_vertical("baby")
