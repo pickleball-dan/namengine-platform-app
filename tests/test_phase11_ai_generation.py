@@ -241,7 +241,7 @@ class PhaseElevenAIGenerationTest(unittest.TestCase):
 
     def test_generate_ai_names_validates_ai_output(self):
         brief = build_brief(PET, {"species": "Dog", "style": "Warm"})
-        fake_client = FakeClient(STRATEGY_RESPONSE, AI_RESPONSE)
+        fake_client = FakeClient(AI_RESPONSE)
 
         with patch.dict(os.environ, {"OPENAI_API_KEY": "test-key", "NAMENGINE_OPENAI_TIMEOUT_SECONDS": "7"}):
             results = generate_ai_names(
@@ -254,23 +254,18 @@ class PhaseElevenAIGenerationTest(unittest.TestCase):
         self.assertEqual(results[0].name, "Lumi")
         self.assertEqual(len(results[0].validation), 2)
         self.assertIn("pet_callability", results[0].scores)
-        self.assertEqual(results[0].metadata["engine_pipeline"], "taste_interpreter_v1+candidate_ranker_v1")
+        self.assertEqual(results[0].metadata["engine_pipeline"], "weighted_prompt_v1+candidate_ranker_v1")
         self.assertEqual(results[0].metadata["candidate_pool"][0]["name"], "Lumi")
         self.assertEqual(results[0].metadata["rejected_candidates"][0]["name"], "Nova")
-        self.assertEqual(len(fake_client.responses.calls), 2)
+        self.assertEqual(len(fake_client.responses.calls), 1)
         self.assertEqual(fake_client.responses.calls[0]["timeout"], 7.0)
-        self.assertEqual(fake_client.responses.calls[1]["timeout"], 7.0)
         self.assertEqual(
             fake_client.responses.calls[0]["text"]["format"]["name"],
-            TASTE_STRATEGY_SCHEMA_NAME,
-        )
-        self.assertEqual(
-            fake_client.responses.calls[1]["text"]["format"]["name"],
             NAME_GENERATION_SCHEMA_NAME,
         )
         self.assertEqual(
             results[0].metadata["ai_calls"][0]["schema_name"],
-            TASTE_STRATEGY_SCHEMA_NAME,
+            NAME_GENERATION_SCHEMA_NAME,
         )
 
     def test_generate_names_falls_back_without_api_key(self):
@@ -296,17 +291,17 @@ class PhaseElevenAIGenerationTest(unittest.TestCase):
         self.assertEqual(mocked.call_args.kwargs["taste_profile"].summary, profile.summary)
         self.assertGreaterEqual(len(mocked.call_args.kwargs["previous_names"]), 1)
 
-    def test_results_route_falls_back_when_router_raises(self):
-        with patch("namengine.core.model_router.generate_with_router", side_effect=RuntimeError("router boom")):
+    def test_baby_results_route_returns_unavailable_when_router_raises(self):
+        with patch("app.is_ai_generation_configured", return_value=True), patch(
+            "app.generate_with_router", side_effect=RuntimeError("router boom")
+        ):
             response = self.client.get("/baby/results?gender=Boy&style=Classic&sound=Soft")
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 503)
         body = response.get_data(as_text=True)
-        self.assertIn("NamEngine Baby Results", body)
-        self.assertIn("Baby names shaped from your taste", body)
-        self.assertIn("Validation", body)
+        self.assertIn("couldn", body.lower())
 
-    def test_baby_results_complex_query_uses_fast_default_generation(self):
+    def test_baby_results_complex_query_uses_llm_route_when_configured(self):
         url = (
             "/baby/results?gender=Boy&family_context=african+american"
             "&notes=strong+historical+relevance&discovery_style=Unexpected+finds"
@@ -315,14 +310,15 @@ class PhaseElevenAIGenerationTest(unittest.TestCase):
             "&cultural_context=Family+heritage&taste_strength_about_your_baby=34"
             "&taste_strength_name_style=33&taste_strength_fit_and_feeling=33"
         )
-        with patch("namengine.core.model_router.generate_with_router") as mocked_router:
+        with patch("app.is_ai_generation_configured", return_value=True), patch(
+            "app.generate_with_router", return_value=[]
+        ) as mocked_router:
             response = self.client.get(url)
 
-        mocked_router.assert_not_called()
-        self.assertEqual(response.status_code, 200)
+        mocked_router.assert_called_once()
+        self.assertEqual(response.status_code, 503)
         body = response.get_data(as_text=True)
-        self.assertIn("NamEngine Baby Results", body)
-        self.assertIn("Baby names shaped from your taste", body)
+        self.assertIn("couldn", body.lower())
 
 
 if __name__ == "__main__":

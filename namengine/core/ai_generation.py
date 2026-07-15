@@ -19,7 +19,7 @@ from namengine.core.validation import validate_results
 
 
 DEFAULT_MODEL = "gpt-4.1-mini"
-DEFAULT_TIMEOUT_SECONDS = 45.0
+DEFAULT_TIMEOUT_SECONDS = 12.0
 PROMPT_VERSION = "namengine-taste-engine-v1"
 TASTE_STRATEGY_SCHEMA_NAME = "namengine_taste_strategy_v1"
 NAME_GENERATION_SCHEMA_NAME = "namengine_name_generation_v1"
@@ -43,10 +43,10 @@ def generate_ai_names(
     model: str | None = None,
     client_factory: Callable[[], Any] | None = None,
 ) -> list[NameResult]:
-    """Generate names with NamEngine's first real multi-stage taste engine.
+    """Generate names with NamEngine's LLM-first engine.
 
-    Stage 1 interprets the user's taste and produces a naming strategy.
-    Stage 2 generates/ranks the final names against that strategy.
+    NamEngine frames the user's intake, slider weights, and refinement context into
+    one generation/ranking prompt. The LLM returns the top names plus audit context.
     """
     if not is_ai_generation_configured():
         raise AIGenerationError("OPENAI_API_KEY is not configured")
@@ -56,7 +56,7 @@ def generate_ai_names(
     client = client_factory() if client_factory else None
     generation_id = f"gen-{uuid.uuid4().hex[:12]}"
 
-    strategy_prompt = build_taste_interpreter_prompt(
+    taste_strategy = build_local_taste_strategy(
         vertical=vertical,
         brief=brief,
         round_number=round_number,
@@ -64,13 +64,6 @@ def generate_ai_names(
         previous_names=previous_names or [],
         count=target_count,
     )
-    strategy_call = _call_openai_with_metadata(
-        prompt=strategy_prompt,
-        model=selected_model,
-        client_factory=(lambda: client) if client is not None else None,
-        response_format=taste_strategy_response_format(),
-    )
-    taste_strategy = parse_taste_strategy_response(strategy_call["text"])
 
     prompt = build_generation_prompt(
         vertical=vertical,
@@ -95,17 +88,62 @@ def generate_ai_names(
     validated = validate_results(vertical, brief, results[: prompt["count"]])
     for result in validated:
         result.metadata["taste_strategy"] = taste_strategy
-        result.metadata["engine_pipeline"] = "taste_interpreter_v1+candidate_ranker_v1"
+        result.metadata["engine_pipeline"] = "weighted_prompt_v1+candidate_ranker_v1"
         result.metadata["prompt_version"] = PROMPT_VERSION
         result.metadata["generation_id"] = generation_id
         result.metadata["model"] = selected_model
         result.metadata["candidate_pool"] = generation_audit["candidate_pool"]
         result.metadata["rejected_candidates"] = generation_audit["rejected_candidates"]
         result.metadata["ai_calls"] = [
-            _call_audit_summary("taste_interpreter_v1", strategy_call, strategy_prompt),
             _call_audit_summary("candidate_generator_ranker_v1", generation_call, prompt),
         ]
     return validated
+
+
+def build_local_taste_strategy(
+    vertical: VerticalConfig,
+    brief: NamingBrief,
+    round_number: int,
+    taste_profile: TasteProfile | None = None,
+    previous_names: list[str] | None = None,
+    count: int | None = None,
+) -> dict[str, Any]:
+    """Create the naming strategy locally so production needs only one LLM call."""
+    inputs = brief.inputs
+    cultural_heritage = str(inputs.get("cultural_heritage") or "No preference").strip()
+    style = str(inputs.get("style") or "").strip()
+    sound = str(inputs.get("sound") or "").strip()
+    discovery = str(inputs.get("discovery_style") or "").strip()
+    familiarity = str(inputs.get("familiarity_preference") or "").strip()
+    weighting = _taste_weighting_payload(brief)
+    target_count = count or _count_for_round(vertical, round_number)
+    prior_summary = taste_profile.summary if taste_profile else ""
+    previous = previous_names or []
+
+    thesis_parts = [part for part in [style, sound, cultural_heritage] if part and part.lower() != "no preference"]
+    taste_thesis = " / ".join(thesis_parts) if thesis_parts else vertical.prompt_context
+    return {
+        "taste_thesis": taste_thesis,
+        "primary_priorities": [
+            f"Return exactly {target_count} strong final names.",
+            "Use the intake and slider weights to shape the prompt tradeoffs.",
+            "Make meaning, vibe, cultural fit, sound, and family usability visible in the final choices.",
+            "Avoid repeating previous names and avoid generic filler.",
+        ],
+        "avoidance_rules": [
+            "Do not use local candidate pools as the source of names.",
+            "Do not drift away from a requested cultural heritage just to satisfy style.",
+            "Do not return names that conflict with the avoid list or previous names.",
+        ],
+        "slider_weighting": weighting,
+        "style_direction": style,
+        "sound_direction": sound,
+        "discovery_direction": discovery,
+        "familiarity_direction": familiarity,
+        "cultural_heritage": cultural_heritage,
+        "prior_taste_summary": prior_summary,
+        "previous_names": previous,
+    }
 
 
 def build_taste_interpreter_prompt(
