@@ -41,7 +41,9 @@ class PhaseTwentyEightBabyNameFactCardTest(unittest.TestCase):
         self.assertIn("Clara Barton", card["famous_namesakes"])
         self.assertIn("Claire", card["nicknames_variants"])
         self.assertIn("Good", "Good to know")
-        self.assertIn("Approx. US use", card["popularity_snapshot"])
+        self.assertEqual("Common", card["popularity_snapshot"]["current_feel"])
+        self.assertIn("2024:", card["popularity_snapshot"]["latest"])
+        self.assertIn("SSA-recorded total", card["popularity_snapshot"]["scale"])
 
     def test_chosen_baby_page_renders_name_fact_card_without_watch_outs(self):
         results_response = self._create_baby_results_page()
@@ -62,6 +64,10 @@ class PhaseTwentyEightBabyNameFactCardTest(unittest.TestCase):
         self.assertIn("Meaning & origin", chosen_text)
         self.assertIn("Famous namesakes", chosen_text)
         self.assertIn("Popularity snapshot", chosen_text)
+        self.assertIn("Current feel", chosen_text)
+        self.assertIn("Latest data", chosen_text)
+        self.assertIn("Trend", chosen_text)
+        self.assertIn("Scale", chosen_text)
         self.assertIn("Nicknames & variants", chosen_text)
         self.assertIn("Similar names", chosen_text)
         self.assertIn("Good to know", chosen_text)

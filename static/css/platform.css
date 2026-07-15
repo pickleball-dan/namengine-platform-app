@@ -3633,3 +3633,28 @@ button {
     padding: 16px;
   }
 }
+
+.popularity-snapshot-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+
+.popularity-snapshot-list div {
+  display: grid;
+  gap: 3px;
+}
+
+.popularity-snapshot-list dt {
+  color: #7d5f78;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.popularity-snapshot-list dd {
+  margin: 0;
+  color: #3f4b63;
+  line-height: 1.45;
+}

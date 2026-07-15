@@ -15,7 +15,24 @@
 
     <article class="name-fact-panel">
       <h3>Popularity snapshot</h3>
-      <p>{{ name_fact_card.popularity_snapshot }}</p>
+      <dl class="popularity-snapshot-list">
+        <div>
+          <dt>Current feel</dt>
+          <dd>{{ name_fact_card.popularity_snapshot.current_feel }}</dd>
+        </div>
+        <div>
+          <dt>Latest data</dt>
+          <dd>{{ name_fact_card.popularity_snapshot.latest }}</dd>
+        </div>
+        <div>
+          <dt>Trend</dt>
+          <dd>{{ name_fact_card.popularity_snapshot.trend }}</dd>
+        </div>
+        <div>
+          <dt>Scale</dt>
+          <dd>{{ name_fact_card.popularity_snapshot.scale }}</dd>
+        </div>
+      </dl>
     </article>
 
     <article class="name-fact-panel">

@@ -385,6 +385,220 @@ BABY_NAME_FACTS: dict[str, dict[str, Any]] = {
 }
 
 
+BABY_POPULARITY_SNAPSHOTS: dict[str, dict[str, str]] = {'aaliyah': {'current_feel': 'Common',
+             'latest': '2024: #93 for girls, with 2,703 births.',
+             'scale': 'SSA-recorded total since 1880: about 107,314 births.',
+             'trend': 'Fairly steady recently.'},
+ 'ada': {'current_feel': 'Familiar',
+         'latest': '2024: #193 for girls, with 1,563 births.',
+         'scale': 'SSA-recorded total since 1880: about 105,475 births.',
+         'trend': 'Fairly steady recently.'},
+ 'alessio': {'current_feel': 'Uncommon but visible',
+             'latest': '2024: #946 for boys, with 241 births.',
+             'scale': 'SSA-recorded total since 1880: about 2,096 births.',
+             'trend': 'Rising recently.'},
+ 'amina': {'current_feel': 'Familiar',
+           'latest': '2024: #307 for girls, with 1,000 births.',
+           'scale': 'SSA-recorded total since 1880: about 18,292 births.',
+           'trend': 'Fairly steady recently.'},
+ 'ansel': {'current_feel': 'Uncommon but visible',
+           'latest': '2024: #1,285 for boys, with 152 births.',
+           'scale': 'SSA-recorded total since 1880: about 4,614 births.',
+           'trend': 'Fairly steady recently.'},
+ 'asha': {'current_feel': 'Uncommon but visible',
+          'latest': '2024: #1,196 for girls, with 197 births.',
+          'scale': 'SSA-recorded total since 1880: about 8,904 births.',
+          'trend': 'Fairly steady recently.'},
+ 'ayana': {'current_feel': 'Uncommon but visible',
+           'latest': '2024: #1,107 for girls, with 220 births.',
+           'scale': 'SSA-recorded total since 1880: about 11,888 births.',
+           'trend': 'Fairly steady recently.'},
+ 'bennett': {'current_feel': 'Common',
+             'latest': '2024: #60 for boys, with 5,095 births.',
+             'scale': 'SSA-recorded total since 1880: about 66,225 births.',
+             'trend': 'Rising recently.'},
+ 'celia': {'current_feel': 'Uncommon but visible',
+           'latest': '2024: #734 for girls, with 382 births.',
+           'scale': 'SSA-recorded total since 1880: about 56,289 births.',
+           'trend': 'Fairly steady recently.'},
+ 'clara': {'current_feel': 'Common',
+           'latest': '2024: #78 for girls, with 3,060 births.',
+           'scale': 'SSA-recorded total since 1880: about 296,898 births.',
+           'trend': 'Fairly steady recently.'},
+ 'cora': {'current_feel': 'Familiar',
+          'latest': '2024: #102 for girls, with 2,570 births.',
+          'scale': 'SSA-recorded total since 1880: about 153,577 births.',
+          'trend': 'Fairly steady recently.'},
+ 'dante': {'current_feel': 'Familiar',
+           'latest': '2024: #322 for boys, with 1,067 births.',
+           'scale': 'SSA-recorded total since 1880: about 50,470 births.',
+           'trend': 'Fairly steady recently.'},
+ 'elian': {'current_feel': 'Familiar',
+           'latest': '2024: #237 for boys, with 1,495 births.',
+           'scale': 'SSA-recorded total since 1880: about 12,815 births.',
+           'trend': 'Rising recently.'},
+ 'elio': {'current_feel': 'Uncommon but visible',
+          'latest': '2024: #507 for boys, with 599 births.',
+          'scale': 'SSA-recorded total since 1880: about 4,349 births.',
+          'trend': 'Rising recently.'},
+ 'elodie': {'current_feel': 'Familiar',
+            'latest': '2024: #370 for girls, with 839 births.',
+            'scale': 'SSA-recorded total since 1880: about 5,572 births.',
+            'trend': 'Rising recently.'},
+ 'eloise': {'current_feel': 'Common',
+            'latest': '2024: #64 for girls, with 3,430 births.',
+            'scale': 'SSA-recorded total since 1880: about 68,429 births.',
+            'trend': 'Rising recently.'},
+ 'enzo': {'current_feel': 'Common',
+          'latest': '2024: #74 for boys, with 4,548 births.',
+          'scale': 'SSA-recorded total since 1880: about 30,378 births.',
+          'trend': 'Rising recently.'},
+ 'evander': {'current_feel': 'Uncommon but visible',
+             'latest': '2024: #771 for boys, with 327 births.',
+             'scale': 'SSA-recorded total since 1880: about 3,808 births.',
+             'trend': 'Rising recently.'},
+ 'fiona': {'current_feel': 'Familiar',
+           'latest': '2024: #406 for girls, with 782 births.',
+           'scale': 'SSA-recorded total since 1880: about 33,296 births.',
+           'trend': 'Cooling recently.'},
+ 'giovanni': {'current_feel': 'Familiar',
+              'latest': '2024: #122 for boys, with 2,951 births.',
+              'scale': 'SSA-recorded total since 1880: about 86,387 births.',
+              'trend': 'Fairly steady recently.'},
+ 'imani': {'current_feel': 'Uncommon but visible',
+           'latest': '2024: #526 for girls, with 583 births.',
+           'scale': 'SSA-recorded total since 1880: about 27,296 births.',
+           'trend': 'Fairly steady recently.'},
+ 'iris': {'current_feel': 'Common',
+          'latest': '2024: #71 for girls, with 3,124 births.',
+          'scale': 'SSA-recorded total since 1880: about 97,794 births.',
+          'trend': 'Rising recently.'},
+ 'jonah': {'current_feel': 'Familiar',
+           'latest': '2024: #126 for boys, with 2,879 births.',
+           'scale': 'SSA-recorded total since 1880: about 82,424 births.',
+           'trend': 'Fairly steady recently.'},
+ 'julian': {'current_feel': 'Common',
+            'latest': '2024: #30 for boys, with 7,368 births.',
+            'scale': 'SSA-recorded total since 1880: about 257,331 births.',
+            'trend': 'Fairly steady recently.'},
+ 'june': {'current_feel': 'Familiar',
+          'latest': '2024: #152 for girls, with 1,956 births.',
+          'scale': 'SSA-recorded total since 1880: about 203,564 births.',
+          'trend': 'Fairly steady recently.'},
+ 'kenya': {'current_feel': 'Uncommon but visible',
+           'latest': '2024: #1,662 for girls, with 123 births.',
+           'scale': 'SSA-recorded total since 1880: about 25,340 births.',
+           'trend': 'Cooling recently.'},
+ 'lena': {'current_feel': 'Familiar',
+          'latest': '2024: #263 for girls, with 1,211 births.',
+          'scale': 'SSA-recorded total since 1880: about 145,356 births.',
+          'trend': 'Fairly steady recently.'},
+ 'leon': {'current_feel': 'Familiar',
+          'latest': '2024: #141 for boys, with 2,547 births.',
+          'scale': 'SSA-recorded total since 1880: about 180,022 births.',
+          'trend': 'Rising recently.'},
+ 'leonardo': {'current_feel': 'Common',
+              'latest': '2024: #84 for boys, with 3,951 births.',
+              'scale': 'SSA-recorded total since 1880: about 92,243 births.',
+              'trend': 'Fairly steady recently.'},
+ 'lorenzo': {'current_feel': 'Familiar',
+             'latest': '2024: #116 for boys, with 3,044 births.',
+             'scale': 'SSA-recorded total since 1880: about 82,665 births.',
+             'trend': 'Fairly steady recently.'},
+ 'louisa': {'current_feel': 'Uncommon but visible',
+            'latest': '2024: #733 for girls, with 383 births.',
+            'scale': 'SSA-recorded total since 1880: about 21,523 births.',
+            'trend': 'Fairly steady recently.'},
+ 'luca': {'current_feel': 'Common',
+          'latest': '2024: #23 for boys, with 7,959 births.',
+          'scale': 'SSA-recorded total since 1880: about 68,707 births.',
+          'trend': 'Rising recently.'},
+ 'maeve': {'current_feel': 'Common',
+           'latest': '2024: #75 for girls, with 3,098 births.',
+           'scale': 'SSA-recorded total since 1880: about 26,442 births.',
+           'trend': 'Rising recently.'},
+ 'marco': {'current_feel': 'Familiar',
+           'latest': '2024: #387 for boys, with 840 births.',
+           'scale': 'SSA-recorded total since 1880: about 75,703 births.',
+           'trend': 'Fairly steady recently.'},
+ 'maren': {'current_feel': 'Uncommon but visible',
+           'latest': '2024: #570 for girls, with 529 births.',
+           'scale': 'SSA-recorded total since 1880: about 12,401 births.',
+           'trend': 'Fairly steady recently.'},
+ 'matteo': {'current_feel': 'Familiar',
+            'latest': '2024: #138 for boys, with 2,582 births.',
+            'scale': 'SSA-recorded total since 1880: about 31,010 births.',
+            'trend': 'Fairly steady recently.'},
+ 'maya': {'current_feel': 'Common',
+          'latest': '2024: #51 for girls, with 4,220 births.',
+          'scale': 'SSA-recorded total since 1880: about 119,839 births.',
+          'trend': 'Fairly steady recently.'},
+ 'miles': {'current_feel': 'Common',
+           'latest': '2024: #37 for boys, with 6,611 births.',
+           'scale': 'SSA-recorded total since 1880: about 116,752 births.',
+           'trend': 'Rising recently.'},
+ 'mira': {'current_feel': 'Familiar',
+          'latest': '2024: #380 for girls, with 820 births.',
+          'scale': 'SSA-recorded total since 1880: about 14,166 births.',
+          'trend': 'Fairly steady recently.'},
+ 'nia': {'current_feel': 'Uncommon but visible',
+         'latest': '2024: #672 for girls, with 428 births.',
+         'scale': 'SSA-recorded total since 1880: about 25,013 births.',
+         'trend': 'Fairly steady recently.'},
+ 'noemi': {'current_feel': 'Uncommon but visible',
+           'latest': '2024: #585 for girls, with 516 births.',
+           'scale': 'SSA-recorded total since 1880: about 22,666 births.',
+           'trend': 'Rising recently.'},
+ 'nora': {'current_feel': 'Common',
+          'latest': '2024: #22 for girls, with 6,128 births.',
+          'scale': 'SSA-recorded total since 1880: about 186,719 births.',
+          'trend': 'Fairly steady recently.'},
+ 'owen': {'current_feel': 'Common',
+          'latest': '2024: #26 for boys, with 7,574 births.',
+          'scale': 'SSA-recorded total since 1880: about 238,411 births.',
+          'trend': 'Fairly steady recently.'},
+ 'rocco': {'current_feel': 'Familiar',
+           'latest': '2024: #500 for boys, with 609 births.',
+           'scale': 'SSA-recorded total since 1880: about 30,998 births.',
+           'trend': 'Fairly steady recently.'},
+ 'romy': {'current_feel': 'Uncommon but visible',
+          'latest': '2024: #926 for girls, with 285 births.',
+          'scale': 'SSA-recorded total since 1880: about 2,890 births.',
+          'trend': 'Rising recently.'},
+ 'rowan': {'current_feel': 'Common',
+           'latest': '2024: #71 for boys, with 4,647 births.',
+           'scale': 'SSA-recorded total since 1880: about 45,386 births.',
+           'trend': 'Rising recently.'},
+ 'sanaa': {'current_feel': 'Rare',
+           'latest': '2024: #2,397 for girls, with 76 births.',
+           'scale': 'SSA-recorded total since 1880: about 6,055 births.',
+           'trend': 'Cooling recently.'},
+ 'santino': {'current_feel': 'Familiar',
+             'latest': '2024: #362 for boys, with 908 births.',
+             'scale': 'SSA-recorded total since 1880: about 12,683 births.',
+             'trend': 'Rising recently.'},
+ 'silas': {'current_feel': 'Common',
+           'latest': '2024: #81 for boys, with 4,108 births.',
+           'scale': 'SSA-recorded total since 1880: about 70,772 births.',
+           'trend': 'Fairly steady recently.'},
+ 'theo': {'current_feel': 'Common',
+          'latest': '2024: #80 for boys, with 4,110 births.',
+          'scale': 'SSA-recorded total since 1880: about 31,858 births.',
+          'trend': 'Rising recently.'},
+ 'vittorio': {'current_feel': 'Rare',
+              'latest': '2024: #3,768 for boys, with 30 births.',
+              'scale': 'SSA-recorded total since 1880: about 1,256 births.',
+              'trend': 'Fairly steady recently.'},
+ 'zora': {'current_feel': 'Uncommon but visible',
+          'latest': '2024: #918 for girls, with 289 births.',
+          'scale': 'SSA-recorded total since 1880: about 9,935 births.',
+          'trend': 'Fairly steady recently.'},
+ 'zuri': {'current_feel': 'Familiar',
+          'latest': '2024: #277 for girls, with 1,140 births.',
+          'scale': 'SSA-recorded total since 1880: about 15,895 births.',
+          'trend': 'Fairly steady recently.'}}
+
+
 def build_name_fact_card(vertical_slug: str, result: Mapping[str, Any]) -> dict[str, Any] | None:
     if vertical_slug != "baby":
         return None
@@ -400,7 +614,7 @@ def build_name_fact_card(vertical_slug: str, result: Mapping[str, Any]) -> dict[
 
     origin_meaning = facts.get("origin_meaning") or _fallback_origin_meaning(result)
     pronunciation = str(result.get("pronunciation") or "").strip()
-    popularity_snapshot = facts.get("approx_usage") or _fallback_popularity_snapshot(result)
+    popularity_snapshot = _popularity_snapshot(key, result)
     famous_namesakes = facts.get("famous_namesakes") or ["Namesake data is being expanded for this beta card."]
     nicknames_variants = facts.get("nicknames_variants") or _fallback_variants(name)
     similar_names = facts.get("similar_names") or _fallback_similar_names(name, tags)
@@ -417,7 +631,7 @@ def build_name_fact_card(vertical_slug: str, result: Mapping[str, Any]) -> dict[
         "similar_names": similar_names,
         "good_to_know": good_to_know,
         "why_it_fits": str(result.get("why_this_name") or result.get("fit_note") or ""),
-        "source_note": "Beta fact card: usage figures are approximate snapshots and should be verified before publication.",
+        "source_note": "Popularity uses SSA national baby-name data through 2024 when available; exact figures can change as SSA releases new annual data.",
     }
 
 
@@ -432,14 +646,30 @@ def _fallback_origin_meaning(result: Mapping[str, Any]) -> str:
     return "Origin and meaning data is being expanded; this card currently emphasizes fit, sound, and usage context."
 
 
-def _fallback_popularity_snapshot(result: Mapping[str, Any]) -> str:
+def _popularity_snapshot(key: str, result: Mapping[str, Any]) -> dict[str, str]:
+    if key in BABY_POPULARITY_SNAPSHOTS:
+        return BABY_POPULARITY_SNAPSHOTS[key]
+    return _fallback_popularity_snapshot(result)
+
+
+def _fallback_popularity_snapshot(result: Mapping[str, Any]) -> dict[str, str]:
     scores = result.get("scores") or {}
     popularity_score = float(scores.get("baby_popularity", scores.get("distinctiveness", 0.74)) or 0.74)
     if popularity_score <= 0.62:
-        return "Approx. US use: familiar choice; likely many tens of thousands of historical recorded births."
-    if popularity_score <= 0.75:
-        return "Approx. US use: recognizable but not everywhere; likely thousands to tens of thousands of historical recorded births."
-    return "Approx. US use: distinctive but wearable; likely lower historical use than mainstream classics."
+        current_feel = "Familiar"
+        scale = "Likely a mainstream or historically familiar choice; exact SSA count is being expanded."
+    elif popularity_score <= 0.75:
+        current_feel = "Recognizable"
+        scale = "Likely visible but not everywhere; exact SSA count is being expanded."
+    else:
+        current_feel = "Distinctive"
+        scale = "Likely lower-use than mainstream classics; exact SSA count is being expanded."
+    return {
+        "current_feel": current_feel,
+        "latest": "Latest SSA rank/count not available in this beta card yet.",
+        "trend": "Trend data is being expanded.",
+        "scale": scale,
+    }
 
 
 def _fallback_variants(name: str) -> list[str]:
@@ -472,9 +702,6 @@ def _good_to_know(
     facts: Mapping[str, Any],
 ) -> list[str]:
     notes: list[str] = []
-    pronunciation = str(result.get("pronunciation") or "").strip()
-    if pronunciation:
-        notes.append("Has a clear pronunciation cue for sharing with family.")
     if facts.get("nicknames_variants"):
         notes.append("Has natural nickname or spelling-variant options.")
     if len(name) <= 5:
