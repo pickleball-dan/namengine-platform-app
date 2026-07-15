@@ -12,12 +12,6 @@
       <p>{{ name_fact_card.origin_meaning }}</p>
     </article>
 
-    {% if name_fact_card.pronunciation %}
-      <article class="name-fact-panel">
-        <h3>Pronunciation</h3>
-        <p>{{ name_fact_card.pronunciation }}</p>
-      </article>
-    {% endif %}
 
     <article class="name-fact-panel">
       <h3>Popularity snapshot</h3>
@@ -69,10 +63,6 @@
       </ul>
     </article>
 
-    <article class="name-fact-panel name-fact-panel-wide">
-      <h3>Why it fits your brief</h3>
-      <p>{{ name_fact_card.why_it_fits }}</p>
-    </article>
   </div>
 
   <p class="name-fact-source-note">{{ name_fact_card.source_note }}</p>

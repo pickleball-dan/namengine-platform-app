@@ -65,7 +65,9 @@ class PhaseTwentyEightBabyNameFactCardTest(unittest.TestCase):
         self.assertIn("Nicknames & variants", chosen_text)
         self.assertIn("Similar names", chosen_text)
         self.assertIn("Good to know", chosen_text)
-        self.assertIn("Why it fits your brief", chosen_text)
+        fact_card = re.search(r'<section class="name-fact-card".*?</section>', chosen_text, re.S).group(0)
+        self.assertNotIn("Pronunciation", fact_card)
+        self.assertNotIn("Why it fits your brief", fact_card)
         self.assertNotIn("Watch-outs", chosen_text)
         self.assertNotIn("Potential drawbacks", chosen_text)
 
