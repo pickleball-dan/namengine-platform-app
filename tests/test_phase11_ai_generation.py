@@ -259,6 +259,7 @@ class PhaseElevenAIGenerationTest(unittest.TestCase):
         self.assertEqual(results[0].metadata["rejected_candidates"][0]["name"], "Nova")
         self.assertEqual(len(fake_client.responses.calls), 1)
         self.assertEqual(fake_client.responses.calls[0]["timeout"], 7.0)
+        self.assertEqual(fake_client.responses.calls[0]["max_output_tokens"], 4500)
         self.assertEqual(
             fake_client.responses.calls[0]["text"]["format"]["name"],
             NAME_GENERATION_SCHEMA_NAME,

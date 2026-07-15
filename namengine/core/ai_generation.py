@@ -19,7 +19,7 @@ from namengine.core.validation import validate_results
 
 
 DEFAULT_MODEL = "gpt-4.1-mini"
-DEFAULT_TIMEOUT_SECONDS = 12.0
+DEFAULT_TIMEOUT_SECONDS = 24.0
 PROMPT_VERSION = "namengine-taste-engine-v1"
 TASTE_STRATEGY_SCHEMA_NAME = "namengine_taste_strategy_v1"
 NAME_GENERATION_SCHEMA_NAME = "namengine_name_generation_v1"
@@ -301,7 +301,7 @@ def build_generation_prompt(
         "previous_names": previous_names,
         "generation_rules": {
             "generate_more_candidates_than_final_count_internally": True,
-            "target_internal_candidate_pool": max(count * 4, 32),
+            "target_internal_candidate_pool": max(count * 2, 16),
             "show_only_final_count": count,
             "return_candidate_pool_and_rejected_candidates": True,
             "rejected_candidates_must_explain_why_they_lost": True,
@@ -631,6 +631,7 @@ def _call_openai_with_metadata(
             ],
             "temperature": 0.75,
             "timeout": _openai_timeout_seconds(),
+            "max_output_tokens": _openai_max_output_tokens(),
         }
         if response_format is not None:
             kwargs["text"] = {"format": response_format}
@@ -695,6 +696,15 @@ def _openai_timeout_seconds() -> float:
     except ValueError:
         return DEFAULT_TIMEOUT_SECONDS
     return max(1.0, value)
+
+
+def _openai_max_output_tokens() -> int:
+    raw_value = os.getenv("NAMENGINE_OPENAI_MAX_OUTPUT_TOKENS", "4500")
+    try:
+        value = int(raw_value)
+    except ValueError:
+        return 4500
+    return max(1000, value)
 
 
 def _loads_json_payload(raw_text: str) -> Any:

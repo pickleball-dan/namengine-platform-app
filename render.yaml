@@ -11,7 +11,9 @@ services:
       - key: NAMENGINE_OPENAI_MODEL
         value: gpt-4.1-mini
       - key: NAMENGINE_OPENAI_TIMEOUT_SECONDS
-        value: "8"
+        value: "24"
+      - key: NAMENGINE_OPENAI_MAX_OUTPUT_TOKENS
+        value: "4500"
       - key: NAMENGINE_AI_PRIMARY_VERTICALS
         value: baby
       - key: NAMENGINE_DB_PATH
