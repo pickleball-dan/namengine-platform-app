@@ -275,6 +275,18 @@ def _render_results_snapshot(
     vertical = get_vertical(snapshot["session"]["vertical"])
     names = _names_from_snapshot(snapshot)
     brief = _brief_from_snapshot(snapshot)
+    if not _cached_names_match_current_rules(vertical, brief, names):
+        names = _generate_names_for_route(vertical, brief)
+        save_session(
+            session_id,
+            vertical.slug,
+            brief,
+            names,
+            round_number=int(snapshot["session"]["round_number"]),
+            parent_session_id=snapshot["session"].get("parent_session_id"),
+            refinement_prompt=snapshot["session"].get("refinement_prompt"),
+        )
+        snapshot = get_session_snapshot(session_id) or snapshot
     reaction_counts = get_reaction_counts(session_id)
     return (
         render_template(
