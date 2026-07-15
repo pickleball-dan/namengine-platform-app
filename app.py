@@ -423,7 +423,7 @@ def create_app() -> Flask:
         if snapshot and snapshot["results"]:
             names = _names_from_snapshot(snapshot)
         else:
-            names = generate_names(vertical, brief, use_ai=_should_use_ai_for_vertical(vertical))
+            names = _generate_names_for_route(vertical, brief)
             save_session(session_id, vertical.slug, brief, names)
         taste_profile_row = get_taste_profile(session_id)
         return render_template(
@@ -453,10 +453,10 @@ def create_app() -> Flask:
         if snapshot and snapshot["results"]:
             names = _names_from_snapshot(snapshot)
             if not _cached_names_match_current_rules(vertical, brief, names):
-                names = generate_names(vertical, brief, use_ai=_should_use_ai_for_vertical(vertical))
+                names = _generate_names_for_route(vertical, brief)
                 save_session(session_id, vertical.slug, brief, names)
         else:
-            names = generate_names(vertical, brief, use_ai=_should_use_ai_for_vertical(vertical))
+            names = _generate_names_for_route(vertical, brief)
             save_session(session_id, vertical.slug, brief, names)
         return session_id
 
@@ -484,10 +484,10 @@ def create_app() -> Flask:
         if snapshot and snapshot["results"]:
             names = _names_from_snapshot(snapshot)
             if not _cached_names_match_current_rules(vertical, brief, names):
-                names = generate_names(vertical, brief, use_ai=_should_use_ai_for_vertical(vertical))
+                names = _generate_names_for_route(vertical, brief)
                 save_session(session_id, vertical.slug, brief, names)
         else:
-            names = generate_names(vertical, brief, use_ai=_should_use_ai_for_vertical(vertical))
+            names = _generate_names_for_route(vertical, brief)
             save_session(session_id, vertical.slug, brief, names)
         taste_profile_row = get_taste_profile(session_id)
         return render_template(
@@ -843,6 +843,24 @@ def _positive_int(value) -> int | None:
     except (TypeError, ValueError):
         return None
     return parsed if parsed > 0 else None
+
+
+def _generate_names_for_route(vertical, brief: NamingBrief) -> list[NameResult]:
+    use_ai = _should_use_ai_for_vertical(vertical)
+    try:
+        return generate_names(vertical, brief, use_ai=use_ai)
+    except Exception as exc:  # pragma: no cover - production safety net
+        logger.exception(
+            "Name generation failed for %s with ai=%s; falling back to deterministic engine",
+            vertical.slug,
+            use_ai,
+        )
+        fallback = generate_names(vertical, brief, use_ai=False)
+        for name in fallback:
+            name.metadata["route_generation_fallback"] = True
+            name.metadata["route_generation_fallback_reason"] = type(exc).__name__
+            name.metadata["route_generation_fallback_message"] = str(exc)[:500]
+        return fallback
 
 
 def _ai_primary_verticals() -> set[str]:
