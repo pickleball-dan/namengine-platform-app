@@ -53,7 +53,8 @@ from namengine.core import (
     vertical_theme_style,
 )
 from namengine.core.name_facts import build_name_fact_card
-from namengine.core.ai_generation import DEFAULT_MODEL, PROMPT_VERSION
+from namengine.core.ai_generation import DEFAULT_MODEL
+from namengine.core.prompt_versions import prompt_version_for
 from namengine.core.schemas import NameResult, NamingBrief, ValidationResult, to_plain_data
 from namengine.core.validation import filter_results_for_brief
 from namengine.verticals import VERTICALS, get_vertical
@@ -956,7 +957,7 @@ def _generate_names_for_route(vertical, brief: NamingBrief) -> list[NameResult]:
                     vertical=vertical.slug,
                     provider=ModelProvider.OPENAI.value,
                     model=os.getenv("NAMENGINE_OPENAI_MODEL", DEFAULT_MODEL),
-                    prompt_version=PROMPT_VERSION,
+                    prompt_version=prompt_version_for(vertical.slug),
                     latency_ms=int((time.perf_counter() - started_at) * 1000),
                     customer_intake=to_plain_data(brief),
                     exception_type=type(exc).__name__,
