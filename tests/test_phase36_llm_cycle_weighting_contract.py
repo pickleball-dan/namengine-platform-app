@@ -50,7 +50,7 @@ class PhaseThirtySixLlmCycleWeightingContractTest(unittest.TestCase):
         )
 
         self.assertEqual(prompt["count"], 8)
-        self.assertEqual(prompt["output_contract"]["top_level_keys"], ["candidate_pool", "rejected_candidates", "names"])
+        self.assertEqual(prompt["output_contract"]["top_level_keys"], ["names"])
         self.assertTrue(prompt["generation_rules"]["weight_final_selection_according_to_slider_priorities"])
         self.assertEqual(prompt["taste_weighting"]["strongest_signal"], "name style")
 

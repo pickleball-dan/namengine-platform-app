@@ -194,9 +194,7 @@ class PhaseElevenAIGenerationTest(unittest.TestCase):
         self.assertEqual(names_format["type"], "json_schema")
         self.assertEqual(names_format["name"], NAME_GENERATION_SCHEMA_NAME)
         self.assertTrue(names_format["strict"])
-        self.assertIn("candidate_pool", names_format["schema"]["required"])
-        self.assertIn("rejected_candidates", names_format["schema"]["required"])
-        self.assertIn("names", names_format["schema"]["required"])
+        self.assertEqual(names_format["schema"]["required"], ["names"])
         self.assertIn("scores", names_format["schema"]["properties"]["names"]["items"]["required"])
 
     def test_generation_prompt_includes_brief_taste_round_goal_and_strategy(self):
@@ -219,7 +217,7 @@ class PhaseElevenAIGenerationTest(unittest.TestCase):
         self.assertEqual(prompt["previous_names"], ["Milo"])
         self.assertTrue(prompt["diversity_rules"]["do_not_repeat_previous_names"])
         self.assertTrue(prompt["diversity_rules"]["treat_previous_names_as_hard_exclusions"])
-        self.assertEqual(prompt["output_contract"]["top_level_keys"], ["candidate_pool", "rejected_candidates", "names"])
+        self.assertEqual(prompt["output_contract"]["top_level_keys"], ["names"])
 
     def test_parse_ai_response_dedupes_and_maps_to_name_results(self):
         results = parse_ai_generation_response(AI_RESPONSE, "pet")
@@ -259,7 +257,7 @@ class PhaseElevenAIGenerationTest(unittest.TestCase):
         self.assertEqual(results[0].metadata["rejected_candidates"][0]["name"], "Nova")
         self.assertEqual(len(fake_client.responses.calls), 1)
         self.assertEqual(fake_client.responses.calls[0]["timeout"], 7.0)
-        self.assertEqual(fake_client.responses.calls[0]["max_output_tokens"], 4500)
+        self.assertEqual(fake_client.responses.calls[0]["max_output_tokens"], 2600)
         self.assertEqual(
             fake_client.responses.calls[0]["text"]["format"]["name"],
             NAME_GENERATION_SCHEMA_NAME,

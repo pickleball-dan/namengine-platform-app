@@ -301,10 +301,10 @@ def build_generation_prompt(
         "previous_names": previous_names,
         "generation_rules": {
             "generate_more_candidates_than_final_count_internally": True,
-            "target_internal_candidate_pool": max(count * 2, 16),
+            "target_internal_candidate_pool": count,
             "show_only_final_count": count,
-            "return_candidate_pool_and_rejected_candidates": True,
-            "rejected_candidates_must_explain_why_they_lost": True,
+            "return_candidate_pool_and_rejected_candidates": False,
+            "rejected_candidates_must_explain_why_they_lost": False,
             "user_written_text_must_change_candidate_choice_when_specific": True,
             "feelings_scale_priority_must_be_visible_in_name_choice_and_rationale": True,
             "weight_final_selection_according_to_slider_priorities": True,
@@ -324,7 +324,7 @@ def build_generation_prompt(
         "validation_expectations": list(vertical.validation_modules),
         "output_contract": {
             "format": "json",
-            "top_level_keys": ["candidate_pool", "rejected_candidates", "names"],
+            "top_level_keys": ["names"],
             "required_fields": [
                 "name",
                 "pronunciation",
@@ -339,8 +339,7 @@ def build_generation_prompt(
             ],
             "score_keys": ["callability", "warmth", "distinctiveness"],
             "metadata_guidance": [
-                "candidate_pool should summarize the serious contenders considered before final selection",
-                "rejected_candidates should explain concrete rejection reasons, not generic weakness",
+                "Return only the final names array; do not include candidate_pool or rejected_candidates in the live response",
                 "why_this_name should explain why this name won against the user's taste thesis",
                 "fit_note should connect to a concrete user input, not generic praise",
                 "risks should be honest and practical",
@@ -423,49 +422,8 @@ def name_generation_response_format() -> dict[str, Any]:
         "schema": {
             "type": "object",
             "additionalProperties": False,
-            "required": ["candidate_pool", "rejected_candidates", "names"],
+            "required": ["names"],
             "properties": {
-                "candidate_pool": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "additionalProperties": False,
-                        "required": ["name", "territory", "rationale", "strengths", "risks", "scores", "decision"],
-                        "properties": {
-                            "name": {"type": "string"},
-                            "territory": {"type": "string"},
-                            "rationale": {"type": "string"},
-                            "strengths": {"type": "array", "items": {"type": "string"}},
-                            "risks": {"type": "array", "items": {"type": "string"}},
-                            "scores": {
-                                "type": "object",
-                                "additionalProperties": False,
-                                "required": ["taste_fit", "usability", "distinctiveness"],
-                                "properties": {
-                                    "taste_fit": {"type": "number"},
-                                    "usability": {"type": "number"},
-                                    "distinctiveness": {"type": "number"},
-                                },
-                            },
-                            "decision": {"type": "string"},
-                        },
-                    },
-                },
-                "rejected_candidates": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "additionalProperties": False,
-                        "required": ["name", "territory", "rejection_reason", "lost_to", "score_summary"],
-                        "properties": {
-                            "name": {"type": "string"},
-                            "territory": {"type": "string"},
-                            "rejection_reason": {"type": "string"},
-                            "lost_to": {"type": "string"},
-                            "score_summary": {"type": "string"},
-                        },
-                    },
-                },
                 "names": {
                     "type": "array",
                     "items": {
@@ -509,7 +467,6 @@ def name_generation_response_format() -> dict[str, Any]:
             },
         },
     }
-
 
 def parse_taste_strategy_response(raw_text: str) -> dict[str, Any]:
     payload = _loads_json_payload(raw_text)
@@ -699,11 +656,11 @@ def _openai_timeout_seconds() -> float:
 
 
 def _openai_max_output_tokens() -> int:
-    raw_value = os.getenv("NAMENGINE_OPENAI_MAX_OUTPUT_TOKENS", "4500")
+    raw_value = os.getenv("NAMENGINE_OPENAI_MAX_OUTPUT_TOKENS", "2600")
     try:
         value = int(raw_value)
     except ValueError:
-        return 4500
+        return 2600
     return max(1000, value)
 
 

@@ -13,7 +13,7 @@ services:
       - key: NAMENGINE_OPENAI_TIMEOUT_SECONDS
         value: "24"
       - key: NAMENGINE_OPENAI_MAX_OUTPUT_TOKENS
-        value: "4500"
+        value: "2600"
       - key: NAMENGINE_AI_PRIMARY_VERTICALS
         value: baby
       - key: NAMENGINE_DB_PATH
