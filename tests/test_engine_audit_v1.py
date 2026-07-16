@@ -22,7 +22,9 @@ class EngineAuditV1Test(unittest.TestCase):
     def setUp(self):
         self.tempdir = tempfile.TemporaryDirectory()
         self.previous_db_path = os.environ.get("NAMENGINE_DB_PATH")
+        self.previous_engine_audit_enabled = os.environ.get("NAMENGINE_ENABLE_ENGINE_AUDIT")
         os.environ["NAMENGINE_DB_PATH"] = os.path.join(self.tempdir.name, "audit.sqlite3")
+        os.environ["NAMENGINE_ENABLE_ENGINE_AUDIT"] = "1"
         self.app = create_app()
         self.app.testing = True
         self.client = self.app.test_client()
@@ -32,6 +34,10 @@ class EngineAuditV1Test(unittest.TestCase):
             os.environ.pop("NAMENGINE_DB_PATH", None)
         else:
             os.environ["NAMENGINE_DB_PATH"] = self.previous_db_path
+        if self.previous_engine_audit_enabled is None:
+            os.environ.pop("NAMENGINE_ENABLE_ENGINE_AUDIT", None)
+        else:
+            os.environ["NAMENGINE_ENABLE_ENGINE_AUDIT"] = self.previous_engine_audit_enabled
         self.tempdir.cleanup()
 
     def _seed_session(self, session_id="baby-audit-session", vertical_slug="baby"):
@@ -72,6 +78,33 @@ class EngineAuditV1Test(unittest.TestCase):
         self.assertIn("audit-prompt-v1", body)
         self.assertIn("37 ms", body)
         self.assertIn("Chosen:", body)
+
+    def test_audit_routes_return_404_when_not_explicitly_enabled(self):
+        self._seed_session()
+
+        for configured_value in (None, "", "0", "true", " 1"):
+            with self.subTest(configured_value=configured_value):
+                if configured_value is None:
+                    os.environ.pop("NAMENGINE_ENABLE_ENGINE_AUDIT", None)
+                else:
+                    os.environ["NAMENGINE_ENABLE_ENGINE_AUDIT"] = configured_value
+
+                self.assertEqual(self.client.get("/dev/engine-audit").status_code, 404)
+                self.assertEqual(
+                    self.client.get("/dev/engine-audit/baby-audit-session").status_code,
+                    404,
+                )
+
+        os.environ["NAMENGINE_ENABLE_ENGINE_AUDIT"] = "1"
+
+    def test_audit_routes_work_when_explicitly_enabled(self):
+        self._seed_session()
+
+        self.assertEqual(self.client.get("/dev/engine-audit").status_code, 200)
+        self.assertEqual(
+            self.client.get("/dev/engine-audit/baby-audit-session").status_code,
+            200,
+        )
 
     def test_audit_index_accepts_vertical_and_limit(self):
         self._seed_session("pet-audit-a", "pet")

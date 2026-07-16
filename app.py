@@ -684,6 +684,8 @@ def create_app() -> Flask:
 
     @app.get("/dev/engine-audit")
     def engine_audit_index():
+        if not _engine_audit_enabled():
+            abort(404)
         vertical_slug = str(request.args.get("vertical") or "baby").strip().lower()
         if vertical_slug not in VERTICALS:
             abort(400)
@@ -699,6 +701,8 @@ def create_app() -> Flask:
 
     @app.get("/dev/engine-audit/<session_id>")
     def engine_audit(session_id: str):
+        if not _engine_audit_enabled():
+            abort(404)
         snapshot = get_session_snapshot(session_id)
         if snapshot is None:
             abort(404)
@@ -940,6 +944,10 @@ def _positive_int(value) -> int | None:
     except (TypeError, ValueError):
         return None
     return parsed if parsed > 0 else None
+
+
+def _engine_audit_enabled() -> bool:
+    return os.getenv("NAMENGINE_ENABLE_ENGINE_AUDIT") == "1"
 
 
 def _generate_names_for_route(vertical, brief: NamingBrief) -> list[NameResult]:

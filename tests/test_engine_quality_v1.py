@@ -81,7 +81,9 @@ class EngineQualityV1Test(unittest.TestCase):
     def setUp(self):
         self.tempdir = tempfile.TemporaryDirectory()
         self.previous_db_path = os.environ.get("NAMENGINE_DB_PATH")
+        self.previous_engine_audit_enabled = os.environ.get("NAMENGINE_ENABLE_ENGINE_AUDIT")
         os.environ["NAMENGINE_DB_PATH"] = os.path.join(self.tempdir.name, "quality.sqlite3")
+        os.environ["NAMENGINE_ENABLE_ENGINE_AUDIT"] = "1"
         self.vertical = get_vertical("baby")
         self.app = create_app()
         self.app.testing = True
@@ -92,6 +94,10 @@ class EngineQualityV1Test(unittest.TestCase):
             os.environ.pop("NAMENGINE_DB_PATH", None)
         else:
             os.environ["NAMENGINE_DB_PATH"] = self.previous_db_path
+        if self.previous_engine_audit_enabled is None:
+            os.environ.pop("NAMENGINE_ENABLE_ENGINE_AUDIT", None)
+        else:
+            os.environ["NAMENGINE_ENABLE_ENGINE_AUDIT"] = self.previous_engine_audit_enabled
         self.tempdir.cleanup()
 
     def _quality_brief(self):
