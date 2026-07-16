@@ -1,0 +1,28 @@
+{
+  "fixture_id": "baby-eval-japanese-playful-girl",
+  "schema_version": "name-evaluation-fixture-v1",
+  "vertical": "baby",
+  "title": "Japanese playful girl names",
+  "description": "Bright, playful girl names with clear Japanese grounding and US usability.",
+  "intake": {"gender": "Girl", "cultural_heritage": "Japanese", "cultural_context": "Family heritage", "family_context": "Readable for relatives in Japan and the United States", "style": "Modern", "familiarity_preference": "A little less common", "timeless_vs_distinctive": "Mostly distinctive", "sound": "Playful", "discovery_style": "Balanced mix", "avoid": "Sakura"},
+  "expected_naming_territories": ["Japanese", "playful", "bright"],
+  "desired_qualities": ["culturally grounded", "readable", "joyful"],
+  "prohibited_qualities": ["unclear Japanese grounding", "cutesy"],
+  "reference_candidates": ["Aiko", "Emi", "Yumi"],
+  "rejection_candidates": ["Sakura"],
+  "acceptance_criteria": {"minimum_normalized_score": 0.72, "criteria": [
+    {"criterion": "required_candidate_count", "weight": 1, "parameters": {"minimum": 8}},
+    {"criterion": "duplicate_prevention", "weight": 1},
+    {"criterion": "prohibited_names", "weight": 1},
+    {"criterion": "cultural_relevance", "weight": 2, "parameters": {"minimum": 0.55}},
+    {"criterion": "gender_fit", "weight": 1},
+    {"criterion": "sound_strength_fit", "weight": 1, "parameters": {"minimum": 0.6}},
+    {"criterion": "explanation_completeness", "weight": 1},
+    {"criterion": "metadata_completeness", "weight": 1},
+    {"criterion": "valid_bounded_scores", "weight": 1},
+    {"criterion": "privacy_safety", "weight": 1}
+  ]},
+  "regression_notes": "Kanji-dependent claims should be treated carefully and explained honestly.",
+  "tags": ["baby", "heritage", "japanese", "girl", "playful"],
+  "enabled": true
+}

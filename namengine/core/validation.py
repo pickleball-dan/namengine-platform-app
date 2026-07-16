@@ -281,6 +281,7 @@ BABY_BOY_INCOMPATIBLE_NAMES = {
     "maren",
     "margot",
     "maya",
+    "mei",
     "mira",
     "nia",
     "nina",

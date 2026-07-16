@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import os
+import time
 from threading import Lock, Thread
 from hashlib import sha1
 from urllib.parse import urlencode
@@ -17,6 +18,7 @@ except ImportError:  # pragma: no cover - Render uses real env vars; local dev m
 
 from namengine import CONTRACT_VERSION
 from namengine.core import (
+    AIGenerationError,
     ReactionError,
     build_brief,
     build_compare_items,
@@ -27,7 +29,9 @@ from namengine.core import (
     ensure_keepsake_for_chosen,
     generate_names,
     generate_with_router,
+    get_failed_generation_audits,
     get_reaction_counts,
+    get_recent_audit_sessions,
     is_ai_generation_configured,
     get_chosen_snapshot,
     get_database_path,
@@ -42,12 +46,15 @@ from namengine.core import (
     run_taste_engine_fixture_set,
     save_reaction,
     save_chosen_name,
+    save_failed_generation_audit,
     save_session,
     StorageError,
     summarize_taste_engine_eval,
     vertical_theme_style,
 )
 from namengine.core.name_facts import build_name_fact_card
+from namengine.core.ai_generation import DEFAULT_MODEL
+from namengine.core.prompt_versions import prompt_version_for
 from namengine.core.schemas import NameResult, NamingBrief, ValidationResult, to_plain_data
 from namengine.core.validation import filter_results_for_brief
 from namengine.verticals import VERTICALS, get_vertical
@@ -365,6 +372,7 @@ def create_app() -> Flask:
         }
 
     app.add_template_filter(brief_query_string, "brief_query_string")
+    app.add_template_filter(_safe_audit_value, "safe_audit")
 
     @app.get("/")
     def index():
@@ -674,8 +682,27 @@ def create_app() -> Flask:
             taste_profile=taste_profile,
         )
 
+    @app.get("/dev/engine-audit")
+    def engine_audit_index():
+        if not _engine_audit_enabled():
+            abort(404)
+        vertical_slug = str(request.args.get("vertical") or "baby").strip().lower()
+        if vertical_slug not in VERTICALS:
+            abort(400)
+        limit = min(_positive_int(request.args.get("limit")) or 50, 200)
+        return render_template(
+            "engine_audit_index.html",
+            vertical=get_vertical(vertical_slug),
+            selected_vertical=vertical_slug,
+            limit=limit,
+            sessions=get_recent_audit_sessions(vertical_slug, limit),
+            failures=get_failed_generation_audits(vertical_slug, limit),
+        )
+
     @app.get("/dev/engine-audit/<session_id>")
     def engine_audit(session_id: str):
+        if not _engine_audit_enabled():
+            abort(404)
         snapshot = get_session_snapshot(session_id)
         if snapshot is None:
             abort(404)
@@ -688,6 +715,7 @@ def create_app() -> Flask:
             brief=json_loads(snapshot["session"]["brief_json"]),
             names=_names_from_snapshot(snapshot),
             reaction_counts=get_reaction_counts(session_id),
+            chosen_names=snapshot["chosen_names"],
             audit=_engine_audit_from_snapshot(snapshot),
         )
 
@@ -849,20 +877,63 @@ def _engine_audit_from_snapshot(snapshot: dict) -> dict:
             for name in names
         }
     )
-    return {
-        "generation_id": metadata.get("generation_id") or snapshot["session"]["id"],
-        "prompt_version": metadata.get("prompt_version", "unknown"),
-        "engine_pipeline": metadata.get("engine_pipeline", "unknown"),
-        "model": metadata.get("model", "unknown"),
-        "providers": providers,
-        "ai_calls": ai_calls,
-        "usage_totals": usage_totals,
-        "total_latency_ms": total_latency_ms,
-        "taste_strategy": metadata.get("taste_strategy", {}),
-        "candidate_pool": metadata.get("candidate_pool", []),
-        "rejected_candidates": metadata.get("rejected_candidates", []),
-        "result_metadata": metadata,
-    }
+    return _safe_audit_value(
+        {
+            "generation_id": metadata.get("generation_id") or snapshot["session"]["id"],
+            "prompt_version": metadata.get("prompt_version", "unknown"),
+            "intake_schema_version": metadata.get("intake_schema_version", "unknown"),
+            "normalizer_version": metadata.get("normalizer_version", "unknown"),
+            "intake_adapter_version": metadata.get("intake_adapter_version", "unknown"),
+            "canonical_intent_version": metadata.get("canonical_intent_version", "unknown"),
+            "engine_pipeline": metadata.get("engine_pipeline", "unknown"),
+            "model": metadata.get("model", "unknown"),
+            "providers": providers,
+            "ai_calls": ai_calls,
+            "usage_totals": usage_totals,
+            "total_latency_ms": total_latency_ms,
+            "taste_strategy": metadata.get("taste_strategy", {}),
+            "candidate_pool": metadata.get("candidate_pool", []),
+            "rejected_candidates": metadata.get("rejected_candidates", []),
+            "result_metadata": metadata,
+        }
+    )
+
+
+def _safe_audit_value(value):
+    """Redact credential-shaped values before rendering internal audit data."""
+    if isinstance(value, dict):
+        return {
+            key: "[redacted]" if _is_sensitive_audit_key(key) else _safe_audit_value(item)
+            for key, item in value.items()
+        }
+    if isinstance(value, list):
+        return [_safe_audit_value(item) for item in value]
+    if isinstance(value, tuple):
+        return tuple(_safe_audit_value(item) for item in value)
+    return value
+
+
+def _is_sensitive_audit_key(key) -> bool:
+    normalized = str(key).strip().lower().replace("-", "_")
+    return (
+        normalized
+        in {
+            "authorization",
+            "cookie",
+            "credentials",
+            "password",
+            "private_key",
+            "secret",
+            "set_cookie",
+            "token",
+        }
+        or "api_key" in normalized
+        or "apikey" in normalized
+        or normalized.endswith("_password")
+        or normalized.endswith("_private_key")
+        or normalized.endswith("_secret")
+        or normalized.endswith("_token")
+    )
 
 
 def _positive_int(value) -> int | None:
@@ -875,23 +946,40 @@ def _positive_int(value) -> int | None:
     return parsed if parsed > 0 else None
 
 
+def _engine_audit_enabled() -> bool:
+    return os.getenv("NAMENGINE_ENABLE_ENGINE_AUDIT") == "1"
+
+
 def _generate_names_for_route(vertical, brief: NamingBrief) -> list[NameResult]:
     if _should_use_ai_for_vertical(vertical):
+        started_at = time.perf_counter()
         try:
             names = generate_with_router(
                 vertical=vertical,
                 brief=brief,
                 providers=[ModelProvider.OPENAI],
             )
+            if not names:
+                raise AIGenerationError("generation returned no usable names")
         except Exception as exc:  # pragma: no cover - live provider behavior
             logger.exception("LLM generation failed for %s", vertical.slug)
+            safe_message = "We’re having trouble generating this list right now. Please try again shortly."
+            try:
+                save_failed_generation_audit(
+                    vertical=vertical.slug,
+                    provider=ModelProvider.OPENAI.value,
+                    model=os.getenv("NAMENGINE_OPENAI_MODEL", DEFAULT_MODEL),
+                    prompt_version=prompt_version_for(vertical.slug),
+                    latency_ms=int((time.perf_counter() - started_at) * 1000),
+                    customer_intake=_audit_customer_intake(brief),
+                    exception_type=type(exc).__name__,
+                    safe_error_message=safe_message,
+                )
+            except Exception:  # pragma: no cover - audit failure must not replace product response
+                logger.exception("Could not persist failed generation audit for %s", vertical.slug)
             raise NameGenerationUnavailable(
-                "We’re having trouble generating this list right now. Please try again shortly."
+                safe_message
             ) from exc
-        if not names:
-            raise NameGenerationUnavailable(
-                "We’re having trouble generating this list right now. Please try again shortly."
-            )
         for name in names:
             name.metadata.setdefault("source", "openai")
             name.metadata.setdefault("provider", "openai")
@@ -899,6 +987,13 @@ def _generate_names_for_route(vertical, brief: NamingBrief) -> list[NameResult]:
         return names
 
     return generate_names(vertical, brief, use_ai=False)
+
+
+def _audit_customer_intake(brief: NamingBrief) -> dict:
+    """Keep the existing audit payload without duplicating canonical context."""
+    payload = to_plain_data(brief)
+    payload.pop("canonical_intent", None)
+    return payload
 
 
 def _ai_primary_verticals() -> set[str]:

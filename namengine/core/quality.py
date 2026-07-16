@@ -72,10 +72,11 @@ def run_quality_brief(
         previous_names=[],
         providers=providers or [ModelProvider.OPENAI, ModelProvider.FALLBACK],
     )
-    candidates = score_provider_results(provider_results)
+    candidates = score_provider_results(provider_results, brief=brief, vertical=vertical)
     selected = select_best_candidates(
         candidates,
         count=vertical.default_result_count if round_number < 3 else 6,
+        vertical_slug=vertical.slug,
     )
     return QualityRunResult(
         brief_id=quality_brief.id,

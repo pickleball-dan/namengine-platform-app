@@ -1,0 +1,28 @@
+{
+  "fixture_id": "baby-eval-cross-cultural-us",
+  "schema_version": "name-evaluation-fixture-v1",
+  "vertical": "baby",
+  "title": "Cross-cultural names for the United States",
+  "description": "Names should travel well across family cultures and remain straightforward in US daily life.",
+  "intake": {"gender": "Gender-neutral", "family_context": "Multicultural family living in the United States", "cultural_heritage": "No preference", "cultural_context": "Global inspiration", "style": "Modern", "familiarity_preference": "Recognizable but not overused", "timeless_vs_distinctive": "Balanced", "sound": "Clear", "discovery_style": "Balanced mix", "notes": "Easy to pronounce across languages and not strongly exclusive to one heritage lane."},
+  "expected_naming_territories": ["cross-cultural", "global", "clear"],
+  "desired_qualities": ["portable", "readable", "US usability"],
+  "prohibited_qualities": ["culture-exclusive claim", "difficult pronunciation"],
+  "reference_candidates": ["Mika", "Nico", "Remy"],
+  "rejection_candidates": [],
+  "acceptance_criteria": {"minimum_normalized_score": 0.7, "criteria": [
+    {"criterion": "required_candidate_count", "weight": 1, "parameters": {"minimum": 8}},
+    {"criterion": "duplicate_prevention", "weight": 1},
+    {"criterion": "familiarity_range", "weight": 1, "parameters": {"minimum": 0.2, "maximum": 0.75}},
+    {"criterion": "style_fit", "weight": 1, "parameters": {"minimum": 0.55}},
+    {"criterion": "sound_strength_fit", "weight": 1, "parameters": {"minimum": 0.55}},
+    {"criterion": "explanation_completeness", "weight": 1},
+    {"criterion": "metadata_completeness", "weight": 1},
+    {"criterion": "valid_bounded_scores", "weight": 1},
+    {"criterion": "privacy_safety", "weight": 1},
+    {"criterion": "deterministic_ordering", "weight": 0.5, "required": false}
+  ]},
+  "regression_notes": "Cross-cultural utility is an intent, not a requirement to return the reference examples.",
+  "tags": ["baby", "cross-cultural", "usability", "neutral"],
+  "enabled": true
+}

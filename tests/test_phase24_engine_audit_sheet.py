@@ -63,13 +63,15 @@ class PhaseTwentyFourEngineAuditSheetTest(unittest.TestCase):
         self.assertEqual(summary["passed_count"] + summary["failed_count"], 2)
 
     def test_active_baby_pet_business_audit_gate_is_green(self):
-        rows = run_engine_audit(load_taste_engine_fixtures(), rounds=4, use_ai=False, run_id="active-gate")
+        fixtures = load_taste_engine_fixtures()
+        rows = run_engine_audit(fixtures, rounds=4, use_ai=False, run_id="active-gate")
         summary = summarize_engine_audit(rows)
 
-        self.assertEqual(summary["fixture_count"], 20)
-        self.assertEqual(summary["row_count"], 80)
+        expected_rows = len(fixtures) * 4
+        self.assertEqual(summary["fixture_count"], len(fixtures))
+        self.assertEqual(summary["row_count"], expected_rows)
         self.assertEqual(summary["failed_rows"], [])
-        self.assertEqual(summary["passed_count"], 80)
+        self.assertEqual(summary["passed_count"], expected_rows)
 
 
 if __name__ == "__main__":

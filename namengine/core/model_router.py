@@ -6,7 +6,10 @@ import time
 from collections.abc import Callable
 
 from namengine.core.ai_generation import AIGenerationError, generate_ai_names
+import namengine.core.quality_adapters  # Registers built-in vertical adapters.
+from namengine.core.quality_framework import rank_quality_candidates, score_quality_result
 from namengine.core.generation import generate_fallback_names
+from namengine.core.intake import version_metadata_for_brief
 from namengine.core.schemas import (
     GenerationCandidate,
     ModelProvider,
@@ -41,14 +44,19 @@ def generate_with_router(
         previous_names=previous_names or [],
         providers=providers,
     )
-    candidates = score_provider_results(provider_results)
+    candidates = score_provider_results(provider_results, brief=brief, vertical=vertical)
     selected = select_best_candidates(
         candidates,
         count=count or _count_for_round(vertical, round_number),
         previous_names=previous_names or [],
         allow_previous_fill=vertical.slug != "baby" and round_number < 4,
+        vertical_slug=vertical.slug,
     )
-    return [candidate.result for candidate in selected]
+    results = [candidate.result for candidate in selected]
+    intake_metadata = version_metadata_for_brief(brief)
+    for result in results:
+        result.metadata.update(intake_metadata)
+    return results
 
 
 def route_generation(
@@ -77,15 +85,23 @@ def route_generation(
 
 def score_provider_results(
     provider_results: list[ProviderResult],
+    brief: NamingBrief | None = None,
+    vertical: VerticalConfig | None = None,
 ) -> list[GenerationCandidate]:
     candidates: list[GenerationCandidate] = []
     for provider_result in provider_results:
         if provider_result.status != "ok":
             continue
         for result in provider_result.names:
-            score, reasons = score_name_result(result, provider_result.provider)
+            score, reasons = score_name_result(
+                result,
+                provider_result.provider,
+                brief=brief,
+                vertical=vertical,
+            )
             result.metadata["provider"] = provider_result.provider.value
             result.metadata.setdefault("source", provider_result.provider.value)
+            result.metadata["quality_reasons"] = reasons
             candidates.append(
                 GenerationCandidate(
                     result=result,
@@ -100,7 +116,14 @@ def score_provider_results(
 def score_name_result(
     result: NameResult,
     provider: ModelProvider,
+    brief: NamingBrief | None = None,
+    vertical: VerticalConfig | None = None,
 ) -> tuple[float, list[str]]:
+    vertical_slug = vertical.slug if vertical else (brief.vertical if brief else "")
+    quality_score = score_quality_result(vertical_slug, result, brief) if brief else None
+    if quality_score is not None:
+        return quality_score
+
     reasons: list[str] = []
     score = 0.0
 
@@ -134,11 +157,13 @@ def select_best_candidates(
     count: int,
     previous_names: list[str] | None = None,
     allow_previous_fill: bool = True,
+    vertical_slug: str | None = None,
 ) -> list[GenerationCandidate]:
     previous = {name.lower() for name in (previous_names or [])}
     seen: set[str] = set()
     selected: list[GenerationCandidate] = []
-    for candidate in sorted(candidates, key=lambda item: item.quality_score, reverse=True):
+    ranked = rank_quality_candidates(candidates, vertical_slug)
+    for candidate in ranked:
         key = candidate.result.name.lower()
         if key in seen or key in previous:
             continue
@@ -149,7 +174,7 @@ def select_best_candidates(
             break
 
     if allow_previous_fill and len(selected) < count:
-        for candidate in sorted(candidates, key=lambda item: item.quality_score, reverse=True):
+        for candidate in ranked:
             key = candidate.result.name.lower()
             if key in seen:
                 continue

@@ -9,6 +9,15 @@ import uuid
 from collections.abc import Callable
 from typing import Any
 
+import namengine.core.quality_adapters  # Registers built-in vertical adapters.
+from namengine.core.prompt_versions import DEFAULT_PROMPT_VERSION, prompt_version_for
+from namengine.core.quality_framework import (
+    apply_quality_metadata,
+    build_quality_taste_thesis,
+    improve_quality_explanations,
+    quality_model_score_keys,
+    quality_prompt_guidance,
+)
 from namengine.core.schemas import (
     NameResult,
     NamingBrief,
@@ -20,7 +29,7 @@ from namengine.core.validation import validate_results
 
 DEFAULT_MODEL = "gpt-4.1-mini"
 DEFAULT_TIMEOUT_SECONDS = 24.0
-PROMPT_VERSION = "namengine-taste-engine-v1"
+PROMPT_VERSION = DEFAULT_PROMPT_VERSION
 TASTE_STRATEGY_SCHEMA_NAME = "namengine_taste_strategy_v1"
 NAME_GENERATION_SCHEMA_NAME = "namengine_name_generation_v1"
 
@@ -55,6 +64,7 @@ def generate_ai_names(
     selected_model = model or os.getenv("NAMENGINE_OPENAI_MODEL", DEFAULT_MODEL)
     client = client_factory() if client_factory else None
     generation_id = f"gen-{uuid.uuid4().hex[:12]}"
+    prompt_version = prompt_version_for(vertical.slug)
 
     taste_strategy = build_local_taste_strategy(
         vertical=vertical,
@@ -73,29 +83,42 @@ def generate_ai_names(
         previous_names=previous_names or [],
         count=target_count,
         taste_strategy=taste_strategy,
+        prompt_version=prompt_version,
     )
     generation_call = _call_openai_with_metadata(
         prompt=prompt,
         model=selected_model,
         client_factory=(lambda: client) if client is not None else None,
-        response_format=name_generation_response_format(),
+        response_format=name_generation_response_format(vertical.slug),
     )
     generation_audit = parse_generation_audit_response(generation_call["text"])
     results = parse_ai_generation_response(generation_call["text"], vertical.slug)
     if not results:
         raise AIGenerationError("AI generation returned no usable names")
 
-    validated = validate_results(vertical, brief, results[: prompt["count"]])
+    selected_results = results[: prompt["count"]]
+    improve_quality_explanations(vertical.slug, selected_results, brief)
+    validated = validate_results(vertical, brief, selected_results)
+    apply_quality_metadata(vertical.slug, validated, brief)
+    from namengine.core.intake import version_metadata_for_brief
+
+    intake_metadata = version_metadata_for_brief(brief)
     for result in validated:
+        result.metadata.update(intake_metadata)
         result.metadata["taste_strategy"] = taste_strategy
         result.metadata["engine_pipeline"] = "weighted_prompt_v1+candidate_ranker_v1"
-        result.metadata["prompt_version"] = PROMPT_VERSION
+        result.metadata["prompt_version"] = prompt_version
         result.metadata["generation_id"] = generation_id
         result.metadata["model"] = selected_model
         result.metadata["candidate_pool"] = generation_audit["candidate_pool"]
         result.metadata["rejected_candidates"] = generation_audit["rejected_candidates"]
         result.metadata["ai_calls"] = [
-            _call_audit_summary("candidate_generator_ranker_v1", generation_call, prompt),
+            _call_audit_summary(
+                "candidate_generator_ranker_v1",
+                generation_call,
+                prompt,
+                prompt_version,
+            ),
         ]
     return validated
 
@@ -120,8 +143,14 @@ def build_local_taste_strategy(
     prior_summary = taste_profile.summary if taste_profile else ""
     previous = previous_names or []
 
-    thesis_parts = [part for part in [style, sound, cultural_heritage] if part and part.lower() != "no preference"]
-    taste_thesis = " / ".join(thesis_parts) if thesis_parts else vertical.prompt_context
+    taste_thesis = build_quality_taste_thesis(vertical.slug, brief, weighting)
+    if taste_thesis is None:
+        thesis_parts = [
+            part
+            for part in [style, sound, cultural_heritage]
+            if part and part.lower() != "no preference"
+        ]
+        taste_thesis = " / ".join(thesis_parts) if thesis_parts else vertical.prompt_context
     return {
         "taste_thesis": taste_thesis,
         "primary_priorities": [
@@ -269,6 +298,7 @@ def build_generation_prompt(
     previous_names: list[str],
     count: int,
     taste_strategy: dict[str, Any] | None = None,
+    prompt_version: str | None = None,
 ) -> dict[str, Any]:
     round_goal = {
         1: "Discovery: explore strong but varied naming lanes.",
@@ -279,6 +309,8 @@ def build_generation_prompt(
     return {
         "role": "NamEngine senior naming strategist",
         "engine_stage": "candidate_generator_ranker_v1",
+        "prompt_version": prompt_version
+        or prompt_version_for(vertical.slug),
         "vertical": vertical.slug,
         "vertical_context": vertical.prompt_context,
         "round_number": round_number,
@@ -337,13 +369,8 @@ def build_generation_prompt(
                 "tags",
                 "scores",
             ],
-            "score_keys": ["callability", "warmth", "distinctiveness"],
-            "metadata_guidance": [
-                "Return only the final names array; do not include candidate_pool or rejected_candidates in the live response",
-                "why_this_name should explain why this name won against the user's taste thesis",
-                "fit_note should connect to a concrete user input, not generic praise",
-                "risks should be honest and practical",
-            ],
+            "score_keys": _score_keys(vertical.slug),
+            "metadata_guidance": _explanation_guidance(vertical.slug),
         },
     }
 
@@ -413,7 +440,8 @@ def _baby_generation_guidance(vertical: VerticalConfig, brief: NamingBrief) -> d
     return guidance
 
 
-def name_generation_response_format() -> dict[str, Any]:
+def name_generation_response_format(vertical_slug: str | None = None) -> dict[str, Any]:
+    score_keys = _score_keys(vertical_slug or "")
     return {
         "type": "json_schema",
         "name": NAME_GENERATION_SCHEMA_NAME,
@@ -454,11 +482,9 @@ def name_generation_response_format() -> dict[str, Any]:
                             "scores": {
                                 "type": "object",
                                 "additionalProperties": False,
-                                "required": ["callability", "warmth", "distinctiveness"],
+                                "required": score_keys,
                                 "properties": {
-                                    "callability": {"type": "number"},
-                                    "warmth": {"type": "number"},
-                                    "distinctiveness": {"type": "number"},
+                                    key: {"type": "number"} for key in score_keys
                                 },
                             },
                         },
@@ -467,6 +493,22 @@ def name_generation_response_format() -> dict[str, Any]:
             },
         },
     }
+
+
+def _score_keys(vertical_slug: str) -> list[str]:
+    return list(
+        quality_model_score_keys(vertical_slug, ("callability", "warmth", "distinctiveness"))
+    )
+
+
+def _explanation_guidance(vertical_slug: str) -> list[str]:
+    guidance = [
+        "Return only the final names array; do not include candidate_pool or rejected_candidates in the live response",
+        "why_this_name should explain why this name won against the user's taste thesis",
+        "fit_note should connect to a concrete user input, not generic praise",
+        "risks should be honest and practical",
+    ]
+    return guidance + list(quality_prompt_guidance(vertical_slug, ()))
 
 def parse_taste_strategy_response(raw_text: str) -> dict[str, Any]:
     payload = _loads_json_payload(raw_text)
@@ -608,13 +650,18 @@ def _call_openai_with_metadata(
     raise AIGenerationError("OpenAI response did not include output_text")
 
 
-def _call_audit_summary(stage: str, call: dict[str, Any], prompt: dict[str, Any]) -> dict[str, Any]:
+def _call_audit_summary(
+    stage: str,
+    call: dict[str, Any],
+    prompt: dict[str, Any],
+    prompt_version: str = PROMPT_VERSION,
+) -> dict[str, Any]:
     return {
         "stage": stage,
         "model": call.get("model"),
         "latency_ms": call.get("latency_ms"),
         "usage": call.get("usage") or {},
-        "prompt_version": PROMPT_VERSION,
+        "prompt_version": prompt_version,
         "schema_name": call.get("schema_name"),
         "prompt": prompt,
     }

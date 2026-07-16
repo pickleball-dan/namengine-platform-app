@@ -9,6 +9,7 @@
       <h1>Engine Audit</h1>
       <p>{{ vertical.display_name }} · {{ session.id }}</p>
       <div class="engine-audit-actions">
+        <a class="button-link secondary-button" href="{{ url_for('engine_audit_index', vertical=session.vertical) }}">Recent audits</a>
         <a class="button-link secondary-button" href="{{ url_for('session_results', session_id=session.id) }}">Open results</a>
         <a class="button-link secondary-button" href="{{ vertical.route_prefix }}">New run</a>
       </div>
@@ -19,11 +20,16 @@
         <h2>Run</h2>
         <dl class="engine-audit-kv">
           <dt>Generation ID</dt><dd>{{ audit.generation_id }}</dd>
+          <dt>Session ID</dt><dd>{{ session.id }}</dd>
+          <dt>Created</dt><dd>{{ session.created_at }}</dd>
+          <dt>Updated</dt><dd>{{ session.updated_at }}</dd>
           <dt>Prompt version</dt><dd>{{ audit.prompt_version }}</dd>
           <dt>Pipeline</dt><dd>{{ audit.engine_pipeline }}</dd>
           <dt>Model</dt><dd>{{ audit.model }}</dd>
           <dt>Provider</dt><dd>{{ audit.providers|join(', ') }}</dd>
           <dt>Round</dt><dd>{{ session.round_number }}</dd>
+          <dt>Parent session</dt><dd>{{ session.parent_session_id or 'none' }}</dd>
+          <dt>Refinement prompt</dt><dd>{{ session.refinement_prompt or 'none' }}</dd>
           <dt>Latency</dt><dd>{{ audit.total_latency_ms }} ms</dd>
           <dt>Tokens</dt>
           <dd>
@@ -31,6 +37,7 @@
           </dd>
           <dt>Feedback</dt>
           <dd>Love {{ reaction_counts.love }} · Maybe {{ reaction_counts.maybe }} · No {{ reaction_counts.no }}</dd>
+          <dt>Chosen name</dt><dd>{{ chosen_names[0].name if chosen_names else 'not chosen' }}</dd>
         </dl>
       </article>
 
@@ -66,7 +73,7 @@
             <dt>Diversity</dt><dd>{{ strategy.diversity_plan }}</dd>
           </dl>
         {% else %}
-          <p>No taste strategy captured. This likely came from fallback or an older session.</p>
+          <p>No taste strategy captured. This likely came from an older session.</p>
         {% endif %}
       </article>
 
@@ -122,7 +129,7 @@
               </dl>
             </section>
           {% else %}
-            <p>No candidate pool captured. This likely came from fallback or an older session.</p>
+            <p>No candidate pool captured. This likely came from an older session.</p>
           {% endfor %}
         </div>
       </article>
@@ -141,7 +148,7 @@
               </dl>
             </section>
           {% else %}
-            <p>No rejected candidates captured. This likely came from fallback or an older session.</p>
+            <p>No rejected candidates captured. This likely came from an older session.</p>
           {% endfor %}
         </div>
       </article>
@@ -154,10 +161,26 @@
               <h3>{{ loop.index }}. {{ name.name }}</h3>
               <p>{{ name.tagline }}</p>
               <dl class="engine-audit-kv compact">
+                <dt>Why this name</dt><dd>{{ name.why_this_name }}</dd>
+                <dt>Fit note</dt><dd>{{ name.fit_note }}</dd>
+                <dt>Risks</dt><dd>{{ name.risks|join(', ') if name.risks else 'none captured' }}</dd>
                 <dt>Scores</dt><dd>{{ name.scores }}</dd>
                 <dt>Provider</dt><dd>{{ name.metadata.get('provider') or name.metadata.get('source') }}</dd>
                 <dt>Quality</dt><dd>{{ name.metadata.get('quality_score', 'n/a') }}</dd>
+                <dt>Quality reasons</dt><dd>{{ name.metadata.get('quality_reasons', [])|join(', ') or 'none captured' }}</dd>
               </dl>
+              <h4>Validation</h4>
+              <ul>
+                {% for item in name.validation %}
+                  <li><strong>{{ item.label }}</strong> · {{ item.status.value }}{% if item.score is not none %} · {{ item.score }}{% endif %}<br>{{ item.message }}</li>
+                {% else %}
+                  <li>No validation captured.</li>
+                {% endfor %}
+              </ul>
+              <details class="engine-audit-call">
+                <summary>Raw result metadata</summary>
+                <pre>{{ name.metadata|safe_audit|tojson(indent=2) }}</pre>
+              </details>
             </section>
           {% endfor %}
         </div>
@@ -173,6 +196,14 @@
         {% else %}
           <p>No AI call metadata captured.</p>
         {% endfor %}
+      </article>
+
+      <article class="engine-audit-card engine-audit-card-wide">
+        <h2>Complete run metadata</h2>
+        <details class="engine-audit-call">
+          <summary>Open raw audit payload</summary>
+          <pre>{{ audit|tojson(indent=2) }}</pre>
+        </details>
       </article>
     </div>
   </section>
