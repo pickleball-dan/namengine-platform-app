@@ -9,16 +9,18 @@ class PhaseTwoWebShellTest(unittest.TestCase):
         self.app.testing = True
         self.client = self.app.test_client()
 
-    def test_home_lists_vertical_routes(self):
+    def test_home_launches_baby_and_marks_future_verticals_coming_soon(self):
         response = self.client.get("/")
 
         self.assertEqual(response.status_code, 200)
         body = response.get_data(as_text=True)
-        self.assertIn("The TASTE ENGINE", body)
-        self.assertIn('href="/pet"', body)
+        self.assertIn("Find the name that feels right.", body)
         self.assertIn('href="/baby"', body)
-        self.assertIn('href="/business"', body)
-        self.assertIn('href="/character"', body)
+        self.assertEqual(body.count("Coming soon"), 4)
+        self.assertNotIn('href="/pet"', body)
+        self.assertNotIn('href="/business"', body)
+        self.assertNotIn('href="/product"', body)
+        self.assertNotIn('href="/character"', body)
 
     def test_pet_intake_renders_from_vertical_config(self):
         response = self.client.get("/pet")

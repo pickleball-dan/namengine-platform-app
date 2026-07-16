@@ -292,39 +292,41 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         body = response.get_data(as_text=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn("home-hero", body)
-        self.assertIn("home-vertical-grid", body)
-        self.assertIn("home-vertical-card", body)
+        self.assertIn("launch-hero", body)
+        self.assertIn("launch-baby-card", body)
+        self.assertIn("launch-future-grid", body)
         self.assertIn("images/pet/namengine-pet-logo-transparent.png", body)
         self.assertIn("images/baby/namengine-baby-logo.png", body)
         self.assertIn("images/business/namengine-business-logo.png", body)
         self.assertIn("images/product/namengine-product-logo.png", body)
         self.assertIn("images/character-logo.svg", body)
-        self.assertIn("Pick your vertical", body)
-        self.assertIn("The TASTE ENGINE", body)
-        self.assertIn("One Namegine frame. Distinct emotional lanes.", body)
+        self.assertIn("Find the name that feels right.", body)
+        self.assertIn("Start Baby Naming", body)
+        self.assertIn("Available now", body)
+        self.assertEqual(body.count("Coming soon"), 4)
+        self.assertNotIn("Shared product system", body)
 
     def test_home_page_cards_use_visual_config_copy(self):
         response = self.client.get("/")
         body = response.get_data(as_text=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn("Let’s shape the right pet name.", body)
-        self.assertIn("Let’s shape the right baby name.", body)
-        self.assertIn("Find a name your business can grow into.", body)
-        self.assertIn("Find a name your product can wear in the real world.", body)
-        self.assertIn("practical parent decision card", body)
-        self.assertIn("brand decision card with launch risks", body)
-        self.assertIn("shelf-readiness and buyer appeal card", body)
+        self.assertIn("Thoughtfully chosen names inspired by your family’s story", body)
+        self.assertIn("it belonged to your child all along", body)
+        self.assertIn("Baby names that fit your family.", body)
+        self.assertIn('href="/baby"', body)
+        self.assertNotIn('href="/pet" aria-label="NamEngine Pet"', body)
+        self.assertNotIn("shared intake", body.lower())
+        self.assertNotIn("shared results", body.lower())
 
     def test_home_page_graphics_have_css_contract(self):
         css_path = Path(self.app.static_folder) / "css" / "platform.css"
         css = css_path.read_text(encoding="utf-8")
 
-        self.assertIn(".home-hero", css)
-        self.assertIn(".home-vertical-grid", css)
-        self.assertIn(".home-vert-card", css)
-        self.assertIn(".home-vert-logo", css)
+        self.assertIn(".launch-hero", css)
+        self.assertIn(".launch-baby-card", css)
+        self.assertIn(".launch-future-grid", css)
+        self.assertIn(".launch-primary-cta", css)
 
     def test_baby_graphics_follow_pet_asset_slots(self):
         response = self.client.get("/baby")
