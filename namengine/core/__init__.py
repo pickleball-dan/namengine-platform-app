@@ -13,6 +13,35 @@ from .ai_generation import (
 from .prompt_versions import BABY_PROMPT_VERSION, prompt_version_for, registered_prompt_versions
 from .quality_framework import QualityAdapter, quality_adapter_for, register_quality_adapter
 from .briefs import build_brief
+from .canonical_intent import CANONICAL_INTENT_VERSION, CanonicalNamingIntent
+from .intake import (
+    IntakeAdapter,
+    IntakeComparison,
+    IntakeFieldDefinition,
+    IntakeMessage,
+    IntakeNormalizationResult,
+    IntakeSchema,
+    IntakeSchemaError,
+    IntakeValidationResult,
+    compare_normalized_intakes,
+    intake_adapter_for,
+    list_intake_schemas,
+    normalize_intake,
+    register_intake_adapter,
+    register_intake_schema,
+    resolve_intake_schema,
+    set_default_intake_version,
+    unregister_intake_adapter,
+    unregister_intake_schema,
+    validate_intake,
+)
+from .intake_migrations import (
+    IntakeMigration,
+    IntakeMigrationError,
+    migrate_intake,
+    register_intake_migration,
+    unregister_intake_migration,
+)
 from .compare import build_compare_items
 from .generation import generate_names
 from .evals import (
@@ -138,7 +167,20 @@ from .engine_audit import (
 )
 
 __all__ = [
+    "CANONICAL_INTENT_VERSION",
+    "CanonicalNamingIntent",
+    "IntakeAdapter",
+    "IntakeComparison",
+    "IntakeFieldDefinition",
+    "IntakeMessage",
+    "IntakeMigration",
+    "IntakeMigrationError",
+    "IntakeNormalizationResult",
+    "IntakeSchema",
+    "IntakeSchemaError",
+    "IntakeValidationResult",
     "build_brief",
+    "compare_normalized_intakes",
     "build_generation_prompt",
     "build_taste_interpreter_prompt",
     "build_baby_keepsake_prompt",
@@ -162,6 +204,19 @@ __all__ = [
     "generate_ai_names",
     "generate_names",
     "generate_with_router",
+    "intake_adapter_for",
+    "list_intake_schemas",
+    "migrate_intake",
+    "normalize_intake",
+    "register_intake_adapter",
+    "register_intake_migration",
+    "register_intake_schema",
+    "resolve_intake_schema",
+    "set_default_intake_version",
+    "unregister_intake_adapter",
+    "unregister_intake_migration",
+    "unregister_intake_schema",
+    "validate_intake",
     "AcceptanceCriterion",
     "EvaluationPackAdapter",
     "EvaluationPackSummary",

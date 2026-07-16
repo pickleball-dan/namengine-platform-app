@@ -54,6 +54,10 @@ class NameEvaluationFixture:
     regression_notes: str = ""
     tags: tuple[str, ...] = ()
     enabled: bool = True
+    intake_schema_version: str = ""
+    expected_canonical_intent_attributes: dict[str, Any] = field(default_factory=dict)
+    expected_normalization_warnings: tuple[str, ...] = ()
+    expected_migration_behavior: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass(frozen=True, slots=True)
@@ -113,6 +117,10 @@ class FixtureEvaluationResult:
     adapter_version: str
     model: str
     providers: tuple[str, ...]
+    intake_schema_version: str = ""
+    normalizer_version: str = ""
+    intake_adapter_version: str = ""
+    canonical_intent_version: str = ""
 
     def to_dict(self) -> dict[str, Any]:
         return _safe_json_value(asdict(self))
@@ -227,7 +235,14 @@ def validate_fixture(payload: Any, *, source: str = "fixture") -> NameEvaluation
         "tags",
         "enabled",
     }
-    allowed = required | {"reference_candidates", "rejection_candidates"}
+    allowed = required | {
+        "reference_candidates",
+        "rejection_candidates",
+        "intake_schema_version",
+        "expected_canonical_intent_attributes",
+        "expected_normalization_warnings",
+        "expected_migration_behavior",
+    }
     missing = required - set(payload)
     if missing:
         raise FixtureValidationError(f"{source}: missing fields {sorted(missing)}")
@@ -290,6 +305,13 @@ def validate_fixture(payload: Any, *, source: str = "fixture") -> NameEvaluation
     if not isinstance(payload["enabled"], bool):
         raise FixtureValidationError(f"{source}: enabled must be boolean")
     _validate_json_data(intake, source)
+    intake_schema_version = str(payload.get("intake_schema_version") or "").strip()
+    expected_intent = payload.get("expected_canonical_intent_attributes", {})
+    expected_migration = payload.get("expected_migration_behavior", {})
+    if not isinstance(expected_intent, dict) or not isinstance(expected_migration, dict):
+        raise FixtureValidationError(f"{source}: intake expectations must be objects")
+    _validate_json_data(expected_intent, source)
+    _validate_json_data(expected_migration, source)
     return NameEvaluationFixture(
         fixture_id=_required_string(payload["fixture_id"], source, "fixture_id"),
         schema_version=FIXTURE_SCHEMA_VERSION,
@@ -307,6 +329,12 @@ def validate_fixture(payload: Any, *, source: str = "fixture") -> NameEvaluation
         regression_notes=_bounded_string(payload["regression_notes"], source, "regression_notes"),
         tags=_string_tuple(payload["tags"], source),
         enabled=payload["enabled"],
+        intake_schema_version=intake_schema_version,
+        expected_canonical_intent_attributes=dict(expected_intent),
+        expected_normalization_warnings=_string_tuple(
+            payload.get("expected_normalization_warnings", []), source
+        ),
+        expected_migration_behavior=dict(expected_migration),
     )
 
 
@@ -327,6 +355,8 @@ def evaluate_fixture(
         _evaluate_criterion(fixture, brief, results, comparison_results, adapter, criterion)
         for criterion in fixture.criteria
     )
+    intake_results, intake_metadata = _evaluate_intake_expectations(fixture)
+    criterion_results += intake_results
     total = round(sum(item.score for item in criterion_results), 3)
     maximum = round(sum(item.maximum_score for item in criterion_results), 3)
     normalized = round(total / maximum, 3) if maximum else 0.0
@@ -365,6 +395,10 @@ def evaluate_fixture(
         adapter_version=adapter.version[:MAX_TEXT_LENGTH],
         model=str(metadata.get("model") or "unknown")[:MAX_TEXT_LENGTH],
         providers=tuple(item[:MAX_TEXT_LENGTH] for item in providers[:MAX_OUTPUT_ITEMS]),
+        intake_schema_version=intake_metadata.get("intake_schema_version", ""),
+        normalizer_version=intake_metadata.get("normalizer_version", ""),
+        intake_adapter_version=intake_metadata.get("intake_adapter_version", ""),
+        canonical_intent_version=intake_metadata.get("canonical_intent_version", ""),
     )
 
 
@@ -380,6 +414,109 @@ def evaluate_generated_fixture(
     if any(item.criterion == "deterministic_ordering" for item in fixture.criteria):
         comparison = generate_names(vertical, brief, use_ai=use_ai)
     return evaluate_fixture(fixture, results, comparison_results=comparison)
+
+
+def _evaluate_intake_expectations(
+    fixture: NameEvaluationFixture,
+) -> tuple[tuple[CriterionResult, ...], dict[str, str]]:
+    """Evaluate optional, cross-vertical normalization expectations."""
+    from namengine.core.intake import normalize_intake
+
+    normalized = normalize_intake(
+        fixture.vertical,
+        fixture.intake,
+        intake_version=fixture.intake_schema_version or None,
+        allow_partial=True,
+    )
+    metadata = normalized.version_metadata() if normalized.valid else {}
+    has_expectations = bool(
+        fixture.intake_schema_version
+        or fixture.expected_canonical_intent_attributes
+        or fixture.expected_normalization_warnings
+        or fixture.expected_migration_behavior
+    )
+    if not has_expectations:
+        return (), metadata
+    if not normalized.valid or normalized.canonical_intent is None:
+        return (
+            CriterionResult(
+                "intake_normalization",
+                "fail",
+                0.0,
+                1.0,
+                True,
+                "Fixture intake could not be normalized",
+                {"error_codes": [item.code for item in normalized.validation.errors]},
+            ),
+        ), metadata
+
+    results: list[CriterionResult] = []
+    if fixture.expected_canonical_intent_attributes:
+        actual = normalized.canonical_intent.to_dict()
+        mismatches = sorted(
+            path
+            for path, expected in fixture.expected_canonical_intent_attributes.items()
+            if _nested_value(actual, path) != expected
+        )
+        results.append(
+            CriterionResult(
+                "canonical_intent_expectations",
+                "fail" if mismatches else "pass",
+                0.0 if mismatches else 1.0,
+                1.0,
+                True,
+                "Canonical intent expectations differ" if mismatches else "Canonical intent expectations match",
+                {"mismatched_paths": mismatches[:MAX_OUTPUT_ITEMS]},
+            )
+        )
+    if fixture.expected_normalization_warnings:
+        actual_warnings = {
+            item.code for item in normalized.validation_warnings
+        } | set(normalized.deprecation_warnings) | set(normalized.migration_warnings)
+        missing = sorted(set(fixture.expected_normalization_warnings) - actual_warnings)
+        results.append(
+            CriterionResult(
+                "normalization_warning_expectations",
+                "fail" if missing else "pass",
+                0.0 if missing else 1.0,
+                1.0,
+                True,
+                "Expected normalization warnings are missing" if missing else "Expected normalization warnings are present",
+                {"missing_warnings": missing[:MAX_OUTPUT_ITEMS]},
+            )
+        )
+    if fixture.expected_migration_behavior:
+        actual_migration = {
+            "source_version": normalized.migration_source_version,
+            "destination_version": normalized.migration_destination_version,
+            "history": list(normalized.migration_history),
+        }
+        mismatches = sorted(
+            key
+            for key, expected in fixture.expected_migration_behavior.items()
+            if actual_migration.get(key) != expected
+        )
+        results.append(
+            CriterionResult(
+                "migration_expectations",
+                "fail" if mismatches else "pass",
+                0.0 if mismatches else 1.0,
+                1.0,
+                True,
+                "Migration expectations differ" if mismatches else "Migration expectations match",
+                {"mismatched_fields": mismatches[:MAX_OUTPUT_ITEMS]},
+            )
+        )
+    return tuple(results), metadata
+
+
+def _nested_value(value: dict[str, Any], path: str) -> Any:
+    current: Any = value
+    for part in path.split("."):
+        if not isinstance(current, dict) or part not in current:
+            return None
+        current = current[part]
+    return current
 
 
 def summarize_evaluation_pack(

@@ -9,6 +9,7 @@ from namengine.core.ai_generation import AIGenerationError, generate_ai_names
 import namengine.core.quality_adapters  # Registers built-in vertical adapters.
 from namengine.core.quality_framework import rank_quality_candidates, score_quality_result
 from namengine.core.generation import generate_fallback_names
+from namengine.core.intake import version_metadata_for_brief
 from namengine.core.schemas import (
     GenerationCandidate,
     ModelProvider,
@@ -51,7 +52,11 @@ def generate_with_router(
         allow_previous_fill=vertical.slug != "baby" and round_number < 4,
         vertical_slug=vertical.slug,
     )
-    return [candidate.result for candidate in selected]
+    results = [candidate.result for candidate in selected]
+    intake_metadata = version_metadata_for_brief(brief)
+    for result in results:
+        result.metadata.update(intake_metadata)
+    return results
 
 
 def route_generation(

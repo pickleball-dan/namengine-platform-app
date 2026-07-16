@@ -877,6 +877,10 @@ def _engine_audit_from_snapshot(snapshot: dict) -> dict:
         {
             "generation_id": metadata.get("generation_id") or snapshot["session"]["id"],
             "prompt_version": metadata.get("prompt_version", "unknown"),
+            "intake_schema_version": metadata.get("intake_schema_version", "unknown"),
+            "normalizer_version": metadata.get("normalizer_version", "unknown"),
+            "intake_adapter_version": metadata.get("intake_adapter_version", "unknown"),
+            "canonical_intent_version": metadata.get("canonical_intent_version", "unknown"),
             "engine_pipeline": metadata.get("engine_pipeline", "unknown"),
             "model": metadata.get("model", "unknown"),
             "providers": providers,
@@ -959,7 +963,7 @@ def _generate_names_for_route(vertical, brief: NamingBrief) -> list[NameResult]:
                     model=os.getenv("NAMENGINE_OPENAI_MODEL", DEFAULT_MODEL),
                     prompt_version=prompt_version_for(vertical.slug),
                     latency_ms=int((time.perf_counter() - started_at) * 1000),
-                    customer_intake=to_plain_data(brief),
+                    customer_intake=_audit_customer_intake(brief),
                     exception_type=type(exc).__name__,
                     safe_error_message=safe_message,
                 )
@@ -975,6 +979,13 @@ def _generate_names_for_route(vertical, brief: NamingBrief) -> list[NameResult]:
         return names
 
     return generate_names(vertical, brief, use_ai=False)
+
+
+def _audit_customer_intake(brief: NamingBrief) -> dict:
+    """Keep the existing audit payload without duplicating canonical context."""
+    payload = to_plain_data(brief)
+    payload.pop("canonical_intent", None)
+    return payload
 
 
 def _ai_primary_verticals() -> set[str]:

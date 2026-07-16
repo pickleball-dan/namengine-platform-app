@@ -100,7 +100,11 @@ def generate_ai_names(
     improve_quality_explanations(vertical.slug, selected_results, brief)
     validated = validate_results(vertical, brief, selected_results)
     apply_quality_metadata(vertical.slug, validated, brief)
+    from namengine.core.intake import version_metadata_for_brief
+
+    intake_metadata = version_metadata_for_brief(brief)
     for result in validated:
+        result.metadata.update(intake_metadata)
         result.metadata["taste_strategy"] = taste_strategy
         result.metadata["engine_pipeline"] = "weighted_prompt_v1+candidate_ranker_v1"
         result.metadata["prompt_version"] = prompt_version

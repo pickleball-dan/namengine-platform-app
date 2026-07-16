@@ -190,6 +190,10 @@ def save_session(
 ) -> None:
     initialize_database(db_path)
     now = utc_now_iso()
+    brief_data = to_plain_data(brief)
+    # Canonical intent can contain personal context. Persist only its safe
+    # version metadata until canonical-intent storage has a privacy contract.
+    brief_data.pop("canonical_intent", None)
     with closing(connect(db_path)) as connection:
         connection.execute(
             """
@@ -208,7 +212,7 @@ def save_session(
             (
                 session_id,
                 vertical,
-                json.dumps(to_plain_data(brief)),
+                json.dumps(brief_data),
                 round_number,
                 parent_session_id,
                 refinement_prompt,
@@ -390,6 +394,10 @@ def get_recent_audit_sessions(
                 "model": str(metadata.get("model") or "unknown"),
                 "total_latency_ms": latency_ms,
                 "prompt_version": str(metadata.get("prompt_version") or "unknown"),
+                "intake_schema_version": str(metadata.get("intake_schema_version") or "unknown"),
+                "normalizer_version": str(metadata.get("normalizer_version") or "unknown"),
+                "intake_adapter_version": str(metadata.get("intake_adapter_version") or "unknown"),
+                "canonical_intent_version": str(metadata.get("canonical_intent_version") or "unknown"),
                 "names_returned": int(row["names_returned"] or 0),
                 "love_count": int(row["love_count"] or 0),
                 "maybe_count": int(row["maybe_count"] or 0),

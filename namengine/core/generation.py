@@ -710,6 +710,8 @@ def generate_names(
     previous_names: list[str] | None = None,
     use_ai: bool = False,
 ) -> list[NameResult]:
+    from namengine.core.intake import version_metadata_for_brief
+
     fallback = generate_fallback_names(
         vertical=vertical,
         brief=brief,
@@ -719,6 +721,7 @@ def generate_names(
     )
     for name in fallback:
         name.metadata.setdefault("provider", "fallback")
+        name.metadata.update(version_metadata_for_brief(brief))
 
     if use_ai:
         try:

@@ -90,6 +90,8 @@ class NamingBrief:
     rejected_examples: list[str] = field(default_factory=list)
     avoid: list[str] = field(default_factory=list)
     notes: str = ""
+    canonical_intent: dict[str, Any] = field(default_factory=dict)
+    intake_metadata: dict[str, str] = field(default_factory=dict)
 
 
 @dataclass(slots=True)
