@@ -53,6 +53,7 @@ from namengine.core import (
     vertical_theme_style,
 )
 from namengine.core.name_facts import build_name_fact_card
+from namengine.core.taste_evolution import build_taste_evolution
 from namengine.core.ai_generation import DEFAULT_MODEL
 from namengine.core.prompt_versions import prompt_version_for
 from namengine.core.schemas import NameResult, NamingBrief, ValidationResult, to_plain_data
@@ -717,6 +718,28 @@ def create_app() -> Flask:
             reaction_counts=get_reaction_counts(session_id),
             chosen_names=snapshot["chosen_names"],
             audit=_engine_audit_from_snapshot(snapshot),
+        )
+
+    @app.get("/dev/taste-evolution/<session_id>")
+    def taste_evolution(session_id: str):
+        if not _engine_audit_enabled():
+            abort(404)
+        snapshot = get_session_snapshot(session_id)
+        if snapshot is None:
+            abort(404)
+        parent_session_id = snapshot["session"].get("parent_session_id")
+        if not parent_session_id:
+            abort(404)
+        parent_snapshot = get_session_snapshot(parent_session_id)
+        if parent_snapshot is None:
+            abort(404)
+
+        return render_template(
+            "taste_evolution.html",
+            vertical=get_vertical(snapshot["session"]["vertical"]),
+            session=snapshot["session"],
+            parent_session=parent_snapshot["session"],
+            evolution=build_taste_evolution(parent_snapshot, snapshot),
         )
 
     @app.get("/dev/eval-report")

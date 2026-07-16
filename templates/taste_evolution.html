@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% macro render_profile(profile, source='') %}
+  {% if profile %}
+    <p>{{ profile.summary }}</p>
+    <dl class="engine-audit-kv compact">
+      <dt>Loved names</dt><dd>{{ profile.loved_names|join(', ') or 'none' }}</dd>
+      <dt>Maybe names</dt><dd>{{ profile.maybe_names|join(', ') or 'none' }}</dd>
+      <dt>Rejected names</dt><dd>{{ profile.rejected_names|join(', ') or 'none' }}</dd>
+      <dt>Liked sounds</dt><dd>{{ profile.liked_sounds|join(', ') or 'none' }}</dd>
+      <dt>Disliked sounds</dt><dd>{{ profile.disliked_sounds|join(', ') or 'none' }}</dd>
+      <dt>Style preferences</dt><dd>{{ profile.style_preferences or 'none' }}</dd>
+      {% if source %}<dt>Source</dt><dd>{{ source }}</dd>{% endif %}
+    </dl>
+  {% else %}
+    <p class="taste-evolution-empty">No taste profile was stored for this point in the session.</p>
+  {% endif %}
+{% endmacro %}
+
+{% macro render_names(names, empty_message) %}
+  <ol class="taste-evolution-names">
+    {% for name in names %}
+      <li>
+        <strong>{{ name.name }}</strong>
+        {% if name.tagline %}<span>{{ name.tagline }}</span>{% endif %}
+        {% if name.tags %}<small>{{ name.tags|join(', ') }}</small>{% endif %}
+      </li>
+    {% else %}
+      <li>{{ empty_message }}</li>
+    {% endfor %}
+  </ol>
+{% endmacro %}
+
+{% macro render_changes(rows, empty_message='No values were stored.') %}
+  {% if rows %}
+    <div class="taste-evolution-change-list">
+      {% for row in rows %}
+        <div class="taste-evolution-change change-{{ row.status }}">
+          <span class="taste-evolution-status">{{ row.status|title }}</span>
+          <strong>{{ row.label }}</strong>
+          <span>{{ row.previous if row.previous is not none else '—' }} → {{ row.current if row.current is not none else '—' }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="taste-evolution-empty">{{ empty_message }}</p>
+  {% endif %}
+{% endmacro %}
+
+{% block title %}Taste Evolution · {{ session.id }}{% endblock %}
+
+{% block content %}
+  <section class="engine-audit-shell taste-evolution-shell">
+    <div class="engine-audit-heading">
+      <p class="eyebrow">Dev only</p>
+      <h1>Taste Evolution</h1>
+      <p>{{ vertical.display_name }} · Round {{ parent_session.round_number }} to round {{ session.round_number }}</p>
+      <div class="engine-audit-actions">
+        <a class="button-link secondary-button" href="{{ url_for('engine_audit', session_id=session.id) }}">Back to Engine Audit</a>
+        <a class="button-link secondary-button" href="{{ url_for('engine_audit', session_id=parent_session.id) }}">Previous round audit</a>
+      </div>
+    </div>
+
+    <div class="engine-audit-grid">
+      <article class="engine-audit-card engine-audit-card-wide">
+        <p class="eyebrow">A. Previous Round</p>
+        <h2>Round {{ evolution.previous.round_number }}</h2>
+        <h3>Taste thesis</h3>
+        <p class="engine-audit-thesis">{{ evolution.previous.taste_thesis }}</p>
+        <div class="taste-evolution-columns">
+          <section>
+            <h3>Intake values</h3>
+            <dl class="engine-audit-kv compact">
+              {% for key, value in evolution.previous.intake.items() %}<dt>{{ key|replace('_', ' ')|title }}</dt><dd>{{ value }}</dd>{% else %}<dt>Intake</dt><dd>Not stored</dd>{% endfor %}
+            </dl>
+          </section>
+          <section>
+            <h3>Feelings Scale values</h3>
+            <dl class="engine-audit-kv compact">
+              {% for key, value in evolution.previous.feelings.items() %}<dt>{{ key|replace('taste_strength_', '')|replace('_', ' ')|title }}</dt><dd>{{ value }}</dd>{% else %}<dt>Feelings Scale</dt><dd>Not stored</dd>{% endfor %}
+            </dl>
+          </section>
+        </div>
+        <h3>Taste profile</h3>
+        {{ render_profile(evolution.previous.taste_profile) }}
+        <h3>Eight names shown</h3>
+        {{ render_names(evolution.previous.names, 'No previous names were stored.') }}
+      </article>
+
+      <article class="engine-audit-card engine-audit-card-wide">
+        <p class="eyebrow">B. User Changes</p>
+        <h2>Signals between rounds</h2>
+        <div class="taste-evolution-reactions">
+          <section><h3>Love reactions</h3><p>{{ evolution.user_changes.reactions.love|join(', ') or 'none' }}</p></section>
+          <section><h3>Maybe reactions</h3><p>{{ evolution.user_changes.reactions.maybe|join(', ') or 'none' }}</p></section>
+          <section><h3>No reactions</h3><p>{{ evolution.user_changes.reactions.no|join(', ') or 'none' }}</p></section>
+        </div>
+        <h3>Free-text refinement instruction</h3>
+        <p>{{ evolution.user_changes.instruction or 'No instruction was stored.' }}</p>
+        <h3>Intake changes</h3>
+        {{ render_changes(evolution.user_changes.intake_changes) }}
+        <h3>Slider changes</h3>
+        {{ render_changes(evolution.user_changes.slider_changes) }}
+      </article>
+
+      <article class="engine-audit-card engine-audit-card-wide">
+        <p class="eyebrow">C. What the Engine Learned</p>
+        <h2>Signals carried into the next list</h2>
+        <div class="taste-evolution-columns">
+          <section>
+            <h3>Loved names carried forward</h3>
+            <ul>{% for item in evolution.learned.loved_names %}<li>{{ item.name }} · {{ 'carried forward' if item.carried else 'reaction stored; brief flag unavailable' }}</li>{% else %}<li>None</li>{% endfor %}</ul>
+          </section>
+          <section>
+            <h3>Rejected names carried forward</h3>
+            <ul>{% for item in evolution.learned.rejected_names %}<li>{{ item.name }} · {{ 'carried forward' if item.carried else 'reaction stored; brief flag unavailable' }}</li>{% else %}<li>None</li>{% endfor %}</ul>
+          </section>
+        </div>
+        <h3>Style preference changes</h3>
+        {{ render_changes(evolution.learned.style_changes, 'No style signal was stored.') }}
+        <h3>Sound preference changes</h3>
+        {{ render_changes(evolution.learned.sound_changes, 'No sound signal was stored.') }}
+        <h3>Naming territories or strategy changes</h3>
+        {{ render_changes(evolution.learned.strategy_changes, 'No naming territories were captured.') }}
+        <h3>Unchanged preferences</h3>
+        {{ render_changes(evolution.learned.unchanged_preferences, 'No unchanged preference values were found.') }}
+      </article>
+
+      <article class="engine-audit-card engine-audit-card-wide">
+        <p class="eyebrow">D. New Round</p>
+        <h2>Round {{ evolution.new.round_number }}</h2>
+        <h3>Updated taste thesis</h3>
+        <p class="engine-audit-thesis">{{ evolution.new.taste_thesis }}</p>
+        <h3>Updated taste profile</h3>
+        {{ render_profile(evolution.new.taste_profile, evolution.new.taste_profile_source) }}
+        <h3>Eight new names</h3>
+        {{ render_names(evolution.new.names, 'No new names were stored.') }}
+        <h3>Previous names excluded</h3>
+        <p>{{ evolution.new.previous_names_excluded|join(', ') or 'None; one or more previous names appear in the new round.' }}</p>
+      </article>
+
+      <article class="engine-audit-card engine-audit-card-wide taste-evolution-summary">
+        <p class="eyebrow">E. Plain-English Summary</p>
+        <h2>What changed and why</h2>
+        <p>{{ evolution.summary }}</p>
+      </article>
+    </div>
+  </section>
+{% endblock %}
