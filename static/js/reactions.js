@@ -6,6 +6,13 @@
   const refineForm = document.querySelector("[data-min-reactions]");
   const refineButton = refineForm ? refineForm.querySelector("[data-refine-submit]") : null;
   const refineGate = refineForm ? refineForm.querySelector("[data-refine-reaction-gate]") : null;
+  const savedCount = document.querySelector("[data-saved-count]");
+
+  function updateSavedCount(counts) {
+    if (!savedCount || !counts) return;
+    const loved = Number(counts.love || 0);
+    savedCount.textContent = `Saved ${loved} ${loved === 1 ? "name" : "names"}`;
+  }
 
   function updateRefineGate(counts) {
     if (!refineForm || !counts) return;
@@ -67,6 +74,7 @@
         const counts = data.reaction_counts;
         if (counts) {
           status.textContent = `Saved: ${label} · ${counts.love} loved`;
+          updateSavedCount(counts);
           updateRefineGate(counts);
         } else {
           status.textContent = `Saved: ${label}`;

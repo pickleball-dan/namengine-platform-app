@@ -86,6 +86,8 @@ from .quality import (
 from .progress import PROGRESS_STEPS, build_trust_cue
 from .pet_portrait import (
     build_baby_keepsake_prompt,
+    build_business_image_prompt,
+    cleanup_generated_images,
     build_keepsake_prompt,
     build_pet_portrait_prompt,
     ensure_keepsake_for_chosen,
@@ -101,6 +103,8 @@ from .pet_portrait import (
     prepare_pet_portrait_for_chosen,
     portrait_details_from_brief,
     keepsake_details_from_brief,
+    generated_image_directory,
+    safe_provider_error_for_log,
 )
 from .provider_performance import (
     ProviderPerformance,
@@ -228,6 +232,8 @@ __all__ = [
     "build_generation_prompt",
     "build_taste_interpreter_prompt",
     "build_baby_keepsake_prompt",
+    "build_business_image_prompt",
+    "cleanup_generated_images",
     "build_keepsake_prompt",
     "build_pet_portrait_prompt",
     "build_provider_performance",
@@ -319,6 +325,8 @@ __all__ = [
     "prepare_pet_portrait_for_chosen",
     "portrait_details_from_brief",
     "keepsake_details_from_brief",
+    "generated_image_directory",
+    "safe_provider_error_for_log",
     "Reaction",
     "ReactionError",
     "refine_session",

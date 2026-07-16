@@ -35,6 +35,7 @@ from namengine.core import (
     is_ai_generation_configured,
     get_chosen_snapshot,
     get_database_path,
+    generated_image_directory,
     get_session_snapshot,
     keepsake_preview_for_chosen,
     get_taste_profile,
@@ -42,6 +43,7 @@ from namengine.core import (
     load_taste_engine_fixtures,
     ModelProvider,
     prepare_keepsake_for_chosen,
+    safe_provider_error_for_log,
     refine_session,
     run_taste_engine_fixture_set,
     save_reaction,
@@ -807,13 +809,15 @@ def create_app() -> Flask:
 
     @app.get("/generated/pet-portraits/<filename>")
     def generated_pet_portrait(filename: str):
-        portrait_dir = get_database_path().parent / "generated_pet_portraits"
-        return send_from_directory(portrait_dir, filename)
+        return send_from_directory(generated_image_directory("pet"), filename)
 
     @app.get("/generated/baby-keepsakes/<filename>")
     def generated_baby_keepsake(filename: str):
-        keepsake_dir = get_database_path().parent / "generated_baby_keepsakes"
-        return send_from_directory(keepsake_dir, filename)
+        return send_from_directory(generated_image_directory("baby"), filename)
+
+    @app.get("/generated/business-images/<filename>")
+    def generated_business_image(filename: str):
+        return send_from_directory(generated_image_directory("business"), filename)
 
     @app.get("/api/chosen/<chosen_id>/portrait")
     def chosen_portrait_status(chosen_id: str):
@@ -829,6 +833,19 @@ def create_app() -> Flask:
             {
                 "chosen_id": chosen_id,
                 "runtime": keepsake_runtime_config(vertical_slug),
+                "portrait": portrait or {"status": "not_attempted"},
+            }
+        )
+
+    @app.post("/api/chosen/<chosen_id>/portrait/retry")
+    def retry_chosen_portrait(chosen_id: str):
+        snapshot = get_chosen_snapshot(chosen_id)
+        if snapshot is None:
+            abort(404)
+        portrait = _queue_keepsake_generation(chosen_id, force_retry=True)
+        return jsonify(
+            {
+                "chosen_id": chosen_id,
                 "portrait": portrait or {"status": "not_attempted"},
             }
         )
@@ -1069,7 +1086,7 @@ def _try_generate_keepsake(chosen_id: str):
     snapshot = get_chosen_snapshot(chosen_id)
     if snapshot is None or snapshot["result"] is None:
         return None
-    if snapshot["chosen"].get("vertical") not in {"pet", "baby"}:
+    if snapshot["chosen"].get("vertical") not in {"pet", "baby", "business"}:
         return None
 
     result = to_plain_data(json_loads(snapshot["result"]["result_json"]))
@@ -1084,7 +1101,7 @@ def _try_generate_keepsake(chosen_id: str):
             "Keepsake generation failed for %s: %s: %s",
             chosen_id,
             exc.__class__.__name__,
-            str(exc)[:500],
+            safe_provider_error_for_log(exc),
         )
         return None
 
@@ -1093,17 +1110,17 @@ def _keepsake_preview(chosen_id: str):
     snapshot = get_chosen_snapshot(chosen_id)
     if snapshot is None or snapshot["result"] is None:
         return None
-    if snapshot["chosen"].get("vertical") not in {"pet", "baby"}:
+    if snapshot["chosen"].get("vertical") not in {"pet", "baby", "business"}:
         return None
 
     return keepsake_preview_for_chosen(snapshot["chosen"], snapshot["session"])
 
 
-def _queue_keepsake_generation(chosen_id: str):
+def _queue_keepsake_generation(chosen_id: str, *, force_retry: bool = False):
     snapshot = get_chosen_snapshot(chosen_id)
     if snapshot is None or snapshot["result"] is None:
         return None
-    if snapshot["chosen"].get("vertical") not in {"pet", "baby"}:
+    if snapshot["chosen"].get("vertical") not in {"pet", "baby", "business"}:
         return None
 
     result = to_plain_data(json_loads(snapshot["result"]["result_json"]))
@@ -1111,6 +1128,7 @@ def _queue_keepsake_generation(chosen_id: str):
         snapshot["chosen"],
         result,
         snapshot["session"],
+        force_retry=force_retry,
     )
     if not portrait or portrait.get("status") in {"ready", "not_configured", "failed"}:
         return portrait

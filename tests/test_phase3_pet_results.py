@@ -77,7 +77,7 @@ class PhaseThreePetResultsTest(unittest.TestCase):
         body = response.get_data(as_text=True)
         self.assertIn("Pet names shaped from your taste", body)
         self.assertIn("Rosie", body)
-        self.assertIn("Why this name?", body)
+        self.assertIn("Why this feels like them", body)
         self.assertIn("Love", body)
         self.assertIn("Maybe", body)
         self.assertIn("No", body)
