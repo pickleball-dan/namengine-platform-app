@@ -27,7 +27,7 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         response = self.app.get("/")
         text = response.get_data(as_text=True)
 
-        self.assertIn('/baby/beta', text)
+        self.assertNotIn('/baby/beta', text)
         self.assertIn('/privacy', text)
         self.assertIn('/terms', text)
         self.assertIn('/disclaimers', text)
@@ -87,10 +87,10 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         text = response.get_data(as_text=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn("See paid beta", text)
-        self.assertIn("AI-assisted", text)
-        self.assertIn("Do not enter sensitive personal data", text)
-        self.assertIn("Your judgment", text)
+        self.assertNotIn("See paid beta", text)
+        self.assertIn("Thoughtful AI guidance", text)
+        self.assertIn("Your family’s story stays private", text)
+        self.assertIn("You’re always in control", text)
 
     def test_baby_results_include_disclaimer_and_paid_depth_cta(self):
         response = self.app.get(

@@ -15,7 +15,7 @@
       reactions until the direction feels clear, calm, and genuinely usable.
     </p>
     <div class="hero-actions">
-      <a class="button-link" href="/baby/beta">Baby paid beta</a>
+      <a class="button-link" href="/baby">Start Baby Naming</a>
       <a class="button-link secondary-button home-secondary-button" href="#verticals">Pick your vertical</a>
     </div>
     <div class="home-proof-strip" aria-label="Shared product signals">
@@ -32,7 +32,7 @@
       <strong>One Namegine frame. Distinct emotional lanes.</strong>
     </div>
     <div class="home-signal-stack">
-      {% for slug in ["pet", "baby", "business", "product"] %}
+      {% for slug in ["pet", "baby", "business"] %}
         {% set item = verticals[slug] %}
         <a
           class="home-signal-card"
@@ -58,7 +58,8 @@
   </div>
 
   <div class="vertical-grid home-vertical-grid">
-    {% for slug, item in verticals.items() %}
+    {% for slug in ["baby", "pet", "business"] %}
+      {% set item = verticals[slug] %}
       <a
         class="vertical-card home-vertical-card"
         href="{{ item.route_prefix }}"

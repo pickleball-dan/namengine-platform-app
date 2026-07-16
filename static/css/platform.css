@@ -1414,6 +1414,57 @@ button {
   border-radius: 6px;
 }
 
+.business-image-placeholder {
+  background:
+    radial-gradient(circle at 72% 24%, var(--accent-soft), transparent 30%),
+    linear-gradient(145deg, #f8f9fb, #e9edf2);
+}
+
+.portrait-retry {
+  min-height: 42px;
+  margin-top: 8px;
+  padding: 9px 15px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  background: var(--accent, #29344f);
+  border: 0;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.portrait-retry:disabled {
+  cursor: wait;
+  opacity: 0.68;
+}
+
+.pet-portrait-placeholder.is-failed {
+  gap: 8px;
+  padding: 16px 12px;
+}
+
+.pet-portrait-placeholder.is-failed .portrait-monogram {
+  font-size: 48px;
+}
+
+.pet-portrait-placeholder.is-failed .portrait-status {
+  max-width: 180px;
+}
+
+.pet-portrait-placeholder.is-failed .portrait-retry {
+  position: relative;
+  z-index: 2;
+  min-height: 38px;
+  margin-top: 0;
+}
+
+.baby-keepsake-placeholder.is-failed .portrait-status {
+  position: relative;
+  right: auto;
+  bottom: auto;
+  left: auto;
+}
+
 .pet-portrait-placeholder {
   position: relative;
   display: flex;
@@ -1435,6 +1486,13 @@ button {
   content: "";
   border: 1px solid rgba(73, 49, 32, 0.16);
   border-radius: 4px;
+}
+
+.pet-portrait-placeholder.business-image-placeholder {
+  color: var(--accent-deep);
+  background:
+    radial-gradient(circle at 72% 24%, var(--accent-soft), transparent 30%),
+    linear-gradient(145deg, #f8f9fb, #e9edf2);
 }
 
 .baby-keepsake-frame {
@@ -3869,4 +3927,949 @@ button {
   margin: 0;
   color: #3f4b63;
   line-height: 1.45;
+}
+
+/* Baby flow polish v1 */
+.vertical-baby .baby-flow-shell {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 44px;
+  padding-top: 18px;
+}
+
+.vertical-baby .baby-flow-shell > .intake-heading,
+.vertical-baby .baby-flow-shell > .baby-intake-form,
+.vertical-baby .baby-flow-shell > .taste-history-panel {
+  grid-column: 1;
+}
+
+.vertical-baby .baby-welcome {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  min-height: 520px;
+  align-content: center;
+  justify-items: start;
+  overflow: hidden;
+  padding: clamp(40px, 7vw, 76px);
+  background:
+    radial-gradient(circle at 88% 12%, rgba(240, 184, 200, 0.32), transparent 30%),
+    radial-gradient(circle at 8% 100%, rgba(125, 149, 199, 0.18), transparent 34%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(249, 246, 251, 0.96));
+  border: 1px solid rgba(41, 52, 79, 0.12);
+  border-radius: 34px;
+  box-shadow: 0 30px 90px rgba(41, 52, 79, 0.09);
+}
+
+.vertical-baby .baby-welcome::after {
+  position: absolute;
+  z-index: -1;
+  right: -6%;
+  bottom: -38%;
+  width: 46%;
+  aspect-ratio: 1.15;
+  content: "";
+  background: linear-gradient(135deg, rgba(240, 184, 200, 0.24), rgba(190, 218, 208, 0.2));
+  border-radius: 55% 45% 62% 38% / 42% 58% 42% 58%;
+  filter: blur(9px);
+  transform: rotate(-8deg);
+}
+
+.vertical-baby .baby-welcome::before {
+  position: absolute;
+  z-index: -1;
+  top: 14%;
+  right: 8%;
+  width: min(360px, 34%);
+  aspect-ratio: 1.35;
+  content: "";
+  border: 1px solid rgba(125, 149, 199, 0.16);
+  border-radius: 48% 52% 42% 58% / 54% 42% 58% 46%;
+  box-shadow:
+    34px 28px 0 -1px rgba(240, 184, 200, 0.08),
+    -24px 46px 0 -1px rgba(125, 149, 199, 0.06);
+  transform: rotate(-12deg);
+}
+
+.vertical-baby .baby-welcome .vertical-page-logo {
+  width: min(190px, 54vw);
+  margin-bottom: 24px;
+  mix-blend-mode: multiply;
+}
+
+.vertical-baby .baby-welcome h1 {
+  max-width: 720px;
+  margin: 0;
+  color: var(--accent-deep);
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(50px, 7vw, 76px);
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+}
+
+.vertical-baby .baby-welcome-copy {
+  max-width: 690px;
+  margin: 28px 0 0;
+  color: #4e5b73;
+  font-size: clamp(18px, 2vw, 21px);
+  line-height: 1.58;
+}
+
+.vertical-baby .baby-welcome-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0 0;
+  padding: 9px 12px;
+  color: #45526a;
+  font-size: 15px;
+  font-weight: 850;
+  background: rgba(255, 255, 255, 0.68);
+  border: 1px solid rgba(125, 149, 199, 0.17);
+  border-radius: 999px;
+}
+
+.vertical-baby .baby-welcome-time span {
+  color: #b25f70;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.vertical-baby .baby-welcome .hero-actions {
+  margin-top: 30px;
+}
+
+.vertical-baby .baby-begin-button {
+  min-width: 150px;
+  min-height: 58px;
+  justify-content: center;
+  padding: 15px 28px;
+  background: linear-gradient(135deg, #29344f, #455a82);
+  border-radius: 16px;
+  box-shadow: 0 16px 34px rgba(41, 52, 79, 0.2);
+}
+
+.vertical-baby .intake-trust-strip {
+  margin-top: 24px;
+  border-radius: 20px;
+}
+
+.vertical-baby .intake-trust-strip > div {
+  gap: 7px;
+  padding: 18px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(249, 247, 251, 0.9));
+  border-radius: 20px;
+}
+
+.vertical-baby .intake-trust-strip strong {
+  color: #354158;
+  font-size: 15px;
+}
+
+.vertical-baby .intake-trust-strip strong span {
+  margin-right: 4px;
+  color: #b25f70;
+  font-size: 16px;
+}
+
+.vertical-baby .intake-trust-strip > div > span {
+  line-height: 1.45;
+}
+
+.vertical-baby .baby-intake-form {
+  gap: 22px;
+  scroll-margin-top: 24px;
+  padding: clamp(22px, 4vw, 36px);
+  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid rgba(41, 52, 79, 0.11);
+  border-top: 0;
+  border-radius: 30px;
+  box-shadow: 0 28px 80px rgba(41, 52, 79, 0.09);
+}
+
+.vertical-baby .baby-intake-intro {
+  max-width: 700px;
+  padding: 4px 4px 12px;
+}
+
+.vertical-baby .baby-intake-intro h2 {
+  margin: 0;
+  color: var(--accent-deep);
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(36px, 5vw, 50px);
+  line-height: 1;
+}
+
+.vertical-baby .baby-intake-intro > p:last-child {
+  margin: 15px 0 0;
+  color: #617088;
+  font-size: 16px;
+}
+
+.vertical-baby .baby-intake-form .intake-section {
+  gap: 18px;
+  padding: clamp(20px, 3vw, 28px);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(247, 249, 253, 0.9));
+  border: 1px solid rgba(41, 52, 79, 0.1);
+  border-left: 1px solid rgba(41, 52, 79, 0.1);
+  border-radius: 22px;
+  box-shadow: 0 12px 34px rgba(41, 52, 79, 0.045);
+}
+
+.vertical-baby .baby-intake-form .intake-section:nth-of-type(2) {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(253, 246, 249, 0.92));
+}
+
+.vertical-baby .baby-intake-form .intake-section legend {
+  font-size: 29px;
+}
+
+.vertical-baby .baby-intake-form .intake-section legend::before {
+  transition: background-color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+}
+
+.vertical-baby .baby-intake-form .intake-section.is-complete legend::before {
+  content: "✓";
+  background: #5e8e7f;
+  box-shadow: 0 0 0 5px rgba(94, 142, 127, 0.12);
+  transform: scale(1.06);
+}
+
+.vertical-baby .baby-section-heading {
+  display: grid;
+  gap: 2px;
+}
+
+.vertical-baby .baby-section-heading small {
+  color: #7d6c82;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.vertical-baby .baby-section-heading > span {
+  display: block;
+}
+
+.vertical-baby .baby-intake-form .field {
+  gap: 10px;
+  color: #344158;
+}
+
+.vertical-baby .baby-intake-form .field-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.vertical-baby .baby-intake-form .field-label-copy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  min-width: 0;
+}
+
+.vertical-baby .baby-field-anchor {
+  display: inline-grid;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  place-items: center;
+  color: #7184ae;
+  font-size: 13px;
+  line-height: 1;
+  background: rgba(125, 149, 199, 0.1);
+  border: 1px solid rgba(125, 149, 199, 0.14);
+  border-radius: 8px;
+}
+
+.vertical-baby .baby-intake-form .field em {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.vertical-baby .baby-intake-form .field.is-required .field-label-copy {
+  color: #253149;
+  font-weight: 900;
+}
+
+.vertical-baby .baby-intake-form .field.is-required em {
+  padding: 4px 7px;
+  color: #5d4d69;
+  font-size: 11px;
+  background: rgba(240, 184, 200, 0.18);
+  border: 1px solid rgba(178, 95, 112, 0.12);
+  border-radius: 999px;
+}
+
+.vertical-baby .baby-intake-form .field.is-required .baby-field-anchor {
+  color: #ffffff;
+  background: #7184ae;
+  border-color: #7184ae;
+}
+
+.vertical-baby .baby-intake-form .field.is-required input,
+.vertical-baby .baby-intake-form .field.is-required select,
+.vertical-baby .baby-intake-form .field.is-required textarea {
+  border-color: #bdc8dc;
+  box-shadow: inset 0 1px 2px rgba(41, 52, 79, 0.025), 0 6px 18px rgba(41, 52, 79, 0.035);
+}
+
+.vertical-baby .baby-intake-form .field input,
+.vertical-baby .baby-intake-form .field select,
+.vertical-baby .baby-intake-form .field textarea {
+  min-height: 56px;
+  padding: 14px 16px;
+  background-color: rgba(255, 255, 255, 0.98);
+  border: 1px solid #d5dce7;
+  border-radius: 14px;
+  box-shadow: inset 0 1px 2px rgba(41, 52, 79, 0.025);
+  transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+}
+
+.vertical-baby .baby-intake-form .field select {
+  padding-right: 48px;
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #6b7890 50%),
+    linear-gradient(135deg, #6b7890 50%, transparent 50%);
+  background-position:
+    calc(100% - 22px) calc(50% - 2px),
+    calc(100% - 16px) calc(50% - 2px);
+  background-repeat: no-repeat;
+  background-size: 6px 6px, 6px 6px;
+}
+
+.vertical-baby .baby-intake-form .field input:focus,
+.vertical-baby .baby-intake-form .field select:focus,
+.vertical-baby .baby-intake-form .field textarea:focus {
+  background-color: #ffffff;
+  border-color: #7d95c7;
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(125, 149, 199, 0.17), 0 10px 28px rgba(41, 52, 79, 0.06);
+}
+
+.vertical-baby .baby-intake-form > button {
+  min-height: 58px;
+  border-radius: 16px;
+  font-size: 16px;
+  box-shadow: 0 16px 34px rgba(41, 52, 79, 0.18);
+}
+
+.vertical-baby .baby-intake-form > button.is-priming {
+  background: linear-gradient(135deg, #455a82, #7d95c7);
+  cursor: wait;
+  opacity: 1;
+  animation: baby-profile-priming 650ms ease-in-out infinite alternate;
+}
+
+.vertical-baby .taste-history-panel {
+  gap: 12px;
+  padding: clamp(22px, 4vw, 30px);
+  background:
+    radial-gradient(circle at 92% 4%, rgba(240, 184, 200, 0.19), transparent 32%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(247, 249, 253, 0.92));
+  border: 1px solid rgba(41, 52, 79, 0.1);
+  border-left: 1px solid rgba(41, 52, 79, 0.1);
+  border-radius: 24px;
+  box-shadow: 0 18px 52px rgba(41, 52, 79, 0.06);
+}
+
+.vertical-baby .taste-history-panel h2 {
+  color: var(--accent-deep);
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 30px;
+}
+
+.vertical-baby .taste-history-panel p {
+  max-width: 680px;
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.vertical-baby .taste-history-panel li {
+  padding: 13px 15px;
+  border-radius: 12px;
+}
+
+.vertical-baby .taste-history-button {
+  width: fit-content;
+  min-height: 46px;
+  padding: 10px 16px;
+  border-radius: 14px;
+}
+
+@keyframes baby-profile-priming {
+  from { box-shadow: 0 14px 30px rgba(41, 52, 79, 0.16); }
+  to { box-shadow: 0 18px 40px rgba(125, 149, 199, 0.32); }
+}
+
+/* Shared launch-flow finish for Pet and Business. Voice and color remain vertical-specific. */
+:is(.vertical-pet, .vertical-business) .polished-flow-shell {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 44px;
+  padding-top: 18px;
+}
+
+:is(.vertical-pet, .vertical-business) .polished-flow-shell > * {
+  grid-column: 1;
+}
+
+:is(.vertical-pet, .vertical-business) .baby-welcome {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  min-height: 500px;
+  align-content: center;
+  justify-items: start;
+  overflow: hidden;
+  padding: clamp(40px, 7vw, 76px);
+  background:
+    radial-gradient(circle at 88% 12%, var(--accent-soft), transparent 32%),
+    radial-gradient(circle at 8% 100%, var(--accent-warm-soft), transparent 36%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(248, 249, 251, 0.95));
+  border: 1px solid rgba(24, 33, 47, 0.12);
+  border-radius: 34px;
+  box-shadow: 0 30px 90px rgba(24, 33, 47, 0.09);
+}
+
+:is(.vertical-pet, .vertical-business) .baby-welcome::after {
+  position: absolute;
+  z-index: -1;
+  right: -7%;
+  bottom: -40%;
+  width: 48%;
+  aspect-ratio: 1.1;
+  content: "";
+  background: linear-gradient(135deg, var(--accent-warm-soft), var(--accent-soft));
+  border-radius: 55% 45% 62% 38% / 42% 58% 42% 58%;
+  filter: blur(10px);
+  transform: rotate(-8deg);
+}
+
+:is(.vertical-pet, .vertical-business) .baby-welcome .vertical-page-logo {
+  width: min(190px, 54vw);
+  margin-bottom: 24px;
+  mix-blend-mode: multiply;
+}
+
+:is(.vertical-pet, .vertical-business) .baby-welcome h1 {
+  max-width: 760px;
+  margin: 0;
+  color: var(--accent-deep);
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(50px, 7vw, 76px);
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+}
+
+:is(.vertical-pet, .vertical-business) .baby-welcome-copy {
+  max-width: 700px;
+  margin: 28px 0 0;
+  color: #4e5b73;
+  font-size: clamp(18px, 2vw, 21px);
+  line-height: 1.58;
+}
+
+:is(.vertical-pet, .vertical-business) .baby-welcome-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0 0;
+  padding: 9px 12px;
+  color: #45526a;
+  font-size: 15px;
+  font-weight: 850;
+  background: rgba(255, 255, 255, 0.74);
+  border: 1px solid rgba(24, 33, 47, 0.14);
+  border-radius: 999px;
+}
+
+:is(.vertical-pet, .vertical-business) .baby-welcome .hero-actions {
+  margin-top: 30px;
+}
+
+:is(.vertical-pet, .vertical-business) .baby-begin-button {
+  min-width: 150px;
+  min-height: 58px;
+  justify-content: center;
+  padding: 15px 28px;
+  border-radius: 16px;
+  box-shadow: 0 16px 34px rgba(24, 33, 47, 0.2);
+}
+
+:is(.vertical-pet, .vertical-business) .intake-trust-strip {
+  margin-top: 24px;
+}
+
+:is(.vertical-pet, .vertical-business) .intake-trust-strip > div {
+  gap: 7px;
+  padding: 18px;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 20px;
+}
+
+:is(.vertical-pet, .vertical-business) .polished-intake-form {
+  gap: 22px;
+  scroll-margin-top: 24px;
+  padding: clamp(22px, 4vw, 36px);
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(24, 33, 47, 0.11);
+  border-radius: 30px;
+  box-shadow: 0 28px 80px rgba(24, 33, 47, 0.09);
+}
+
+:is(.vertical-pet, .vertical-business) .baby-intake-intro h2 {
+  margin: 0;
+  color: var(--accent-deep);
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(36px, 5vw, 50px);
+  line-height: 1;
+}
+
+:is(.vertical-pet, .vertical-business) .baby-intake-intro > p:last-child {
+  margin: 15px 0 12px;
+  color: #617088;
+}
+
+:is(.vertical-pet, .vertical-business) .polished-intake-form .intake-section {
+  gap: 18px;
+  padding: clamp(20px, 3vw, 28px);
+  background: linear-gradient(145deg, #fff, rgba(247, 249, 253, 0.92));
+  border: 1px solid rgba(24, 33, 47, 0.1);
+  border-radius: 22px;
+  box-shadow: 0 12px 34px rgba(24, 33, 47, 0.045);
+}
+
+:is(.vertical-pet, .vertical-business) .polished-intake-form .intake-section.is-complete legend::before {
+  content: "✓";
+  color: #fff;
+  background: #5e8e7f;
+}
+
+:is(.vertical-pet, .vertical-business) .baby-section-heading {
+  display: grid;
+  gap: 2px;
+}
+
+:is(.vertical-pet, .vertical-business) .baby-section-heading small {
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+:is(.vertical-pet, .vertical-business) .field-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+:is(.vertical-pet, .vertical-business) .field-label-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+:is(.vertical-pet, .vertical-business) .baby-field-anchor {
+  display: inline-grid;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  place-items: center;
+  color: var(--accent-deep);
+  background: var(--accent-soft);
+  border-radius: 8px;
+}
+
+:is(.vertical-pet, .vertical-business) .field.is-required .field-label-copy {
+  color: var(--accent-deep);
+  font-weight: 900;
+}
+
+:is(.vertical-pet, .vertical-business) .field.is-required em {
+  padding: 4px 7px;
+  font-size: 11px;
+  background: var(--accent-soft);
+  border-radius: 999px;
+}
+
+:is(.vertical-pet, .vertical-business) .field em {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.vertical-pet .baby-welcome .secondary-button {
+  color: var(--accent-deep);
+  background: rgba(255, 255, 255, 0.76);
+  border: 1px solid rgba(24, 33, 47, 0.18);
+  box-shadow: none;
+}
+
+:is(.vertical-pet, .vertical-business) .polished-intake-form :is(input, select, textarea) {
+  min-height: 56px;
+  padding: 14px 16px;
+  background-color: rgba(255, 255, 255, 0.98);
+  border: 1px solid #d5dce7;
+  border-radius: 14px;
+}
+
+:is(.vertical-pet, .vertical-business) .polished-intake-form select {
+  padding-right: 48px;
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, #6b7890 50%), linear-gradient(135deg, #6b7890 50%, transparent 50%);
+  background-position: calc(100% - 22px) calc(50% - 2px), calc(100% - 16px) calc(50% - 2px);
+  background-repeat: no-repeat;
+  background-size: 6px 6px;
+}
+
+:is(.vertical-pet, .vertical-business) .polished-intake-form :is(input, select, textarea):focus {
+  border-color: var(--accent);
+  outline: none;
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+
+:is(.vertical-pet, .vertical-business) .polished-intake-form > button {
+  min-height: 58px;
+  border-radius: 16px;
+  font-size: 16px;
+  box-shadow: 0 16px 34px rgba(24, 33, 47, 0.18);
+}
+
+.vertical-baby .feelings-shell {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.vertical-baby .feelings-heading {
+  padding: clamp(28px, 5vw, 48px);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(249, 244, 250, 0.94));
+  border: 1px solid rgba(41, 52, 79, 0.1);
+  border-radius: 30px;
+  box-shadow: 0 22px 64px rgba(41, 52, 79, 0.07);
+}
+
+.vertical-baby .feelings-heading h1 {
+  color: var(--accent-deep);
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(44px, 6vw, 62px);
+  line-height: 1;
+}
+
+.vertical-baby .feelings-card {
+  border-radius: 28px;
+  box-shadow: 0 26px 76px rgba(41, 52, 79, 0.09);
+}
+
+.vertical-baby .feelings-card > button {
+  width: 100%;
+  min-height: 56px;
+  border-radius: 14px;
+}
+
+.vertical-baby .progress-panel {
+  border-top: 0;
+  border-radius: 28px;
+  box-shadow: 0 30px 100px rgba(41, 52, 79, 0.2);
+}
+
+.vertical-baby .progress-copy h2 {
+  color: var(--accent-deep);
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 40px;
+  line-height: 1.05;
+}
+
+.vertical-baby .baby-results-framing {
+  max-width: 760px;
+  color: #46536b;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(22px, 3vw, 28px);
+  font-weight: 700;
+  line-height: 1.28;
+}
+
+.vertical-baby .baby-saved-progress {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1px 10px;
+  max-width: 520px;
+  margin-top: 22px;
+  padding: 15px 18px;
+  color: #74475a;
+  background: linear-gradient(135deg, rgba(255, 246, 249, 0.98), rgba(247, 249, 255, 0.96));
+  border: 1px solid rgba(178, 95, 112, 0.18);
+  border-radius: 18px;
+}
+
+.vertical-baby .baby-saved-progress > span {
+  grid-row: 1 / 3;
+  align-self: center;
+  color: #b25f70;
+  font-size: 25px;
+}
+
+.vertical-baby .baby-saved-progress strong {
+  color: #3d4960;
+  font-size: 16px;
+}
+
+.vertical-baby .baby-saved-progress small {
+  color: #6b7589;
+}
+
+.vertical-baby .results-grid {
+  gap: 22px;
+}
+
+.vertical-baby .result-card {
+  gap: 18px;
+  padding: clamp(22px, 3vw, 30px);
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.99), rgba(250, 247, 251, 0.94));
+  border: 1px solid rgba(41, 52, 79, 0.1);
+  border-radius: 24px;
+  box-shadow: 0 18px 54px rgba(41, 52, 79, 0.065);
+}
+
+.vertical-baby .result-card-main {
+  padding-bottom: 18px;
+  border-bottom-color: rgba(41, 52, 79, 0.09);
+}
+
+.vertical-baby .result-card h2 {
+  color: var(--accent-deep);
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(48px, 6vw, 64px);
+  line-height: 0.95;
+  letter-spacing: -0.025em;
+}
+
+.vertical-baby .baby-result-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 14px;
+}
+
+.vertical-baby .baby-result-tags span {
+  padding: 7px 10px;
+  color: #58657c;
+  font-size: 12px;
+  font-weight: 800;
+  background: rgba(125, 149, 199, 0.1);
+  border: 1px solid rgba(125, 149, 199, 0.16);
+  border-radius: 999px;
+}
+
+.vertical-baby .result-card section:first-of-type {
+  padding: 16px 18px;
+  background: rgba(255, 255, 255, 0.68);
+  border-left: 3px solid #f0b8c8;
+  border-radius: 0 14px 14px 0;
+}
+
+.vertical-baby .result-card section:first-of-type h3 {
+  color: #7d5f78;
+}
+
+.vertical-baby .result-card section:first-of-type p {
+  color: #344158;
+  font-size: 16px;
+  line-height: 1.65;
+}
+
+.vertical-baby .reaction-row button {
+  min-height: 92px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+}
+
+.vertical-baby .reaction-icon {
+  width: 58px;
+  height: 58px;
+}
+
+@media (max-width: 760px) {
+  :is(.vertical-pet, .vertical-business) .polished-flow-shell {
+    gap: 28px;
+    padding-top: 0;
+  }
+
+  :is(.vertical-pet, .vertical-business) .baby-welcome {
+    min-height: calc(100svh - 150px);
+    padding: 34px 24px;
+    border-radius: 26px;
+  }
+
+  :is(.vertical-pet, .vertical-business) .baby-welcome .vertical-page-logo {
+    width: min(160px, 50vw);
+    margin-bottom: 20px;
+  }
+
+  :is(.vertical-pet, .vertical-business) .baby-welcome h1 {
+    font-size: clamp(44px, 12vw, 58px);
+  }
+
+  :is(.vertical-pet, .vertical-business) .baby-welcome-copy {
+    margin-top: 24px;
+    font-size: 17px;
+  }
+
+  :is(.vertical-pet, .vertical-business) .baby-welcome .hero-actions,
+  :is(.vertical-pet, .vertical-business) .baby-welcome .button-link {
+    width: 100%;
+  }
+
+  :is(.vertical-pet, .vertical-business) .baby-welcome .button-link {
+    justify-content: center;
+  }
+
+  :is(.vertical-pet, .vertical-business) .polished-intake-form {
+    padding: 18px;
+    border-radius: 24px;
+  }
+
+  :is(.vertical-pet, .vertical-business) .polished-intake-form .intake-section {
+    padding: 20px 16px;
+    border-radius: 18px;
+  }
+
+  .vertical-baby .baby-flow-shell {
+    gap: 28px;
+    padding-top: 0;
+  }
+
+  .vertical-baby .baby-welcome {
+    min-height: calc(100svh - 150px);
+    padding: 34px 24px;
+    border-radius: 26px;
+  }
+
+  .vertical-baby .baby-welcome .vertical-page-logo {
+    width: min(160px, 50vw);
+    margin-bottom: 20px;
+  }
+
+  .vertical-baby .baby-welcome h1 {
+    font-size: clamp(46px, 13vw, 58px);
+  }
+
+  .vertical-baby .baby-welcome-copy {
+    margin-top: 24px;
+    font-size: 17px;
+  }
+
+  .vertical-baby .baby-welcome .hero-actions {
+    width: 100%;
+  }
+
+  .vertical-baby .baby-welcome .button-link {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .vertical-baby .intake-trust-strip {
+    margin-top: 18px;
+  }
+
+  .vertical-baby .baby-intake-form {
+    padding: 18px;
+    border-radius: 24px;
+  }
+
+  .vertical-baby .baby-intake-form .intake-section {
+    padding: 20px 16px;
+    border-radius: 18px;
+  }
+
+  .vertical-baby .baby-intake-form .intake-section legend {
+    font-size: 26px;
+  }
+
+  .vertical-baby .feelings-heading {
+    padding: 26px 20px;
+    border-radius: 24px;
+  }
+
+  .vertical-baby .progress-copy h2 {
+    font-size: 31px;
+  }
+
+  .vertical-baby .baby-results-framing {
+    font-size: 23px;
+  }
+
+  .vertical-baby .result-card {
+    padding: 22px 18px;
+    border-radius: 22px;
+  }
+
+  .vertical-baby .result-card h2 {
+    font-size: 52px;
+  }
+}
+
+@media (max-width: 390px) {
+  :is(.vertical-pet, .vertical-business) .baby-welcome {
+    min-height: 0;
+    padding: 24px 18px;
+  }
+
+  :is(.vertical-pet, .vertical-business) .baby-welcome .vertical-page-logo {
+    width: 112px;
+    margin-bottom: 8px;
+  }
+
+  :is(.vertical-pet, .vertical-business) .baby-welcome h1 {
+    font-size: 39px;
+  }
+
+  :is(.vertical-pet, .vertical-business) .baby-welcome-copy {
+    margin-top: 14px;
+    font-size: 16px;
+  }
+
+  :is(.vertical-pet, .vertical-business) .baby-welcome-time {
+    margin-top: 8px;
+    font-size: 14px;
+  }
+
+  :is(.vertical-pet, .vertical-business) .baby-welcome .hero-actions {
+    margin-top: 16px;
+  }
+
+  .vertical-baby .baby-welcome {
+    min-height: 0;
+    padding: 24px 18px;
+  }
+
+  .vertical-baby .baby-welcome .vertical-page-logo {
+    width: 112px;
+    margin-bottom: 8px;
+  }
+
+  .vertical-baby .baby-welcome h1 {
+    font-size: 40px;
+  }
+
+  .vertical-baby .baby-welcome-copy {
+    margin-top: 14px;
+    font-size: 16px;
+    line-height: 1.48;
+  }
+
+  .vertical-baby .baby-welcome-time {
+    margin-top: 8px;
+    padding: 7px 10px;
+    font-size: 14px;
+  }
+
+  .vertical-baby .baby-welcome .hero-actions {
+    margin-top: 16px;
+  }
 }

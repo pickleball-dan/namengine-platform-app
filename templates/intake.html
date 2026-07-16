@@ -3,38 +3,80 @@
 {% block title %}NamEngine {{ vertical.display_name }}{% endblock %}
 
 {% block content %}
-  <section class="intake-shell">
+  {% set polished_verticals = ["baby", "pet", "business"] %}
+  {% set is_polished_flow = vertical.slug in polished_verticals %}
+  {% set flow_copy = {
+    "baby": ["A thoughtful place to begin", "Let’s discover your child’s name together.", "We’ll learn about your family’s story, your style, and the names that resonate with you.", "Most parents finish in about 3–5 minutes.", "Your naming direction", "Tell us what matters to your family.", "There are no perfect answers. Choose what feels closest, and we’ll help you refine from there."],
+    "pet": ["A joyful place to begin", "Let’s find the name that feels like them.", "Tell us about their personality, their story, and the names that make you smile.", "Most pet parents finish in about 3–5 minutes.", "Their naming direction", "Tell us who they are.", "Follow your instinct. The little details that make them themselves are often the best naming clues."],
+    "business": ["A strategic place to begin", "Let’s find a name your business can grow into.", "We’ll connect your positioning, audience, and commercial goals to names built for the real market.", "Most founders finish in about 5–7 minutes.", "Your brand direction", "Define the business behind the name.", "Clear inputs create sharper options. Share the commercial signals that matter most right now."]
+  } %}
+  {% set copy = flow_copy.get(vertical.slug, []) %}
+  {% set benefits = {
+    "baby": [["✦", "Thoughtful AI guidance", "Suggestions shaped around what matters to your family."], ["◈", "Your family’s story stays private", "Share only what feels comfortable; avoid sensitive personal data."], ["♥", "You’re always in control", "Love, refine, and review every suggestion at your pace."]],
+    "pet": [["✦", "Personality-led suggestions", "Names shaped around their energy, look, and place in your life."], ["◈", "Your details stay private", "Share only the pet details that help the search feel personal."], ["♥", "You choose what fits", "Save, compare, and refine until the name feels natural."]],
+    "business": [["✦", "Strategic AI guidance", "Options shaped around positioning, audience, and category fit."], ["◈", "Your business context stays private", "Avoid confidential data while giving the engine useful direction."], ["♥", "You keep final control", "Compare fit, risks, and launch practicality before deciding."]]
+  }.get(vertical.slug, []) %}
+  <section class="intake-shell{% if is_polished_flow %} baby-flow-shell polished-flow-shell{% endif %}">
     <div class="intake-heading">
       {% set page_logo = vertical.assets.get("page_logo", vertical.assets.get("logo")) %}
-      {% if page_logo %}
-        <img class="vertical-page-logo" src="{{ url_for('static', filename=page_logo) }}" alt="NamEngine {{ vertical.display_name }} logo">
-      {% endif %}
-      <p class="eyebrow">NamEngine {{ vertical.display_name }}</p>
-      <h1>{{ vertical.visual.hero_message or ("Let’s shape the right " ~ vertical.object_label ~ ".") }}</h1>
-      <p>{{ vertical.visual.hero_support or vertical.prompt_context }}</p>
-      <div class="hero-actions">
-        <a class="button-link" href="#{{ vertical.slug }}-intake-form">Start discovering names</a>
-        {% if vertical.slug == "baby" %}
-          <a class="button-link secondary-button" href="/baby/beta">See paid beta</a>
-        {% elif vertical.slug == "pet" %}
-          <a class="button-link secondary-button" href="/pet/original">Create an original pet name</a>
+      {% if is_polished_flow %}
+        <div class="baby-welcome">
+          {% if page_logo %}
+            <img class="vertical-page-logo" src="{{ url_for('static', filename=page_logo) }}" alt="NamEngine {{ vertical.display_name }} logo">
+          {% endif %}
+          <p class="eyebrow">{{ copy[0] }}</p>
+          <h1>{{ copy[1] }}</h1>
+          <p class="baby-welcome-copy">{{ copy[2] }}</p>
+          <p class="baby-welcome-time"><span aria-hidden="true">◷</span> {{ copy[3] }}</p>
+          <div class="hero-actions">
+            <a class="button-link baby-begin-button" href="#{{ vertical.slug }}-intake-form">Begin</a>
+            {% if vertical.slug == "pet" %}<a class="button-link secondary-button" href="/pet/original">Create an original pet name</a>{% endif %}
+          </div>
+        </div>
+      {% else %}
+        {% if page_logo %}
+          <img class="vertical-page-logo" src="{{ url_for('static', filename=page_logo) }}" alt="NamEngine {{ vertical.display_name }} logo">
         {% endif %}
-      </div>
+        <p class="eyebrow">NamEngine {{ vertical.display_name }}</p>
+        <h1>{{ vertical.visual.hero_message or ("Let’s shape the right " ~ vertical.object_label ~ ".") }}</h1>
+        <p>{{ vertical.visual.hero_support or vertical.prompt_context }}</p>
+        <div class="hero-actions">
+          <a class="button-link" href="#{{ vertical.slug }}-intake-form">Start discovering names</a>
+          {% if vertical.slug == "pet" %}
+            <a class="button-link secondary-button" href="/pet/original">Create an original pet name</a>
+          {% endif %}
+        </div>
+      {% endif %}
       <div class="trust-strip intake-trust-strip" aria-label="Beta trust notes">
         <div>
-          <strong>AI-assisted</strong>
-          <span>Suggestions are exploratory, not guarantees.</span>
+          {% if is_polished_flow %}
+            <strong><span aria-hidden="true">{{ benefits[0][0] }}</span> {{ benefits[0][1] }}</strong>
+            <span>{{ benefits[0][2] }}</span>
+          {% else %}
+            <strong>AI-assisted</strong>
+            <span>Suggestions are exploratory, not guarantees.</span>
+          {% endif %}
         </div>
         <div>
-          <strong>Private context</strong>
-          <span>Do not enter sensitive personal data.</span>
+          {% if is_polished_flow %}
+            <strong><span aria-hidden="true">{{ benefits[1][0] }}</span> {{ benefits[1][1] }}</strong>
+            <span>{{ benefits[1][2] }}</span>
+          {% else %}
+            <strong>Private context</strong>
+            <span>Do not enter sensitive personal data.</span>
+          {% endif %}
         </div>
         <div>
-          <strong>Your judgment</strong>
-          <span>Review fit before choosing or launching a name.</span>
+          {% if is_polished_flow %}
+            <strong><span aria-hidden="true">{{ benefits[2][0] }}</span> {{ benefits[2][1] }}</strong>
+            <span>{{ benefits[2][2] }}</span>
+          {% else %}
+            <strong>Your judgment</strong>
+            <span>Review fit before choosing or launching a name.</span>
+          {% endif %}
         </div>
       </div>
-      {% if page_logo %}
+      {% if page_logo and not is_polished_flow %}
         <div class="identity-preview">
           <img src="{{ url_for('static', filename=page_logo) }}" alt="" width="54" height="54">
           <p class="identity-preview-label">{{ vertical.display_name }} name fit</p>
@@ -48,16 +90,44 @@
       {% endif %}
     </div>
 
-    <form id="{{ vertical.slug }}-intake-form" class="intake-form" action="{% if feelings_scale_enabled(vertical) %}{{ vertical.route_prefix }}/feelings{% else %}{{ vertical.route_prefix }}/results{% endif %}" method="{% if feelings_scale_enabled(vertical) %}get{% else %}post{% endif %}"{% if not feelings_scale_enabled(vertical) %} data-progress-form{% endif %} novalidate>
-      {% for group in grouped_questions(vertical) %}
-        <fieldset class="intake-section">
-          <legend>{{ group.title }}</legend>
+    <form id="{{ vertical.slug }}-intake-form" class="intake-form{% if is_polished_flow %} baby-intake-form polished-intake-form{% endif %}" action="{% if feelings_scale_enabled(vertical) %}{{ vertical.route_prefix }}/feelings{% else %}{{ vertical.route_prefix }}/results{% endif %}" method="{% if feelings_scale_enabled(vertical) %}get{% else %}post{% endif %}"{% if not feelings_scale_enabled(vertical) %} data-progress-form{% endif %} novalidate>
+      {% if is_polished_flow %}
+        {% set baby_field_icons = {
+          "gender": "○", "family_context": "◇", "cultural_heritage": "✦", "notes": "♡",
+          "discovery_style": "↗", "style": "✧", "timeless_vs_distinctive": "↔", "familiarity_preference": "◎",
+          "sound": "≋", "cultural_context": "✦", "partner_alignment": "⇄", "avoid": "−",
+          "pet_type": "♡", "pet_breed": "◇", "pet_color": "◐", "pet_life_stage": "○", "vibe": "✦",
+          "business_description": "◇", "industry": "▦", "stage": "↗", "audience": "◎",
+          "name_shape": "◈", "domain_preference": "⌁"
+        } %}
+        <div class="baby-intake-intro">
+          <p class="eyebrow">{{ copy[4] }}</p>
+          <h2>{{ copy[5] }}</h2>
+          <p>{{ copy[6] }}</p>
+        </div>
+      {% endif %}
+      {% set intake_groups = grouped_questions(vertical) %}
+      {% for group in intake_groups %}
+        <fieldset class="intake-section"{% if is_polished_flow %} data-baby-intake-section{% endif %}>
+          <legend>
+            {% if is_polished_flow %}
+              <span class="baby-section-heading">
+                <small>Step {{ loop.index }} of {{ intake_groups|length }}</small>
+                <span>{{ group.title }}</span>
+              </span>
+            {% else %}
+              {{ group.title }}
+            {% endif %}
+          </legend>
           {% for question in group.questions %}
             {% set current_value = request.args.get(question.id, "") %}
             {% set has_other_choice = "Other" in question.choices %}
             {% set other_value = current_value if has_other_choice and current_value and current_value not in question.choices else request.args.get(question.id ~ "_other", "") %}
-            <label class="field{% if request.args.get('edit') == question.id %} is-edit-target{% endif %}" for="{{ question.id }}" id="field-{{ question.id }}">
-              <span>{{ question.label }}<em>{% if question.required %}Required{% else %}Optional{% endif %}</em></span>
+            <label class="field{% if is_polished_flow and question.required %} is-required{% endif %}{% if request.args.get('edit') == question.id %} is-edit-target{% endif %}" for="{{ question.id }}" id="field-{{ question.id }}">
+              <span class="field-heading">
+                <span class="field-label-copy">{% if is_polished_flow %}<span class="baby-field-anchor" aria-hidden="true">{{ baby_field_icons.get(question.id, "·") }}</span>{% endif %}{{ question.label }}</span>
+                <em>{% if question.required %}Required{% else %}Optional{% endif %}</em>
+              </span>
               {% if question.kind == "textarea" %}
                 <textarea id="{{ question.id }}" name="{{ question.id }}"{% if question.required %} required{% endif %} placeholder="{{ question.placeholder }}">{{ current_value }}</textarea>
               {% elif question.choices %}
@@ -84,25 +154,25 @@
         </fieldset>
       {% endfor %}
 
-      <button type="submit">{% if feelings_scale_enabled(vertical) %}Continue to Feelings Scale{% else %}Generate {{ vertical.display_name }} Names{% endif %}</button>
+      <button type="submit">{% if is_polished_flow %}Continue{% elif feelings_scale_enabled(vertical) %}Continue to Feelings Scale{% else %}Generate {{ vertical.display_name }} Names{% endif %}</button>
     </form>
 
     {% if vertical.slug in ["pet", "baby", "business", "product"] %}
       <aside class="taste-history-panel" aria-label="Taste history" data-taste-vertical="{{ vertical.slug }}">
-        <h2>Taste history</h2>
-        <p>Names and lists you loved during this visit will collect here.</p>
+        <h2>{% if vertical.slug == "baby" %}Your evolving taste{% elif vertical.slug == "pet" %}Your evolving pet-name taste{% elif vertical.slug == "business" %}Your emerging brand direction{% else %}Taste history{% endif %}</h2>
+        <p>{% if vertical.slug == "baby" %}Every name you love helps NamEngine better understand what feels right for your family.{% elif vertical.slug == "pet" %}Every name you love helps us understand the personality and sound you’re drawn to.{% elif vertical.slug == "business" %}Every reaction sharpens the style, positioning, and name shape that fit your business.{% else %}Names and lists you loved during this visit will collect here.{% endif %}</p>
         <ul data-taste-history-list>
-          <li>No loved names yet.</li>
+          <li>{% if vertical.slug == "baby" %}Names you love will appear here.{% elif vertical.slug == "pet" %}Pet names you love will appear here.{% elif vertical.slug == "business" %}Strong brand-name candidates will appear here.{% else %}No loved names yet.{% endif %}</li>
         </ul>
         <button class="taste-history-button" type="button" data-taste-history-open>
-          Open taste history
+          {% if vertical.slug == "baby" %}Review your taste{% elif vertical.slug == "pet" %}Review favorites{% elif vertical.slug == "business" %}Review direction{% else %}Open taste history{% endif %}
         </button>
       </aside>
       <dialog class="taste-history-dialog" data-taste-history-dialog aria-label="Taste history review">
         <div class="taste-history-dialog-header">
           <div>
-            <p class="eyebrow">Taste history</p>
-            <h2>Pick up where you left off.</h2>
+            <p class="eyebrow">{% if vertical.slug == "baby" %}Your evolving taste{% elif vertical.slug == "pet" %}Your evolving pet-name taste{% elif vertical.slug == "business" %}Your emerging brand direction{% else %}Taste history{% endif %}</p>
+            <h2>{% if vertical.slug == "baby" %}See what’s starting to feel right.{% else %}Pick up where you left off.{% endif %}</h2>
           </div>
           <button type="button" class="icon-button" data-taste-history-close aria-label="Close taste history">×</button>
         </div>
@@ -123,6 +193,9 @@
   </section>
   {% include "progress_overlay.html" %}
   <script src="{{ url_for('static', filename='js/progress.js') }}"></script>
+  {% if is_polished_flow %}
+    <script src="{{ url_for('static', filename='js/baby-intake-polish.js') }}"></script>
+  {% endif %}
   {% if vertical.slug in ["pet", "baby", "business", "product"] %}
     <script src="{{ url_for('static', filename='js/taste-history.js') }}"></script>
   {% endif %}

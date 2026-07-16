@@ -229,9 +229,9 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("vertical-pet", body)
         self.assertIn("images/pet/namengine-pet-logo-transparent.png", body)
-        self.assertIn("identity-preview", body)
+        self.assertIn("polished-flow-shell", body)
         self.assertIn("og:image", body)
-        self.assertIn("Let’s shape the right pet name.", body)
+        self.assertIn("Let’s find the name that feels like them.", body)
         self.assertIn("--accent: #2f9486", body)
         self.assertIn("--accent-pet: #fcba76", body)
 
@@ -244,10 +244,10 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn("images/baby/namengine-baby-logo.png", body)
         self.assertIn("images/baby/namengine-baby-share.png", body)
         self.assertIn('alt="NamEngine Baby logo"', body)
-        self.assertIn("identity-preview", body)
-        self.assertIn("Let’s shape the right baby name.", body)
-        self.assertIn("Built for names that feel tender now and substantial later.", body)
-        self.assertIn("Family fit", body)
+        self.assertIn("baby-welcome", body)
+        self.assertIn("Let’s discover your child’s name together.", body)
+        self.assertIn("Most parents finish in about 3–5 minutes.", body)
+        self.assertIn("Fit and feeling", body)
 
     def test_business_pages_use_business_graphics_and_copy(self):
         response = self.client.get("/business")
@@ -257,10 +257,10 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn("vertical-business", body)
         self.assertIn("images/business/namengine-business-logo.png", body)
         self.assertIn("images/business/namengine-business-share.png", body)
-        self.assertIn("Find a name your business can grow into.", body)
-        self.assertIn("Category fit", body)
-        self.assertIn("Memorability", body)
-        self.assertIn("Launch risk", body)
+        self.assertIn("Let’s find a name your business can grow into.", body)
+        self.assertIn("Strategic AI guidance", body)
+        self.assertIn("positioning, audience, and category fit", body)
+        self.assertIn("launch practicality", body)
         self.assertIn("--accent: #27476e", body)
         self.assertIn("--accent-pet: #d9a441", body)
 
@@ -298,8 +298,8 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn("images/pet/namengine-pet-logo-transparent.png", body)
         self.assertIn("images/baby/namengine-baby-logo.png", body)
         self.assertIn("images/business/namengine-business-logo.png", body)
-        self.assertIn("images/product/namengine-product-logo.png", body)
-        self.assertIn("images/character-logo.svg", body)
+        self.assertNotIn("images/product/namengine-product-logo.png", body)
+        self.assertNotIn("images/character-logo.svg", body)
         self.assertIn("Pick your vertical", body)
         self.assertIn("The TASTE ENGINE", body)
         self.assertIn("One Namegine frame. Distinct emotional lanes.", body)
@@ -312,10 +312,10 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn("Let’s shape the right pet name.", body)
         self.assertIn("Let’s shape the right baby name.", body)
         self.assertIn("Find a name your business can grow into.", body)
-        self.assertIn("Find a name your product can wear in the real world.", body)
+        self.assertNotIn("Find a name your product can wear in the real world.", body)
         self.assertIn("practical parent decision card", body)
         self.assertIn("brand decision card with launch risks", body)
-        self.assertIn("shelf-readiness and buyer appeal card", body)
+        self.assertNotIn("shelf-readiness and buyer appeal card", body)
 
     def test_home_page_graphics_have_css_contract(self):
         css_path = Path(self.app.static_folder) / "css" / "platform.css"
@@ -655,8 +655,8 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn("Name style", body)
         self.assertIn("Fit and feeling", body)
         self.assertIn("Optional", body)
-        self.assertIn("Taste history", body)
-        self.assertIn("Open taste history", body)
+        self.assertIn("Your evolving pet-name taste", body)
+        self.assertIn("Review favorites", body)
         self.assertIn("Pick up where you left off.", body)
         self.assertIn("data-taste-history-drawer-list", body)
         self.assertIn("data-taste-history-clear", body)
@@ -686,7 +686,7 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         edit_body = edit_response.get_data(as_text=True)
 
         self.assertEqual(edit_response.status_code, 200)
-        self.assertIn('class="field is-edit-target"', edit_body)
+        self.assertIn('class="field is-required is-edit-target"', edit_body)
         self.assertIn('<option value="Classic" selected>Classic</option>', edit_body)
 
     def test_intake_sections_have_visible_group_treatment(self):

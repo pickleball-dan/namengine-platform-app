@@ -3,6 +3,17 @@
 {% block title %}NamEngine {{ vertical.display_name }} Results{% endblock %}
 
 {% block content %}
+  {% set launch_results = vertical.slug in ["baby", "pet", "business"] %}
+  {% set result_framing = {
+    "baby": "Based on everything you shared, we found names that balance your family’s story, your preferred style, and the feeling you described.",
+    "pet": "Based on everything you shared, we found names that reflect their personality, your preferred sound, and the bond you already feel.",
+    "business": "Based on your brief, we found names that balance positioning, audience fit, distinctiveness, and practical launch considerations."
+  } %}
+  {% set saved_notes = {
+    "baby": "Your favorites are the clearest sign that we’re learning your taste.",
+    "pet": "Your favorites help us understand which names feel most like them.",
+    "business": "Your shortlist reveals the brand direction with the strongest commercial fit."
+  } %}
   <section
     class="results-shell"
     data-session-id="{{ session_id }}"
@@ -24,6 +35,14 @@
       <p>
         Round {{ round_number }} · {{ names|length }} options.
       </p>
+      {% if launch_results %}
+        <p class="baby-results-framing">{{ result_framing[vertical.slug] }}</p>
+        <div class="baby-saved-progress" aria-live="polite">
+          <span aria-hidden="true">♥</span>
+          <strong data-saved-count>Saved {{ reaction_counts.love }} {{ "name" if reaction_counts.love == 1 else "names" }}</strong>
+          <small>{{ saved_notes[vertical.slug] }}</small>
+        </div>
+      {% endif %}
       {% if trust_cue %}
         <div class="trust-cue" aria-label="Generation summary">
           <strong>{{ names|length }} names checked for fit, sound, and distinctiveness.</strong>
@@ -88,6 +107,11 @@
             {% if item.tagline %}
               <p class="tagline">{{ item.tagline }}</p>
             {% endif %}
+            {% if launch_results and item.tags %}
+              <div class="baby-result-tags" aria-label="Qualities of {{ item.name }}">
+                {% for tag in item.tags[:3] %}<span>{{ tag }}</span>{% endfor %}
+              </div>
+            {% endif %}
           </div>
 
           {% set domain_info = item.metadata.get("domain_info") if item.metadata else None %}
@@ -96,7 +120,7 @@
           {% endif %}
 
           <section>
-            <h3>{{ vertical.result_field_labels.get("why_this_name", "Why this name?") }}</h3>
+            <h3>{% if vertical.slug == "baby" %}Why this fits your family{% elif vertical.slug == "pet" %}Why this feels like them{% else %}{{ vertical.result_field_labels.get("why_this_name", "Why this name?") }}{% endif %}</h3>
             <p>{{ item.why_this_name }}</p>
           </section>
 

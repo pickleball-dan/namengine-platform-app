@@ -25,7 +25,10 @@ class PhaseTwentyFeelingsScaleTest(unittest.TestCase):
                 self.assertEqual(response.status_code, 200)
                 body = response.get_data(as_text=True)
                 self.assertIn("Feelings Scale", body)
-                self.assertIn("What do I feel strong about?", body)
+                if slug == "baby":
+                    self.assertIn("What should guide the search?", body)
+                else:
+                    self.assertIn("What do I feel strong about?", body)
                 self.assertIn("Generate", body)
                 self.assertIn("taste_strength_", body)
                 self.assertIn(noun, body.lower())
