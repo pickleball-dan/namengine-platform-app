@@ -110,7 +110,7 @@ from .provider_performance import (
     ProviderPerformance,
     build_provider_performance,
 )
-from .reactions import ReactionError, build_reaction
+from .reactions import ReactionError, build_public_reaction, build_reaction
 from .refinement import build_reaction_effect_summary, refine_session
 from .schemas import (
     ChosenName,
@@ -241,6 +241,7 @@ __all__ = [
     "build_compare_items",
     "brief_from_fixture",
     "build_reaction",
+    "build_public_reaction",
     "build_reaction_effect_summary",
     "build_taste_profile",
     "ChosenName",

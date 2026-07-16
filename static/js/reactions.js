@@ -18,6 +18,9 @@
     if (!refineForm || !counts) return;
 
     const minimum = Number(refineForm.dataset.minReactions || 3);
+    // Legacy maybe rows can still be returned for an older session. Count them
+    // toward its established refinement threshold without exposing a new Maybe
+    // control. New public submissions are Love or No only.
     const total = Number(counts.love || 0) + Number(counts.maybe || 0) + Number(counts.no || 0);
     const remaining = Math.max(minimum - total, 0);
 
@@ -39,16 +42,20 @@
     const label = button.dataset.reactionLabel || value;
     const status = row.parentElement.querySelector(".reaction-status");
 
+    const previousValue = row.querySelector("button.is-selected")?.dataset.reactionValue || "";
     row.querySelectorAll("button").forEach((item) => {
       item.classList.remove("is-selected");
+      item.setAttribute("aria-pressed", "false");
       item.disabled = true;
     });
     button.classList.add("is-selected");
-    if (status) status.textContent = "Saved";
+    button.setAttribute("aria-pressed", "true");
+    if (status) status.textContent = "Saving…";
 
     try {
       const response = await fetch("/api/react", {
         method: "POST",
+        keepalive: true,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           session_id: sessionId,
@@ -82,6 +89,12 @@
       }
     } catch (error) {
       button.classList.remove("is-selected");
+      button.setAttribute("aria-pressed", "false");
+      if (previousValue) {
+        const previous = row.querySelector(`[data-reaction-value="${previousValue}"]`);
+        previous?.classList.add("is-selected");
+        previous?.setAttribute("aria-pressed", "true");
+      }
       if (status) status.textContent = "Could not save";
     } finally {
       row.querySelectorAll("button").forEach((item) => {
