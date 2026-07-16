@@ -22,24 +22,35 @@ class PhaseFourReactionTest(unittest.TestCase):
         with self.assertRaises(ReactionError):
             build_reaction("pet-session", "pet-1", "trendy")
 
-    def test_react_api_returns_reaction_payload(self):
+    def test_react_api_accepts_love_and_no(self):
         query = b"species=Dog&personality=Gentle&style=Warm"
         session_id = make_session_id("pet", query)
         self.client.get(f"/pet/results?{query.decode('utf-8')}")
+        for result_id, value in (("pet-1", "love"), ("pet-2", "no")):
+            response = self.client.post(
+                "/api/react",
+                json={"session_id": session_id, "result_id": result_id, "value": value},
+            )
+            self.assertEqual(response.status_code, 201)
+            self.assertEqual(response.get_json()["reaction"]["value"], value)
+
+    def test_react_api_rejects_new_maybe_submission(self):
+        query = b"species=Dog&personality=Gentle&style=Warm"
+        session_id = make_session_id("pet", query)
+        self.client.get(f"/pet/results?{query.decode('utf-8')}")
+
         response = self.client.post(
             "/api/react",
-            json={
-                "session_id": session_id,
-                "result_id": "pet-1",
-                "value": "maybe",
-            },
+            json={"session_id": session_id, "result_id": "pet-1", "value": "maybe"},
         )
 
-        self.assertEqual(response.status_code, 201)
-        data = response.get_json()
-        self.assertEqual(data["reaction"]["session_id"], session_id)
-        self.assertEqual(data["reaction"]["result_id"], "pet-1")
-        self.assertEqual(data["reaction"]["value"], "maybe")
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("love, no", response.get_json()["error"])
+
+    def test_legacy_builder_still_reads_maybe(self):
+        reaction = build_reaction("legacy-session", "pet-1", "maybe")
+
+        self.assertEqual(reaction.value, ReactionValue.MAYBE)
 
     def test_react_api_rejects_missing_session(self):
         response = self.client.post(
@@ -60,6 +71,8 @@ class PhaseFourReactionTest(unittest.TestCase):
         self.assertIn('data-session-id="pet-', body)
         self.assertIn('data-result-id="pet-1"', body)
         self.assertIn('data-reaction-value="love"', body)
+        self.assertIn('data-reaction-value="no"', body)
+        self.assertNotIn('data-reaction-value="maybe"', body)
         self.assertIn("/static/js/reactions.js", body)
 
 

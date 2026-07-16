@@ -71,7 +71,7 @@
           </p>
         {% endif %}
         <p class="reaction-counts">
-          Loved {{ reaction_counts.love }} · Maybe {{ reaction_counts.maybe }} · No {{ reaction_counts.no }}
+          Loved {{ reaction_counts.love }} · No {{ reaction_counts.no }}
         </p>
         {% if taste_profile %}
           <div class="taste-profile">
@@ -87,7 +87,10 @@
 
     <div class="results-grid">
       {% for item in names %}
-        <article class="result-card">
+        {% set mobile_meaning = collapsed_result_meaning(item) %}
+        {% set mobile_descriptor = meaningful_card_text(item.tagline) %}
+        {% set current_reaction = (reaction_values|default({})).get(item.id, "") %}
+        <article class="result-card" data-result-card>
           <div class="result-card-main">
             <p class="result-index">
               {% if loop.index == 1 %}
@@ -104,73 +107,99 @@
             {% if item.pronunciation %}
               <p class="pronunciation">{{ item.pronunciation }}</p>
             {% endif %}
-            {% if item.tagline %}
-              <p class="tagline">{{ item.tagline }}</p>
+            {% if mobile_meaning %}
+              <p class="result-card-meaning"><strong>Meaning:</strong> {{ mobile_meaning }}</p>
+            {% endif %}
+            {% if mobile_descriptor %}
+              <p class="tagline">{{ mobile_descriptor }}</p>
             {% endif %}
             {% if launch_results and item.tags %}
               <div class="baby-result-tags" aria-label="Qualities of {{ item.name }}">
-                {% for tag in item.tags[:3] %}<span>{{ tag }}</span>{% endfor %}
+                {% for tag in item.tags[:3] %}<span>{{ tag }}{% if not loop.last %}&nbsp;{% endif %}</span>{% endfor %}
               </div>
             {% endif %}
           </div>
 
-          {% set domain_info = item.metadata.get("domain_info") if item.metadata else None %}
-          {% if domain_info %}
-            {% include "_domain_info.html" %}
-          {% endif %}
-
-          <section>
-            <h3>{% if vertical.slug == "baby" %}Why this fits your family{% elif vertical.slug == "pet" %}Why this feels like them{% else %}{{ vertical.result_field_labels.get("why_this_name", "Why this name?") }}{% endif %}</h3>
-            <p>{{ item.why_this_name }}</p>
-          </section>
-
-          <section>
-            <h3>{{ vertical.result_field_labels.get("fit_note", "Fit") }}</h3>
-            <p>{{ item.fit_note }}</p>
-          </section>
-
-          <section>
-            <h3>{{ vertical.result_field_labels.get("risks", "Risks") }}</h3>
-            <ul>
-              {% for risk in item.risks %}
-                <li>{{ risk }}</li>
-              {% endfor %}
-            </ul>
-          </section>
-
-          {% if item.validation %}
-            <section>
-              <h3>Validation</h3>
-              <div class="validation-list">
-                {% for validation in item.validation %}
-                  <div class="validation-pill validation-{{ validation.status.value }}">
-                    <strong>{{ validation.label }}</strong>
-                    <span>{{ validation.message }}</span>
-                  </div>
-                {% endfor %}
-              </div>
-            </section>
-          {% endif %}
-
-          <a class="button-link detail-link" href="{{ url_for('name_detail', vertical_slug=vertical.slug, session_id=session_id, result_id=item.id) }}">Open full detail</a>
-
           <div class="reaction-row" aria-label="React to {{ item.name }}" data-result-id="{{ item.id }}">
-            <button type="button" data-reaction-value="love" data-reaction-label="Love" data-result-name="{{ item.name }}" aria-label="Love {{ item.name }}" title="Love">
+            <button type="button" class="{% if current_reaction == 'love' %}is-selected{% endif %}" data-reaction-value="love" data-reaction-label="Love" data-result-name="{{ item.name }}" aria-label="Love {{ item.name }}" aria-pressed="{{ 'true' if current_reaction == 'love' else 'false' }}" title="Love">
               <img class="reaction-icon" src="{{ url_for('static', filename='images/reactions/love.jpg') }}" alt="">
+              <span>Love</span>
             </button>
-            <button type="button" data-reaction-value="maybe" data-reaction-label="Maybe" data-result-name="{{ item.name }}" aria-label="Maybe {{ item.name }}" title="Maybe">
-              <img class="reaction-icon" src="{{ url_for('static', filename='images/reactions/maybe.jpg') }}" alt="">
-            </button>
-            <button type="button" data-reaction-value="no" data-reaction-label="No" data-result-name="{{ item.name }}" aria-label="No {{ item.name }}" title="No">
+            <button type="button" class="{% if current_reaction == 'no' %}is-selected{% endif %}" data-reaction-value="no" data-reaction-label="No" data-result-name="{{ item.name }}" aria-label="No {{ item.name }}" aria-pressed="{{ 'true' if current_reaction == 'no' else 'false' }}" title="No">
               <img class="reaction-icon" src="{{ url_for('static', filename='images/reactions/no.jpg') }}" alt="">
+              <span>No</span>
             </button>
           </div>
           <p class="reaction-status" aria-live="polite"></p>
-          <form action="/choose" method="post">
-            <input type="hidden" name="session_id" value="{{ session_id }}">
-            <input type="hidden" name="result_id" value="{{ item.id }}">
-            <button class="choose-button" type="submit">Choose {{ item.name }}</button>
-          </form>
+          <button
+            class="result-card-toggle"
+            type="button"
+            aria-expanded="false"
+            aria-controls="result-details-{{ loop.index }}"
+            data-result-card-toggle
+          >
+            <span data-result-card-toggle-label>View details</span>
+            <span class="result-card-chevron" aria-hidden="true">⌄</span>
+          </button>
+
+          <div class="result-card-details" id="result-details-{{ loop.index }}" data-result-card-details>
+            {% set domain_info = item.metadata.get("domain_info") if item.metadata else None %}
+            {% if domain_info %}
+              {% include "_domain_info.html" %}
+            {% endif %}
+
+            <section>
+              <h3>{% if vertical.slug == "baby" %}Why this fits your family{% elif vertical.slug == "pet" %}Why this feels like them{% else %}{{ vertical.result_field_labels.get("why_this_name", "Why this name?") }}{% endif %}</h3>
+              <p>{{ item.why_this_name }}</p>
+            </section>
+
+            <section>
+              <h3>{{ vertical.result_field_labels.get("fit_note", "Fit") }}</h3>
+              <p>{{ item.fit_note }}</p>
+            </section>
+
+            {% if item.origin or mobile_meaning %}
+              <section>
+                <h3>Meaning and origin</h3>
+                {% if mobile_meaning %}<p><strong>Meaning:</strong> {{ mobile_meaning }}</p>{% endif %}
+                {% if item.origin %}<p><strong>Origin:</strong> {{ item.origin }}</p>{% endif %}
+              </section>
+            {% endif %}
+
+            {% if item.risks %}
+              <section>
+                <h3>{{ vertical.result_field_labels.get("risks", "Risks") }}</h3>
+                <ul>
+                  {% for risk in item.risks %}
+                    <li>{{ risk }}</li>
+                  {% endfor %}
+                </ul>
+              </section>
+            {% endif %}
+
+            {% if item.validation %}
+              <section>
+                <h3>Validation</h3>
+                <div class="validation-list">
+                  {% for validation in item.validation %}
+                    <div class="validation-pill validation-{{ validation.status.value }}">
+                      <strong>{{ validation.label }}</strong>
+                      <span>{{ validation.message }}</span>
+                    </div>
+                  {% endfor %}
+                </div>
+              </section>
+            {% endif %}
+
+            <div class="result-card-actions">
+              <a class="button-link detail-link" href="{{ url_for('name_detail', vertical_slug=vertical.slug, session_id=session_id, result_id=item.id) }}">Open full detail</a>
+              <form action="/choose" method="post">
+                <input type="hidden" name="session_id" value="{{ session_id }}">
+                <input type="hidden" name="result_id" value="{{ item.id }}">
+                <button class="choose-button" type="submit">Choose {{ item.name }}</button>
+              </form>
+            </div>
+          </div>
         </article>
       {% endfor %}
     </div>
@@ -182,7 +211,7 @@
       <div>
         <p class="eyebrow">Next list</p>
         <h2>Ready for a fresh list?</h2>
-        <p>We’ll use at least 3 Love, Maybe, or No reactions to sharpen the next set.</p>
+        <p>We’ll use at least 3 Love or No reactions to sharpen the next set.</p>
       </div>
       <form
         class="bottom-refine-form"
@@ -231,5 +260,6 @@
   <script src="{{ url_for('static', filename='js/progress.js') }}"></script>
   <script src="{{ url_for('static', filename='js/feelings-return.js') }}"></script>
   <script src="{{ url_for('static', filename='js/taste-history.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/reactions.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/reactions.js') }}?v=20260716-results-mobile-stabilization-v1"></script>
+  <script src="{{ url_for('static', filename='js/results-accordion.js') }}?v=20260716-results-mobile-stabilization-v1"></script>
 {% endblock %}

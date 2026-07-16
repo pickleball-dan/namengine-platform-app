@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import os
+import re
 import time
 from threading import Lock, Thread
 from hashlib import sha1
@@ -22,7 +23,7 @@ from namengine.core import (
     ReactionError,
     build_brief,
     build_compare_items,
-    build_reaction,
+    build_public_reaction,
     build_taste_profile,
     build_trust_cue,
     compare_contrast_groups,
@@ -71,6 +72,56 @@ MIN_REACTIONS_FOR_REFINEMENT = 3
 
 class NameGenerationUnavailable(RuntimeError):
     """Raised when the production naming engine cannot return honest LLM results."""
+
+
+_UNHELPFUL_CARD_VALUES = {
+    "unknown",
+    "not available",
+    "not applicable",
+    "n/a",
+    "none",
+    "tbd",
+}
+
+
+def meaningful_card_text(value) -> str:
+    """Return useful customer-facing summary text, excluding placeholders."""
+    text = " ".join(str(value or "").split()).strip()
+    lowered = text.lower().rstrip(".")
+    if not text or lowered in _UNHELPFUL_CARD_VALUES:
+        return ""
+    if any(
+        marker in lowered
+        for marker in (
+            "data is being expanded",
+            "coming soon",
+            "beta placeholder",
+            "name shaped for",
+        )
+    ):
+        return ""
+    return text
+
+
+def collapsed_result_meaning(result) -> str:
+    """Read a concise meaning without inferring one from generic origin prose."""
+    direct = result.get("meaning") if isinstance(result, dict) else getattr(result, "meaning", "")
+    meaning = meaningful_card_text(direct)
+    if meaning:
+        return meaning
+
+    metadata = result.get("metadata", {}) if isinstance(result, dict) else getattr(result, "metadata", {})
+    if not isinstance(metadata, dict):
+        return ""
+    meaning = meaningful_card_text(metadata.get("meaning"))
+    if meaning:
+        return meaning
+
+    combined = meaningful_card_text(metadata.get("meaning_and_origin") or metadata.get("origin_meaning"))
+    if not combined:
+        return ""
+    match = re.search(r"(?:^|[;|])\s*meaning\s*:\s*([^;|]+)", combined, flags=re.IGNORECASE)
+    return meaningful_card_text(match.group(1)) if match else ""
 
 
 
@@ -268,6 +319,14 @@ def _reaction_total(reaction_counts: dict[str, int]) -> int:
     return sum(int(reaction_counts.get(value, 0)) for value in ("love", "maybe", "no"))
 
 
+def _reaction_values(snapshot: dict | None) -> dict[str, str]:
+    return {
+        str(row["result_id"]): str(row["value"])
+        for row in (snapshot or {}).get("reactions", [])
+        if row.get("value") in {"love", "no"}
+    }
+
+
 def _brief_from_snapshot(snapshot: dict) -> NamingBrief:
     return NamingBrief(**json_loads(snapshot["session"]["brief_json"]))
 
@@ -307,6 +366,7 @@ def _render_results_snapshot(
             trust_cue=build_trust_cue(names),
             session_id=session_id,
             reaction_counts=reaction_counts,
+            reaction_values=_reaction_values(snapshot),
             reaction_total=_reaction_total(reaction_counts),
             min_reactions_for_refinement=MIN_REACTIONS_FOR_REFINEMENT,
             taste_profile=_taste_profile_from_snapshot(snapshot),
@@ -372,6 +432,8 @@ def create_app() -> Flask:
             "feeling_section_titles": feeling_section_titles,
             "section_strength_field": section_strength_field,
             "feeling_center_icon": feeling_center_icon,
+            "meaningful_card_text": meaningful_card_text,
+            "collapsed_result_meaning": collapsed_result_meaning,
         }
 
     app.add_template_filter(brief_query_string, "brief_query_string")
@@ -475,6 +537,7 @@ def create_app() -> Flask:
             trust_cue=build_trust_cue(names),
             session_id=session_id,
             reaction_counts=get_reaction_counts(session_id),
+            reaction_values=_reaction_values(get_session_snapshot(session_id)),
             taste_profile=json_loads(taste_profile_row["profile_json"]) if taste_profile_row else None,
             round_number=1,
             parent_session_id=None,
@@ -539,6 +602,7 @@ def create_app() -> Flask:
             trust_cue=build_trust_cue(names),
             session_id=session_id,
             reaction_counts=get_reaction_counts(session_id),
+            reaction_values=_reaction_values(get_session_snapshot(session_id)),
             taste_profile=json_loads(taste_profile_row["profile_json"]) if taste_profile_row else None,
             round_number=1,
             parent_session_id=None,
@@ -554,7 +618,7 @@ def create_app() -> Flask:
         payload = request.get_json(silent=True) or request.form
 
         try:
-            reaction = build_reaction(
+            reaction = build_public_reaction(
                 session_id=str(payload.get("session_id", "")),
                 result_id=str(payload.get("result_id", "")),
                 value=str(payload.get("value", "")),
@@ -638,6 +702,7 @@ def create_app() -> Flask:
             trust_cue=build_trust_cue(names),
             session_id=child_session_id,
             reaction_counts=get_reaction_counts(child_session_id),
+            reaction_values=_reaction_values(child_snapshot),
             taste_profile=taste_profile,
             round_number=round_number,
             parent_session_id=session_id,

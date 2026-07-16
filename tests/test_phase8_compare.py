@@ -51,7 +51,7 @@ class PhaseEightCompareTest(unittest.TestCase):
         self.assertIn("love", {item["reaction"] for item in items})
         self.assertLessEqual(len(items), 6)
 
-    def test_compare_uses_maybe_as_backup(self):
+    def test_compare_does_not_expose_historical_maybe_as_backup(self):
         query = b"species=Cat&personality=Quiet&style=Soft"
         session_id = make_session_id("pet", query)
         self.client.get(f"/pet/results?{query.decode('utf-8')}")
@@ -62,7 +62,7 @@ class PhaseEightCompareTest(unittest.TestCase):
 
         self.assertGreaterEqual(len(items), 2)
         reactions = {item["reaction"] for item in items}
-        self.assertIn("maybe", reactions)
+        self.assertNotIn("maybe", reactions)
         self.assertIn("finalist", reactions)
 
     def test_compare_route_renders_decision_page(self):
