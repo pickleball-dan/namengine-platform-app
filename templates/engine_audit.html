@@ -10,6 +10,9 @@
       <p>{{ vertical.display_name }} · {{ session.id }}</p>
       <div class="engine-audit-actions">
         <a class="button-link secondary-button" href="{{ url_for('engine_audit_index', vertical=session.vertical) }}">Recent audits</a>
+        {% if session.parent_session_id %}
+          <a class="button-link secondary-button" href="{{ url_for('taste_evolution', session_id=session.id) }}">Taste Evolution</a>
+        {% endif %}
         <a class="button-link secondary-button" href="{{ url_for('session_results', session_id=session.id) }}">Open results</a>
         <a class="button-link secondary-button" href="{{ vertical.route_prefix }}">New run</a>
       </div>
