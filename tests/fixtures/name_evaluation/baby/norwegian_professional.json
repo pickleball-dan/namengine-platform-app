@@ -1,0 +1,28 @@
+{
+  "fixture_id": "baby-eval-norwegian-professional",
+  "schema_version": "name-evaluation-fixture-v1",
+  "vertical": "baby",
+  "title": "Norwegian heritage with professional usability",
+  "description": "Norwegian-rooted boy names that remain clear and professional in the United States.",
+  "intake": {"gender": "Boy", "cultural_heritage": "Norwegian", "cultural_context": "Family heritage", "family_context": "Norwegian family; surname will be used in the United States", "style": "Strong and tailored", "familiarity_preference": "Recognizable but not overused", "timeless_vs_distinctive": "Mostly timeless", "sound": "Calm", "discovery_style": "Balanced mix", "notes": "Professional, easy to pronounce, and resistant to obvious teasing."},
+  "expected_naming_territories": ["Norwegian", "professional", "calm"],
+  "desired_qualities": ["heritage fit", "usable", "tease-resistant"],
+  "prohibited_qualities": ["novelty spelling", "hard to pronounce"],
+  "reference_candidates": ["Anders", "Soren", "Magnus"],
+  "rejection_candidates": [],
+  "acceptance_criteria": {"minimum_normalized_score": 0.72, "criteria": [
+    {"criterion": "required_candidate_count", "weight": 1, "parameters": {"minimum": 8}},
+    {"criterion": "duplicate_prevention", "weight": 1},
+    {"criterion": "cultural_relevance", "weight": 2, "parameters": {"minimum": 0.55}},
+    {"criterion": "gender_fit", "weight": 1},
+    {"criterion": "style_fit", "weight": 1, "parameters": {"minimum": 0.55}},
+    {"criterion": "sound_strength_fit", "weight": 1, "parameters": {"minimum": 0.55}},
+    {"criterion": "explanation_completeness", "weight": 1},
+    {"criterion": "metadata_completeness", "weight": 1},
+    {"criterion": "valid_bounded_scores", "weight": 1},
+    {"criterion": "privacy_safety", "weight": 1}
+  ]},
+  "regression_notes": "Professional usability and heritage alignment both matter; neither alone is sufficient.",
+  "tags": ["baby", "heritage", "norwegian", "professional"],
+  "enabled": true
+}

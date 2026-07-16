@@ -1,0 +1,29 @@
+{
+  "fixture_id": "baby-eval-tease-resistant-professional",
+  "schema_version": "name-evaluation-fixture-v1",
+  "vertical": "baby",
+  "title": "Tease-resistant, professional, distinctive names",
+  "description": "Distinctive boy names that remain credible in professional settings and avoid obvious teasing risks.",
+  "intake": {"gender": "Boy", "style": "Strong and tailored", "familiarity_preference": "A little less common", "timeless_vs_distinctive": "Mostly distinctive", "sound": "Crisp", "discovery_style": "Rare but wearable", "notes": "Professional from childhood through adulthood, easy to spell, and resistant to obvious teasing."},
+  "expected_naming_territories": ["professional", "tailored", "crisp"],
+  "desired_qualities": ["distinctive", "credible", "tease-resistant"],
+  "prohibited_qualities": ["obvious teasing", "novelty spelling", "childish"],
+  "reference_candidates": ["Alden", "Conrad", "Dorian"],
+  "rejection_candidates": [],
+  "acceptance_criteria": {"minimum_normalized_score": 0.72, "criteria": [
+    {"criterion": "required_candidate_count", "weight": 1, "parameters": {"minimum": 8}},
+    {"criterion": "duplicate_prevention", "weight": 1},
+    {"criterion": "distinctiveness_range", "weight": 1, "parameters": {"minimum": 0.45, "maximum": 0.9}},
+    {"criterion": "gender_fit", "weight": 1},
+    {"criterion": "style_fit", "weight": 1, "parameters": {"minimum": 0.55}},
+    {"criterion": "sound_strength_fit", "weight": 1, "parameters": {"minimum": 0.55}},
+    {"criterion": "prohibited_patterns", "weight": 1, "parameters": {"patterns": ["hard to pronounce", "obvious teasing"]}},
+    {"criterion": "explanation_completeness", "weight": 1},
+    {"criterion": "metadata_completeness", "weight": 1},
+    {"criterion": "valid_bounded_scores", "weight": 1},
+    {"criterion": "privacy_safety", "weight": 1}
+  ]},
+  "regression_notes": "Distinctiveness should never be achieved by sacrificing adult usability.",
+  "tags": ["baby", "professional", "tease-resistant", "distinctive"],
+  "enabled": true
+}

@@ -1,0 +1,29 @@
+{
+  "fixture_id": "baby-eval-rare-strong-distinctive-boy",
+  "schema_version": "name-evaluation-fixture-v1",
+  "vertical": "baby",
+  "title": "Rare, strong, distinctive boy names",
+  "description": "A bold list with uncommon but usable choices and substantial sound.",
+  "intake": {"gender": "Boy", "style": "Strong and tailored", "familiarity_preference": "Memorable and rarer", "timeless_vs_distinctive": "Strongly distinctive", "sound": "Strong", "discovery_style": "Unexpected finds", "avoid": "Liam"},
+  "expected_naming_territories": ["strong", "tailored", "rare"],
+  "desired_qualities": ["distinctive", "confident", "usable"],
+  "prohibited_qualities": ["fragile", "overused"],
+  "reference_candidates": ["Orson", "Stellan", "Dashiell"],
+  "rejection_candidates": ["Liam"],
+  "acceptance_criteria": {"minimum_normalized_score": 0.72, "criteria": [
+    {"criterion": "required_candidate_count", "weight": 1, "parameters": {"minimum": 8}},
+    {"criterion": "duplicate_prevention", "weight": 1},
+    {"criterion": "prohibited_names", "weight": 1},
+    {"criterion": "distinctiveness_range", "weight": 1, "parameters": {"minimum": 0.55, "maximum": 1}},
+    {"criterion": "gender_fit", "weight": 1},
+    {"criterion": "style_fit", "weight": 1, "parameters": {"minimum": 0.55}},
+    {"criterion": "sound_strength_fit", "weight": 1, "parameters": {"minimum": 0.55}},
+    {"criterion": "explanation_completeness", "weight": 1},
+    {"criterion": "metadata_completeness", "weight": 1},
+    {"criterion": "valid_bounded_scores", "weight": 1},
+    {"criterion": "privacy_safety", "weight": 1}
+  ]},
+  "regression_notes": "Uncommonness should not override pronunciation clarity or gender direction.",
+  "tags": ["baby", "boy", "distinctive", "strong"],
+  "enabled": true
+}
