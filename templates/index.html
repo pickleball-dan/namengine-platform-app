@@ -16,45 +16,16 @@
     </p>
     <div class="hero-actions">
       <a class="button-link" href="/baby">Start Baby Naming</a>
-      <a class="button-link secondary-button home-secondary-button" href="#verticals">Pick your vertical</a>
-    </div>
-    <div class="home-proof-strip" aria-label="Shared product signals">
-      <span>Mobile-first</span>
-      <span>Baby paid beta ready</span>
-      <span>Reaction-based refinement</span>
-      <span>Privacy + disclaimers</span>
+      <a class="button-link secondary-button home-secondary-button" href="#verticals">Explore all naming experiences</a>
     </div>
   </div>
 
-  <aside class="home-visual-panel" aria-label="Product system preview">
-    <div class="home-panel-heading">
-      <span>Shared vertical system</span>
-      <strong>One Namegine frame. Distinct emotional lanes.</strong>
-    </div>
-    <div class="home-signal-stack">
-      {% for slug in ["pet", "baby", "business"] %}
-        {% set item = verticals[slug] %}
-        <a
-          class="home-signal-card"
-          href="{{ item.route_prefix }}"
-          style="--signal-accent: {{ item.theme.get('accent', '#18212f') }}; --signal-soft: {{ item.theme.get('accent_soft', 'rgba(24, 33, 47, 0.08)') }}; --signal-warm: {{ item.theme.get('accent_pet', '#f2b84b') }};"
-        >
-          <img src="{{ url_for('static', filename=item.assets.get('logo')) }}" alt="NamEngine {{ item.display_name }}">
-          <span>
-            <strong>{{ item.display_name }}</strong>
-            <small>{{ item.visual.hero_message }}</small>
-          </span>
-          <em>{{ item.visual.result_card_style }}</em>
-        </a>
-      {% endfor %}
-    </div>
-  </aside>
 </section>
 
 <section class="home-verticals" id="verticals" aria-label="Choose a vertical">
   <div class="section-heading">
-    <p class="eyebrow">Pick your vertical</p>
-    <h2>Start from the naming problem, not a generic generator.</h2>
+    <h2>Choose what you’re naming.</h2>
+    <p class="section-support">Every NamEngine experience uses the same thoughtful process, tailored to each type of name.</p>
   </div>
 
   <div class="vertical-grid home-vertical-grid">
@@ -83,31 +54,6 @@
         </div>
       </a>
     {% endfor %}
-  </div>
-</section>
-
-<section class="home-system-panel" aria-label="How the shared system works">
-  <div class="section-heading">
-    <p class="eyebrow">Shared product system</p>
-    <h2>Consistent structure underneath. Vertical-specific feeling on top.</h2>
-  </div>
-
-  <div class="home-system-grid">
-    <div>
-      <span class="system-number">01</span>
-      <strong>Shared intake rhythm</strong>
-      <p>Each vertical uses the same calm mobile-first flow, then adjusts the questions to the decision.</p>
-    </div>
-    <div>
-      <span class="system-number">02</span>
-      <strong>Shared results contract</strong>
-      <p>Every result set keeps the same reaction, refinement, and compare mechanics so launches stay fast.</p>
-    </div>
-    <div>
-      <span class="system-number">03</span>
-      <strong>Distinct emotional lanes</strong>
-      <p>Palette, motifs, icon direction, and hero voice shift by vertical without breaking the Namegine family.</p>
-    </div>
   </div>
 </section>
 {% endblock %}
