@@ -175,17 +175,23 @@ class ResultsMobileStabilizationTest(unittest.TestCase):
         self.assertIn(".results-accordion-ready .result-card:not(.is-expanded)", css)
         self.assertIn("@media (max-width: 760px)", css)
 
-    def test_mobile_homepage_overrides_late_desktop_flex_hero(self):
+    def test_homepage_mobile_sections_have_final_full_width_cascade_override(self):
         root = Path(__file__).resolve().parents[1]
         css = (root / "static" / "css" / "platform.css").read_text(encoding="utf-8")
+        body = self.client.get("/").get_data(as_text=True)
 
-        marker = "/* Baby RC1 mobile homepage containment."
-        self.assertIn(marker, css)
-        mobile_override = css.split(marker, 1)[1]
-        self.assertIn("@media (max-width: 760px)", mobile_override)
-        self.assertIn("flex-direction: column", mobile_override)
-        self.assertIn(".home-hero-copy,\n  .home-visual-panel", mobile_override)
-        self.assertIn("width: 100%", mobile_override)
+        legacy_two_column = css.index(
+            ".home-vertical-grid {\n    grid-template-columns: repeat(2, minmax(0, 1fr));"
+        )
+        hotfix = css.index("/*\n * Mobile homepage hotfix.")
+
+        self.assertGreater(hotfix, legacy_two_column)
+        self.assertIn("main > .home-hero", css[hotfix:])
+        self.assertIn("main > .home-verticals > .home-vertical-grid", css[hotfix:])
+        self.assertIn("grid-template-columns: minmax(0, 1fr);", css[hotfix:])
+        self.assertIn("20260716-homepage-shared-layout-hotfix-v1", body)
+        self.assertNotIn("home-visual-panel", body)
+        self.assertNotIn("home-system-panel", body)
 
 
 if __name__ == "__main__":
