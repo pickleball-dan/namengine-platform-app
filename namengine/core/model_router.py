@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import time
 from collections.abc import Callable
 
@@ -25,6 +26,9 @@ ProviderCallable = Callable[
     [VerticalConfig, NamingBrief, int, TasteProfile | None, list[str]],
     list[NameResult],
 ]
+
+
+logger = logging.getLogger(__name__)
 
 
 def generate_with_router(
@@ -215,6 +219,14 @@ def _run_provider(
             latency_ms=_latency_ms(start),
         )
     except Exception as exc:
+        logger.exception(
+            "Model provider failed provider=%s vertical=%s round=%s error_type=%s error=%s",
+            provider.value,
+            vertical.slug,
+            round_number,
+            type(exc).__name__,
+            exc,
+        )
         return ProviderResult(
             provider=provider,
             status="error",
