@@ -1,5 +1,8 @@
+import os
 import re
+import tempfile
 import unittest
+from unittest.mock import patch
 
 from app import create_app
 from namengine.core.name_facts import build_name_fact_card
@@ -7,6 +10,18 @@ from namengine.core.name_facts import build_name_fact_card
 
 class PhaseTwentyEightBabyNameFactCardTest(unittest.TestCase):
     def setUp(self):
+        self.tempdir = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tempdir.cleanup)
+        env_patch = patch.dict(
+            os.environ,
+            {
+                "OPENAI_API_KEY": "",
+                "NAMENGINE_DB_PATH": os.path.join(self.tempdir.name, "phase28.sqlite3"),
+            },
+            clear=False,
+        )
+        env_patch.start()
+        self.addCleanup(env_patch.stop)
         self.client = create_app().test_client()
 
     def _create_baby_results_page(self):
@@ -45,6 +60,27 @@ class PhaseTwentyEightBabyNameFactCardTest(unittest.TestCase):
         self.assertIn("2024:", card["popularity_snapshot"]["latest"])
         self.assertIn("SSA-recorded total", card["popularity_snapshot"]["scale"])
 
+    def test_unknown_name_fact_card_does_not_invent_secondary_metadata(self):
+        card = build_name_fact_card(
+            "baby",
+            {
+                "name": "Testname",
+                "meaning": "A supplied meaning",
+                "origin": "A supplied origin",
+                "tags": [],
+                "validation": [],
+            },
+        )
+
+        self.assertEqual("A supplied meaning · A supplied origin", card["origin_meaning"])
+        self.assertIsNone(card["popularity_snapshot"])
+        self.assertEqual([], card["famous_namesakes"])
+        self.assertEqual([], card["nicknames_variants"])
+        self.assertEqual([], card["similar_names"])
+        self.assertEqual([], card["style_vibe"])
+        self.assertEqual([], card["good_to_know"])
+        self.assertEqual("", card["source_note"])
+
     def test_chosen_baby_page_renders_name_fact_card_without_watch_outs(self):
         results_response = self._create_baby_results_page()
         text = results_response.get_data(as_text=True)
@@ -60,7 +96,8 @@ class PhaseTwentyEightBabyNameFactCardTest(unittest.TestCase):
         chosen_text = chosen_response.get_data(as_text=True)
 
         self.assertEqual(chosen_response.status_code, 200)
-        self.assertIn("Name card", chosen_text)
+        self.assertIn("Name facts", chosen_text)
+        self.assertIn('<details class="name-fact-overview">', chosen_text)
         self.assertIn("Meaning & origin", chosen_text)
         self.assertIn("Famous namesakes", chosen_text)
         self.assertIn("Popularity snapshot", chosen_text)
@@ -84,7 +121,8 @@ class PhaseTwentyEightBabyNameFactCardTest(unittest.TestCase):
         text = response.get_data(as_text=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn("Name card", text)
+        self.assertIn("Name facts", text)
+        self.assertIn('<details class="name-fact-overview">', text)
         self.assertIn("Good to know", text)
         self.assertIn("Popularity snapshot", text)
 

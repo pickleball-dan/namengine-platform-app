@@ -2,7 +2,6 @@
   const shell = document.querySelector(".results-shell");
   if (!shell || shell.dataset.resultsAccordionInitialized === "true") return;
 
-  const mobileQuery = window.matchMedia("(max-width: 760px)");
   const cards = Array.from(shell.querySelectorAll("[data-result-card]"));
   if (!cards.length) return;
 
@@ -13,23 +12,15 @@
     const label = card.querySelector("[data-result-card-toggle-label]");
     card.classList.toggle("is-expanded", expanded);
     if (toggle) toggle.setAttribute("aria-expanded", String(expanded));
-    if (label) label.textContent = expanded ? "Hide details" : "View details";
-  }
-
-  function applyViewportMode() {
-    if (mobileQuery.matches) {
-      shell.classList.add("results-accordion-ready");
-      cards.forEach((card) => setExpanded(card, false));
-      return;
+    if (label) {
+      const isBaby = document.body.classList.contains("vertical-baby");
+      label.textContent = expanded ? (isBaby ? "Close quick view" : "Hide details") : (isBaby ? "Quick view" : "View details");
     }
-
-    shell.classList.remove("results-accordion-ready");
-    cards.forEach((card) => setExpanded(card, true));
   }
 
   shell.addEventListener("click", (event) => {
     const toggle = event.target.closest("[data-result-card-toggle]");
-    if (!toggle || !mobileQuery.matches) return;
+    if (!toggle) return;
 
     const card = toggle.closest("[data-result-card]");
     if (!card) return;
@@ -43,10 +34,6 @@
     setExpanded(card, opening);
   });
 
-  if (typeof mobileQuery.addEventListener === "function") {
-    mobileQuery.addEventListener("change", applyViewportMode);
-  } else {
-    mobileQuery.addListener(applyViewportMode);
-  }
-  applyViewportMode();
+  shell.classList.add("results-accordion-ready");
+  cards.forEach((card) => setExpanded(card, false));
 })();

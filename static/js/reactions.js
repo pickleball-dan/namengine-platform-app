@@ -11,6 +11,12 @@
   function updateSavedCount(counts) {
     if (!savedCount || !counts) return;
     const loved = Number(counts.love || 0);
+    const babyResults = document.body.classList.contains("vertical-baby");
+    if (babyResults) {
+      const round = savedCount.closest("[data-learning-round]")?.dataset.learningRound || "1";
+      savedCount.textContent = `You loved ${loved} ${loved === 1 ? "name" : "names"} in Round ${round}.`;
+      return;
+    }
     savedCount.textContent = `Saved ${loved} ${loved === 1 ? "name" : "names"}`;
   }
 
@@ -41,16 +47,21 @@
     const value = button.dataset.reactionValue;
     const label = button.dataset.reactionLabel || value;
     const status = row.parentElement.querySelector(".reaction-status");
+    const matchingRows = Array.from(document.querySelectorAll(".reaction-row"))
+      .filter((item) => item.dataset.resultId === resultId);
+    const previousValues = new Map(
+      matchingRows.map((item) => [item, item.querySelector("button.is-selected")?.dataset.reactionValue || ""])
+    );
 
-    const previousValue = row.querySelector("button.is-selected")?.dataset.reactionValue || "";
-    row.querySelectorAll("button").forEach((item) => {
-      item.classList.remove("is-selected");
-      item.setAttribute("aria-pressed", "false");
-      item.disabled = true;
+    matchingRows.forEach((matchingRow) => {
+      matchingRow.querySelectorAll("button").forEach((item) => {
+        const selected = item.dataset.reactionValue === value;
+        item.classList.toggle("is-selected", selected);
+        item.setAttribute("aria-pressed", selected ? "true" : "false");
+        item.disabled = true;
+      });
     });
-    button.classList.add("is-selected");
-    button.setAttribute("aria-pressed", "true");
-    if (status) status.textContent = "Saving…";
+    if (status) status.textContent = document.body.classList.contains("vertical-baby") ? "Saving your reaction…" : "Saving…";
 
     try {
       const response = await fetch("/api/react", {
@@ -80,7 +91,9 @@
       if (status) {
         const counts = data.reaction_counts;
         if (counts) {
-          status.textContent = `Saved: ${label} · ${counts.love} loved`;
+          status.textContent = document.body.classList.contains("vertical-baby")
+            ? `Saved — ${label}`
+            : `Saved: ${label} · ${counts.love} loved`;
           updateSavedCount(counts);
           updateRefineGate(counts);
         } else {
@@ -88,17 +101,22 @@
         }
       }
     } catch (error) {
-      button.classList.remove("is-selected");
-      button.setAttribute("aria-pressed", "false");
-      if (previousValue) {
-        const previous = row.querySelector(`[data-reaction-value="${previousValue}"]`);
-        previous?.classList.add("is-selected");
-        previous?.setAttribute("aria-pressed", "true");
-      }
-      if (status) status.textContent = "Could not save";
+      matchingRows.forEach((matchingRow) => {
+        const previousValue = previousValues.get(matchingRow) || "";
+        matchingRow.querySelectorAll("button").forEach((item) => {
+          const selected = item.dataset.reactionValue === previousValue;
+          item.classList.toggle("is-selected", selected);
+          item.setAttribute("aria-pressed", selected ? "true" : "false");
+        });
+      });
+      if (status) status.textContent = document.body.classList.contains("vertical-baby")
+        ? "We couldn’t save that yet. Please try again."
+        : "Could not save";
     } finally {
-      row.querySelectorAll("button").forEach((item) => {
-        item.disabled = false;
+      matchingRows.forEach((matchingRow) => {
+        matchingRow.querySelectorAll("button").forEach((item) => {
+          item.disabled = false;
+        });
       });
     }
   }

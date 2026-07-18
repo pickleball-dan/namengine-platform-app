@@ -90,18 +90,38 @@
       {% endif %}
     </div>
 
-    <form id="{{ vertical.slug }}-intake-form" class="intake-form{% if is_polished_flow %} baby-intake-form polished-intake-form{% endif %}{% if vertical.slug == 'baby' %} baby-conversation{% endif %}" action="{% if feelings_scale_enabled(vertical) %}{{ vertical.route_prefix }}/feelings{% else %}{{ vertical.route_prefix }}/results{% endif %}" method="{% if feelings_scale_enabled(vertical) %}get{% else %}post{% endif %}"{% if not feelings_scale_enabled(vertical) %} data-progress-form{% endif %}{% if vertical.slug == 'baby' and request.args.get('edit') %} data-edit-question="{{ request.args.get('edit') }}"{% endif %} novalidate>
+    <form id="{{ vertical.slug }}-intake-form" class="intake-form{% if is_polished_flow %} baby-intake-form polished-intake-form{% endif %}{% if vertical.slug == 'baby' %} baby-conversation{% endif %}" action="{% if feelings_scale_enabled(vertical) %}{{ vertical.route_prefix }}/feelings{% else %}{{ vertical.route_prefix }}/results{% endif %}" method="{% if feelings_scale_enabled(vertical) %}get{% else %}post{% endif %}"{% if not feelings_scale_enabled(vertical) %} data-progress-form{% endif %}{% if vertical.slug == 'baby' %} data-journey-vertical="baby"{% endif %}{% if vertical.slug == 'baby' and request.args.get('edit') %} data-edit-question="{{ request.args.get('edit') }}"{% endif %} novalidate>
       {% if vertical.slug == "baby" %}
+        {% set gender_descriptions = {
+          "Girl": "We’re expecting a baby girl.",
+          "Boy": "We’re expecting a baby boy.",
+          "Gender-neutral": "We love names that work for any baby.",
+          "Surprise me": "We’d love a mix of ideas for every possibility."
+        } %}
+        {% set gender_art = {
+          "Girl": "bow",
+          "Boy": "sailboat",
+          "Gender-neutral": "rainbow",
+          "Surprise me": "star"
+        } %}
+        <div class="baby-nursery-scene" aria-hidden="true">
+          <span class="baby-nursery-art baby-nursery-cloud"></span>
+          <span class="baby-nursery-art baby-nursery-mobile"></span>
+          <span class="baby-nursery-art baby-nursery-teddy"></span>
+          <span class="baby-nursery-art baby-nursery-leaves"></span>
+          <span class="baby-nursery-heart baby-nursery-heart-one"></span>
+          <span class="baby-nursery-heart baby-nursery-heart-two"></span>
+        </div>
         <div class="baby-interview-header">
           <a class="baby-interview-brand" href="/" aria-label="NamEngine home">
-            <img src="{{ url_for('static', filename=page_logo) }}" alt="" width="44" height="44">
-            <span>NamEngine Baby</span>
+            <img src="{{ url_for('static', filename=page_logo) }}" alt="NamEngine Baby">
           </a>
           <div class="baby-question-progress" aria-live="polite">
-            <span data-baby-progress-copy>Question 1</span>
+            <strong class="baby-progress-title" data-baby-progress-title>Let’s get to know your family.</strong>
             <div class="baby-progress-track" role="progressbar" aria-label="Interview progress" aria-valuemin="1" aria-valuenow="1" aria-valuemax="1" data-baby-progressbar>
               <span data-baby-progress-fill></span>
             </div>
+            <span class="baby-progress-count" data-baby-progress-copy>Question 1</span>
           </div>
         </div>
 
@@ -110,25 +130,35 @@
           <div data-baby-answer-list></div>
         </div>
 
-        <div class="baby-question-stage" data-baby-question-stage data-baby-intake-section>
+        <div class="baby-question-stage" data-baby-question-stage>
           {% for question in vertical.intake_questions %}
             {% set current_value = request.args.get(question.id, "") %}
             {% set has_other_choice = "Other" in question.choices %}
             {% set other_value = current_value if has_other_choice and current_value and current_value not in question.choices else request.args.get(question.id ~ "_other", "") %}
-            <section class="baby-question" data-baby-question data-question-id="{{ question.id }}" data-question-kind="{% if question.choices %}choice{% else %}{{ question.kind }}{% endif %}" data-required="{{ 'true' if question.required else 'false' }}"{% if question.id == 'cultural_heritage' %} data-condition-field="cultural_context" data-condition-value="Family heritage"{% endif %} hidden>
-              <p class="baby-question-kicker">{{ question.section }}</p>
+            <section class="baby-question{% if question.id == 'gender' %} baby-question-gender{% endif %}" data-baby-question data-question-id="{{ question.id }}" data-question-kind="{% if question.choices %}choice{% else %}{{ question.kind }}{% endif %}" data-question-section="{{ question.section }}" data-required="{{ 'true' if question.required else 'false' }}"{% if question.id == 'cultural_heritage' %} data-condition-field="cultural_context" data-condition-value="Family heritage" data-condition-current="{{ current_value }}"{% endif %} hidden>
+              <p class="baby-question-kicker">{{ question.section }} <span class="baby-kicker-heart" aria-hidden="true"></span></p>
               <div class="baby-question-heading">
                 <h2 id="baby-question-{{ question.id }}">{{ question.label }}</h2>
-                {% if not question.required %}<span>Optional</span>{% endif %}
               </div>
+              {% if question.id == "gender" %}<p class="baby-question-lede">This helps us find names that feel just right.</p>{% endif %}
+              {% if not question.required %}<p class="baby-optional-note">Optional · Personalizes results</p>{% endif %}
+              {% if not question.required %}<p class="baby-optional-help">Answering helps us shape a more personal shortlist. You can always skip for now.</p>{% endif %}
               {% if question.help_text %}<p class="baby-question-help">{{ question.help_text }}</p>{% endif %}
 
               {% if question.choices %}
                 <div class="baby-choice-list" role="radiogroup" aria-labelledby="baby-question-{{ question.id }}" data-baby-choices>
                   {% for choice in question.choices %}
-                    <button class="baby-choice" type="button" role="radio" aria-checked="{{ 'true' if current_value == choice or (choice == 'Other' and other_value) else 'false' }}" data-choice-value="{{ choice }}">
-                      <span>{{ choice }}</span><span class="baby-choice-mark" aria-hidden="true">✓</span>
+                    {% if not (question.id == "cultural_context" and choice == "Family heritage") %}
+                    <button class="baby-choice{% if question.id == 'gender' %} baby-choice-illustrated baby-choice-{{ gender_art[choice] }}{% endif %}" type="button" role="radio" aria-checked="{{ 'true' if current_value == choice or (choice == 'Other' and other_value) else 'false' }}" data-choice-value="{{ choice }}">
+                      {% if question.id == "gender" %}<span class="baby-choice-art baby-sprite-{{ gender_art[choice] }}" aria-hidden="true"></span>{% endif %}
+                      <span class="baby-choice-copy">
+                        <strong>{{ choice }}</strong>
+                        {% if question.id == "gender" %}<small>{{ gender_descriptions[choice] }}</small>{% endif %}
+                      </span>
+                      <span class="baby-choice-chevron" aria-hidden="true">›</span>
+                      <span class="baby-choice-mark" aria-hidden="true">✓</span>
                     </button>
+                    {% endif %}
                   {% endfor %}
                 </div>
                 <select class="baby-native-control" id="{{ question.id }}" name="{{ question.id }}"{% if question.required %} required{% endif %}{% if has_other_choice %} data-other-select="{{ question.id }}_other"{% endif %} tabindex="-1" aria-hidden="true">
@@ -142,6 +172,11 @@
                     <label for="{{ question.id }}_other">Tell us what you have in mind</label>
                     <input id="{{ question.id }}_other" name="{{ question.id }}_other" data-other-input placeholder="Enter your own" value="{{ other_value }}"{% if not other_value and current_value != "Other" %} disabled{% endif %}>
                     <button type="button" class="baby-text-continue" data-baby-other-continue>Continue</button>
+                  </div>
+                {% endif %}
+                {% if not question.required %}
+                  <div class="baby-question-actions">
+                    <button type="button" class="baby-skip" data-baby-skip>Skip for now</button>
                   </div>
                 {% endif %}
               {% elif question.kind == "textarea" %}
@@ -158,7 +193,27 @@
               {% endif %}
             </section>
           {% endfor %}
+          <section class="baby-checkin" data-intake-checkin hidden>
+            <p class="baby-question-kicker">A quick check-in <span class="baby-kicker-heart" aria-hidden="true"></span></p>
+            <h2 data-checkin-heading></h2>
+            <p class="baby-checkin-copy" data-checkin-copy></p>
+            <div class="baby-choice-list baby-checkin-options" role="radiogroup" data-checkin-options></div>
+            <button class="baby-checkin-back" type="button" data-checkin-back>Back</button>
+          </section>
+          <button class="baby-checkin-return" type="button" data-checkin-return hidden>Back to check-in</button>
         </div>
+
+        <nav class="baby-journey" aria-label="Baby intake stages">
+          <ol>
+            {% for stage in ["About your baby", "Name style", "Fit and feeling"] %}
+              <li data-baby-journey-stage data-stage-name="{{ stage }}">
+                <span>{{ loop.index }}</span>
+                <strong>{{ stage }}</strong>
+              </li>
+            {% endfor %}
+          </ol>
+          <p><span aria-hidden="true">♡</span> Tell us what matters to your family. <span aria-hidden="true">♡</span></p>
+        </nav>
 
         <div class="baby-answer-confirmation" role="status" aria-live="polite" data-baby-confirmation></div>
         <div class="baby-interview-complete" data-baby-complete hidden>
@@ -168,7 +223,6 @@
         </div>
 
         <button class="baby-native-submit" type="submit" tabindex="-1">Continue</button>
-        <span class="visually-hidden">Required. About your baby. Step 1 of 3. Name style. Step 2 of 3. Fit and feeling. Step 3 of 3. Tell us what matters to your family.</span>
       {% else %}
       {% if is_polished_flow %}
         {% set baby_field_icons = {

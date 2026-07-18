@@ -241,7 +241,7 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("vertical-baby", body)
-        self.assertIn("images/baby/namengine-baby-logo.png", body)
+        self.assertIn("images/namengine-baby.svg", body)
         self.assertIn("images/baby/namengine-baby-share.png", body)
         self.assertIn('alt="NamEngine Baby logo"', body)
         self.assertIn("baby-welcome", body)
@@ -296,7 +296,7 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn("home-vertical-grid", body)
         self.assertIn("home-vertical-card", body)
         self.assertIn("images/pet/namengine-pet-logo-transparent.png", body)
-        self.assertIn("images/baby/namengine-baby-logo.png", body)
+        self.assertIn("images/namengine-baby-icon.svg", body)
         self.assertIn("images/business/namengine-business-logo.png", body)
         self.assertNotIn("images/product/namengine-product-logo.png", body)
         self.assertNotIn("images/character-logo.svg", body)
@@ -345,13 +345,13 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         body = response.get_data(as_text=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertNotIn("header_logo", VERTICALS["baby"].assets)
-        self.assertNotIn("card_logo", VERTICALS["baby"].assets)
-        self.assertNotIn("page_logo", VERTICALS["baby"].assets)
-        self.assertNotIn("brand-logo-wordmark", body)
+        self.assertEqual(VERTICALS["baby"].assets["header_logo"], "images/namengine-baby.svg")
+        self.assertEqual(VERTICALS["baby"].assets["card_logo"], "images/namengine-baby-icon.svg")
+        self.assertEqual(VERTICALS["baby"].assets["page_logo"], "images/namengine-baby.svg")
+        self.assertIn("brand-logo-wordmark", body)
         header = body.split("</header>", 1)[0]
-        self.assertIn("images/baby/namengine-baby-logo.png", header)
-        self.assertIn("<span>NamEngine</span>", header)
+        self.assertIn("images/namengine-baby.svg", header)
+        self.assertNotIn("<span>NamEngine</span>", header)
 
     def test_business_graphics_follow_pet_asset_slots(self):
         response = self.client.get("/business")
@@ -361,10 +361,10 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertNotIn("header_logo", VERTICALS["business"].assets)
         self.assertNotIn("card_logo", VERTICALS["business"].assets)
         self.assertNotIn("page_logo", VERTICALS["business"].assets)
-        self.assertNotIn("brand-logo-wordmark", body)
+        self.assertIn("brand-logo-wordmark", body)
         header = body.split("</header>", 1)[0]
-        self.assertIn("images/business/namengine-business-logo.png", header)
-        self.assertIn("<span>NamEngine</span>", header)
+        self.assertIn("images/namengine.svg", header)
+        self.assertNotIn("<span>NamEngine</span>", header)
 
     def test_product_graphics_follow_pet_asset_slots(self):
         response = self.client.get("/product")
@@ -374,29 +374,21 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertNotIn("header_logo", VERTICALS["product"].assets)
         self.assertNotIn("card_logo", VERTICALS["product"].assets)
         self.assertNotIn("page_logo", VERTICALS["product"].assets)
-        self.assertNotIn("brand-logo-wordmark", body)
+        self.assertIn("brand-logo-wordmark", body)
         header = body.split("</header>", 1)[0]
-        self.assertIn("images/product/namengine-product-logo.png", header)
-        self.assertIn("<span>NamEngine</span>", header)
+        self.assertIn("images/namengine.svg", header)
+        self.assertNotIn("<span>NamEngine</span>", header)
         self.assertIn("data-taste-vertical=\"product\"", body)
 
-    def test_baby_logo_is_transparent_png_with_baby_mark(self):
+    def test_baby_logo_is_approved_transparent_svg_wordmark(self):
         static_root = Path(self.app.static_folder)
         baby_logo = static_root / VERTICALS["baby"].assets["logo"]
+        svg = baby_logo.read_text(encoding="utf-8")
 
-        baby_width, baby_height, baby_color_type, baby_corner_alpha = (
-            _png_rgba_size_and_corner_alpha(baby_logo)
-        )
-
-        self.assertEqual(baby_color_type, 6)
-        self.assertGreater(baby_width, 500)
-        self.assertGreater(baby_height, 450)
-        self.assertEqual(baby_corner_alpha, [0, 0, 0, 0])
-
-        self.assertGreater(
-            _png_opaque_color_pixel_count(baby_logo, (310, 165, 520, 330), "red"),
-            1000,
-        )
+        self.assertIn('width="1500" height="240"', svg)
+        self.assertIn('fill="none"', svg)
+        self.assertIn("#0D2540", svg)
+        self.assertIn("#FF6B6B", svg)
 
     def test_business_logo_is_transparent_png(self):
         static_root = Path(self.app.static_folder)
@@ -428,14 +420,13 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
             1000,
         )
 
-    def test_baby_page_logo_contains_namengine_cyan_mark(self):
+    def test_baby_page_logo_uses_approved_navy_and_coral_palette(self):
         static_root = Path(self.app.static_folder)
         baby_logo = static_root / VERTICALS["baby"].assets["logo"]
+        svg = baby_logo.read_text(encoding="utf-8")
 
-        self.assertGreater(
-            _png_opaque_color_pixel_count(baby_logo, (0, 190, 220, 360), "cyan"),
-            1000,
-        )
+        self.assertIn("#0D2540", svg)
+        self.assertIn("#FF6B6B", svg)
 
     def test_pet_intake_matches_first_edition_question_contract(self):
         questions = {question.id: question for question in VERTICALS["pet"].intake_questions}

@@ -1,13 +1,28 @@
+import os
 import re
+import tempfile
 import unittest
 
 from app import create_app
+from namengine.core import build_brief, save_session
 from namengine.core.name_facts import build_name_fact_card
+from namengine.core.schemas import NameResult
+from namengine.verticals import BABY
 
 
 class PhaseThirtyBabyPopularitySnapshotTest(unittest.TestCase):
     def setUp(self):
+        self.tempdir = tempfile.TemporaryDirectory()
+        self.previous_db_path = os.environ.get("NAMENGINE_DB_PATH")
+        os.environ["NAMENGINE_DB_PATH"] = os.path.join(self.tempdir.name, "test.sqlite3")
         self.client = create_app().test_client()
+
+    def tearDown(self):
+        if self.previous_db_path is None:
+            os.environ.pop("NAMENGINE_DB_PATH", None)
+        else:
+            os.environ["NAMENGINE_DB_PATH"] = self.previous_db_path
+        self.tempdir.cleanup()
 
     def test_popularity_snapshot_uses_rank_count_trend_and_scale(self):
         card = build_name_fact_card(
@@ -30,9 +45,9 @@ class PhaseThirtyBabyPopularitySnapshotTest(unittest.TestCase):
         self.assertIn("15,895", snapshot["scale"])
 
     def test_chosen_card_renders_structured_popularity_not_vague_paragraph(self):
-        results_response = self.client.get(
-            "/baby/results",
-            query_string={
+        brief = build_brief(
+            BABY,
+            {
                 "gender": "Girl",
                 "family_context": "african american",
                 "cultural_heritage": "African",
@@ -40,7 +55,18 @@ class PhaseThirtyBabyPopularitySnapshotTest(unittest.TestCase):
                 "sound": "Bright",
             },
         )
-        session_id = re.search(r'data-session-id="([^"]+)"', results_response.get_data(as_text=True)).group(1)
+        result = NameResult(
+            id="baby-1",
+            name="Zuri",
+            slug="zuri",
+            pronunciation="ZOO-ree",
+            tagline="Swahili-rooted, bright, and modern.",
+            why_this_name="Zuri fits the bright modern African heritage direction.",
+            fit_note="Warm, bright, and heritage-forward.",
+            tags=["bright", "modern", "heritage"],
+        )
+        session_id = "baby-popularity-zuri"
+        save_session(session_id, "baby", brief, [result])
         chosen_response = self.client.post(
             "/choose",
             data={"session_id": session_id, "result_id": "baby-1"},

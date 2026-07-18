@@ -1,6 +1,7 @@
 import os
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from app import create_app, make_session_id
 from namengine.core import (
@@ -15,6 +16,8 @@ from namengine.verticals import BABY, PET
 
 class PhaseSevenRefinementTest(unittest.TestCase):
     def setUp(self):
+        self.env_patch = patch.dict(os.environ, {"OPENAI_API_KEY": ""}, clear=False)
+        self.env_patch.start()
         self.tempdir = tempfile.TemporaryDirectory()
         self.db_path = os.path.join(self.tempdir.name, "test.sqlite3")
         self.previous_db_path = os.environ.get("NAMENGINE_DB_PATH")
@@ -29,6 +32,7 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         else:
             os.environ["NAMENGINE_DB_PATH"] = self.previous_db_path
         self.tempdir.cleanup()
+        self.env_patch.stop()
 
     def _seed_round_one(self):
         query = b"species=Dog&personality=Gentle&style=Warm"

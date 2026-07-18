@@ -81,7 +81,11 @@ class ResultsMobileStabilizationTest(unittest.TestCase):
                 self.assertIn('data-reaction-value="no"', body)
                 self.assertNotIn('data-reaction-value="maybe"', body)
                 self.assertNotIn("images/reactions/maybe.jpg", body)
-                self.assertIn("Love or No reactions", body)
+                if route.startswith("/baby"):
+                    self.assertIn("Love it", body)
+                    self.assertIn("Not for us", body)
+                else:
+                    self.assertIn("Love or No reactions", body)
 
     def test_mobile_card_markup_keeps_summary_controls_and_full_detail(self):
         session_id = self._seed_results()

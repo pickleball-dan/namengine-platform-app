@@ -4,13 +4,21 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Generation temporarily unavailable · NamEngine</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/favicon.svg') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='images/app-icon.svg') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/platform.css') }}">
   </head>
-  <body class="legal-page">
-    <main class="legal-shell">
-      <p class="eyebrow">NamEngine</p>
+  <body class="legal-page{% if vertical and vertical.slug == 'baby' %} baby-recovery-page{% endif %}">
+    <main class="legal-shell{% if vertical and vertical.slug == 'baby' %} baby-recovery-shell{% endif %}">
+      <img class="legal-brand-logo" src="{{ url_for('static', filename='images/namengine-baby.svg' if vertical and vertical.slug == 'baby' else 'images/namengine.svg') }}" alt="{% if vertical and vertical.slug == 'baby' %}NamEngine Baby{% else %}NamEngine{% endif %}">
+      {% if vertical and vertical.slug == "baby" %}
+      <p class="eyebrow">Your answers are safe</p>
+      <h1>We need a moment before trying again.</h1>
+      <p>We couldn’t bring your list together just now. Go back when you’re ready and we’ll try again with everything you shared.</p>
+      {% else %}
       <h1>We couldn’t generate this list right now.</h1>
       <p>{{ message }}</p>
+      {% endif %}
       <p><a class="button-link" href="javascript:history.back()">Go back and try again</a></p>
     </main>
   </body>

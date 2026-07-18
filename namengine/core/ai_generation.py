@@ -368,7 +368,21 @@ def build_generation_prompt(
                 "risks",
                 "tags",
                 "scores",
-            ],
+            ] + (
+                [
+                    "recommendation_reason",
+                    "matched_preferences",
+                    "strongest_fit",
+                    "real_life_impression",
+                    "tradeoffs",
+                    "comparison_position",
+                    "nickname_considerations",
+                    "family_fit",
+                    "confidence_note",
+                ]
+                if vertical.slug == "baby"
+                else []
+            ),
             "score_keys": _score_keys(vertical.slug),
             "metadata_guidance": _explanation_guidance(vertical.slug),
         },
@@ -420,6 +434,20 @@ def _baby_generation_guidance(vertical: VerticalConfig, brief: NamingBrief) -> d
         "meaning_field_should_be_specific_when_known": True,
         "tagline_should_capture_emotional_vibe": True,
         "why_this_name_should_connect_style_heritage_sound_and_family_context": True,
+        "decision_support_requirements": {
+            "recommendation_reason": "Explain why the name earned a place using concrete intake or reaction evidence.",
+            "matched_preferences": "Name the selected preference, the user evidence, and the name-specific fit.",
+            "strongest_fit": "State the single most decision-relevant fit, without generic praise.",
+            "real_life_impression": "Describe childhood, adulthood, and overall use only when supported by sound and form.",
+            "tradeoffs": "Give honest practical considerations; do not restate generic strengths.",
+            "comparison_position": "Only name comparisons supported by prior reacted names or supplied taste-profile evidence.",
+            "nickname_considerations": "Separate likely from optional forms and acknowledge uncertainty.",
+            "family_fit": "Use supplied surname/family context only; do not invent initials or relatives.",
+            "confidence_note": "Separate supported evidence from subjective family judgment.",
+        },
+        "do_not_repeat_style_meaning_or_origin_as_reasoning": True,
+        "do_not_invent_comparisons_popularity_initials_or_family_context": True,
+        "empty_values_are_better_than_filler_when_evidence_is_missing": True,
     }
     if cultural_heritage and cultural_heritage.lower() not in {"no preference", "none"}:
         guidance.update(
@@ -442,6 +470,50 @@ def _baby_generation_guidance(vertical: VerticalConfig, brief: NamingBrief) -> d
 
 def name_generation_response_format(vertical_slug: str | None = None) -> dict[str, Any]:
     score_keys = _score_keys(vertical_slug or "")
+    required = [
+        "name",
+        "pronunciation",
+        "tagline",
+        "origin",
+        "meaning",
+        "why_this_name",
+        "fit_note",
+        "risks",
+        "tags",
+        "scores",
+    ]
+    properties: dict[str, Any] = {
+        "name": {"type": "string"},
+        "pronunciation": {"type": "string"},
+        "tagline": {"type": "string"},
+        "origin": {"type": "string"},
+        "meaning": {"type": "string"},
+        "why_this_name": {"type": "string"},
+        "fit_note": {"type": "string"},
+        "risks": {"type": "array", "items": {"type": "string"}},
+        "tags": {"type": "array", "items": {"type": "string"}},
+        "scores": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": score_keys,
+            "properties": {key: {"type": "number"} for key in score_keys},
+        },
+    }
+    if vertical_slug == "baby":
+        required.extend(
+            [
+                "recommendation_reason",
+                "matched_preferences",
+                "strongest_fit",
+                "real_life_impression",
+                "tradeoffs",
+                "comparison_position",
+                "nickname_considerations",
+                "family_fit",
+                "confidence_note",
+            ]
+        )
+        properties.update(_baby_decision_schema_properties())
     return {
         "type": "json_schema",
         "name": NAME_GENERATION_SCHEMA_NAME,
@@ -457,41 +529,74 @@ def name_generation_response_format(vertical_slug: str | None = None) -> dict[st
                     "items": {
                         "type": "object",
                         "additionalProperties": False,
-                        "required": [
-                            "name",
-                            "pronunciation",
-                            "tagline",
-                            "origin",
-                            "meaning",
-                            "why_this_name",
-                            "fit_note",
-                            "risks",
-                            "tags",
-                            "scores",
-                        ],
-                        "properties": {
-                            "name": {"type": "string"},
-                            "pronunciation": {"type": "string"},
-                            "tagline": {"type": "string"},
-                            "origin": {"type": "string"},
-                            "meaning": {"type": "string"},
-                            "why_this_name": {"type": "string"},
-                            "fit_note": {"type": "string"},
-                            "risks": {"type": "array", "items": {"type": "string"}},
-                            "tags": {"type": "array", "items": {"type": "string"}},
-                            "scores": {
-                                "type": "object",
-                                "additionalProperties": False,
-                                "required": score_keys,
-                                "properties": {
-                                    key: {"type": "number"} for key in score_keys
-                                },
-                            },
-                        },
+                        "required": required,
+                        "properties": properties,
                     },
                 }
             },
         },
+    }
+
+
+def _baby_decision_schema_properties() -> dict[str, Any]:
+    preference = {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["preference", "evidence", "fit"],
+        "properties": {
+            "preference": {"type": "string"},
+            "evidence": {"type": "string"},
+            "fit": {"type": "string"},
+        },
+    }
+    string_array = {"type": "array", "items": {"type": "string"}}
+    return {
+        "recommendation_reason": {"type": "string"},
+        "matched_preferences": {"type": "array", "items": preference},
+        "strongest_fit": {"type": "string"},
+        "real_life_impression": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["childhood", "adulthood", "overall"],
+            "properties": {
+                "childhood": {"type": "string"},
+                "adulthood": {"type": "string"},
+                "overall": {"type": "string"},
+            },
+        },
+        "tradeoffs": string_array,
+        "comparison_position": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["softer_than", "stronger_than", "more_familiar_than", "more_distinctive_than"],
+            "properties": {
+                "softer_than": string_array,
+                "stronger_than": string_array,
+                "more_familiar_than": string_array,
+                "more_distinctive_than": string_array,
+            },
+        },
+        "nickname_considerations": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["likely", "optional", "note"],
+            "properties": {
+                "likely": string_array,
+                "optional": string_array,
+                "note": {"type": "string"},
+            },
+        },
+        "family_fit": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["surname_or_context", "sound_note", "initials_note"],
+            "properties": {
+                "surname_or_context": {"type": "string"},
+                "sound_note": {"type": "string"},
+                "initials_note": {"type": "string"},
+            },
+        },
+        "confidence_note": {"type": "string"},
     }
 
 
@@ -571,6 +676,25 @@ def parse_ai_generation_response(raw_text: str, vertical_slug: str) -> list[Name
                 meaning=str(row.get("meaning", "")).strip(),
                 why_this_name=str(row.get("why_this_name", "")).strip(),
                 fit_note=str(row.get("fit_note", "")).strip(),
+                recommendation_reason=str(row.get("recommendation_reason", "")).strip(),
+                matched_preferences=_matched_preferences(row.get("matched_preferences")),
+                strongest_fit=str(row.get("strongest_fit", "")).strip(),
+                real_life_impression=_decision_text_map(
+                    row.get("real_life_impression"), ("childhood", "adulthood", "overall")
+                ),
+                tradeoffs=_string_list(row.get("tradeoffs")),
+                comparison_position=_decision_list_map(
+                    row.get("comparison_position"),
+                    ("softer_than", "stronger_than", "more_familiar_than", "more_distinctive_than"),
+                ),
+                nickname_considerations=_nickname_considerations(
+                    row.get("nickname_considerations")
+                ),
+                family_fit=_decision_text_map(
+                    row.get("family_fit"),
+                    ("surname_or_context", "sound_note", "initials_note"),
+                ),
+                confidence_note=str(row.get("confidence_note", "")).strip(),
                 risks=_string_list(row.get("risks")),
                 tags=_string_list(row.get("tags")),
                 scores=_scores(row.get("scores")),
@@ -578,6 +702,44 @@ def parse_ai_generation_response(raw_text: str, vertical_slug: str) -> list[Name
             )
         )
     return results
+
+
+def _matched_preferences(value: Any) -> list[dict[str, str]]:
+    rows = value if isinstance(value, list) else []
+    output = []
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        item = {
+            key: str(row.get(key, "")).strip()
+            for key in ("preference", "evidence", "fit")
+        }
+        if all(item.values()):
+            output.append(item)
+    return output
+
+
+def _decision_text_map(value: Any, keys: tuple[str, ...]) -> dict[str, str]:
+    row = value if isinstance(value, dict) else {}
+    return {
+        key: text
+        for key in keys
+        if (text := str(row.get(key, "")).strip())
+    }
+
+
+def _decision_list_map(value: Any, keys: tuple[str, ...]) -> dict[str, list[str]]:
+    row = value if isinstance(value, dict) else {}
+    return {key: _string_list(row.get(key)) for key in keys}
+
+
+def _nickname_considerations(value: Any) -> dict[str, Any]:
+    row = value if isinstance(value, dict) else {}
+    return {
+        "likely": _string_list(row.get("likely")),
+        "optional": _string_list(row.get("optional")),
+        "note": str(row.get("note", "")).strip(),
+    }
 
 
 def parse_generation_audit_response(raw_text: str) -> dict[str, list[dict[str, Any]]]:

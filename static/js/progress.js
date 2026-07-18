@@ -15,11 +15,10 @@
     "Almost there — shaping the final shortlist."
   ];
   const babyLongWaitMessages = [
-    "Studying your family's naming style...",
-    "Looking for names with the right emotional tone...",
-    "Balancing uniqueness and familiarity...",
-    "Comparing thousands of possibilities...",
-    "Finding names that simply feel right..."
+    "Bringing together everything you shared…",
+    "Exploring names that fit your style…",
+    "Looking at sound, meaning, and feeling…",
+    "Finding names worth considering…"
   ];
   const petLongWaitMessages = [
     "Getting to know their personality...",
@@ -97,11 +96,11 @@
       ? `Exploring ${culture.toLowerCase()} meaning and sound`
       : "Exploring meaning and sound";
     const labels = isBaby ? [
-      "Studying your family's naming style",
+      "Bringing together everything you shared",
       cultureLine,
-      "Looking for the right emotional tone",
-      "Balancing uniqueness and familiarity",
-      "Finding names that simply feel right",
+      "Exploring names that fit your style",
+      "Looking at sound, meaning, and feeling",
+      "Finding names worth considering",
     ] : isPet ? [
       "Getting to know their personality",
       "Listening for names that are joyful to call",
@@ -124,7 +123,7 @@
 
     if (eyebrow) {
       eyebrow.textContent = isBaby
-        ? "Building your baby-name shortlist"
+        ? "A thoughtful first look"
         : isPet
           ? "Finding names that feel like them"
           : isBusiness
@@ -136,7 +135,7 @@
     }
     if (note) {
       note.textContent = isBaby
-        ? "We’re weighing your story, style, sound, and family fit to find a shortlist that feels genuinely yours."
+        ? "We’re listening to your story, style, and the feeling you want a name to carry."
         : isPet
           ? "We’re matching personality, sound, affection, and everyday callability."
           : isBusiness
@@ -283,7 +282,9 @@
       error.className = "field-error";
       field.appendChild(error);
     }
-    error.textContent = "Required before we can generate names.";
+    error.textContent = document.body.classList.contains("vertical-baby")
+      ? "Please answer this before we continue."
+      : "Required before we can generate names.";
   }
 
   function focusFirstInvalid(form) {

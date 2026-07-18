@@ -5,7 +5,7 @@
 {% block content %}
   {% set keepsake_label = "keepsake" if vertical.slug == "baby" else ("brand direction board" if vertical.slug == "business" else "portrait") %}
   {% set keepsake_ready_alt = "Baby blanket keepsake for " ~ chosen.name if vertical.slug == "baby" else ("Brand direction board for " ~ chosen.name if vertical.slug == "business" else "Framed portrait of " ~ chosen.name) %}
-  {% set keepsake_setup_text = "Image creation is not configured" %}
+  {% set keepsake_setup_text = "Keepsake preview isn’t available right now" if vertical.slug == "baby" else "Image creation is not configured" %}
   {% set keepsake_failed_text = "Your " ~ keepsake_label ~ " could not be created" %}
   {% set keepsake_creating_text = "Creating " ~ keepsake_label %}
   <section class="chosen-shell">
@@ -13,7 +13,7 @@
     {% if page_logo %}
       <img class="vertical-page-logo small" src="{{ url_for('static', filename=page_logo) }}" alt="NamEngine {{ vertical.display_name }} logo">
     {% endif %}
-    <p class="eyebrow">Chosen {{ chosen.vertical.title() }} Name</p>
+    <p class="eyebrow">{% if vertical.slug == "baby" %}A name to hold onto{% else %}Chosen {{ chosen.vertical.title() }} Name{% endif %}</p>
 
     <section
       class="share-preview vertical-{{ vertical.slug }}{% if portrait %} has-portrait{% endif %}"
@@ -52,7 +52,7 @@
         </figure>
       {% endif %}
       <div class="share-preview-copy">
-        <p class="share-preview-label">Final pick</p>
+        <p class="share-preview-label">{% if vertical.slug == "baby" %}Your chosen name{% else %}Final pick{% endif %}</p>
         <h1>Meet {{ chosen.name }}</h1>
         {% if result.pronunciation %}
           <p class="share-preview-pronunciation">{{ result.pronunciation }}</p>
@@ -77,12 +77,12 @@
 
     <div class="chosen-detail-grid">
       <section class="chosen-detail">
-        <h2>Why this name?</h2>
+        <h2>{% if vertical.slug == "baby" %}Why this name feels right{% else %}Why this name?{% endif %}</h2>
         <p>{{ result.why_this_name }}</p>
       </section>
 
       <section class="chosen-detail">
-        <h2>Best fit</h2>
+        <h2>{% if vertical.slug == "baby" %}Style and feeling{% else %}Best fit{% endif %}</h2>
         <p>{{ result.fit_note }}</p>
       </section>
     </div>
