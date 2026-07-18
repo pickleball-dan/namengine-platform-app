@@ -244,13 +244,6 @@ def _run_provider(
                 provider.value,
                 latency_ms,
             )
-        elif isinstance(exc, AIGenerationError):
-            logger.warning(
-                "Provider failure provider=%s error_type=%s latency_ms=%s",
-                provider.value,
-                type(exc).__name__,
-                latency_ms,
-            )
         else:
             logger.exception(
                 "Unexpected provider failure provider=%s latency_ms=%s",
