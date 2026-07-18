@@ -133,11 +133,27 @@ def build_local_taste_strategy(
 ) -> dict[str, Any]:
     """Create the naming strategy locally so production needs only one LLM call."""
     inputs = brief.inputs
-    cultural_heritage = str(inputs.get("cultural_heritage") or "No preference").strip()
-    style = str(inputs.get("style") or "").strip()
-    sound = str(inputs.get("sound") or "").strip()
-    discovery = str(inputs.get("discovery_style") or "").strip()
-    familiarity = str(inputs.get("familiarity_preference") or "").strip()
+    taxonomy_diagnostics = _baby_taxonomy_diagnostics(vertical, brief)
+    taxonomy_projection = taxonomy_diagnostics.get("baby_taxonomy_projection", {})
+    baby_taxonomy = _baby_taxonomy_contract()[0] if vertical.slug == "baby" else None
+    cultural_heritage = (
+        baby_taxonomy.project_prompt_value(
+            "cultural_heritage",
+            inputs.get("cultural_heritage") or "No preference",
+        )
+        if vertical.slug == "baby"
+        else str(inputs.get("cultural_heritage") or "No preference").strip()
+    )
+    if vertical.slug == "baby":
+        style = taxonomy_projection["style_direction"]
+        sound = taxonomy_projection["sound_direction"]
+        discovery = taxonomy_projection["discovery_direction"]
+        familiarity = taxonomy_projection["familiarity_direction"]
+    else:
+        style = str(inputs.get("style") or "").strip()
+        sound = str(inputs.get("sound") or "").strip()
+        discovery = str(inputs.get("discovery_style") or "").strip()
+        familiarity = str(inputs.get("familiarity_preference") or "").strip()
     weighting = _taste_weighting_payload(brief)
     target_count = count or _count_for_round(vertical, round_number)
     prior_summary = taste_profile.summary if taste_profile else ""
@@ -152,6 +168,7 @@ def build_local_taste_strategy(
         ]
         taste_thesis = " / ".join(thesis_parts) if thesis_parts else vertical.prompt_context
     return {
+        **taxonomy_diagnostics,
         "taste_thesis": taste_thesis,
         "primary_priorities": [
             f"Return exactly {target_count} strong final names.",
@@ -185,6 +202,7 @@ def build_taste_interpreter_prompt(
 ) -> dict[str, Any]:
     """Build the first-stage prompt that translates inputs into naming strategy."""
     return {
+        **_baby_taxonomy_diagnostics(vertical, brief),
         "role": "NamEngine chief taste interpreter",
         "engine_stage": "taste_interpreter_v1",
         "vertical": vertical.slug,
@@ -306,7 +324,10 @@ def build_generation_prompt(
         3: "Finalists: produce the most choose-worthy names only.",
     }.get(round_number, "One more specific round: respond narrowly to the user's latest direction.")
 
+    taxonomy_diagnostics = _baby_taxonomy_diagnostics(vertical, brief)
+
     return {
+        **taxonomy_diagnostics,
         "role": "NamEngine senior naming strategist",
         "engine_stage": "candidate_generator_ranker_v1",
         "prompt_version": prompt_version
@@ -424,9 +445,14 @@ def _baby_generation_guidance(vertical: VerticalConfig, brief: NamingBrief) -> d
     if vertical.slug != "baby":
         return {}
 
-    cultural_heritage = str(brief.inputs.get("cultural_heritage") or "").strip()
-    cultural_context = str(brief.inputs.get("cultural_context") or "").strip()
-    style = str(brief.inputs.get("style") or "").strip()
+    baby_taxonomy, _taxonomy_version = _baby_taxonomy_contract()
+    taxonomy_projection = baby_taxonomy.prompt_projection(brief.inputs)
+    cultural_heritage = baby_taxonomy.project_prompt_value(
+        "cultural_heritage",
+        brief.inputs.get("cultural_heritage"),
+    )
+    cultural_context = taxonomy_projection["inspiration_direction"]
+    style = taxonomy_projection["style_direction"]
     guidance: dict[str, Any] = {
         "meaning_and_vibe_are_first_class": True,
         "names_should_feel_like_human_curation_not_database_lookup": True,
@@ -819,6 +845,11 @@ def _call_audit_summary(
     prompt_version: str = PROMPT_VERSION,
 ) -> dict[str, Any]:
     return {
+        **(
+            {"baby_taxonomy_version": prompt["baby_taxonomy_version"]}
+            if prompt.get("baby_taxonomy_version")
+            else {}
+        ),
         "stage": stage,
         "model": call.get("model"),
         "latency_ms": call.get("latency_ms"),
@@ -827,6 +858,26 @@ def _call_audit_summary(
         "schema_name": call.get("schema_name"),
         "prompt": prompt,
     }
+
+
+def _baby_taxonomy_diagnostics(
+    vertical: VerticalConfig,
+    brief: NamingBrief,
+) -> dict[str, Any]:
+    if vertical.slug != "baby":
+        return {}
+    baby_taxonomy, taxonomy_version = _baby_taxonomy_contract()
+    return {
+        "baby_taxonomy_version": taxonomy_version,
+        "baby_taxonomy_projection": baby_taxonomy.prompt_projection(brief.inputs),
+    }
+
+
+def _baby_taxonomy_contract():
+    """Load the Baby taxonomy after core initialization to avoid registry cycles."""
+    from namengine.verticals.baby_taxonomy import BABY_TAXONOMY, BABY_TAXONOMY_VERSION
+
+    return BABY_TAXONOMY, BABY_TAXONOMY_VERSION
 
 
 def _usage_payload(usage: Any) -> dict[str, int]:
