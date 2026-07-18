@@ -175,6 +175,18 @@ class ResultsMobileStabilizationTest(unittest.TestCase):
         self.assertIn(".results-accordion-ready .result-card:not(.is-expanded)", css)
         self.assertIn("@media (max-width: 760px)", css)
 
+    def test_mobile_homepage_overrides_late_desktop_flex_hero(self):
+        root = Path(__file__).resolve().parents[1]
+        css = (root / "static" / "css" / "platform.css").read_text(encoding="utf-8")
+
+        marker = "/* Baby RC1 mobile homepage containment."
+        self.assertIn(marker, css)
+        mobile_override = css.split(marker, 1)[1]
+        self.assertIn("@media (max-width: 760px)", mobile_override)
+        self.assertIn("flex-direction: column", mobile_override)
+        self.assertIn(".home-hero-copy,\n  .home-visual-panel", mobile_override)
+        self.assertIn("width: 100%", mobile_override)
+
 
 if __name__ == "__main__":
     unittest.main()

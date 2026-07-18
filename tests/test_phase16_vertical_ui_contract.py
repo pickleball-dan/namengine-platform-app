@@ -302,7 +302,7 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertNotIn("images/character-logo.svg", body)
         self.assertIn("Pick your vertical", body)
         self.assertIn("The TASTE ENGINE", body)
-        self.assertIn("One Namegine frame. Distinct emotional lanes.", body)
+        self.assertIn("One NamEngine frame. Distinct emotional lanes.", body)
 
     def test_home_page_cards_use_visual_config_copy(self):
         response = self.client.get("/")
