@@ -110,7 +110,7 @@
           <div data-baby-answer-list></div>
         </div>
 
-        <div class="baby-question-stage" data-baby-question-stage>
+        <div class="baby-question-stage" data-baby-question-stage data-baby-intake-section>
           {% for question in vertical.intake_questions %}
             {% set current_value = request.args.get(question.id, "") %}
             {% set has_other_choice = "Other" in question.choices %}
@@ -168,7 +168,7 @@
         </div>
 
         <button class="baby-native-submit" type="submit" tabindex="-1">Continue</button>
-        <span class="visually-hidden">About your baby. Step 1 of 3. Name style. Step 2 of 3. Fit and feeling. Step 3 of 3. Tell us what matters to your family.</span>
+        <span class="visually-hidden">Required. About your baby. Step 1 of 3. Name style. Step 2 of 3. Fit and feeling. Step 3 of 3. Tell us what matters to your family.</span>
       {% else %}
       {% if is_polished_flow %}
         {% set baby_field_icons = {
