@@ -5089,3 +5089,22 @@ button {
     margin-top: 16px;
   }
 }
+
+/* Baby RC1 mobile homepage containment.
+   This must remain after the later desktop .home-hero flex treatment. */
+@media (max-width: 760px) {
+  .home-hero {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    min-height: 0;
+    padding: 24px 0 28px;
+    text-align: left;
+  }
+
+  .home-hero-copy,
+  .home-visual-panel {
+    width: 100%;
+    min-width: 0;
+  }
+}
