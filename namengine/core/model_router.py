@@ -39,6 +39,7 @@ def generate_with_router(
     previous_names: list[str] | None = None,
     providers: list[ModelProvider] | None = None,
     count: int | None = None,
+    fallback_on_provider_error: bool = False,
 ) -> list[NameResult]:
     provider_results = route_generation(
         vertical=vertical,
@@ -47,6 +48,7 @@ def generate_with_router(
         taste_profile=taste_profile,
         previous_names=previous_names or [],
         providers=providers,
+        fallback_on_provider_error=fallback_on_provider_error,
     )
     candidates = score_provider_results(provider_results, brief=brief, vertical=vertical)
     selected = select_best_candidates(
@@ -70,6 +72,7 @@ def route_generation(
     taste_profile: TasteProfile | None,
     previous_names: list[str],
     providers: list[ModelProvider] | None = None,
+    fallback_on_provider_error: bool = False,
 ) -> list[ProviderResult]:
     selected_providers = providers or [ModelProvider.OPENAI, ModelProvider.FALLBACK]
     results: list[ProviderResult] = []
@@ -77,6 +80,21 @@ def route_generation(
         results.append(
             _run_provider(
                 provider=provider,
+                vertical=vertical,
+                brief=brief,
+                round_number=round_number,
+                taste_profile=taste_profile,
+                previous_names=previous_names,
+            )
+        )
+    if (
+        fallback_on_provider_error
+        and ModelProvider.FALLBACK not in selected_providers
+        and any(result.status != "ok" for result in results)
+    ):
+        results.append(
+            _run_provider(
+                provider=ModelProvider.FALLBACK,
                 vertical=vertical,
                 brief=brief,
                 round_number=round_number,
@@ -219,20 +237,44 @@ def _run_provider(
             latency_ms=_latency_ms(start),
         )
     except Exception as exc:
-        logger.exception(
-            "Model provider failed provider=%s vertical=%s round=%s error_type=%s error=%s",
-            provider.value,
-            vertical.slug,
-            round_number,
-            type(exc).__name__,
-            exc,
-        )
+        latency_ms = _latency_ms(start)
+        if _is_timeout_exception(exc):
+            logger.warning(
+                "Provider timeout provider=%s latency_ms=%s",
+                provider.value,
+                latency_ms,
+            )
+        elif isinstance(exc, AIGenerationError):
+            logger.warning(
+                "Provider failure provider=%s error_type=%s latency_ms=%s",
+                provider.value,
+                type(exc).__name__,
+                latency_ms,
+            )
+        else:
+            logger.exception(
+                "Unexpected provider failure provider=%s latency_ms=%s",
+                provider.value,
+                latency_ms,
+            )
         return ProviderResult(
             provider=provider,
             status="error",
             error=str(exc),
-            latency_ms=_latency_ms(start),
+            latency_ms=latency_ms,
         )
+
+
+def _is_timeout_exception(exc: BaseException) -> bool:
+    """Recognize SDK timeouts through provider exception wrapping."""
+    current: BaseException | None = exc
+    seen: set[int] = set()
+    while current is not None and id(current) not in seen:
+        seen.add(id(current))
+        if isinstance(current, TimeoutError) or type(current).__name__ == "APITimeoutError":
+            return True
+        current = current.__cause__ or current.__context__
+    return False
 
 
 def _provider_callable(provider: ModelProvider) -> ProviderCallable:
