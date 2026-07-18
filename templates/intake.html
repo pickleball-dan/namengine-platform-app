@@ -135,7 +135,7 @@
             {% set current_value = request.args.get(question.id, "") %}
             {% set has_other_choice = "Other" in question.choices %}
             {% set other_value = current_value if has_other_choice and current_value and current_value not in question.choices else request.args.get(question.id ~ "_other", "") %}
-            <section class="baby-question{% if question.id == 'gender' %} baby-question-gender{% endif %}" data-baby-question data-question-id="{{ question.id }}" data-question-kind="{% if question.choices %}choice{% else %}{{ question.kind }}{% endif %}" data-question-section="{{ question.section }}" data-required="{{ 'true' if question.required else 'false' }}"{% if question.id == 'cultural_heritage' %} data-condition-field="cultural_context" data-condition-value="Family heritage" data-condition-current="{{ current_value }}"{% endif %} hidden>
+            <section class="baby-question{% if question.id == 'gender' %} baby-question-gender{% endif %}" data-baby-question data-question-id="{{ question.id }}" data-question-kind="{% if question.choices %}choice{% else %}{{ question.kind }}{% endif %}" data-question-section="{{ question.section }}" data-required="{{ 'true' if question.required else 'false' }}" hidden>
               <p class="baby-question-kicker">{{ question.section }} <span class="baby-kicker-heart" aria-hidden="true"></span></p>
               <div class="baby-question-heading">
                 <h2 id="baby-question-{{ question.id }}">{{ question.label }}</h2>

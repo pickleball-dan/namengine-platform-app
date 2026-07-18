@@ -41,8 +41,10 @@ class BabyConversationalIntakeV1Test(unittest.TestCase):
         self.assertEqual(body.count("data-baby-question data-question-id="), 12)
         self.assertIn("data-baby-answer-history", body)
         self.assertIn("data-baby-progressbar", body)
-        self.assertIn('data-condition-field="cultural_context"', body)
-        self.assertIn('data-condition-value="Family heritage"', body)
+        heritage = self.question_markup(body, "cultural_heritage")
+        self.assertNotIn('data-condition-field="cultural_context"', heritage)
+        self.assertIn("Cultural / heritage feel", heritage)
+        self.assertIn('data-choice-value="Italian"', heritage)
         self.assertNotIn('class="baby-native-submit" type="submit">', body)
 
     def test_final_priority_question_preserves_strength_inputs_and_auto_handoff(self):
@@ -126,7 +128,7 @@ class BabyConversationalIntakeV1Test(unittest.TestCase):
         self.assertIn('confirmAndAdvance(question, "Skipped for now")', skip_question)
         self.assertIn("skipped.delete(question.dataset.questionId)", select_choice)
 
-    def test_skipping_inspiration_preserves_conditional_heritage_behavior(self):
+    def test_heritage_question_is_visible_independent_of_inspiration_choice(self):
         body = self.client.get("/baby").get_data(as_text=True)
         intake_js = (self.root / "static" / "js" / "baby-intake-polish.js").read_text(encoding="utf-8")
         heritage = self.question_markup(body, "cultural_heritage")
@@ -134,8 +136,9 @@ class BabyConversationalIntakeV1Test(unittest.TestCase):
             "function syncInitialSelections", 1
         )[0]
 
-        self.assertIn('data-condition-field="cultural_context"', heritage)
-        self.assertIn('data-condition-value="Family heritage"', heritage)
+        self.assertNotIn('data-condition-field="cultural_context"', heritage)
+        self.assertIn('name="cultural_heritage"', heritage)
+        self.assertIn('data-choice-value="Irish"', heritage)
         self.assertIn("clearDependentConditionOverrides(question)", skip_question)
         self.assertIn("syncConditions()", intake_js)
 
