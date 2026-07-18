@@ -9,11 +9,11 @@
       {% if page_logo %}
         <img class="vertical-page-logo small" src="{{ url_for('static', filename=page_logo) }}" alt="NamEngine {{ vertical.display_name }} logo">
       {% endif %}
-      <p class="eyebrow">NamEngine saved list</p>
-      <h1>This saved list is no longer available.</h1>
-      <p>The link points to a list that is not in the current saved-results store.</p>
+      <p class="eyebrow">{% if vertical and vertical.slug == "baby" %}A shared Baby list{% else %}NamEngine saved list{% endif %}</p>
+      <h1>{% if vertical and vertical.slug == "baby" %}This list is no longer here.{% else %}This saved list is no longer available.{% endif %}</h1>
+      <p>{% if vertical and vertical.slug == "baby" %}Shared links can expire, but you can begin a new naming conversation whenever you’re ready.{% else %}The link points to a list that is not in the current saved-results store.{% endif %}</p>
       <div class="results-header-links">
-        <a class="button-link" href="/pet">Start a new pet list</a>
+        <a class="button-link" href="/{{ vertical.slug if vertical else 'pet' }}">Start a new {{ vertical.display_name|lower if vertical else 'pet' }} list</a>
         <a class="button-link secondary-button" href="/">Go to NamEngine</a>
       </div>
     </div>

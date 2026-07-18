@@ -1,4 +1,7 @@
+import os
+import tempfile
 import unittest
+from unittest.mock import patch
 
 from app import create_app
 from namengine.core import build_brief, generate_names
@@ -8,6 +11,18 @@ from namengine.verticals import BABY, PET
 
 class PhaseThreePetResultsTest(unittest.TestCase):
     def setUp(self):
+        self.tempdir = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tempdir.cleanup)
+        env_patch = patch.dict(
+            os.environ,
+            {
+                "OPENAI_API_KEY": "",
+                "NAMENGINE_DB_PATH": os.path.join(self.tempdir.name, "phase3.sqlite3"),
+            },
+            clear=False,
+        )
+        env_patch.start()
+        self.addCleanup(env_patch.stop)
         self.app = create_app()
         self.app.testing = True
         self.client = self.app.test_client()
@@ -95,7 +110,7 @@ class PhaseThreePetResultsTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         body = response.get_data(as_text=True)
-        self.assertIn("Baby names shaped from your taste", body)
+        self.assertIn("Here’s what stood out", body)
         self.assertIn("Eloise", body)
         self.assertIn("Pronunciation", body)
         self.assertIn("Love", body)
@@ -104,7 +119,7 @@ class PhaseThreePetResultsTest(unittest.TestCase):
         self.assertIn("Your direction", body)
         self.assertIn("<dt>Gender</dt>", body)
         self.assertIn("<dt>Style</dt>", body)
-        self.assertIn("Open full detail", body)
+        self.assertIn("Explore <", body)
         self.assertIn("/baby/name/", body)
 
     def test_baby_generator_returns_shared_name_results(self):

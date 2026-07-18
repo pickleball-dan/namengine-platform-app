@@ -40,8 +40,12 @@ class MultiVerticalCompletionPassTest(unittest.TestCase):
                 body = response.get_data(as_text=True)
                 self.assertEqual(response.status_code, 200)
                 self.assertIn("polished-flow-shell", body)
-                self.assertIn("Step 1 of 3", body)
-                self.assertIn("data-baby-intake-section", body)
+                if vertical == "baby":
+                    self.assertNotIn("About your baby. Step 1 of 3", body)
+                    self.assertEqual(body.count("data-baby-journey-stage"), 3)
+                else:
+                    self.assertIn("Step 1 of 3", body)
+                    self.assertIn("data-baby-intake-section", body)
                 self.assertIn("baby-intake-polish.js", body)
                 for phrase in phrases:
                     self.assertIn(phrase, body)
@@ -60,7 +64,7 @@ class MultiVerticalCompletionPassTest(unittest.TestCase):
                 self.assertIn("data-saved-count", body)
                 self.assertIn("Compare favorites", body)
                 self.assertIn('action="/choose"', body)
-                self.assertIn("Open full detail", body)
+                self.assertIn("Explore " if vertical == "baby" else "Open full detail", body)
 
     def test_launch_navigation_is_minimal_and_unfinished_routes_remain_available(self):
         home = self.client.get("/").get_data(as_text=True)

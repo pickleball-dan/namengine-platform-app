@@ -535,7 +535,10 @@ BABY = VerticalConfig(
         "line": "rgba(41, 52, 79, 0.13)",
     },
     assets={
-        "logo": "images/baby/namengine-baby-logo.png",
+        "logo": "images/namengine-baby.svg",
+        "header_logo": "images/namengine-baby.svg",
+        "page_logo": "images/namengine-baby.svg",
+        "card_logo": "images/namengine-baby-icon.svg",
         "share_image": "images/baby/namengine-baby-share.png",
     },
     visual=VerticalVisualConfig(

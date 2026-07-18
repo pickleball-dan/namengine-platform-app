@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 import os
 import tempfile
@@ -6,6 +7,7 @@ from unittest.mock import patch
 
 from app import create_app
 from namengine.core import (
+    AIGenerationError,
     ModelProvider,
     build_brief,
     generate_names,
@@ -57,6 +59,35 @@ class PhaseTwelveModelRouterQualityTest(unittest.TestCase):
         self.assertEqual(provider_results[1].names[0].metadata["source"], "phase3_fallback")
         self.assertEqual(len(provider_results[1].names), 8)
 
+    def test_route_generation_logs_original_provider_exception_before_returning_error(self):
+        brief = build_brief(PET, {"species": "Dog", "style": "Warm"})
+
+        def fail_with_chained_parse_error(*_args, **_kwargs):
+            try:
+                json.loads("not-json")
+            except json.JSONDecodeError as exc:
+                raise AIGenerationError("AI response was not valid JSON") from exc
+
+        with patch(
+            "namengine.core.model_router._provider_callable",
+            return_value=fail_with_chained_parse_error,
+        ), self.assertLogs("namengine.core.model_router", level="ERROR") as captured:
+            provider_results = route_generation(
+                vertical=PET,
+                brief=brief,
+                round_number=1,
+                taste_profile=None,
+                previous_names=[],
+                providers=[ModelProvider.OPENAI],
+            )
+
+        self.assertEqual(provider_results[0].status, "error")
+        self.assertEqual(provider_results[0].error, "AI response was not valid JSON")
+        logs = "\n".join(captured.output)
+        self.assertIn("provider=openai vertical=pet round=1", logs)
+        self.assertIn("JSONDecodeError", logs)
+        self.assertIn("AI response was not valid JSON", logs)
+
     def test_score_and_select_candidates_dedupe_previous_names(self):
         brief = build_brief(PET, {"species": "Dog", "style": "Warm"})
         provider_results = route_generation(
@@ -94,7 +125,8 @@ class PhaseTwelveModelRouterQualityTest(unittest.TestCase):
     def test_public_generate_names_uses_router(self):
         brief = build_brief(PET, {"species": "Dog", "style": "Warm"})
 
-        names = generate_names(PET, brief, use_ai=True)
+        with patch.dict(os.environ, {"OPENAI_API_KEY": ""}, clear=False):
+            names = generate_names(PET, brief, use_ai=True)
 
         self.assertEqual(len(names), 8)
         self.assertTrue(all(item.metadata["provider"] == "fallback" for item in names))

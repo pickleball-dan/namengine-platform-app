@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <rect width="256" height="256" rx="52" fill="none"/>
+  
+    <g transform="translate(20,20)">
+      <path d="M110 10
+               C52 10 10 47 10 103
+               C10 153 45 188 92 196
+               L74 224
+               L119 198
+               C177 197 220 160 220 103
+               C220 56 184 20 137 12"
+            fill="none" stroke="#0D2540" stroke-width="12"
+            stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="116" y="156" text-anchor="middle"
+            font-family="Georgia, 'Times New Roman', serif"
+            font-size="132" font-weight="700" fill="#0D2540">n</text>
+      <path d="M164 24
+               C164 10 182 4 192 16
+               C203 4 221 10 221 24
+               C221 40 192 58 192 58
+               C192 58 164 40 164 24Z"
+            fill="#F2B544"/>
+    </g>
+    
+</svg>

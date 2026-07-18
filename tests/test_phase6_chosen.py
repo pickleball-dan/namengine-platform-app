@@ -309,6 +309,7 @@ class PhaseSixChosenNameTest(unittest.TestCase):
         query = b"gender=Girl&style=Classic&sound=Soft&family_context=Surname+Parker"
         session_id = make_session_id("baby", query)
         self.client.get(f"/baby/results?{query.decode('utf-8')}")
+        expected_name = get_session_snapshot(session_id)["results"][0]["name"]
         response = self.client.post(
             "/choose",
             data={"session_id": session_id, "result_id": "baby-1"},
@@ -321,7 +322,8 @@ class PhaseSixChosenNameTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("Creating keepsake", body)
         self.assertIn("Baby blanket keepsake", body)
-        self.assertIn("Meet Eloise", body)
+        self.assertIn(f"Meet {expected_name}", body)
+        self.assertIn("Keepsake preview isn’t available right now", body)
         self.assertEqual(snapshot["chosen"]["metadata"]["baby_keepsake"]["status"], "not_configured")
         self.assertEqual(snapshot["chosen"]["metadata"]["baby_keepsake"]["kind"], "baby_blanket")
         details = snapshot["chosen"]["metadata"]["baby_keepsake"]["details"]

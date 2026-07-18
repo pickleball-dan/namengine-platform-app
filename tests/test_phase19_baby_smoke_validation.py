@@ -67,7 +67,7 @@ class PhaseNineteenBabySmokeValidationTest(unittest.TestCase):
         response = self.client.get(f"/baby/results?{query}")
         self.assertEqual(response.status_code, 200)
         body = response.get_data(as_text=True)
-        self.assertIn("Baby names shaped from your taste", body)
+        self.assertIn("Here’s what stood out", body)
         self.assertIn("Gender direction", body)
         self.assertIn("Compare favorites", body)
 

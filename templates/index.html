@@ -6,7 +6,7 @@
 <section class="home-hero">
   <div class="home-hero-copy">
     <div class="home-brand-lockup">
-      <div class="home-brand-mark" aria-hidden="true"><span>N</span></div>
+      <img class="home-brand-logo" src="{{ url_for('static', filename='images/namengine.svg') }}" alt="NamEngine">
       <p class="eyebrow">The TASTE ENGINE</p>
     </div>
     <h1>Find the name that feels right.</h1>
@@ -38,7 +38,7 @@
         style="--card-accent: {{ item.theme.get('accent', '#18212f') }}; --card-soft: {{ item.theme.get('accent_soft', 'rgba(24, 33, 47, 0.08)') }}; --card-warm-soft: {{ item.theme.get('accent_warm_soft', 'rgba(242, 184, 75, 0.16)') }};"
       >
         <img
-          src="{{ url_for('static', filename=item.assets.get('logo')) }}"
+          src="{{ url_for('static', filename=item.assets.get('card_logo', item.assets.get('logo'))) }}"
           alt="NamEngine {{ item.display_name }}"
           class="vertical-card-logo home-vert-logo"
         >

@@ -65,14 +65,15 @@ class PhaseTwoWebShellTest(unittest.TestCase):
         self.assertIn('id="baby-intake-form"', body)
         self.assertIn('action="/baby/feelings"', body)
         self.assertNotIn('data-progress-form novalidate', body)
-        self.assertIn("images/baby/namengine-baby-logo.png", body)
+        self.assertIn("images/namengine-baby.svg", body)
         self.assertIn('data-taste-vertical="baby"', body)
         self.assertIn("data-taste-history-clear", body)
-        self.assertIn("Required", body)
+        self.assertIn('data-required="true"', body)
         self.assertIn('id="gender" name="gender" required', body)
         self.assertIn('id="style" name="style" required', body)
         self.assertIn('id="sound" name="sound" required', body)
         self.assertIn("Optional", body)
+        self.assertIn("Skip for now", body)
 
     def test_unknown_vertical_404s(self):
         response = self.client.get("/spaceship")

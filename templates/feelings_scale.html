@@ -20,12 +20,12 @@
       <div class="baby-interview-header">
         <a class="baby-interview-brand" href="/" aria-label="NamEngine home">
           {% set page_logo = vertical.assets.get("page_logo", vertical.assets.get("logo")) %}
-          <img src="{{ url_for('static', filename=page_logo) }}" alt="" width="44" height="44">
-          <span>NamEngine Baby</span>
+          <img src="{{ url_for('static', filename=page_logo) }}" alt="NamEngine Baby">
         </a>
         <div class="baby-question-progress">
-          <span>Final question</span>
+          <strong class="baby-progress-title">Now tell us what matters most.</strong>
           <div class="baby-progress-track" role="progressbar" aria-label="Interview progress" aria-valuemin="1" aria-valuenow="1" aria-valuemax="1"><span style="width: 100%"></span></div>
+          <span class="baby-progress-count">Final step</span>
         </div>
       </div>
 

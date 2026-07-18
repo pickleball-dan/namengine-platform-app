@@ -1,19 +1,25 @@
 {% if name_fact_card %}
-<section class="name-fact-card" aria-label="Name facts for {{ result.name }}">
-  <div class="name-fact-card-heading">
-    <p class="eyebrow">Name card</p>
-    <h2>{{ result.name }} at a glance</h2>
-    <p>Helpful facts for understanding the name, not just liking the sound.</p>
-  </div>
+<section class="name-fact-card" data-collapsible aria-label="Name facts for {{ result.name }}">
+  <details class="name-fact-overview">
+    <summary>
+      <span>
+        <small>Name facts</small>
+        <strong>{{ result.name }} at a glance</strong>
+      </span>
+      <span class="name-fact-summary-note">
+        {% if name_fact_card.origin_meaning %}Meaning, origin, style, and more
+        {% elif name_fact_card.style_vibe %}Available style notes
+        {% else %}Available reference details{% endif %}
+      </span>
+    </summary>
 
-  <div class="name-fact-grid">
-    <article class="name-fact-panel name-fact-panel-wide">
+  <div class="name-fact-grid name-fact-overview-body">
+    {% if name_fact_card.origin_meaning %}<article class="name-fact-panel name-fact-panel-wide">
       <h3>Meaning & origin</h3>
       <p>{{ name_fact_card.origin_meaning }}</p>
-    </article>
+    </article>{% endif %}
 
-
-    <article class="name-fact-panel">
+    {% if name_fact_card.popularity_snapshot %}<article class="name-fact-panel">
       <h3>Popularity snapshot</h3>
       <dl class="popularity-snapshot-list">
         <div>
@@ -33,55 +39,56 @@
           <dd>{{ name_fact_card.popularity_snapshot.scale }}</dd>
         </div>
       </dl>
-    </article>
+    </article>{% endif %}
 
-    <article class="name-fact-panel">
-      <h3>Famous namesakes</h3>
-      <ul>
+    {% if name_fact_card.famous_namesakes %}<details class="name-fact-panel name-fact-secondary">
+      <summary>Famous namesakes</summary>
+      <ul class="name-fact-disclosure-body">
         {% for namesake in name_fact_card.famous_namesakes %}
           <li>{{ namesake }}</li>
         {% endfor %}
       </ul>
-    </article>
+    </details>{% endif %}
 
-    <article class="name-fact-panel">
-      <h3>Nicknames & variants</h3>
-      <ul>
+    {% if name_fact_card.nicknames_variants %}<details class="name-fact-panel name-fact-secondary">
+      <summary>Nicknames & variants</summary>
+      <ul class="name-fact-disclosure-body">
         {% for variant in name_fact_card.nicknames_variants %}
           <li>{{ variant }}</li>
         {% endfor %}
       </ul>
-    </article>
+    </details>{% endif %}
 
-    <article class="name-fact-panel">
+    {% if name_fact_card.style_vibe %}<article class="name-fact-panel">
       <h3>Style / vibe</h3>
       <div class="name-fact-tags">
         {% for tag in name_fact_card.style_vibe %}
           <span>{{ tag }}</span>
         {% endfor %}
       </div>
-    </article>
+    </article>{% endif %}
 
-    <article class="name-fact-panel">
-      <h3>Similar names</h3>
-      <ul>
+    {% if name_fact_card.similar_names %}<details class="name-fact-panel name-fact-secondary">
+      <summary>Similar names</summary>
+      <ul class="name-fact-disclosure-body">
         {% for similar in name_fact_card.similar_names %}
           <li>{{ similar }}</li>
         {% endfor %}
       </ul>
-    </article>
+    </details>{% endif %}
 
-    <article class="name-fact-panel name-fact-panel-wide">
-      <h3>Good to know</h3>
-      <ul>
+    {% if name_fact_card.good_to_know %}<details class="name-fact-panel name-fact-panel-wide name-fact-secondary">
+      <summary>Good to know</summary>
+      <ul class="name-fact-disclosure-body">
         {% for note in name_fact_card.good_to_know %}
           <li>{{ note }}</li>
         {% endfor %}
       </ul>
-    </article>
+    </details>{% endif %}
 
   </div>
 
-  <p class="name-fact-source-note">{{ name_fact_card.source_note }}</p>
+  {% if name_fact_card.source_note %}<p class="name-fact-source-note">{{ name_fact_card.source_note }}</p>{% endif %}
+  </details>
 </section>
 {% endif %}
