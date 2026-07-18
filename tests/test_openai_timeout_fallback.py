@@ -86,7 +86,7 @@ class OpenAITimeoutFallbackTest(unittest.TestCase):
         self.assertEqual(["error", "error"], [result.status for result in results])
         output = "\n".join(captured.output)
         self.assertIn("Provider timeout provider=openai", output)
-        self.assertIn("Unexpected provider failure provider=fallback", output)
+        self.assertIn("Model provider failed provider=fallback", output)
         self.assertIn("Traceback", output)
 
     def test_user_receives_fallback_results_after_openai_timeout(self):
