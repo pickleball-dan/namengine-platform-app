@@ -18,9 +18,12 @@ from namengine.core import (
     score_name_result,
     score_provider_results,
     select_best_candidates,
+    get_session_snapshot,
+    save_session,
     summarize_quality_runs,
 )
 from namengine.verticals import PET
+from namengine.core.schemas import NameResult
 
 
 class PhaseTwelveModelRouterQualityTest(unittest.TestCase):
@@ -130,6 +133,43 @@ class PhaseTwelveModelRouterQualityTest(unittest.TestCase):
 
         self.assertEqual(len(names), 8)
         self.assertTrue(all(item.metadata["provider"] == "fallback" for item in names))
+
+    def test_mixed_provider_metadata_survives_final_selection_and_session_storage(self):
+        brief = build_brief(PET, {"species": "Dog", "style": "Warm"})
+        openai_name = NameResult(
+            id="mixed-openai",
+            name="Aster",
+            slug="aster",
+            scores={"callability": 0.9, "warmth": 0.9, "distinctiveness": 0.8},
+        )
+        fallback_name = NameResult(
+            id="mixed-fallback",
+            name="Bramble",
+            slug="bramble",
+            scores={"callability": 0.9, "warmth": 0.9, "distinctiveness": 0.8},
+        )
+
+        with patch("namengine.core.model_router._openai_provider", return_value=[openai_name]), patch(
+            "namengine.core.model_router._fallback_provider",
+            return_value=[fallback_name],
+        ):
+            names = generate_with_router(
+                vertical=PET,
+                brief=brief,
+                providers=[ModelProvider.OPENAI, ModelProvider.FALLBACK],
+                count=2,
+            )
+
+        provider_by_name = {item.name: item.metadata["provider"] for item in names}
+        self.assertEqual({"Aster": "openai", "Bramble": "fallback"}, provider_by_name)
+
+        save_session("mixed-provider-session", PET.slug, brief, names)
+        snapshot = get_session_snapshot("mixed-provider-session")
+        stored_provider_by_name = {
+            row["name"]: json.loads(row["result_json"])["metadata"]["provider"]
+            for row in snapshot["results"]
+        }
+        self.assertEqual(provider_by_name, stored_provider_by_name)
 
     def test_quality_fixture_loads_and_runs(self):
         fixture = Path(__file__).parent / "fixtures" / "pet_quality_briefs.json"
