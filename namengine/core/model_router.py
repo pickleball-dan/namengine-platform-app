@@ -246,9 +246,12 @@ def _run_provider(
             )
         else:
             logger.exception(
-                "Unexpected provider failure provider=%s latency_ms=%s",
+                "Model provider failed provider=%s vertical=%s round=%s error_type=%s error=%s",
                 provider.value,
-                latency_ms,
+                vertical.slug,
+                round_number,
+                type(exc).__name__,
+                exc,
             )
         return ProviderResult(
             provider=provider,
