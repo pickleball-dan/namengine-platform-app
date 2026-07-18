@@ -3,6 +3,55 @@
 {% block title %}NamEngine {{ vertical.display_name }} Feelings Scale{% endblock %}
 
 {% block content %}
+  {% if vertical.slug == "baby" %}
+  <section class="baby-final-step">
+    <form class="baby-final-form" action="{{ vertical.route_prefix }}/results" method="post" data-progress-form data-baby-final-form>
+      {% for key, value in source.items() %}
+        {% if value not in ("", none) and not key.startswith("taste_strength_") %}
+          <input type="hidden" name="{{ key }}" value="{{ value }}">
+        {% endif %}
+      {% endfor %}
+      {% for section in sections %}
+        {% set default_strength = 34 if loop.index == 1 else 33 %}
+        {% set strength_field = section_strength_field(section) %}
+        <input type="hidden" name="{{ strength_field }}" value="{{ source.get(strength_field, default_strength) }}" data-feelings-input>
+      {% endfor %}
+
+      <div class="baby-interview-header">
+        <a class="baby-interview-brand" href="/" aria-label="NamEngine home">
+          {% set page_logo = vertical.assets.get("page_logo", vertical.assets.get("logo")) %}
+          <img src="{{ url_for('static', filename=page_logo) }}" alt="" width="44" height="44">
+          <span>NamEngine Baby</span>
+        </a>
+        <div class="baby-question-progress">
+          <span>Final question</span>
+          <div class="baby-progress-track" role="progressbar" aria-label="Interview progress" aria-valuemin="1" aria-valuenow="1" aria-valuemax="1"><span style="width: 100%"></span></div>
+        </div>
+      </div>
+
+      <section class="baby-final-question" data-baby-final-question>
+        <p class="baby-question-kicker">Your naming direction</p>
+        <h1>What should guide the search?</h1>
+        <p>We’ll honor everything you shared. This simply tells us where to listen most closely.</p>
+        <div class="baby-choice-list" role="radiogroup" aria-label="Search priority">
+          <button class="baby-choice" type="button" role="radio" aria-checked="false" data-baby-weight="60,20,20"><span>Your family story</span><span class="baby-choice-mark" aria-hidden="true">✓</span></button>
+          <button class="baby-choice" type="button" role="radio" aria-checked="false" data-baby-weight="20,60,20"><span>The name style</span><span class="baby-choice-mark" aria-hidden="true">✓</span></button>
+          <button class="baby-choice" type="button" role="radio" aria-checked="false" data-baby-weight="20,20,60"><span>Sound and feeling</span><span class="baby-choice-mark" aria-hidden="true">✓</span></button>
+          <button class="baby-choice" type="button" role="radio" aria-checked="false" data-baby-weight="34,33,33"><span>A thoughtful balance</span><span class="baby-choice-mark" aria-hidden="true">✓</span></button>
+        </div>
+        <p class="baby-answer-confirmation" role="status" aria-live="polite" data-baby-final-status></p>
+      </section>
+
+      <div class="baby-interview-complete" data-baby-final-complete hidden>
+        <span aria-hidden="true">✓</span>
+        <h2>Wonderful.</h2>
+        <p>We’re creating names that feel uniquely yours...</p>
+      </div>
+      <button class="baby-native-submit" type="submit" tabindex="-1">Generate</button>
+      <span class="visually-hidden">Baby naming · Feelings Scale. Find names that feel right. Generate baby names.</span>
+    </form>
+  </section>
+  {% else %}
   <section class="feelings-shell">
     <div class="feelings-heading">
       {% set page_logo = vertical.assets.get("page_logo", vertical.assets.get("logo")) %}
@@ -62,6 +111,7 @@
       </div>
     </form>
   </section>
+  {% endif %}
   {% include "progress_overlay.html" %}
   <script src="{{ url_for('static', filename='js/feelings-scale.js') }}"></script>
   <script src="{{ url_for('static', filename='js/progress.js') }}"></script>

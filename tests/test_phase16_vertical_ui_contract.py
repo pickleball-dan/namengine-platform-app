@@ -300,9 +300,22 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn("images/business/namengine-business-logo.png", body)
         self.assertNotIn("images/product/namengine-product-logo.png", body)
         self.assertNotIn("images/character-logo.svg", body)
-        self.assertIn("Pick your vertical", body)
+        self.assertNotIn("Pick your vertical", body)
+        self.assertIn('href="/baby">Start Baby Naming</a>', body)
+        self.assertIn('href="#verticals">Explore all naming experiences</a>', body)
+        for removed_badge in (
+            "Mobile-first",
+            "Baby paid beta ready",
+            "Reaction-based refinement",
+            "Privacy + disclaimers",
+        ):
+            self.assertNotIn(removed_badge, body)
+        self.assertIn("Choose what you’re naming.", body)
+        self.assertIn("Every NamEngine experience uses the same thoughtful process", body)
         self.assertIn("The TASTE ENGINE", body)
-        self.assertIn("One NamEngine frame. Distinct emotional lanes.", body)
+        self.assertNotIn("Shared vertical system", body)
+        self.assertNotIn("Shared product system", body)
+        self.assertNotIn("One Namegine frame. Distinct emotional lanes.", body)
 
     def test_home_page_cards_use_visual_config_copy(self):
         response = self.client.get("/")
@@ -313,9 +326,10 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn("Let’s shape the right baby name.", body)
         self.assertIn("Find a name your business can grow into.", body)
         self.assertNotIn("Find a name your product can wear in the real world.", body)
-        self.assertIn("practical parent decision card", body)
-        self.assertIn("brand decision card with launch risks", body)
-        self.assertNotIn("shelf-readiness and buyer appeal card", body)
+        for signal in ("Sound", "Family fit", "Personality", "Category fit", "Launch risk"):
+            self.assertIn(signal, body)
+        self.assertNotIn("practical parent decision card", body)
+        self.assertNotIn("brand decision card with launch risks", body)
 
     def test_home_page_graphics_have_css_contract(self):
         css_path = Path(self.app.static_folder) / "css" / "platform.css"

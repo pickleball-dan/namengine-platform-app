@@ -1,4 +1,35 @@
 (() => {
+  const babyFinalForm = document.querySelector('[data-baby-final-form]');
+  if (babyFinalForm) {
+    const question = babyFinalForm.querySelector('[data-baby-final-question]');
+    const complete = babyFinalForm.querySelector('[data-baby-final-complete]');
+    const status = babyFinalForm.querySelector('[data-baby-final-status]');
+    const inputs = Array.from(babyFinalForm.querySelectorAll('[data-feelings-input]'));
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let chosen = false;
+
+    babyFinalForm.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-baby-weight]');
+      if (!button || chosen) return;
+      chosen = true;
+      babyFinalForm.querySelectorAll('[data-baby-weight]').forEach((choice) => {
+        const selected = choice === button;
+        choice.classList.toggle('is-selected', selected);
+        choice.setAttribute('aria-checked', String(selected));
+      });
+      button.dataset.babyWeight.split(',').forEach((weight, index) => {
+        if (inputs[index]) inputs[index].value = weight;
+      });
+      status.textContent = `Saved — ${button.querySelector('span').textContent}`;
+      window.setTimeout(() => {
+        question.hidden = true;
+        complete.hidden = false;
+        window.setTimeout(() => babyFinalForm.requestSubmit(), reduceMotion.matches ? 100 : 650);
+      }, reduceMotion.matches ? 0 : 260);
+    });
+    return;
+  }
+
   const scale = document.querySelector('[data-feelings-scale]');
   if (!scale) return;
 
