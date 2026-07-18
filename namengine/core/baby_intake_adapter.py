@@ -14,15 +14,11 @@ from namengine.core.intake import (
     register_intake_schema,
 )
 from namengine.core.intake_migrations import IntakeMigration, register_intake_migration
-from namengine.verticals.configs import (
+from namengine.verticals.baby_taxonomy import (
     BABY_CULTURAL_HERITAGE_OPTIONS,
-    BABY_DISCOVERY_STYLE_OPTIONS,
     BABY_DISTINCTIVENESS_OPTIONS,
-    BABY_FAMILIARITY_OPTIONS,
     BABY_GENDER_OPTIONS,
-    BABY_INSPIRATION_OPTIONS,
-    BABY_SOUND_OPTIONS,
-    BABY_STYLE_OPTIONS,
+    BABY_TAXONOMY,
 )
 
 
@@ -31,13 +27,13 @@ BABY_LEGACY_INTAKE_VERSION = "baby-intake-v1-legacy"
 BABY_NORMALIZER_VERSION = "baby-intake-normalizer-v1"
 BABY_INTAKE_ADAPTER_VERSION = "baby-intake-adapter-v1"
 
-# Historical fixtures and saved result links used these labels before the
-# current UI wording. They remain accepted intake values for v1 compatibility.
-_BABY_DISCOVERY_VALUES = BABY_DISCOVERY_STYLE_OPTIONS + ("Familiar favorites",)
-_BABY_STYLE_VALUES = BABY_STYLE_OPTIONS + ("Elegant",)
-_BABY_FAMILIARITY_VALUES = BABY_FAMILIARITY_OPTIONS + ("Very familiar",)
-_BABY_SOUND_VALUES = BABY_SOUND_OPTIONS + ("Clear", "Crisp")
-_BABY_INSPIRATION_VALUES = BABY_INSPIRATION_OPTIONS + ("Global inspiration", "Honor names")
+# Historical fixtures and saved result links used additional labels before the
+# current UI wording. Taxonomy v1 keeps those accepted values explicit.
+_BABY_DISCOVERY_VALUES = BABY_TAXONOMY.accepted_choices("discovery_style")
+_BABY_STYLE_VALUES = BABY_TAXONOMY.accepted_choices("style")
+_BABY_FAMILIARITY_VALUES = BABY_TAXONOMY.accepted_choices("familiarity_preference")
+_BABY_SOUND_VALUES = BABY_TAXONOMY.accepted_choices("sound")
+_BABY_INSPIRATION_VALUES = BABY_TAXONOMY.accepted_choices("cultural_context")
 
 
 def _text(
@@ -72,18 +68,18 @@ BABY_INTAKE_SCHEMA = IntakeSchema(
     display_name="Baby Intake v1",
     description="The current production Baby questionnaire and Feelings Scale inputs.",
     fields=(
-        _text("gender", required=True, deprecated_aliases=("baby_gender", "sex"), choices=BABY_GENDER_OPTIONS, intent_path="gender_context"),
-        _text("family_context", deprecated_aliases=("family",), intent_path="family_personal_context", sensitive="personal_context", max_length=1000),
-        _text("cultural_heritage", deprecated_aliases=("heritage",), choices=BABY_CULTURAL_HERITAGE_OPTIONS, intent_path="cultural_contexts"),
+        _text("gender", required=True, deprecated_aliases=BABY_TAXONOMY.deprecated_aliases("gender"), choices=BABY_GENDER_OPTIONS, intent_path="gender_context"),
+        _text("family_context", deprecated_aliases=BABY_TAXONOMY.deprecated_aliases("family_context"), intent_path="family_personal_context", sensitive="personal_context", max_length=1000),
+        _text("cultural_heritage", deprecated_aliases=BABY_TAXONOMY.deprecated_aliases("cultural_heritage"), choices=BABY_CULTURAL_HERITAGE_OPTIONS, intent_path="cultural_contexts"),
         _text("notes", intent_path="notes", sensitive="personal_context", max_length=1500),
-        _text("discovery_style", deprecated_aliases=("discovery",), choices=_BABY_DISCOVERY_VALUES, intent_path="discovery_preference"),
-        _text("style", required=True, deprecated_aliases=("name_style",), choices=_BABY_STYLE_VALUES, intent_path="naming_styles"),
-        _text("timeless_vs_distinctive", deprecated_aliases=("distinctiveness",), choices=BABY_DISTINCTIVENESS_OPTIONS, intent_path="distinctiveness_preference"),
-        _text("familiarity_preference", deprecated_aliases=("familiarity",), choices=_BABY_FAMILIARITY_VALUES, intent_path="familiarity_preference"),
-        _text("sound", required=True, deprecated_aliases=("sound_preference",), choices=_BABY_SOUND_VALUES, intent_path="sound_qualities"),
+        _text("discovery_style", deprecated_aliases=BABY_TAXONOMY.deprecated_aliases("discovery_style"), choices=_BABY_DISCOVERY_VALUES, intent_path="discovery_preference"),
+        _text("style", required=True, deprecated_aliases=BABY_TAXONOMY.deprecated_aliases("style"), choices=_BABY_STYLE_VALUES, intent_path="naming_styles"),
+        _text("timeless_vs_distinctive", deprecated_aliases=BABY_TAXONOMY.deprecated_aliases("timeless_vs_distinctive"), choices=BABY_DISTINCTIVENESS_OPTIONS, intent_path="distinctiveness_preference"),
+        _text("familiarity_preference", deprecated_aliases=BABY_TAXONOMY.deprecated_aliases("familiarity_preference"), choices=_BABY_FAMILIARITY_VALUES, intent_path="familiarity_preference"),
+        _text("sound", required=True, deprecated_aliases=BABY_TAXONOMY.deprecated_aliases("sound"), choices=_BABY_SOUND_VALUES, intent_path="sound_qualities"),
         _text("cultural_context", choices=_BABY_INSPIRATION_VALUES, intent_path="cultural_contexts"),
         _text("partner_alignment", intent_path="extensions.partner_alignment", sensitive="personal_context", max_length=1000),
-        _text("avoid", deprecated_aliases=("avoidances",), intent_path="avoidances", sensitive="personal_context", max_length=1000),
+        _text("avoid", deprecated_aliases=BABY_TAXONOMY.deprecated_aliases("avoid"), intent_path="avoidances", sensitive="personal_context", max_length=1000),
         IntakeFieldDefinition(
             "taste_strength_about_your_baby",
             data_type="integer",
@@ -210,15 +206,7 @@ def _validate_baby_values(
 
 def _migrate_legacy_baby(payload: dict[str, Any]) -> tuple[dict[str, Any], list[str]]:
     migrated = dict(payload)
-    mappings = {
-        "baby_gender": "gender",
-        "sex": "gender",
-        "heritage": "cultural_heritage",
-        "name_style": "style",
-        "distinctiveness": "timeless_vs_distinctive",
-        "familiarity": "familiarity_preference",
-        "sound_preference": "sound",
-    }
+    mappings = BABY_TAXONOMY.legacy_migration_mapping()
     warnings: list[str] = []
     for old, new in mappings.items():
         if old not in migrated:
@@ -247,10 +235,6 @@ register_intake_migration(
         source_version=BABY_LEGACY_INTAKE_VERSION,
         destination_version=BABY_INTAKE_VERSION,
         migrate=_migrate_legacy_baby,
-        deprecated_field_mapping={
-            "baby_gender": "gender",
-            "heritage": "cultural_heritage",
-            "name_style": "style",
-        },
+        deprecated_field_mapping=BABY_TAXONOMY.migration_metadata_mapping(),
     )
 )
