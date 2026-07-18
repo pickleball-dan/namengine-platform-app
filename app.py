@@ -1099,6 +1099,7 @@ def _generate_names_for_route(vertical, brief: NamingBrief) -> list[NameResult]:
                 vertical=vertical,
                 brief=brief,
                 providers=[ModelProvider.OPENAI],
+                fallback_on_provider_error=True,
             )
             if not names:
                 raise AIGenerationError("generation returned no usable names")
