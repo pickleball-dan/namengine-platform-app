@@ -24,6 +24,7 @@ from namengine.core import (
     build_brief,
     build_compare_items,
     build_public_reaction,
+    build_reaction,
     build_taste_profile,
     build_trust_cue,
     compare_contrast_groups,
@@ -56,6 +57,8 @@ from namengine.core import (
     vertical_theme_style,
 )
 from namengine.core.name_facts import build_name_fact_card
+from namengine.core.baby_decision_support import build_baby_decision_support
+from namengine.core.storage import get_session_chain_snapshots
 from namengine.core.taste_evolution import build_taste_evolution
 from namengine.core.ai_generation import DEFAULT_MODEL
 from namengine.core.prompt_versions import prompt_version_for
@@ -265,11 +268,20 @@ def result_detail_from_session(session_id: str, result_id: str) -> dict | None:
 
     for row in snapshot["results"]:
         if row["id"] == result_id:
+            reaction_values = _reaction_values(snapshot)
+            available_results: list[dict] = []
+            for chain_snapshot in get_session_chain_snapshots(session_id):
+                available_results.extend(
+                    json_loads(item["result_json"])
+                    for item in chain_snapshot.get("results", [])
+                )
             return {
                 "session": snapshot["session"],
                 "result": json_loads(row["result_json"]),
                 "reaction_counts": snapshot["reaction_counts"],
                 "taste_profile": _taste_profile_from_snapshot(snapshot),
+                "reaction_value": reaction_values.get(result_id, ""),
+                "available_results": available_results,
             }
     return None
 
@@ -323,7 +335,7 @@ def _reaction_values(snapshot: dict | None) -> dict[str, str]:
     return {
         str(row["result_id"]): str(row["value"])
         for row in (snapshot or {}).get("reactions", [])
-        if row.get("value") in {"love", "no"}
+        if row.get("value") in {"love", "maybe", "no"}
     }
 
 
@@ -410,10 +422,13 @@ def create_app() -> Flask:
 
     @app.errorhandler(NameGenerationUnavailable)
     def generation_unavailable(exc: NameGenerationUnavailable):
+        requested_slug = request.path.strip("/").split("/", 1)[0]
+        error_vertical = get_vertical(requested_slug) if requested_slug in VERTICALS else None
         return (
             render_template(
                 "generation_unavailable.html",
                 message=str(exc) or "We could not generate names right now.",
+                vertical=error_vertical,
             ),
             503,
         )
@@ -616,13 +631,20 @@ def create_app() -> Flask:
     @app.post("/api/react")
     def react():
         payload = request.get_json(silent=True) or request.form
+        session_id = str(payload.get("session_id", ""))
+        result_id = str(payload.get("result_id", ""))
+        value = str(payload.get("value", ""))
+        snapshot = get_session_snapshot(session_id) if session_id else None
 
         try:
-            reaction = build_public_reaction(
-                session_id=str(payload.get("session_id", "")),
-                result_id=str(payload.get("result_id", "")),
-                value=str(payload.get("value", "")),
-            )
+            if snapshot and snapshot["session"]["vertical"] == "baby" and value == "maybe":
+                reaction = build_reaction(session_id, result_id, value)
+            else:
+                reaction = build_public_reaction(
+                    session_id=session_id,
+                    result_id=result_id,
+                    value=value,
+                )
         except ReactionError as exc:
             return jsonify({"error": str(exc)}), 400
 
@@ -730,10 +752,11 @@ def create_app() -> Flask:
     def shared_shortlist(session_id: str):
         snapshot = get_session_snapshot(session_id)
         if snapshot is None:
+            vertical_slug = next((slug for slug in VERTICALS if session_id.startswith(slug)), None)
             return render_template(
                 "share_missing.html",
                 session_id=session_id,
-                vertical=get_vertical("pet") if session_id.startswith("pet") else None,
+                vertical=get_vertical(vertical_slug) if vertical_slug else None,
             ), 410
 
         vertical = get_vertical(snapshot["session"]["vertical"])
@@ -843,6 +866,18 @@ def create_app() -> Flask:
         if vertical.slug != vertical_slug:
             abort(404)
 
+        decision_support = (
+            build_baby_decision_support(
+                detail["result"],
+                detail["session"],
+                detail["taste_profile"],
+                detail["available_results"],
+                detail["reaction_value"],
+            )
+            if vertical.slug == "baby"
+            else None
+        )
+
         return render_template(
             "name_detail.html",
             vertical=vertical,
@@ -851,6 +886,7 @@ def create_app() -> Flask:
             name_fact_card=build_name_fact_card(vertical.slug, detail["result"]),
             reaction_counts=detail["reaction_counts"],
             taste_profile=detail["taste_profile"],
+            decision_support=decision_support,
         )
 
     @app.get("/chosen/<chosen_id>")

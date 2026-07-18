@@ -21,16 +21,104 @@
     .sort((left, right) => (orderIndex.get(left.dataset.questionId) ?? 99) - (orderIndex.get(right.dataset.questionId) ?? 99));
   const history = form.querySelector("[data-baby-answer-history]");
   const historyList = form.querySelector("[data-baby-answer-list]");
+  const progressTitle = form.querySelector("[data-baby-progress-title]");
   const progressCopy = form.querySelector("[data-baby-progress-copy]");
   const progressBar = form.querySelector("[data-baby-progressbar]");
   const progressFill = form.querySelector("[data-baby-progress-fill]");
   const confirmation = form.querySelector("[data-baby-confirmation]");
   const completePanel = form.querySelector("[data-baby-complete]");
   const stage = form.querySelector("[data-baby-question-stage]");
+  const journeyStages = Array.from(form.querySelectorAll("[data-baby-journey-stage]"));
+  const checkIn = form.querySelector("[data-intake-checkin]");
+  const checkInHeading = form.querySelector("[data-checkin-heading]");
+  const checkInCopy = form.querySelector("[data-checkin-copy]");
+  const checkInOptions = form.querySelector("[data-checkin-options]");
+  const checkInBack = form.querySelector("[data-checkin-back]");
+  const checkInReturn = form.querySelector("[data-checkin-return]");
+  const journeyCopyConfigurations = {
+    baby: {
+      fallback: "Let’s get to know your family.",
+      completion: "Almost there.",
+      questions: {
+        gender: "Let’s get to know your family.",
+        style: "We’re discovering the kinds of names you’ll love.",
+        familiarity_preference: "We’re discovering the kinds of names you’ll love.",
+        discovery_style: "We’re discovering the kinds of names you’ll love.",
+        timeless_vs_distinctive: "We’re narrowing in on the right fit.",
+        sound: "We’re narrowing in on the right fit.",
+        cultural_context: "We’re narrowing in on the right fit.",
+        cultural_heritage: "We’re narrowing in on the right fit.",
+        family_context: "We’re refining your perfect shortlist.",
+        partner_alignment: "We’re refining your perfect shortlist.",
+        avoid: "We’re refining your perfect shortlist.",
+        notes: "Almost there."
+      }
+    }
+  };
+  const journeyCopy = journeyCopyConfigurations[form.dataset.journeyVertical] || journeyCopyConfigurations.baby;
+  const intakeStepConfigurations = {
+    baby: {
+      checkIns: [{
+        id: "midpoint",
+        insertAfter: "sound",
+        heading: "Are we asking the right questions?",
+        supportingCopy: "We want to understand what matters most to you before suggesting names.",
+        journeyTitle: "We’re narrowing in on the right fit.",
+        storageKey: "namengine:intake-checkin:baby:midpoint:v1",
+        responses: [
+          { key: "yes", label: "Yes, these questions make sense" },
+          { key: "mostly", label: "Mostly" },
+          { key: "unsure", label: "I’m not sure yet" }
+        ]
+      }]
+    }
+  };
+  const intakeStepConfiguration = intakeStepConfigurations[form.dataset.journeyVertical] || { checkIns: [] };
+  const checkInConfiguration = intakeStepConfiguration.checkIns[0] || null;
   const skipped = new Set();
   let activeId = null;
   let transitionTimer = null;
   let completing = false;
+  let checkInResponse = readCheckInResponse();
+  let checkInAdvancing = false;
+
+  function readCheckInResponse() {
+    if (!checkInConfiguration) return "";
+    try {
+      const stored = JSON.parse(window.sessionStorage.getItem(checkInConfiguration.storageKey) || "null");
+      return checkInConfiguration.responses.some((response) => response.key === stored?.response) ? stored.response : "";
+    } catch (_error) {
+      return "";
+    }
+  }
+
+  function persistCheckInResponse(response) {
+    try {
+      window.sessionStorage.setItem(checkInConfiguration.storageKey, JSON.stringify({ response }));
+    } catch (_error) {
+      // In-memory state still preserves the response when storage is unavailable.
+    }
+  }
+
+  function renderCheckInConfiguration() {
+    if (!checkInConfiguration || !checkIn) return;
+    checkIn.dataset.checkinId = checkInConfiguration.id;
+    checkIn.dataset.insertAfter = checkInConfiguration.insertAfter;
+    checkInHeading.textContent = checkInConfiguration.heading;
+    checkInCopy.textContent = checkInConfiguration.supportingCopy;
+    checkInOptions.replaceChildren();
+    checkInConfiguration.responses.forEach((response) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "baby-choice baby-checkin-choice";
+      button.dataset.checkinValue = response.key;
+      button.setAttribute("role", "radio");
+      button.setAttribute("aria-checked", String(checkInResponse === response.key));
+      button.innerHTML = `<span class="baby-choice-copy"><strong>${escapeHtml(response.label)}</strong></span><span class="baby-choice-chevron" aria-hidden="true">›</span><span class="baby-choice-mark" aria-hidden="true">✓</span>`;
+      button.classList.toggle("is-selected", checkInResponse === response.key);
+      checkInOptions.appendChild(button);
+    });
+  }
 
   function controlFor(question) {
     return question.querySelector("select, textarea, input:not([data-other-input])");
@@ -49,7 +137,7 @@
     const dependency = question.dataset.conditionField;
     if (!dependency) return true;
     const source = questions.find((item) => item.dataset.questionId === dependency);
-    return Boolean(source && valueFor(source) === question.dataset.conditionValue);
+    return Boolean(question.dataset.conditionCurrent || (source && valueFor(source) === question.dataset.conditionValue));
   }
 
   function applicableQuestions() {
@@ -63,12 +151,21 @@
     if (other) {
       other.value = "";
       other.disabled = true;
+      const otherWrap = other.closest("[data-baby-other-wrap]");
+      if (otherWrap) otherWrap.hidden = true;
     }
     question.querySelectorAll("[data-choice-value]").forEach((button) => {
       button.classList.remove("is-selected");
       button.setAttribute("aria-checked", "false");
     });
+    delete question.dataset.conditionCurrent;
     skipped.delete(question.dataset.questionId);
+  }
+
+  function clearDependentConditionOverrides(question) {
+    questions
+      .filter((item) => item.dataset.conditionField === question.dataset.questionId)
+      .forEach((item) => { delete item.dataset.conditionCurrent; });
   }
 
   function syncConditions() {
@@ -114,10 +211,31 @@
     const index = Math.max(0, applicable.indexOf(question));
     const number = index + 1;
     const total = applicable.length;
+    progressTitle.textContent = journeyCopy.questions[question.dataset.questionId] || journeyCopy.fallback;
     progressCopy.textContent = `Question ${number} of ${total}`;
     progressBar.setAttribute("aria-valuenow", String(number));
     progressBar.setAttribute("aria-valuemax", String(total));
     progressFill.style.width = `${(number / total) * 100}%`;
+    updateJourney(question);
+  }
+
+  function updateJourney(question) {
+    const activeStage = journeyStages.findIndex((item) => item.dataset.stageName === question.dataset.questionSection);
+    journeyStages.forEach((item, index) => {
+      item.classList.toggle("is-active", index === activeStage);
+      item.classList.toggle("is-complete", index < activeStage);
+      if (index === activeStage) item.setAttribute("aria-current", "step");
+      else item.removeAttribute("aria-current");
+    });
+  }
+
+  function checkInAnchorQuestion() {
+    return questions.find((question) => question.dataset.questionId === checkInConfiguration?.insertAfter) || null;
+  }
+
+  function checkInFollowingQuestion() {
+    const anchor = checkInAnchorQuestion();
+    return anchor ? nextQuestion(anchor) : null;
   }
 
   function focusQuestion(question) {
@@ -128,17 +246,48 @@
   function showQuestion(question, options) {
     if (!question || completing) return;
     window.clearTimeout(transitionTimer);
+    form.classList.remove("is-checkin-active");
     activeId = question.dataset.questionId;
     questions.forEach((item) => {
       const isActive = item === question;
       item.hidden = !isActive;
       item.classList.toggle("is-active", isActive);
     });
+    if (checkIn) checkIn.hidden = true;
+    if (checkInReturn) {
+      checkInReturn.hidden = !(checkInResponse && question === checkInFollowingQuestion());
+    }
+    progressCopy.hidden = false;
     stage.hidden = false;
     completePanel.hidden = true;
     renderHistory(question);
     updateProgress(question);
     if (options?.focus !== false) window.requestAnimationFrame(() => focusQuestion(question));
+  }
+
+  function showCheckIn() {
+    if (!checkInConfiguration || !checkIn || completing) return;
+    window.clearTimeout(transitionTimer);
+    form.classList.add("is-checkin-active");
+    checkInAdvancing = false;
+    questions.forEach((question) => {
+      question.hidden = true;
+      question.classList.remove("is-active");
+    });
+    renderCheckInConfiguration();
+    checkIn.hidden = false;
+    checkIn.classList.add("is-active");
+    checkInReturn.hidden = true;
+    stage.hidden = false;
+    completePanel.hidden = true;
+    progressTitle.textContent = checkInConfiguration.journeyTitle;
+    progressCopy.hidden = true;
+    const anchor = checkInAnchorQuestion();
+    if (anchor) {
+      renderHistory(checkInFollowingQuestion());
+      updateJourney(anchor);
+    }
+    window.requestAnimationFrame(() => checkIn.querySelector("[data-checkin-value].is-selected, [data-checkin-value]")?.focus({ preventScroll: true }));
   }
 
   function nextQuestion(question) {
@@ -155,16 +304,19 @@
       question.classList.remove("is-confirmed");
       confirmation.textContent = "";
       const next = nextQuestion(question);
-      if (next) showQuestion(next);
+      if (checkInConfiguration && question.dataset.questionId === checkInConfiguration.insertAfter && !checkInResponse) showCheckIn();
+      else if (next) showQuestion(next);
       else finishInterview();
     }, motionQuery.matches ? 0 : 260);
   }
 
   function finishInterview() {
     completing = true;
+    form.classList.remove("is-checkin-active");
     questions.forEach((question) => { question.hidden = true; });
     history.hidden = true;
     stage.hidden = true;
+    progressTitle.textContent = journeyCopy.completion;
     progressCopy.textContent = "Interview complete";
     progressFill.style.width = "100%";
     progressBar.setAttribute("aria-valuenow", progressBar.getAttribute("aria-valuemax"));
@@ -183,6 +335,7 @@
     control.value = value;
     control.dispatchEvent(new Event("change", { bubbles: true }));
     skipped.delete(question.dataset.questionId);
+    clearDependentConditionOverrides(question);
 
     const otherWrap = question.querySelector("[data-baby-other-wrap]");
     const otherInput = question.querySelector("[data-other-input]");
@@ -206,6 +359,32 @@
     confirmAndAdvance(question, valueFor(question));
   }
 
+  function skipQuestion(question) {
+    clearDependentConditionOverrides(question);
+    clearQuestion(question);
+    skipped.add(question.dataset.questionId);
+    confirmAndAdvance(question, "Skipped for now");
+  }
+
+  function selectCheckInResponse(button) {
+    if (checkInAdvancing) return;
+    checkInAdvancing = true;
+    checkInResponse = button.dataset.checkinValue;
+    persistCheckInResponse(checkInResponse);
+    checkInOptions.querySelectorAll("[data-checkin-value]").forEach((choice) => {
+      const selected = choice === button;
+      choice.classList.toggle("is-selected", selected);
+      choice.setAttribute("aria-checked", String(selected));
+    });
+    confirmation.textContent = "Saved";
+    transitionTimer = window.setTimeout(() => {
+      confirmation.textContent = "";
+      const following = checkInFollowingQuestion();
+      if (following) showQuestion(following);
+      else finishInterview();
+    }, motionQuery.matches ? 0 : 260);
+  }
+
   function syncInitialSelections() {
     questions.forEach((question) => {
       const control = controlFor(question);
@@ -219,6 +398,20 @@
   }
 
   form.addEventListener("click", (event) => {
+    const checkInChoice = event.target.closest("[data-checkin-value]");
+    if (checkInChoice) {
+      selectCheckInResponse(checkInChoice);
+      return;
+    }
+    if (event.target.closest("[data-checkin-back]")) {
+      const anchor = checkInAnchorQuestion();
+      if (anchor) showQuestion(anchor);
+      return;
+    }
+    if (event.target.closest("[data-checkin-return]")) {
+      showCheckIn();
+      return;
+    }
     const choice = event.target.closest("[data-choice-value]");
     if (choice) {
       selectChoice(choice.closest("[data-baby-question]"), choice);
@@ -234,9 +427,7 @@
     if (!question) return;
     if (event.target.closest("[data-baby-continue]")) continueText(question);
     if (event.target.closest("[data-baby-skip]")) {
-      controlFor(question).value = "";
-      skipped.add(question.dataset.questionId);
-      confirmAndAdvance(question, "Skipped for now");
+      skipQuestion(question);
     }
     if (event.target.closest("[data-baby-other-continue]")) {
       const other = question.querySelector("[data-other-input]");
@@ -282,6 +473,7 @@
   });
 
   document.body.classList.add("baby-interview-enhanced");
+  renderCheckInConfiguration();
   syncInitialSelections();
   syncConditions();
   if (form.dataset.editQuestion || window.location.hash === "#baby-intake-form") startInterview();

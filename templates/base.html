@@ -4,6 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}NamEngine{% endblock %}</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/favicon.svg') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='images/app-icon.svg') }}">
     {% if vertical is defined and vertical.assets.get("share_image") %}
       <meta property="og:title" content="NamEngine {{ vertical.display_name }}">
       <meta property="og:description" content="{{ vertical.visual.hero_support or vertical.prompt_context }}">
@@ -13,19 +15,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/platform.css') }}?v=20260716-homepage-shared-layout-hotfix-v1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/platform.css') }}?v=20260716-homepage-shared-layout-hotfix-v1-approved-brand-v2">
   </head>
   <body {% if vertical is defined %}class="vertical-{{ vertical.slug }}" style="{{ vertical_theme_style(vertical) }}"{% endif %}>
+    {% set active_brand_logo = vertical.assets.get("header_logo") if vertical is defined and vertical.assets.get("header_logo") else "images/namengine.svg" %}
+    {% set active_brand_alt = "NamEngine " ~ vertical.display_name if vertical is defined and vertical.assets.get("header_logo") else "NamEngine" %}
     <header class="site-header">
-      <a class="brand" href="/">
-        {% if vertical is defined and vertical.assets.get("header_logo") %}
-          <img class="brand-logo brand-logo-wordmark" src="{{ url_for('static', filename=vertical.assets.get('header_logo')) }}" alt="NamEngine {{ vertical.display_name }}">
-        {% else %}
-          {% if vertical is defined and vertical.assets.get("logo") %}
-            <img class="brand-logo" src="{{ url_for('static', filename=vertical.assets.get('logo')) }}" alt="" width="34" height="34">
-          {% endif %}
-          <span>NamEngine</span>
-        {% endif %}
+      <a class="brand" href="/" aria-label="NamEngine home">
+        <img class="brand-logo brand-logo-wordmark" src="{{ url_for('static', filename=active_brand_logo) }}" alt="{{ active_brand_alt }}">
       </a>
       <nav class="site-nav" aria-label="Primary navigation">
         {% if request.endpoint == "index" %}
@@ -48,7 +45,7 @@
 
     <footer class="site-footer">
       <div class="footer-brand-block">
-        <strong>NamEngine</strong>
+        <img class="footer-brand-logo" src="{{ url_for('static', filename=active_brand_logo) }}" alt="{{ active_brand_alt }}">
         <span>AI-assisted name discovery. Beta outputs need human review.</span>
       </div>
       <nav class="footer-links" aria-label="Legal and trust links">

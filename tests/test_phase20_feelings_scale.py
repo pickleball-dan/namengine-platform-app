@@ -27,6 +27,7 @@ class PhaseTwentyFeelingsScaleTest(unittest.TestCase):
                 self.assertIn("Feelings Scale", body)
                 if slug == "baby":
                     self.assertIn("What should guide the search?", body)
+                    self.assertIn("Now tell us what matters most.", body)
                 else:
                     self.assertIn("What do I feel strong about?", body)
                 self.assertIn("Generate", body)
@@ -67,7 +68,7 @@ class PhaseTwentyFeelingsScaleTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         body = response.get_data(as_text=True)
-        self.assertIn("Baby names shaped from your taste", body)
+        self.assertIn("Here’s what stood out", body)
         self.assertNotIn("taste_strength_name_style", body)
 
     def test_public_feelings_submit_redirects_to_clean_session_url(self):
@@ -98,7 +99,7 @@ class PhaseTwentyFeelingsScaleTest(unittest.TestCase):
         result_response = self.client.get(location)
         self.assertEqual(result_response.status_code, 200)
         body = result_response.get_data(as_text=True)
-        self.assertIn("Baby names shaped from your taste", body)
+        self.assertIn("Here’s what stood out", body)
         self.assertNotIn("taste_strength_name_style", body)
 
     def test_baby_fallback_respects_african_american_historical_heritage_signal(self):

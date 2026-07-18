@@ -117,6 +117,15 @@ class NameResult:
     meaning: str = ""
     why_this_name: str = ""
     fit_note: str = ""
+    recommendation_reason: str = ""
+    matched_preferences: list[dict[str, str]] = field(default_factory=list)
+    strongest_fit: str = ""
+    real_life_impression: dict[str, str] = field(default_factory=dict)
+    tradeoffs: list[str] = field(default_factory=list)
+    comparison_position: dict[str, list[str]] = field(default_factory=dict)
+    nickname_considerations: dict[str, Any] = field(default_factory=dict)
+    family_fit: dict[str, str] = field(default_factory=dict)
+    confidence_note: str = ""
     risks: list[str] = field(default_factory=list)
     tags: list[str] = field(default_factory=list)
     scores: dict[str, float] = field(default_factory=dict)
