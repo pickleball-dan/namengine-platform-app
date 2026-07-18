@@ -8,10 +8,24 @@
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     let chosen = false;
 
+    function completeAndSubmit(message) {
+      status.textContent = message;
+      window.setTimeout(() => {
+        question.hidden = true;
+        complete.hidden = false;
+        window.setTimeout(() => babyFinalForm.requestSubmit(), reduceMotion.matches ? 100 : 650);
+      }, reduceMotion.matches ? 0 : 260);
+    }
+
     babyFinalForm.addEventListener('click', (event) => {
+      const skip = event.target.closest('[data-baby-final-skip]');
       const button = event.target.closest('[data-baby-weight]');
-      if (!button || chosen) return;
+      if (chosen || (!button && !skip)) return;
       chosen = true;
+      if (skip) {
+        completeAndSubmit('Using a thoughtful balance.');
+        return;
+      }
       babyFinalForm.querySelectorAll('[data-baby-weight]').forEach((choice) => {
         const selected = choice === button;
         choice.classList.toggle('is-selected', selected);
@@ -20,12 +34,7 @@
       button.dataset.babyWeight.split(',').forEach((weight, index) => {
         if (inputs[index]) inputs[index].value = weight;
       });
-      status.textContent = `Saved — ${button.querySelector('span').textContent}`;
-      window.setTimeout(() => {
-        question.hidden = true;
-        complete.hidden = false;
-        window.setTimeout(() => babyFinalForm.requestSubmit(), reduceMotion.matches ? 100 : 650);
-      }, reduceMotion.matches ? 0 : 260);
+      completeAndSubmit(`Saved — ${button.querySelector('span').textContent}`);
     });
     return;
   }

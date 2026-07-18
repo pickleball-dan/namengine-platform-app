@@ -243,7 +243,10 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn("vertical-baby", body)
         self.assertIn("images/namengine-baby.svg", body)
         self.assertIn("images/baby/namengine-baby-share.png", body)
-        self.assertIn('alt="NamEngine Baby logo"', body)
+        header = body.split("</header>", 1)[0]
+        self.assertIn('alt="NamEngine Baby"', header)
+        welcome = body.split('<div class="baby-welcome">', 1)[1].split('<div class="hero-actions">', 1)[0]
+        self.assertNotIn("vertical-page-logo", welcome)
         self.assertIn("baby-welcome", body)
         self.assertIn("Let’s discover your child’s name together.", body)
         self.assertIn("Most parents finish in about 3–5 minutes.", body)

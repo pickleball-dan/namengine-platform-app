@@ -38,6 +38,8 @@ class BabyFlowPolishV1Test(unittest.TestCase):
         self.assertIn('class="button-link baby-begin-button" href="#baby-intake-form">Begin</a>', body)
         self.assertIn('id="baby-intake-form"', body)
         self.assertIn('action="/baby/feelings"', body)
+        welcome = body.split('<div class="baby-welcome">', 1)[1].split('<div class="hero-actions">', 1)[0]
+        self.assertNotIn("vertical-page-logo", welcome)
 
     def test_baby_intake_keeps_questions_and_trust_contract(self):
         response = self.client.get("/baby")
@@ -61,7 +63,8 @@ class BabyFlowPolishV1Test(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("What should guide the search?", body)
-        self.assertIn("Find names that feel right", body)
+        self.assertIn("Skip for now", body)
+        self.assertIn('data-baby-final-skip', body)
         self.assertIn('action="/baby/results"', body)
 
     def test_baby_results_emphasize_understanding_names_and_saves(self):

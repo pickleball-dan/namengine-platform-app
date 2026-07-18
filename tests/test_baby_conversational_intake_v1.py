@@ -58,6 +58,7 @@ class BabyConversationalIntakeV1Test(unittest.TestCase):
         self.assertIn('name="taste_strength_fit_and_feeling" value="33"', body)
         self.assertIn("Wonderful.", body)
         self.assertIn("We’re creating names that feel uniquely yours...", body)
+        self.assertIn('class="baby-skip" type="button" data-baby-final-skip>Skip for now</button>', body)
         self.assertNotIn("Find names that feel right</button>", body)
 
     def test_optional_multiple_choice_questions_show_skip(self):
@@ -153,6 +154,8 @@ class BabyConversationalIntakeV1Test(unittest.TestCase):
         self.assertIn("applicableQuestions", intake_js)
         self.assertIn("prefers-reduced-motion: reduce", intake_js)
         self.assertIn("babyFinalForm.requestSubmit()", feelings_js)
+        self.assertIn("data-baby-final-skip", feelings_js)
+        self.assertIn("Using a thoughtful balance.", feelings_js)
         self.assertIn("@media (prefers-reduced-motion: reduce)", css)
         self.assertIn("overflow-x: hidden", css)
 
