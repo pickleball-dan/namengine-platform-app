@@ -36,6 +36,51 @@ from namengine.core.schemas import GenerationCandidate, ModelProvider, NameResul
 from namengine.verticals import get_vertical
 
 
+STRATEGY_RESPONSE = json.dumps(
+    {
+        "taste_thesis": "Style: Modern / Japanese / bright without becoming cutesy.",
+        "priority_interpretation": "Use the Japanese heritage and playful-modern style as the lead signals.",
+        "hard_constraints": ["Avoid Sakura"],
+        "soft_preferences": ["Bright", "Readable in Japan and the US"],
+        "anti_patterns": ["Generic filler"],
+        "naming_territories": [
+            {
+                "label": "modern-japanese",
+                "description": "Japanese-rooted names with a modern playful feel.",
+                "example_style": "Aiko",
+                "risk": "Meaning depends on kanji.",
+            }
+        ],
+        "candidate_rubric": [
+            {
+                "criterion": "heritage fit",
+                "weight": 0.6,
+                "what_good_looks_like": "Specific Japanese context with US readability.",
+            }
+        ],
+        "diversity_plan": "Balance familiar and less common Japanese-rooted choices.",
+    }
+)
+
+
+CANDIDATE_RESPONSE = json.dumps(
+    {
+        "candidate_pool": [
+            {
+                "name": "Aiko",
+                "pronunciation": "EYE-koh",
+                "territory": "modern-japanese",
+                "rationale": "Bright, playful, and compact.",
+                "strengths": ["Japanese", "playful"],
+                "risks": ["Confirm kanji."],
+                "tags": ["Japanese", "playful", "bright"],
+                "scores": {"taste_fit": 0.95, "usability": 0.86, "distinctiveness": 0.78},
+            }
+        ]
+    }
+)
+
+
 AI_RESPONSE = json.dumps(
     {
         "names": [
@@ -58,23 +103,29 @@ AI_RESPONSE = json.dumps(
                     "explanation_quality": 0.72,
                 },
             }
-        ]
+        ],
+        "rejected_candidates": [],
     }
 )
 
 
 class FakeResponse:
-    output_text = AI_RESPONSE
-    usage = {"input_tokens": 100, "output_tokens": 60, "total_tokens": 160}
+    def __init__(self, output_text):
+        self.output_text = output_text
+        self.usage = {"input_tokens": 100, "output_tokens": 60, "total_tokens": 160}
 
 
 class FakeResponses:
+    def __init__(self):
+        self.responses = [STRATEGY_RESPONSE, CANDIDATE_RESPONSE, AI_RESPONSE]
+
     def create(self, **kwargs):
-        return FakeResponse()
+        return FakeResponse(self.responses.pop(0))
 
 
 class FakeClient:
-    responses = FakeResponses()
+    def __init__(self):
+        self.responses = FakeResponses()
 
 
 class EngineQualityV1Test(unittest.TestCase):

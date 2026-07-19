@@ -86,7 +86,9 @@ class FakeResponses:
     def __init__(self):
         self.calls = []
         self.responses = [
+            FakeResponse(STRATEGY_RESPONSE, {"input_tokens": 100, "output_tokens": 60, "total_tokens": 160}),
             FakeResponse(AI_RESPONSE, {"input_tokens": 200, "output_tokens": 80, "total_tokens": 280}),
+            FakeResponse(AI_RESPONSE, {"input_tokens": 180, "output_tokens": 90, "total_tokens": 270}),
         ]
 
     def create(self, **kwargs):
@@ -135,9 +137,10 @@ class PhaseTwentyOneEngineAuditTest(unittest.TestCase):
         body = response.get_data(as_text=True)
         self.assertIn("Engine Audit", body)
         self.assertIn("namengine-taste-engine-v1", body)
-        self.assertIn("weighted_prompt_v1+candidate_ranker_v1", body)
-        self.assertIn("weighted_prompt_v1+candidate_ranker_v1", body)
-        self.assertIn("input 200", body)
+        self.assertIn("three_pass_llm_v1", body)
+        self.assertIn("critic_ranker_finalizer_v1", body)
+        self.assertIn("input 480", body)
+        self.assertIn("input_tokens\": 200", body)
         self.assertIn("Candidate pool", body)
         self.assertIn("Rejected candidates", body)
         self.assertIn("Too expected and less distinctive", body)

@@ -7,6 +7,7 @@ from unittest.mock import patch
 from app import create_app, make_session_id
 from namengine.core import (
     build_brief,
+    build_finalizer_prompt,
     build_generation_prompt,
     build_reaction,
     build_taste_profile,
@@ -14,6 +15,7 @@ from namengine.core import (
     generate_ai_names,
     generate_names,
     parse_ai_generation_response,
+    parse_candidate_pool_response,
     parse_generation_audit_response,
     parse_taste_strategy_response,
     refine_session,
@@ -21,8 +23,10 @@ from namengine.core import (
 )
 from namengine.core.ai_generation import (
     AIGenerationError,
+    CANDIDATE_POOL_SCHEMA_NAME,
     NAME_GENERATION_SCHEMA_NAME,
     TASTE_STRATEGY_SCHEMA_NAME,
+    candidate_pool_response_format,
     name_generation_response_format,
     taste_strategy_response_format,
 )
@@ -52,6 +56,34 @@ STRATEGY_RESPONSE = json.dumps(
             }
         ],
         "diversity_plan": "Balance bright/soft names with one crisper alternative.",
+    }
+)
+
+
+CANDIDATE_RESPONSE = json.dumps(
+    {
+        "candidate_pool": [
+            {
+                "name": "Lumi",
+                "pronunciation": "LOO-mee",
+                "territory": "bright-soft",
+                "rationale": "Best match for warm, fresh callability.",
+                "strengths": ["warm", "easy to say"],
+                "risks": ["less traditional"],
+                "tags": ["callable", "warm", "fresh"],
+                "scores": {"taste_fit": 0.94, "usability": 0.9, "distinctiveness": 0.82},
+            },
+            {
+                "name": "Nova",
+                "pronunciation": "NO-vah",
+                "territory": "bright-soft",
+                "rationale": "Bright but too common in the current pet lane.",
+                "strengths": ["bright", "short"],
+                "risks": ["trendier than requested"],
+                "tags": ["bright"],
+                "scores": {"taste_fit": 0.72, "usability": 0.88, "distinctiveness": 0.55},
+            },
+        ]
     }
 )
 
@@ -183,6 +215,7 @@ class PhaseElevenAIGenerationTest(unittest.TestCase):
 
     def test_structured_output_schemas_are_strict(self):
         strategy_format = taste_strategy_response_format()
+        pool_format = candidate_pool_response_format()
         names_format = name_generation_response_format()
 
         self.assertEqual(strategy_format["type"], "json_schema")
@@ -191,13 +224,18 @@ class PhaseElevenAIGenerationTest(unittest.TestCase):
         self.assertFalse(strategy_format["schema"]["additionalProperties"])
         self.assertIn("taste_thesis", strategy_format["schema"]["required"])
 
+        self.assertEqual(pool_format["type"], "json_schema")
+        self.assertEqual(pool_format["name"], CANDIDATE_POOL_SCHEMA_NAME)
+        self.assertTrue(pool_format["strict"])
+        self.assertEqual(pool_format["schema"]["required"], ["candidate_pool"])
+
         self.assertEqual(names_format["type"], "json_schema")
         self.assertEqual(names_format["name"], NAME_GENERATION_SCHEMA_NAME)
         self.assertTrue(names_format["strict"])
-        self.assertEqual(names_format["schema"]["required"], ["names"])
+        self.assertEqual(names_format["schema"]["required"], ["names", "rejected_candidates"])
         self.assertIn("scores", names_format["schema"]["properties"]["names"]["items"]["required"])
 
-    def test_generation_prompt_includes_brief_taste_round_goal_and_strategy(self):
+    def test_candidate_generation_prompt_uses_pass_one_taste_strategy(self):
         brief = build_brief(PET, {"species": "Dog", "style": "Warm"})
         strategy = parse_taste_strategy_response(STRATEGY_RESPONSE)
         prompt = build_generation_prompt(
@@ -212,12 +250,13 @@ class PhaseElevenAIGenerationTest(unittest.TestCase):
 
         self.assertEqual(prompt["round_goal"], "Finalists: produce the most choose-worthy names only.")
         self.assertEqual(prompt["brief"]["inputs"]["species"], "Dog")
-        self.assertEqual(prompt["engine_stage"], "candidate_generator_ranker_v1")
+        self.assertEqual(prompt["engine_stage"], "candidate_generator_v1")
         self.assertEqual(prompt["taste_strategy"]["taste_thesis"], strategy["taste_thesis"])
         self.assertEqual(prompt["previous_names"], ["Milo"])
         self.assertTrue(prompt["diversity_rules"]["do_not_repeat_previous_names"])
         self.assertTrue(prompt["diversity_rules"]["treat_previous_names_as_hard_exclusions"])
-        self.assertEqual(prompt["output_contract"]["top_level_keys"], ["names"])
+        self.assertEqual(prompt["output_contract"]["top_level_keys"], ["candidate_pool"])
+        self.assertGreater(prompt["target_candidate_pool_size"], prompt["count"])
 
     def test_parse_ai_response_dedupes_and_maps_to_name_results(self):
         results = parse_ai_generation_response(AI_RESPONSE, "pet")
@@ -233,13 +272,41 @@ class PhaseElevenAIGenerationTest(unittest.TestCase):
         self.assertEqual(audit["rejected_candidates"][0]["name"], "Nova")
         self.assertIn("Too trendy", audit["rejected_candidates"][0]["rejection_reason"])
 
+    def test_parse_candidate_pool_response_dedupes_candidates(self):
+        pool = parse_candidate_pool_response(CANDIDATE_RESPONSE)
+
+        self.assertEqual([item["name"] for item in pool], ["Lumi", "Nova"])
+        self.assertEqual(pool[0]["territory"], "bright-soft")
+
+    def test_finalizer_prompt_uses_pass_two_candidate_pool(self):
+        brief = build_brief(PET, {"species": "Dog", "style": "Warm"})
+        strategy = parse_taste_strategy_response(STRATEGY_RESPONSE)
+        pool = parse_candidate_pool_response(CANDIDATE_RESPONSE)
+
+        prompt = build_finalizer_prompt(
+            vertical=PET,
+            brief=brief,
+            round_number=1,
+            taste_profile=None,
+            previous_names=["Milo"],
+            count=8,
+            taste_strategy=strategy,
+            candidate_pool=pool,
+        )
+
+        self.assertEqual(prompt["engine_stage"], "critic_ranker_finalizer_v1")
+        self.assertEqual(prompt["taste_strategy"]["taste_thesis"], strategy["taste_thesis"])
+        self.assertEqual(prompt["candidate_pool"][0]["name"], "Lumi")
+        self.assertTrue(prompt["finalizer_rules"]["only_choose_from_candidate_pool"])
+        self.assertTrue(prompt["finalizer_rules"]["reject_before_ranking"])
+
     def test_parse_ai_response_rejects_invalid_json(self):
         with self.assertRaises(AIGenerationError):
             parse_ai_generation_response("not json", "pet")
 
     def test_generate_ai_names_validates_ai_output(self):
         brief = build_brief(PET, {"species": "Dog", "style": "Warm"})
-        fake_client = FakeClient(AI_RESPONSE)
+        fake_client = FakeClient(STRATEGY_RESPONSE, CANDIDATE_RESPONSE, AI_RESPONSE)
 
         with patch.dict(os.environ, {"OPENAI_API_KEY": "test-key", "NAMENGINE_OPENAI_TIMEOUT_SECONDS": "7"}):
             results = generate_ai_names(
@@ -252,20 +319,22 @@ class PhaseElevenAIGenerationTest(unittest.TestCase):
         self.assertEqual(results[0].name, "Lumi")
         self.assertEqual(len(results[0].validation), 2)
         self.assertIn("pet_callability", results[0].scores)
-        self.assertEqual(results[0].metadata["engine_pipeline"], "weighted_prompt_v1+candidate_ranker_v1")
+        self.assertEqual(results[0].metadata["engine_pipeline"], "three_pass_llm_v1")
+        self.assertEqual(results[0].metadata["taste_strategy"]["taste_thesis"], "Warm, bright, easy-to-call pet names with a gentle but fresh feel.")
         self.assertEqual(results[0].metadata["candidate_pool"][0]["name"], "Lumi")
         self.assertEqual(results[0].metadata["rejected_candidates"][0]["name"], "Nova")
-        self.assertEqual(len(fake_client.responses.calls), 1)
-        self.assertEqual(fake_client.responses.calls[0]["timeout"], 7.0)
-        self.assertEqual(fake_client.responses.calls[0]["max_output_tokens"], 2600)
+        self.assertEqual(len(fake_client.responses.calls), 3)
+        self.assertTrue(all(call["timeout"] == 7.0 for call in fake_client.responses.calls))
+        self.assertTrue(all(call["max_output_tokens"] == 2600 for call in fake_client.responses.calls))
+        self.assertEqual(fake_client.responses.calls[0]["text"]["format"]["name"], TASTE_STRATEGY_SCHEMA_NAME)
+        self.assertEqual(fake_client.responses.calls[1]["text"]["format"]["name"], CANDIDATE_POOL_SCHEMA_NAME)
+        self.assertEqual(fake_client.responses.calls[2]["text"]["format"]["name"], NAME_GENERATION_SCHEMA_NAME)
         self.assertEqual(
-            fake_client.responses.calls[0]["text"]["format"]["name"],
-            NAME_GENERATION_SCHEMA_NAME,
+            [item["schema_name"] for item in results[0].metadata["ai_calls"]],
+            [TASTE_STRATEGY_SCHEMA_NAME, CANDIDATE_POOL_SCHEMA_NAME, NAME_GENERATION_SCHEMA_NAME],
         )
-        self.assertEqual(
-            results[0].metadata["ai_calls"][0]["schema_name"],
-            NAME_GENERATION_SCHEMA_NAME,
-        )
+        self.assertEqual(fake_client.responses.calls[1]["input"][1]["content"].count("Warm, bright, easy-to-call"), 1)
+        self.assertIn("Lumi", fake_client.responses.calls[2]["input"][1]["content"])
 
     def test_generate_names_falls_back_without_api_key(self):
         brief = build_brief(PET, {"species": "Dog", "style": "Warm"})

@@ -71,6 +71,21 @@ class PhaseThirtyTwoBabyAiPrimaryGenerationTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(mocked_generate.call_args.kwargs["providers"], [platform_app.ModelProvider.OPENAI])
 
+    def test_ai_primary_route_marks_live_ai_results_as_llm_required(self):
+        with patch.object(platform_app, "is_ai_generation_configured", return_value=True), patch.object(
+            platform_app, "generate_with_router", return_value=_ai_names()
+        ), patch.dict("os.environ", {"NAMENGINE_AI_PRIMARY_VERTICALS": "baby"}):
+            names = platform_app._generate_names_for_route(
+                get_vertical("baby"),
+                build_brief(get_vertical("baby"), {"gender": "Girl", "style": "Playful"}),
+            )
+
+        self.assertTrue(names)
+        self.assertTrue(all(name.metadata["provider"] == "openai" for name in names))
+        self.assertTrue(all(name.metadata["llm_required"] is True for name in names))
+        self.assertTrue(all(name.metadata["ai_primary_requested"] is True for name in names))
+        self.assertTrue(all("ai_primary_fallback" not in name.metadata for name in names))
+
     def test_cached_fallback_baby_session_is_stale_when_ai_primary_is_available(self):
         vertical = get_vertical("baby")
         brief = build_brief(vertical, {"gender": "Girl", "style": "Playful"})

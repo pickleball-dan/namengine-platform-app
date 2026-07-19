@@ -97,6 +97,10 @@ class OpenAITimeoutFallbackTest(unittest.TestCase):
 
         self.assertTrue(names)
         self.assertTrue(all(name.metadata["provider"] == "fallback" for name in names))
+        self.assertTrue(all(name.metadata["source"] != "openai" for name in names))
+        self.assertTrue(all(name.metadata["llm_required"] is False for name in names))
+        self.assertTrue(all(name.metadata["ai_primary_fallback"] is True for name in names))
+        self.assertTrue(all(name.metadata["ai_primary_requested"] is True for name in names))
 
     def test_user_sees_unavailable_only_when_both_providers_fail(self):
         with patch.object(platform_app, "is_ai_generation_configured", return_value=True), patch.object(

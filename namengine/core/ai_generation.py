@@ -31,6 +31,7 @@ DEFAULT_MODEL = "gpt-4.1-mini"
 DEFAULT_TIMEOUT_SECONDS = 8.0
 PROMPT_VERSION = DEFAULT_PROMPT_VERSION
 TASTE_STRATEGY_SCHEMA_NAME = "namengine_taste_strategy_v1"
+CANDIDATE_POOL_SCHEMA_NAME = "namengine_candidate_pool_v1"
 NAME_GENERATION_SCHEMA_NAME = "namengine_name_generation_v1"
 
 
@@ -52,10 +53,11 @@ def generate_ai_names(
     model: str | None = None,
     client_factory: Callable[[], Any] | None = None,
 ) -> list[NameResult]:
-    """Generate names with NamEngine's LLM-first engine.
+    """Generate names with NamEngine's three-pass LLM engine.
 
-    NamEngine frames the user's intake, slider weights, and refinement context into
-    one generation/ranking prompt. The LLM returns the top names plus audit context.
+    Pass 1 interprets taste. Pass 2 generates a broad candidate pool from that
+    thesis. Pass 3 critiques, rejects, ranks, and returns final names. Local
+    fallback pools are not used as the creative source for this path.
     """
     if not is_ai_generation_configured():
         raise AIGenerationError("OPENAI_API_KEY is not configured")
@@ -63,63 +65,91 @@ def generate_ai_names(
     target_count = count or _count_for_round(vertical, round_number)
     selected_model = model or os.getenv("NAMENGINE_OPENAI_MODEL", DEFAULT_MODEL)
     client = client_factory() if client_factory else None
+    shared_client_factory = (lambda: client) if client is not None else None
     generation_id = f"gen-{uuid.uuid4().hex[:12]}"
     prompt_version = prompt_version_for(vertical.slug)
+    previous = previous_names or []
 
-    taste_strategy = build_local_taste_strategy(
+    taste_prompt = build_taste_interpreter_prompt(
         vertical=vertical,
         brief=brief,
         round_number=round_number,
         taste_profile=taste_profile,
-        previous_names=previous_names or [],
+        previous_names=previous,
         count=target_count,
     )
+    taste_call = _call_openai_with_metadata(
+        prompt=taste_prompt,
+        model=selected_model,
+        client_factory=shared_client_factory,
+        response_format=taste_strategy_response_format(),
+    )
+    taste_strategy = parse_taste_strategy_response(taste_call["text"])
 
-    prompt = build_generation_prompt(
+    candidate_prompt = build_generation_prompt(
         vertical=vertical,
         brief=brief,
         round_number=round_number,
         taste_profile=taste_profile,
-        previous_names=previous_names or [],
+        previous_names=previous,
         count=target_count,
         taste_strategy=taste_strategy,
         prompt_version=prompt_version,
     )
-    generation_call = _call_openai_with_metadata(
-        prompt=prompt,
+    candidate_call = _call_openai_with_metadata(
+        prompt=candidate_prompt,
         model=selected_model,
-        client_factory=(lambda: client) if client is not None else None,
+        client_factory=shared_client_factory,
+        response_format=candidate_pool_response_format(),
+    )
+    candidate_pool = parse_candidate_pool_response(candidate_call["text"])
+    if not candidate_pool:
+        raise AIGenerationError("AI candidate generation returned no candidate pool")
+
+    finalizer_prompt = build_finalizer_prompt(
+        vertical=vertical,
+        brief=brief,
+        round_number=round_number,
+        taste_profile=taste_profile,
+        previous_names=previous,
+        count=target_count,
+        taste_strategy=taste_strategy,
+        candidate_pool=candidate_pool,
+        prompt_version=prompt_version,
+    )
+    finalizer_call = _call_openai_with_metadata(
+        prompt=finalizer_prompt,
+        model=selected_model,
+        client_factory=shared_client_factory,
         response_format=name_generation_response_format(vertical.slug),
     )
-    generation_audit = parse_generation_audit_response(generation_call["text"])
-    results = parse_ai_generation_response(generation_call["text"], vertical.slug)
+    finalizer_audit = parse_generation_audit_response(finalizer_call["text"])
+    results = parse_ai_generation_response(finalizer_call["text"], vertical.slug)
     if not results:
-        raise AIGenerationError("AI generation returned no usable names")
+        raise AIGenerationError("AI finalizer returned no usable names")
 
-    selected_results = results[: prompt["count"]]
+    selected_results = results[: finalizer_prompt["count"]]
     improve_quality_explanations(vertical.slug, selected_results, brief)
     validated = validate_results(vertical, brief, selected_results)
     apply_quality_metadata(vertical.slug, validated, brief)
     from namengine.core.intake import version_metadata_for_brief
 
     intake_metadata = version_metadata_for_brief(brief)
+    ai_calls = [
+        _call_audit_summary("taste_interpreter_v1", taste_call, taste_prompt, prompt_version),
+        _call_audit_summary("candidate_generator_v1", candidate_call, candidate_prompt, prompt_version),
+        _call_audit_summary("critic_ranker_finalizer_v1", finalizer_call, finalizer_prompt, prompt_version),
+    ]
     for result in validated:
         result.metadata.update(intake_metadata)
         result.metadata["taste_strategy"] = taste_strategy
-        result.metadata["engine_pipeline"] = "weighted_prompt_v1+candidate_ranker_v1"
+        result.metadata["engine_pipeline"] = "three_pass_llm_v1"
         result.metadata["prompt_version"] = prompt_version
         result.metadata["generation_id"] = generation_id
         result.metadata["model"] = selected_model
-        result.metadata["candidate_pool"] = generation_audit["candidate_pool"]
-        result.metadata["rejected_candidates"] = generation_audit["rejected_candidates"]
-        result.metadata["ai_calls"] = [
-            _call_audit_summary(
-                "candidate_generator_ranker_v1",
-                generation_call,
-                prompt,
-                prompt_version,
-            ),
-        ]
+        result.metadata["candidate_pool"] = candidate_pool
+        result.metadata["rejected_candidates"] = finalizer_audit["rejected_candidates"]
+        result.metadata["ai_calls"] = ai_calls
     return validated
 
 
@@ -328,8 +358,8 @@ def build_generation_prompt(
 
     return {
         **taxonomy_diagnostics,
-        "role": "NamEngine senior naming strategist",
-        "engine_stage": "candidate_generator_ranker_v1",
+        "role": "NamEngine candidate generator",
+        "engine_stage": "candidate_generator_v1",
         "prompt_version": prompt_version
         or prompt_version_for(vertical.slug),
         "vertical": vertical.slug,
@@ -337,9 +367,10 @@ def build_generation_prompt(
         "round_number": round_number,
         "round_goal": round_goal,
         "count": count,
+        "target_candidate_pool_size": max(count * 3, count + 10),
         "mission": (
-            "Generate a broader internal candidate pool, judge it against the taste strategy, "
-            "reject weak or redundant options, then return both the audit trail and only the strongest final names."
+            "Generate a broad pool of genuinely new candidate names from the taste thesis. "
+            "Do not rank final winners yet; provide enough variety for a separate critic to reject, rank, and finalize."
         ),
         "brief": {
             "inputs": brief.inputs,
@@ -354,10 +385,10 @@ def build_generation_prompt(
         "previous_names": previous_names,
         "generation_rules": {
             "generate_more_candidates_than_final_count_internally": True,
-            "target_internal_candidate_pool": count,
-            "show_only_final_count": count,
-            "return_candidate_pool_and_rejected_candidates": False,
-            "rejected_candidates_must_explain_why_they_lost": False,
+            "target_internal_candidate_pool": max(count * 3, count + 10),
+            "show_only_final_count": False,
+            "return_candidate_pool": True,
+            "do_not_rank_final_winners": True,
             "user_written_text_must_change_candidate_choice_when_specific": True,
             "feelings_scale_priority_must_be_visible_in_name_choice_and_rationale": True,
             "weight_final_selection_according_to_slider_priorities": True,
@@ -377,35 +408,18 @@ def build_generation_prompt(
         "validation_expectations": list(vertical.validation_modules),
         "output_contract": {
             "format": "json",
-            "top_level_keys": ["names"],
-            "required_fields": [
+            "top_level_keys": ["candidate_pool"],
+            "candidate_pool_item_fields": [
                 "name",
                 "pronunciation",
-                "tagline",
-                "origin",
-                "meaning",
-                "why_this_name",
-                "fit_note",
+                "territory",
+                "rationale",
+                "strengths",
                 "risks",
                 "tags",
                 "scores",
-            ] + (
-                [
-                    "recommendation_reason",
-                    "matched_preferences",
-                    "strongest_fit",
-                    "real_life_impression",
-                    "tradeoffs",
-                    "comparison_position",
-                    "nickname_considerations",
-                    "family_fit",
-                    "confidence_note",
-                ]
-                if vertical.slug == "baby"
-                else []
-            ),
-            "score_keys": _score_keys(vertical.slug),
-            "metadata_guidance": _explanation_guidance(vertical.slug),
+            ],
+            "score_keys": ["taste_fit", "usability", "distinctiveness"],
         },
     }
 
@@ -494,6 +508,127 @@ def _baby_generation_guidance(vertical: VerticalConfig, brief: NamingBrief) -> d
     return guidance
 
 
+def build_finalizer_prompt(
+    vertical: VerticalConfig,
+    brief: NamingBrief,
+    round_number: int,
+    taste_profile: TasteProfile | None,
+    previous_names: list[str],
+    count: int,
+    taste_strategy: dict[str, Any],
+    candidate_pool: list[dict[str, Any]],
+    prompt_version: str | None = None,
+) -> dict[str, Any]:
+    return {
+        **_baby_taxonomy_diagnostics(vertical, brief),
+        "role": "NamEngine critic, ranker, and finalizer",
+        "engine_stage": "critic_ranker_finalizer_v1",
+        "prompt_version": prompt_version or prompt_version_for(vertical.slug),
+        "vertical": vertical.slug,
+        "vertical_context": vertical.prompt_context,
+        "round_number": round_number,
+        "count": count,
+        "mission": (
+            "Review the candidate pool created by Pass 2. Reject weak, repetitive, unsafe, "
+            "or off-thesis names. Rank the strongest unique final names and explain each choice "
+            "with concrete ties to the taste thesis and user evidence."
+        ),
+        "brief": {
+            "inputs": brief.inputs,
+            "avoid": brief.avoid,
+            "notes": brief.notes,
+            "liked_examples": brief.liked_examples,
+            "rejected_examples": brief.rejected_examples,
+        },
+        "taste_strategy": taste_strategy,
+        "candidate_pool": candidate_pool,
+        "taste_profile": _taste_profile_payload(taste_profile),
+        "taste_weighting": _taste_weighting_payload(brief),
+        "previous_names": previous_names,
+        "finalizer_rules": {
+            "only_choose_from_candidate_pool": True,
+            "reject_before_ranking": True,
+            "return_exactly_count_final_names_when_possible": count,
+            "dedupe_exact_and_near_duplicate_names": True,
+            "tie_each_explanation_to_taste_thesis": True,
+            "do_not_use_local_fallback_pools": True,
+            "do_not_invent_user_context": True,
+        },
+        "validation_expectations": list(vertical.validation_modules),
+        "output_contract": {
+            "format": "json",
+            "top_level_keys": ["names", "rejected_candidates"],
+            "required_name_fields": [
+                "name",
+                "pronunciation",
+                "tagline",
+                "origin",
+                "meaning",
+                "why_this_name",
+                "fit_note",
+                "risks",
+                "tags",
+                "scores",
+            ],
+            "score_keys": _score_keys(vertical.slug),
+            "rejected_candidate_fields": ["name", "territory", "rejection_reason", "lost_to", "score_summary"],
+            "metadata_guidance": _explanation_guidance(vertical.slug),
+        },
+    }
+
+
+def candidate_pool_response_format() -> dict[str, Any]:
+    return {
+        "type": "json_schema",
+        "name": CANDIDATE_POOL_SCHEMA_NAME,
+        "description": "NamEngine broad candidate pool before critic ranking.",
+        "strict": True,
+        "schema": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["candidate_pool"],
+            "properties": {
+                "candidate_pool": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "required": [
+                            "name",
+                            "pronunciation",
+                            "territory",
+                            "rationale",
+                            "strengths",
+                            "risks",
+                            "tags",
+                            "scores",
+                        ],
+                        "properties": {
+                            "name": {"type": "string"},
+                            "pronunciation": {"type": "string"},
+                            "territory": {"type": "string"},
+                            "rationale": {"type": "string"},
+                            "strengths": {"type": "array", "items": {"type": "string"}},
+                            "risks": {"type": "array", "items": {"type": "string"}},
+                            "tags": {"type": "array", "items": {"type": "string"}},
+                            "scores": {
+                                "type": "object",
+                                "additionalProperties": False,
+                                "required": ["taste_fit", "usability", "distinctiveness"],
+                                "properties": {
+                                    "taste_fit": {"type": "number"},
+                                    "usability": {"type": "number"},
+                                    "distinctiveness": {"type": "number"},
+                                },
+                            },
+                        },
+                    },
+                }
+            },
+        },
+    }
+
+
 def name_generation_response_format(vertical_slug: str | None = None) -> dict[str, Any]:
     score_keys = _score_keys(vertical_slug or "")
     required = [
@@ -548,7 +683,7 @@ def name_generation_response_format(vertical_slug: str | None = None) -> dict[st
         "schema": {
             "type": "object",
             "additionalProperties": False,
-            "required": ["names"],
+            "required": ["names", "rejected_candidates"],
             "properties": {
                 "names": {
                     "type": "array",
@@ -558,7 +693,22 @@ def name_generation_response_format(vertical_slug: str | None = None) -> dict[st
                         "required": required,
                         "properties": properties,
                     },
-                }
+                },
+                "rejected_candidates": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "required": ["name", "territory", "rejection_reason", "lost_to", "score_summary"],
+                        "properties": {
+                            "name": {"type": "string"},
+                            "territory": {"type": "string"},
+                            "rejection_reason": {"type": "string"},
+                            "lost_to": {"type": "string"},
+                            "score_summary": {"type": "string"},
+                        },
+                    },
+                },
             },
         },
     }
@@ -670,6 +820,41 @@ def parse_taste_strategy_response(raw_text: str) -> dict[str, Any]:
         "candidate_rubric": _dict_list(payload.get("candidate_rubric")),
         "diversity_plan": str(payload.get("diversity_plan", "")).strip(),
     }
+
+
+def parse_candidate_pool_response(raw_text: str) -> list[dict[str, Any]]:
+    payload = _loads_json_payload(raw_text)
+    if not isinstance(payload, dict):
+        raise AIGenerationError("Candidate generator response was not a JSON object")
+    rows = payload.get("candidate_pool")
+    if not isinstance(rows, list):
+        raise AIGenerationError("Candidate generator response did not contain a candidate_pool list")
+
+    candidates: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        name = str(row.get("name", "")).strip()
+        if not name:
+            continue
+        key = name.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        candidates.append(
+            {
+                "name": name,
+                "pronunciation": str(row.get("pronunciation", "")).strip(),
+                "territory": str(row.get("territory", "")).strip(),
+                "rationale": str(row.get("rationale", "")).strip(),
+                "strengths": _string_list(row.get("strengths")),
+                "risks": _string_list(row.get("risks")),
+                "tags": _string_list(row.get("tags")),
+                "scores": _scores(row.get("scores")),
+            }
+        )
+    return candidates
 
 
 def parse_ai_generation_response(raw_text: str, vertical_slug: str) -> list[NameResult]:
