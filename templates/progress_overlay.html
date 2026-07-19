@@ -7,6 +7,10 @@
       <span class="progress-node progress-node-one"></span>
       <span class="progress-node progress-node-two"></span>
       <span class="progress-node progress-node-three"></span>
+      {% if vertical is defined and vertical.slug == "baby" %}
+        <span class="baby-thinking-arm baby-thinking-arm-left"></span>
+        <span class="baby-thinking-arm baby-thinking-arm-right"></span>
+      {% endif %}
       <span class="progress-visual-label">{% if vertical is defined and vertical.slug == "baby" %}Family fit{% else %}Identity fit{% endif %}</span>
     </div>
     <div class="progress-copy">

@@ -36,6 +36,7 @@ class PhaseFourteenProgressExperienceTest(unittest.TestCase):
         self.assertIn("Checking sound and use", body)
         self.assertIn("data-progress-visual", body)
         self.assertIn("progress-node-center", body)
+        self.assertNotIn("baby-thinking-arm", body)
         self.assertIn("Identity fit", body)
         self.assertIn("data-progress-headline", body)
         self.assertIn("js/progress.js", body)
@@ -121,6 +122,23 @@ class PhaseFourteenProgressExperienceTest(unittest.TestCase):
         self.assertIn("max-height: calc(100vh - 28px)", css)
         self.assertIn("text-align: center", css)
         self.assertIn("background: #fff8ef", css)
+
+    def test_baby_progress_bear_has_waving_arms(self):
+        response = self.client.get("/baby")
+
+        self.assertEqual(response.status_code, 200)
+        body = response.get_data(as_text=True)
+        self.assertIn("baby-thinking-panel", body)
+        self.assertIn("baby-thinking-arm baby-thinking-arm-left", body)
+        self.assertIn("baby-thinking-arm baby-thinking-arm-right", body)
+
+        css_path = os.path.join(self.app.static_folder, "css", "platform.css")
+        with open(css_path, encoding="utf-8") as css_file:
+            css = css_file.read()
+
+        self.assertIn("baby-thinking-left-arm-wave", css)
+        self.assertIn("baby-thinking-right-arm-wave", css)
+        self.assertIn("progress-visual > :not(.baby-thinking-arm)", css)
 
 
 if __name__ == "__main__":
