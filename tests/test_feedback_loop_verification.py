@@ -151,8 +151,9 @@ class FeedbackLoopVerificationTest(unittest.TestCase):
         second = build_local_taste_strategy(self.vertical, feeling_heavy, 1, count=8)
 
         self.assertNotEqual(first["slider_weighting"], second["slider_weighting"])
-        self.assertEqual(80, first["slider_weighting"]["taste_strength_name_style"])
-        self.assertEqual(80, second["slider_weighting"]["taste_strength_fit_and_feeling"])
+        self.assertTrue(first["slider_weighting"]["has_slider_weights"])
+        self.assertEqual(80, first["slider_weighting"]["weights_0_to_100"]["name style"])
+        self.assertEqual(80, second["slider_weighting"]["weights_0_to_100"]["fit and feeling"])
 
     def test_editing_intake_changes_taste_thesis_and_prompt_direction(self):
         classic_soft = build_brief(
