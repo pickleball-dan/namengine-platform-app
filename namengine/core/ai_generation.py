@@ -28,7 +28,7 @@ from namengine.core.validation import validate_results
 
 
 DEFAULT_MODEL = "gpt-4.1-mini"
-DEFAULT_TIMEOUT_SECONDS = 8.0
+DEFAULT_TIMEOUT_SECONDS = 60.0
 PROMPT_VERSION = DEFAULT_PROMPT_VERSION
 TASTE_STRATEGY_SCHEMA_NAME = "namengine_taste_strategy_v1"
 CANDIDATE_POOL_SCHEMA_NAME = "namengine_candidate_pool_v1"

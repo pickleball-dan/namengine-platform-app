@@ -4,14 +4,14 @@ services:
     runtime: python
     plan: starter
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --timeout 240
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.4
       - key: NAMENGINE_OPENAI_MODEL
         value: gpt-4.1-mini
       - key: NAMENGINE_OPENAI_TIMEOUT_SECONDS
-        value: "8"
+        value: "60"
       - key: NAMENGINE_OPENAI_MAX_OUTPUT_TOKENS
         value: "2600"
       - key: NAMENGINE_AI_PRIMARY_VERTICALS

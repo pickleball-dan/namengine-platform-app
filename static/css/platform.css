@@ -8032,6 +8032,159 @@ button {
   .baby-recovery-shell { width: 100%; min-height: 100svh; border: 0; border-radius: 0; box-shadow: none; }
 }
 
+/* Baby final direction step: align with the illustrated conversation UI. */
+.vertical-baby:has(.baby-final-step) {
+  --baby-coral: #ff6b57;
+  --baby-navy: #102b54;
+  --baby-cream: #fffaf5;
+  --baby-blush: #fff0eb;
+  --baby-blue: #eaf4ff;
+  --baby-lavender: #f3edff;
+  --baby-gold: #fff4dc;
+  --baby-sage: #9eb497;
+  min-width: 0;
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at 8% 6%, rgba(255, 188, 166, 0.24), transparent 25%),
+    radial-gradient(circle at 92% 92%, rgba(184, 210, 174, 0.18), transparent 27%),
+    #fff5ed;
+}
+
+.vertical-baby:has(.baby-final-step) .site-header,
+.vertical-baby:has(.baby-final-step) .site-footer {
+  display: none;
+}
+
+.vertical-baby:has(.baby-final-step) main,
+.vertical-baby .baby-final-step {
+  width: 100%;
+  min-width: 0;
+  min-height: 100svh;
+}
+
+.vertical-baby .baby-final-conversation {
+  --baby-coral: #ff6b57;
+  --baby-navy: #102b54;
+  --baby-cream: #fffaf5;
+  --baby-blush: #fff0eb;
+  --baby-blue: #eaf4ff;
+  --baby-lavender: #f3edff;
+  --baby-gold: #fff4dc;
+  --baby-sage: #9eb497;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  width: min(calc(100% - clamp(28px, 4vw, 56px)), 1230px);
+  min-height: calc(100svh - clamp(28px, 4vw, 56px));
+  margin: clamp(14px, 2vw, 28px) auto;
+  padding: clamp(24px, 3vw, 42px) clamp(28px, 5vw, 76px) clamp(22px, 3vw, 38px);
+  overflow: hidden;
+  background:
+    linear-gradient(150deg, rgba(255, 255, 255, 0.96), rgba(255, 250, 245, 0.96)),
+    var(--baby-cream);
+  border: 1px solid rgba(255, 107, 87, 0.08);
+  border-radius: clamp(24px, 2.5vw, 36px);
+  box-shadow: 0 28px 90px rgba(61, 44, 48, 0.1);
+}
+
+.vertical-baby .baby-final-conversation .baby-interview-header {
+  grid-template-columns: minmax(220px, 300px);
+  justify-content: end;
+  padding-bottom: clamp(24px, 3vh, 34px);
+}
+
+.vertical-baby .baby-final-conversation .baby-progress-title {
+  color: var(--baby-navy);
+}
+
+.vertical-baby .baby-final-conversation .baby-progress-track {
+  height: 7px;
+  background: rgba(16, 43, 84, 0.1);
+}
+
+.vertical-baby .baby-final-conversation .baby-progress-track span {
+  background: var(--baby-coral);
+}
+
+.vertical-baby .baby-final-conversation .baby-final-question {
+  align-self: center;
+  max-width: 880px;
+  margin-inline: auto;
+}
+
+.vertical-baby .baby-final-conversation .baby-question-heading h1 {
+  max-width: 780px;
+  margin: 0;
+  color: var(--baby-navy);
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(48px, 5.2vw, 68px);
+  font-weight: 700;
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+}
+
+.vertical-baby .baby-final-conversation .baby-question-lede {
+  max-width: 680px;
+}
+
+.vertical-baby .baby-final-conversation .baby-choice-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-height: none;
+  overflow: visible;
+}
+
+.vertical-baby .baby-final-conversation .baby-skip {
+  margin-top: 16px;
+  color: #53627a;
+}
+
+.vertical-baby .baby-final-conversation .baby-skip:is(:hover, :focus-visible) {
+  color: var(--baby-navy);
+  background: #fff7f4;
+}
+
+.vertical-baby .baby-final-conversation .baby-answer-confirmation {
+  color: #6d8a65;
+  text-align: left;
+}
+
+@media (max-width: 760px) {
+  .vertical-baby .baby-final-conversation {
+    width: 100%;
+    min-height: 100svh;
+    margin: 0;
+    padding: 18px 16px max(22px, env(safe-area-inset-bottom));
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .vertical-baby .baby-final-conversation .baby-interview-header {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    gap: 18px;
+    padding-bottom: 28px;
+  }
+
+  .vertical-baby .baby-final-conversation .baby-question-progress {
+    width: min(78vw, 320px);
+    max-width: 100%;
+  }
+
+  .vertical-baby .baby-final-conversation .baby-progress-title,
+  .vertical-baby .baby-final-conversation .baby-progress-count {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .vertical-baby .baby-final-conversation .baby-question-heading h1 {
+    font-size: clamp(42px, 12vw, 56px);
+  }
+
+  .vertical-baby .baby-final-conversation .baby-choice-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .vertical-baby *,
   .vertical-baby *::before,

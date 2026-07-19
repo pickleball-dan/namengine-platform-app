@@ -34,7 +34,8 @@
       button.dataset.babyWeight.split(',').forEach((weight, index) => {
         if (inputs[index]) inputs[index].value = weight;
       });
-      completeAndSubmit(`Saved — ${button.querySelector('span').textContent}`);
+      const label = button.dataset.babyLabel || button.querySelector('.baby-choice-copy strong, span')?.textContent || 'your direction';
+      completeAndSubmit(`Saved — ${label}`);
     });
     return;
   }

@@ -7,7 +7,7 @@
   const note = document.querySelector("[data-progress-note]");
   const steps = Array.from(document.querySelectorAll("[data-progress-step]"));
   const forms = Array.from(document.querySelectorAll("form"));
-  const minimumProgressMs = 10000;
+  const minimumProgressMs = 18000;
   const defaultLongWaitMessages = [
     "Working hard to get your perfect matches.",
     "Exploring meaning, sound, and cultural fit.",
@@ -15,10 +15,12 @@
     "Almost there — shaping the final shortlist."
   ];
   const babyLongWaitMessages = [
-    "Bringing together everything you shared…",
-    "Exploring names that fit your style…",
-    "Looking at sound, meaning, and feeling…",
-    "Finding names worth considering…"
+    "Interpreting your naming taste…",
+    "Building a broader candidate pool…",
+    "Comparing names against your story and style…",
+    "Rejecting weaker fits before we show you finalists…",
+    "Shaping the shortlist — quality matters more than speed…",
+    "Still working. We’re keeping the page here while NamEngine thinks…"
   ];
   const petLongWaitMessages = [
     "Getting to know their personality...",
