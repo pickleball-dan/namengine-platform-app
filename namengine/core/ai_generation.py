@@ -1097,7 +1097,7 @@ def _openai_timeout_seconds() -> float:
         value = float(raw_value)
     except ValueError:
         return DEFAULT_TIMEOUT_SECONDS
-    return max(1.0, value)
+    return max(DEFAULT_TIMEOUT_SECONDS, value)
 
 
 def _openai_max_output_tokens() -> int:

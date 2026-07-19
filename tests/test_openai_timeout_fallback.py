@@ -30,7 +30,7 @@ class OpenAITimeoutFallbackTest(unittest.TestCase):
         )
 
     def test_production_timeout_allows_three_pass_quality_generation_and_sdk_retries_are_disabled(self):
-        with patch.dict("os.environ", {"NAMENGINE_OPENAI_TIMEOUT_SECONDS": "60"}), patch(
+        with patch.dict("os.environ", {"NAMENGINE_OPENAI_TIMEOUT_SECONDS": "8"}), patch(
             "openai.OpenAI"
         ) as client_factory:
             _default_client()
