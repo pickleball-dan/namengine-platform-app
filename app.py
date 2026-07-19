@@ -1123,9 +1123,18 @@ def _generate_names_for_route(vertical, brief: NamingBrief) -> list[NameResult]:
                 safe_message
             ) from exc
         for name in names:
-            name.metadata.setdefault("source", "openai")
-            name.metadata.setdefault("provider", "openai")
-            name.metadata["llm_required"] = True
+            provider = str(name.metadata.get("provider") or name.metadata.get("source") or "").lower()
+            is_llm_result = provider in {ModelProvider.OPENAI.value, "ai"}
+            if is_llm_result:
+                name.metadata.setdefault("source", ModelProvider.OPENAI.value)
+                name.metadata.setdefault("provider", ModelProvider.OPENAI.value)
+                name.metadata["llm_required"] = True
+            else:
+                name.metadata.setdefault("source", provider or ModelProvider.FALLBACK.value)
+                name.metadata.setdefault("provider", provider or ModelProvider.FALLBACK.value)
+                name.metadata["llm_required"] = False
+                name.metadata["ai_primary_fallback"] = True
+            name.metadata["ai_primary_requested"] = True
         return names
 
     return generate_names(vertical, brief, use_ai=False)
