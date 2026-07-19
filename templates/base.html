@@ -15,7 +15,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/platform.css') }}?v=20260716-homepage-shared-layout-hotfix-v1-approved-brand-v2">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/platform.css') }}?v=20260719-homepage-header-scale-cleanup-v1">
   </head>
   <body {% if vertical is defined %}class="vertical-{{ vertical.slug }}" style="{{ vertical_theme_style(vertical) }}"{% endif %}>
     {% set active_brand_logo = vertical.assets.get("header_logo") if vertical is defined and vertical.assets.get("header_logo") else "images/namengine.svg" %}
@@ -46,7 +46,7 @@
     <footer class="site-footer">
       <div class="footer-brand-block">
         <img class="footer-brand-logo" src="{{ url_for('static', filename=active_brand_logo) }}" alt="{{ active_brand_alt }}">
-        <span>AI-assisted name discovery. Beta outputs need human review.</span>
+        <span>AI-assisted name discovery, guided by your taste and final judgment.</span>
       </div>
       <nav class="footer-links" aria-label="Legal and trust links">
         <a href="/privacy">Privacy</a>

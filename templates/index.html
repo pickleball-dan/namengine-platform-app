@@ -3,29 +3,19 @@
 {% block title %}NamEngine{% endblock %}
 
 {% block content %}
-<section class="home-hero home-hero-flagship">
-  <div class="home-hero-copy">
-    <div class="home-brand-lockup home-flagship-lockup">
-      <span class="home-hero-mark" aria-hidden="true">n</span>
-      <p class="eyebrow">The TASTE ENGINE</p>
-    </div>
-    <h1>Find the name that feels right.</h1>
-    <p>
-      NamEngine shapes names around what you are naming, then learns from your
-      reactions until the direction feels clear, calm, and genuinely usable.
-    </p>
-    <div class="home-proof-strip" aria-label="NamEngine strengths">
-      <span>Emotion-aware</span>
-      <span>Reaction-trained</span>
-      <span>Built for decisions</span>
-    </div>
+{% set home_card_logos = {
+  "baby": "images/namengine-baby.svg",
+  "pet": "images/namengine-pets.svg",
+  "business": "images/namengine-biz.svg"
+} %}
+<section class="home-hero home-hero-flagship home-hero-clean">
+  <div class="home-hero-copy home-hero-actions-only">
     <div class="hero-actions">
-      <a class="button-link" href="/baby">Start Baby Naming</a>
-      <a class="button-link secondary-button home-secondary-button" href="#verticals">Explore all naming experiences</a>
+      <a class="button-link secondary-button home-secondary-button" href="#engine-options">Explore all naming experiences</a>
     </div>
   </div>
 
-  <aside class="home-visual-panel home-taste-panel" aria-label="How NamEngine adapts taste across naming experiences">
+  <aside id="engine-options" class="home-visual-panel home-taste-panel" aria-label="How NamEngine adapts taste across naming experiences">
     <div class="home-panel-heading">
       <span>Inside the engine</span>
       <strong>One thoughtful process, tuned to what you’re naming.</strong>
@@ -38,50 +28,14 @@
           href="{{ item.route_prefix }}"
           style="--signal-accent: {{ item.theme.get('accent', '#18212f') }}; --signal-soft: {{ item.theme.get('accent_soft', 'rgba(24, 33, 47, 0.08)') }}; --signal-warm: {{ item.theme.get('accent_warm', '#f2b84b') }};"
         >
-          <img src="{{ url_for('static', filename=item.assets.get('card_logo', item.assets.get('logo'))) }}" alt="NamEngine {{ item.display_name }}">
+          <img class="home-signal-wordmark" src="{{ url_for('static', filename=home_card_logos.get(slug, item.assets.get('card_logo', item.assets.get('logo')))) }}" alt="NamEngine {{ item.display_name }}">
           <span>
-            <strong>{{ item.display_name }}</strong>
             <small>{{ item.visual.hero_message }}</small>
           </span>
-          <em>{{ item.visual.identity_points[0] }}</em>
         </a>
       {% endfor %}
     </div>
   </aside>
 </section>
 
-<section class="home-verticals" id="verticals" aria-label="Choose a vertical">
-  <div class="section-heading">
-    <h2>Choose what you’re naming.</h2>
-    <p class="section-support">Every NamEngine experience uses the same thoughtful process, tailored to each type of name.</p>
-  </div>
-
-  <div class="vertical-grid home-vertical-grid">
-    {% for slug in ["baby", "pet", "business"] %}
-      {% set item = verticals[slug] %}
-      <a
-        class="vertical-card home-vertical-card"
-        href="{{ item.route_prefix }}"
-        aria-label="NamEngine {{ item.display_name }}"
-        style="--card-accent: {{ item.theme.get('accent', '#18212f') }}; --card-soft: {{ item.theme.get('accent_soft', 'rgba(24, 33, 47, 0.08)') }}; --card-warm-soft: {{ item.theme.get('accent_warm_soft', 'rgba(242, 184, 75, 0.16)') }};"
-      >
-        <img
-          src="{{ url_for('static', filename=item.assets.get('card_logo', item.assets.get('logo'))) }}"
-          alt="NamEngine {{ item.display_name }}"
-          class="vertical-card-logo home-vert-logo"
-        >
-        <div class="home-card-copy">
-          <strong class="vertical-name">{{ item.display_name }}</strong>
-          <span class="vertical-label">{{ item.object_label|capitalize }}</span>
-          <p>{{ item.visual.hero_message }}</p>
-        </div>
-        <div class="home-card-points" aria-label="{{ item.display_name }} signals">
-          {% for point in item.visual.identity_points[:3] %}
-            <span>{{ point }}</span>
-          {% endfor %}
-        </div>
-      </a>
-    {% endfor %}
-  </div>
-</section>
 {% endblock %}

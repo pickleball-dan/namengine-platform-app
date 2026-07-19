@@ -13,10 +13,10 @@
   --accent-pet: #f2b84b;
   --accent-soft: rgba(24, 33, 47, 0.08);
   --accent-warm-soft: rgba(242, 184, 75, 0.16);
-  --brand-header-master-width: 170px;
-  --brand-header-baby-width: 184px;
-  --brand-header-mobile-master-width: 148px;
-  --brand-header-mobile-baby-width: 160px;
+  --brand-header-master-width: 230px;
+  --brand-header-baby-width: 236px;
+  --brand-header-mobile-master-width: 176px;
+  --brand-header-mobile-baby-width: 184px;
   --brand-footer-master-width: 148px;
   --brand-footer-baby-width: 160px;
   --brand-home-width: 260px;
@@ -93,9 +93,9 @@ a {
 }
 
 .brand-logo-wordmark {
-  width: min(var(--brand-header-master-width), 46vw);
+  width: min(var(--brand-header-master-width), 48vw);
   height: auto;
-  max-height: 42px;
+  max-height: 58px;
 }
 
 .vertical-baby .site-header .brand-logo-wordmark {
@@ -105,9 +105,10 @@ a {
 .site-nav {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 22px;
   flex-wrap: wrap;
-  font-size: 14px;
+  font-size: 17px;
+  font-weight: 650;
 }
 
 .site-nav a {
@@ -2872,6 +2873,12 @@ button {
   border-radius: 34px;
 }
 
+.home-hero.home-hero-flagship.home-hero-clean {
+  grid-template-columns: minmax(0, 760px);
+  justify-content: center;
+  gap: 24px;
+}
+
 .home-hero.home-hero-flagship::before {
   position: absolute;
   right: -80px;
@@ -2945,18 +2952,31 @@ button {
   font-size: clamp(26px, 3vw, 36px);
 }
 
+.home-hero-actions-only {
+  align-self: end;
+}
+
+.home-hero-actions-only .hero-actions {
+  margin-top: 0;
+}
+
+.home-hero-actions-only .button-link.home-secondary-button {
+  width: 100%;
+}
+
 .home-taste-panel .home-signal-card {
-  grid-template-columns: 44px minmax(0, 1fr) auto;
-  min-height: 82px;
-  padding: 14px;
+  grid-template-columns: minmax(168px, 0.42fr) minmax(0, 1fr);
+  min-height: 96px;
+  padding: 18px 20px;
   border-radius: 18px;
   border-left-width: 5px;
   box-shadow: 0 12px 30px rgba(24, 33, 47, 0.06);
 }
 
-.home-taste-panel .home-signal-card img {
-  width: 44px;
-  height: 44px;
+.home-taste-panel .home-signal-card img.home-signal-wordmark {
+  width: min(190px, 100%);
+  height: auto;
+  max-height: 58px;
 }
 
 @media (max-width: 760px) {
@@ -2980,18 +3000,13 @@ button {
   }
 
   .home-taste-panel .home-signal-card {
-    grid-template-columns: 40px minmax(0, 1fr);
-    gap: 10px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
   }
 
-  .home-taste-panel .home-signal-card img {
-    width: 40px;
-    height: 40px;
-  }
-
-  .home-taste-panel .home-signal-card em {
-    grid-column: 2;
-    justify-self: start;
+  .home-taste-panel .home-signal-card img.home-signal-wordmark {
+    width: min(210px, 86%);
+    max-height: 56px;
   }
 }
 

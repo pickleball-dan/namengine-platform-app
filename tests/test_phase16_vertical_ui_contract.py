@@ -296,20 +296,25 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("home-hero home-hero-flagship", body)
-        self.assertIn("home-proof-strip", body)
+        self.assertNotIn("home-proof-strip", body)
         self.assertIn("home-taste-panel", body)
         self.assertIn("Inside the engine", body)
         self.assertIn("One thoughtful process, tuned to what you’re naming.", body)
-        self.assertIn("home-vertical-grid", body)
-        self.assertIn("home-vertical-card", body)
-        self.assertIn("images/pet/namengine-pet-logo-transparent.png", body)
-        self.assertIn("images/namengine-baby-icon.svg", body)
-        self.assertIn("images/business/namengine-business-logo.png", body)
+        self.assertNotIn("home-vertical-grid", body)
+        self.assertNotIn("home-vertical-card", body)
+        self.assertIn("images/namengine-pets.svg", body)
+        self.assertIn("images/namengine-baby.svg", body)
+        self.assertIn("images/namengine-biz.svg", body)
+        self.assertNotIn("images/namengine-pets-icon.svg", body)
+        self.assertNotIn("images/namengine-baby-icon.svg", body)
+        self.assertNotIn("images/namengine-biz-icon.svg", body)
+        self.assertNotIn("images/pet/namengine-pet-logo-transparent.png", body)
+        self.assertNotIn("images/business/namengine-business-logo.png", body)
         self.assertNotIn("images/product/namengine-product-logo.png", body)
         self.assertNotIn("images/character-logo.svg", body)
         self.assertNotIn("Pick your vertical", body)
-        self.assertIn('href="/baby">Start Baby Naming</a>', body)
-        self.assertIn('href="#verticals">Explore all naming experiences</a>', body)
+        self.assertNotIn('href="/baby">Start Baby Naming</a>', body)
+        self.assertIn('href="#engine-options">Explore all naming experiences</a>', body)
         for removed_badge in (
             "Mobile-first",
             "Baby paid beta ready",
@@ -317,9 +322,10 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
             "Privacy + disclaimers",
         ):
             self.assertNotIn(removed_badge, body)
-        self.assertIn("Choose what you’re naming.", body)
-        self.assertIn("Every NamEngine experience uses the same thoughtful process", body)
-        self.assertIn("The TASTE ENGINE", body)
+        self.assertNotIn("Choose what you’re naming.", body)
+        self.assertNotIn("Every NamEngine experience uses the same thoughtful process", body)
+        self.assertNotIn("The TASTE ENGINE", body)
+        self.assertNotIn("home-brand-lockup", body)
         self.assertNotIn("home-brand-logo", body)
         self.assertNotIn("Shared vertical system", body)
         self.assertNotIn("Shared product system", body)
@@ -334,8 +340,8 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn("Let’s shape the right baby name.", body)
         self.assertIn("Find a name your business can grow into.", body)
         self.assertNotIn("Find a name your product can wear in the real world.", body)
-        for signal in ("Sound", "Family fit", "Personality", "Category fit", "Launch risk"):
-            self.assertIn(signal, body)
+        for removed_card_signal in ("Sound", "Category fit", "Family fit", "Personality", "Launch risk"):
+            self.assertNotIn(removed_card_signal, body)
         self.assertNotIn("practical parent decision card", body)
         self.assertNotIn("brand decision card with launch risks", body)
 
