@@ -7120,56 +7120,7 @@ button {
   animation: baby-thinking-bubble 2.2s ease-in-out infinite;
 }
 
-.vertical-baby .baby-thinking-panel .progress-visual > :not(.baby-thinking-arm) { display: none; }
-
-.vertical-baby .baby-thinking-panel .baby-thinking-arm {
-  position: absolute;
-  top: 35%;
-  z-index: 2;
-  width: 10.5%;
-  aspect-ratio: 1;
-  background: radial-gradient(circle at 45% 36%, #ffe1b5 0 24%, #f1bd82 54%, #d58f5d 100%);
-  border: 1px solid rgba(137, 86, 55, 0.12);
-  border-radius: 48% 52% 56% 44%;
-  box-shadow: 0 5px 12px rgba(61, 44, 48, 0.09);
-  opacity: 0.9;
-  transform-origin: 50% 104%;
-}
-
-.vertical-baby .baby-thinking-panel .baby-thinking-arm::after {
-  position: absolute;
-  left: 50%;
-  bottom: 21%;
-  width: 36%;
-  aspect-ratio: 1;
-  content: "";
-  background: rgba(255, 151, 132, 0.34);
-  border-radius: 999px;
-  box-shadow:
-    -7px -7px 0 -4px rgba(255, 151, 132, 0.3),
-    7px -7px 0 -4px rgba(255, 151, 132, 0.3);
-  transform: translateX(-50%);
-}
-
-.vertical-baby .baby-thinking-panel .baby-thinking-arm-left {
-  left: 31%;
-  transform: rotate(-16deg);
-}
-
-.vertical-baby .baby-thinking-panel .baby-thinking-arm-right {
-  right: 31%;
-  transform: rotate(16deg);
-}
-
-.vertical-baby .baby-thinking-panel .progress-visual.is-searching .baby-thinking-arm-left,
-.vertical-baby .baby-thinking-panel .progress-visual.is-pulsing .baby-thinking-arm-left {
-  animation: baby-thinking-left-arm-wave 1.15s ease-in-out infinite;
-}
-
-.vertical-baby .baby-thinking-panel .progress-visual.is-searching .baby-thinking-arm-right,
-.vertical-baby .baby-thinking-panel .progress-visual.is-pulsing .baby-thinking-arm-right {
-  animation: baby-thinking-right-arm-wave 1.15s ease-in-out infinite 120ms;
-}
+.vertical-baby .baby-thinking-panel .progress-visual > * { display: none; }
 
 .vertical-baby .baby-thinking-panel .progress-copy h2 {
   color: var(--baby-ui-navy);
@@ -7193,16 +7144,6 @@ button {
 @keyframes baby-thinking-bubble {
   0%, 100% { opacity: 0.42; transform: translate(0, 4px) scale(0.9); }
   50% { opacity: 0.9; transform: translate(6px, -7px) scale(1.08); }
-}
-
-@keyframes baby-thinking-left-arm-wave {
-  0%, 100% { transform: rotate(-26deg) translateY(0); }
-  50% { transform: rotate(-54deg) translateY(-7px); }
-}
-
-@keyframes baby-thinking-right-arm-wave {
-  0%, 100% { transform: rotate(26deg) translateY(0); }
-  50% { transform: rotate(54deg) translateY(-7px); }
 }
 
 .baby-recovery-page {
