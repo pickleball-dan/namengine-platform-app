@@ -56,6 +56,8 @@ class ApprovedBrandingAssetsTest(unittest.TestCase):
         self.assertIn('/static/images/namengine-baby.svg', body)
         welcome = body.split('<div class="baby-welcome">', 1)[1].split('<div class="hero-actions">', 1)[0]
         self.assertNotIn('/static/images/namengine-baby.svg', welcome)
+        self.assertNotIn('class="vertical-page-logo', body)
+        self.assertNotIn('class="baby-interview-brand', body)
         self.assertNotIn("images/baby/namengine-baby-logo.png", body)
         self.assertNotIn("images/baby/namengine-baby-logo.svg", body)
 

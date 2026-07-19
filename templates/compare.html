@@ -5,7 +5,7 @@
 {% block content %}
   <section class="compare-shell">
     {% set page_logo = vertical.assets.get("page_logo", vertical.assets.get("logo")) %}
-    {% if page_logo %}
+    {% if page_logo and vertical.slug != "baby" %}
       <img class="vertical-page-logo small" src="{{ url_for('static', filename=page_logo) }}" alt="NamEngine {{ vertical.display_name }} logo">
     {% endif %}
     <p class="eyebrow">{% if vertical.slug == "baby" %}Your shortlist{% else %}Compare Favorites{% endif %}</p>

@@ -7094,6 +7094,32 @@ button {
   box-shadow: none;
 }
 
+.vertical-baby .baby-thinking-panel .progress-visual.is-searching {
+  animation: baby-thinking-bear-breathe 1.8s ease-in-out infinite;
+}
+
+.vertical-baby .baby-thinking-panel .progress-visual.is-pulsing {
+  animation: baby-thinking-bear-breathe 1.8s ease-in-out infinite,
+    baby-thinking-bear-hop 720ms ease-out;
+}
+
+.vertical-baby .baby-thinking-panel .progress-visual::after {
+  position: absolute;
+  right: 12%;
+  top: 16%;
+  width: 13%;
+  aspect-ratio: 1;
+  content: "";
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(255, 107, 87, 0.22);
+  border-radius: 999px;
+  box-shadow:
+    18px 18px 0 -5px rgba(255, 255, 255, 0.74),
+    18px 18px 0 -4px rgba(255, 107, 87, 0.12);
+  opacity: 0.72;
+  animation: baby-thinking-bubble 2.2s ease-in-out infinite;
+}
+
 .vertical-baby .baby-thinking-panel .progress-visual > * { display: none; }
 
 .vertical-baby .baby-thinking-panel .progress-copy h2 {
@@ -7103,6 +7129,22 @@ button {
 
 .vertical-baby .baby-thinking-panel .progress-steps li.is-active { color: var(--baby-ui-coral); }
 .vertical-baby .baby-thinking-panel .progress-steps li.is-complete { color: var(--baby-ui-green); }
+
+@keyframes baby-thinking-bear-breathe {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-5px) scale(1.025); }
+}
+
+@keyframes baby-thinking-bear-hop {
+  0% { transform: translateY(0) scale(1); }
+  45% { transform: translateY(-14px) scale(1.035); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+@keyframes baby-thinking-bubble {
+  0%, 100% { opacity: 0.42; transform: translate(0, 4px) scale(0.9); }
+  50% { opacity: 0.9; transform: translate(6px, -7px) scale(1.08); }
+}
 
 .baby-recovery-page {
   min-width: 0;

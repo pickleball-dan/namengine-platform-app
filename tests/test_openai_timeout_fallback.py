@@ -29,14 +29,14 @@ class OpenAITimeoutFallbackTest(unittest.TestCase):
             {"gender": "Girl", "style": "Playful", "sound": "Soft and flowing"},
         )
 
-    def test_production_timeout_is_24_seconds_and_sdk_retries_are_disabled(self):
-        with patch.dict("os.environ", {"NAMENGINE_OPENAI_TIMEOUT_SECONDS": "24"}), patch(
+    def test_production_timeout_is_8_seconds_and_sdk_retries_are_disabled(self):
+        with patch.dict("os.environ", {"NAMENGINE_OPENAI_TIMEOUT_SECONDS": "8"}), patch(
             "openai.OpenAI"
         ) as client_factory:
             _default_client()
             timeout_seconds = _openai_timeout_seconds()
 
-        self.assertEqual(timeout_seconds, 24.0)
+        self.assertEqual(timeout_seconds, 8.0)
         client_factory.assert_called_once_with(max_retries=0)
 
     def test_openai_timeout_is_a_concise_expected_provider_event(self):
