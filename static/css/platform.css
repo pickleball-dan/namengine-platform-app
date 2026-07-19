@@ -7124,25 +7124,26 @@ button {
 
 .vertical-baby .baby-thinking-panel .baby-thinking-arm {
   position: absolute;
-  top: 49%;
+  top: 38%;
   z-index: 2;
-  width: 23%;
-  height: 13%;
-  background: linear-gradient(135deg, #b77b58, #8f573a);
-  border: 2px solid rgba(115, 70, 49, 0.18);
-  border-radius: 999px 999px 72% 72%;
-  box-shadow: 0 8px 16px rgba(61, 44, 48, 0.14);
-  transform-origin: 50% 18%;
+  width: 13%;
+  height: 8%;
+  background: linear-gradient(135deg, #f4c891, #d99a67);
+  border: 1px solid rgba(137, 86, 55, 0.14);
+  border-radius: 999px 999px 78% 78%;
+  box-shadow: 0 5px 10px rgba(61, 44, 48, 0.08);
+  opacity: 0.92;
+  transform-origin: 50% 90%;
 }
 
 .vertical-baby .baby-thinking-panel .baby-thinking-arm-left {
-  left: 21%;
-  transform: rotate(26deg);
+  left: 28%;
+  transform: rotate(-26deg);
 }
 
 .vertical-baby .baby-thinking-panel .baby-thinking-arm-right {
-  right: 21%;
-  transform: rotate(-26deg);
+  right: 28%;
+  transform: rotate(26deg);
 }
 
 .vertical-baby .baby-thinking-panel .progress-visual.is-searching .baby-thinking-arm-left,
@@ -7180,13 +7181,13 @@ button {
 }
 
 @keyframes baby-thinking-left-arm-wave {
-  0%, 100% { transform: rotate(26deg) translateY(0); }
-  50% { transform: rotate(50deg) translateY(-8px); }
+  0%, 100% { transform: rotate(-26deg) translateY(0); }
+  50% { transform: rotate(-54deg) translateY(-7px); }
 }
 
 @keyframes baby-thinking-right-arm-wave {
-  0%, 100% { transform: rotate(-26deg) translateY(0); }
-  50% { transform: rotate(-50deg) translateY(-8px); }
+  0%, 100% { transform: rotate(26deg) translateY(0); }
+  50% { transform: rotate(54deg) translateY(-7px); }
 }
 
 .baby-recovery-page {
