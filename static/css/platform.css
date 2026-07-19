@@ -2853,6 +2853,148 @@ button {
   }
 }
 
+/* Flagship homepage: make the main landing page feel like the product doorway. */
+.home-hero.home-hero-flagship {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 0.98fr) minmax(320px, 0.86fr);
+  gap: clamp(26px, 5vw, 56px);
+  align-items: center;
+  min-height: 0;
+  padding: clamp(40px, 7vw, 86px) clamp(18px, 4vw, 42px) clamp(42px, 6vw, 72px);
+  overflow: hidden;
+  text-align: left;
+  background:
+    radial-gradient(circle at 8% 8%, rgba(95, 180, 129, 0.12), transparent 30%),
+    radial-gradient(circle at 92% 14%, rgba(242, 184, 75, 0.16), transparent 34%),
+    linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  border: 1px solid rgba(24, 33, 47, 0.06);
+  border-radius: 34px;
+}
+
+.home-hero.home-hero-flagship::before {
+  position: absolute;
+  right: -80px;
+  bottom: -110px;
+  width: 270px;
+  aspect-ratio: 1;
+  content: "";
+  background: radial-gradient(circle, rgba(18, 172, 194, 0.12), transparent 68%);
+  border-radius: 999px;
+}
+
+.home-flagship-lockup {
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.home-hero-mark {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  color: #18212f;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1;
+  background: #ffffff;
+  border: 1px solid rgba(24, 33, 47, 0.16);
+  border-radius: 999px;
+  box-shadow: 0 10px 26px rgba(24, 33, 47, 0.08);
+}
+
+.home-proof-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 20px 0 0;
+}
+
+.home-proof-strip span {
+  padding: 8px 10px;
+  color: #26364d;
+  font-size: 12px;
+  font-weight: 900;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(24, 33, 47, 0.08);
+  border-radius: 999px;
+  box-shadow: 0 10px 22px rgba(24, 33, 47, 0.05);
+}
+
+.home-taste-panel {
+  position: relative;
+  z-index: 1;
+  gap: 18px;
+  padding: clamp(18px, 3vw, 28px);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.97), rgba(244, 248, 252, 0.92)),
+    #ffffff;
+  border-color: rgba(24, 33, 47, 0.1);
+  border-radius: 26px;
+  box-shadow: 0 28px 80px rgba(24, 33, 47, 0.13);
+}
+
+.home-taste-panel .home-panel-heading span {
+  color: #5f6b7c;
+  letter-spacing: 0.08em;
+}
+
+.home-taste-panel .home-panel-heading strong {
+  max-width: 380px;
+  font-size: clamp(26px, 3vw, 36px);
+}
+
+.home-taste-panel .home-signal-card {
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  min-height: 82px;
+  padding: 14px;
+  border-radius: 18px;
+  border-left-width: 5px;
+  box-shadow: 0 12px 30px rgba(24, 33, 47, 0.06);
+}
+
+.home-taste-panel .home-signal-card img {
+  width: 44px;
+  height: 44px;
+}
+
+@media (max-width: 760px) {
+  main > .home-hero.home-hero-flagship {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+    padding: 30px 16px 36px;
+    background:
+      radial-gradient(circle at 10% 0%, rgba(95, 180, 129, 0.11), transparent 35%),
+      linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    border-radius: 0 0 30px 30px;
+  }
+
+  .home-proof-strip {
+    margin-top: 16px;
+  }
+
+  .home-taste-panel {
+    padding: 16px;
+    border-radius: 24px;
+  }
+
+  .home-taste-panel .home-signal-card {
+    grid-template-columns: 40px minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .home-taste-panel .home-signal-card img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .home-taste-panel .home-signal-card em {
+    grid-column: 2;
+    justify-self: start;
+  }
+}
+
 .home-vert-card {
   display: flex;
   align-items: center;

@@ -3,10 +3,10 @@
 {% block title %}NamEngine{% endblock %}
 
 {% block content %}
-<section class="home-hero">
+<section class="home-hero home-hero-flagship">
   <div class="home-hero-copy">
-    <div class="home-brand-lockup">
-      <img class="home-brand-logo" src="{{ url_for('static', filename='images/namengine.svg') }}" alt="NamEngine">
+    <div class="home-brand-lockup home-flagship-lockup">
+      <span class="home-hero-mark" aria-hidden="true">n</span>
       <p class="eyebrow">The TASTE ENGINE</p>
     </div>
     <h1>Find the name that feels right.</h1>
@@ -14,12 +14,40 @@
       NamEngine shapes names around what you are naming, then learns from your
       reactions until the direction feels clear, calm, and genuinely usable.
     </p>
+    <div class="home-proof-strip" aria-label="NamEngine strengths">
+      <span>Emotion-aware</span>
+      <span>Reaction-trained</span>
+      <span>Built for decisions</span>
+    </div>
     <div class="hero-actions">
       <a class="button-link" href="/baby">Start Baby Naming</a>
       <a class="button-link secondary-button home-secondary-button" href="#verticals">Explore all naming experiences</a>
     </div>
   </div>
 
+  <aside class="home-visual-panel home-taste-panel" aria-label="How NamEngine adapts taste across naming experiences">
+    <div class="home-panel-heading">
+      <span>Inside the engine</span>
+      <strong>One thoughtful process, tuned to what you’re naming.</strong>
+    </div>
+    <div class="home-signal-stack">
+      {% for slug in ["baby", "pet", "business"] %}
+        {% set item = verticals[slug] %}
+        <a
+          class="home-signal-card"
+          href="{{ item.route_prefix }}"
+          style="--signal-accent: {{ item.theme.get('accent', '#18212f') }}; --signal-soft: {{ item.theme.get('accent_soft', 'rgba(24, 33, 47, 0.08)') }}; --signal-warm: {{ item.theme.get('accent_warm', '#f2b84b') }};"
+        >
+          <img src="{{ url_for('static', filename=item.assets.get('card_logo', item.assets.get('logo'))) }}" alt="NamEngine {{ item.display_name }}">
+          <span>
+            <strong>{{ item.display_name }}</strong>
+            <small>{{ item.visual.hero_message }}</small>
+          </span>
+          <em>{{ item.visual.identity_points[0] }}</em>
+        </a>
+      {% endfor %}
+    </div>
+  </aside>
 </section>
 
 <section class="home-verticals" id="verticals" aria-label="Choose a vertical">
