@@ -107,11 +107,11 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("/share/pet-", body)
         self.assertIn("images/reactions/love.jpg", body)
-        self.assertIn("images/reactions/maybe.jpg", body)
+        self.assertNotIn("images/reactions/maybe.jpg", body)
         self.assertIn("images/reactions/no.jpg", body)
-        self.assertNotIn(">Love</button>", body)
-        self.assertNotIn(">Maybe</button>", body)
-        self.assertNotIn(">No</button>", body)
+        self.assertIn('data-reaction-value="love"', body)
+        self.assertIn('data-reaction-value="no"', body)
+        self.assertNotIn('data-reaction-value="maybe"', body)
 
     def test_shared_shortlist_route_renders_saved_session(self):
         query = b"pet_type=Dog&style=Classic&vibe=Playful"

@@ -25,6 +25,15 @@
       "soft",
       "familiar"
     ],
+    "quality_thresholds": {
+      "style_alignment": 0.65,
+      "familiarity_alignment": 0.6,
+      "distinctiveness_alignment": 0.65,
+      "sound_alignment": 0.65,
+      "explanation_specificity": 0.75,
+      "list_diversity": 0.65,
+      "absence_of_obvious_brief_violations": 0.9
+    },
     "contrast_group": "baby-style-core"
   },
   {
@@ -32,7 +41,7 @@
     "label": "Baby · Rare strong distinctive",
     "vertical": "baby",
     "inputs": {
-      "gender": "Girl",
+      "gender": "Boy",
       "discovery_style": "Unexpected finds",
       "style": "Strong and tailored",
       "timeless_vs_distinctive": "Strongly distinctive",
@@ -53,6 +62,15 @@
       "confident",
       "bold"
     ],
+    "quality_thresholds": {
+      "style_alignment": 0.65,
+      "familiarity_alignment": 0.6,
+      "distinctiveness_alignment": 0.7,
+      "sound_alignment": 0.65,
+      "explanation_specificity": 0.75,
+      "list_diversity": 0.65,
+      "absence_of_obvious_brief_violations": 0.9
+    },
     "contrast_group": "baby-style-core"
   },
   {
@@ -85,16 +103,18 @@
   },
   {
     "id": "baby-scandinavian-minimalist",
-    "label": "Baby · Scandinavian minimalist",
+    "label": "Baby · Scandinavian professional and tease-resistant",
     "vertical": "baby",
     "inputs": {
-      "gender": "Neutral",
-      "discovery_style": "Unexpected finds",
-      "style": "Modern",
-      "timeless_vs_distinctive": "More distinctive",
-      "familiarity_preference": "Memorable and rarer",
-      "sound": "Crisp and simple",
-      "notes": "Scandinavian minimalist, clean, calm, spare, not elaborate."
+      "gender": "Boy",
+      "cultural_heritage": "Norwegian",
+      "discovery_style": "Balanced mix",
+      "style": "Strong and tailored",
+      "timeless_vs_distinctive": "Mostly timeless",
+      "familiarity_preference": "Recognizable but not overused",
+      "sound": "Calm",
+      "family_context": "Scandinavian family heritage; must work professionally in the US.",
+      "notes": "Clean, calm, professional, easy to pronounce, and resistant to obvious teasing. Avoid novelty spellings."
     },
     "feelings": {
       "taste_strength_about_your_baby": 20,
@@ -108,6 +128,16 @@
       "calm",
       "simple"
     ],
+    "quality_thresholds": {
+      "style_alignment": 0.6,
+      "familiarity_alignment": 0.6,
+      "distinctiveness_alignment": 0.6,
+      "sound_alignment": 0.6,
+      "cultural_context_alignment": 0.55,
+      "explanation_specificity": 0.75,
+      "list_diversity": 0.65,
+      "absence_of_obvious_brief_violations": 0.9
+    },
     "contrast_group": "baby-style-core"
   },
   {
@@ -191,6 +221,104 @@
       "sound"
     ],
     "contrast_group": "baby-priority"
+  },
+  {
+    "id": "baby-japanese-heritage-playful",
+    "label": "Baby · Japanese heritage playful",
+    "vertical": "baby",
+    "inputs": {
+      "gender": "Girl",
+      "cultural_heritage": "Japanese",
+      "discovery_style": "Balanced mix",
+      "style": "Modern",
+      "timeless_vs_distinctive": "Mostly distinctive",
+      "familiarity_preference": "A little less common",
+      "sound": "Playful",
+      "family_context": "Japanese heritage; readable for relatives in Japan and the US.",
+      "notes": "Bright and playful without becoming cutesy. Avoid names with unclear Japanese grounding."
+    },
+    "feelings": {
+      "taste_strength_about_your_baby": 35,
+      "taste_strength_name_style": 30,
+      "taste_strength_fit_and_feeling": 35
+    },
+    "expected_signals": ["japanese", "playful", "bright", "heritage", "wearable"],
+    "quality_thresholds": {
+      "style_alignment": 0.6,
+      "familiarity_alignment": 0.6,
+      "distinctiveness_alignment": 0.6,
+      "sound_alignment": 0.65,
+      "cultural_context_alignment": 0.55,
+      "explanation_specificity": 0.75,
+      "list_diversity": 0.65,
+      "absence_of_obvious_brief_violations": 0.9
+    },
+    "contrast_group": "baby-quality-v1"
+  },
+  {
+    "id": "baby-african-american-historical",
+    "label": "Baby · African American historical relevance",
+    "vertical": "baby",
+    "inputs": {
+      "gender": "Boy",
+      "cultural_heritage": "African American",
+      "discovery_style": "Rare but wearable",
+      "style": "Strong and tailored",
+      "timeless_vs_distinctive": "Mostly distinctive",
+      "familiarity_preference": "Recognizable but not overused",
+      "sound": "Strong",
+      "cultural_context": "Family heritage",
+      "notes": "Strong historical or literary relevance in African American culture. Avoid generic style-only choices."
+    },
+    "feelings": {
+      "taste_strength_about_your_baby": 55,
+      "taste_strength_name_style": 20,
+      "taste_strength_fit_and_feeling": 25
+    },
+    "expected_signals": ["african american", "historical", "strong", "literary", "heritage"],
+    "quality_thresholds": {
+      "style_alignment": 0.6,
+      "familiarity_alignment": 0.6,
+      "distinctiveness_alignment": 0.6,
+      "sound_alignment": 0.65,
+      "cultural_context_alignment": 0.55,
+      "explanation_specificity": 0.75,
+      "list_diversity": 0.65,
+      "absence_of_obvious_brief_violations": 0.9
+    },
+    "contrast_group": "baby-quality-v1"
+  },
+  {
+    "id": "baby-culturally-neutral-unexpected",
+    "label": "Baby · Culturally neutral unexpected finds",
+    "vertical": "baby",
+    "inputs": {
+      "gender": "Gender-neutral",
+      "cultural_heritage": "No preference",
+      "discovery_style": "Unexpected finds",
+      "style": "Modern",
+      "timeless_vs_distinctive": "Strongly distinctive",
+      "familiarity_preference": "Memorable and rarer",
+      "sound": "Bright",
+      "notes": "Surprising but usable, culturally neutral, easy to say, and not tied to one heritage lane."
+    },
+    "feelings": {
+      "taste_strength_about_your_baby": 15,
+      "taste_strength_name_style": 55,
+      "taste_strength_fit_and_feeling": 30
+    },
+    "expected_signals": ["unexpected", "distinctive", "bright", "neutral", "usable"],
+    "quality_thresholds": {
+      "style_alignment": 0.6,
+      "familiarity_alignment": 0.65,
+      "distinctiveness_alignment": 0.7,
+      "sound_alignment": 0.6,
+      "cultural_context_alignment": 0.8,
+      "explanation_specificity": 0.75,
+      "list_diversity": 0.65,
+      "absence_of_obvious_brief_violations": 0.9
+    },
+    "contrast_group": "baby-quality-v1"
   },
   {
     "id": "pet-dog-callable-friendly",

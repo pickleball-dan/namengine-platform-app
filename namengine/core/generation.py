@@ -4,6 +4,9 @@ from __future__ import annotations
 
 import re
 
+import namengine.core.quality_adapters  # Registers built-in vertical adapters.
+from namengine.core.prompt_versions import prompt_version_for
+from namengine.core.quality_framework import apply_quality_metadata, improve_quality_explanations
 from namengine.core.schemas import (
     NameResult,
     NamingBrief,
@@ -707,6 +710,8 @@ def generate_names(
     previous_names: list[str] | None = None,
     use_ai: bool = False,
 ) -> list[NameResult]:
+    from namengine.core.intake import version_metadata_for_brief
+
     fallback = generate_fallback_names(
         vertical=vertical,
         brief=brief,
@@ -716,6 +721,7 @@ def generate_names(
     )
     for name in fallback:
         name.metadata.setdefault("provider", "fallback")
+        name.metadata.update(version_metadata_for_brief(brief))
 
     if use_ai:
         try:
@@ -1430,7 +1436,12 @@ def _generate_baby_fallback_names(
             )
         )
 
-    return validate_results(vertical, brief, results)[:result_count]
+    selected = validate_results(vertical, brief, results)[:result_count]
+    improve_quality_explanations(vertical.slug, selected, brief)
+    apply_quality_metadata(vertical.slug, selected, brief)
+    for result in selected:
+        result.metadata["prompt_version"] = prompt_version_for(vertical.slug)
+    return selected
 
 
 def _generate_business_fallback_names(

@@ -1,16 +1,31 @@
 {% extends "base.html" %}
 
+{% macro baby_reactions(location) %}
+  <div class="reaction-row baby-detail-reactions" data-result-id="{{ result.id }}" data-reaction-location="{{ location }}" aria-label="How does {{ result.name }} feel?">
+    <button type="button" class="{% if decision_support.current_reaction == 'love' %}is-selected{% endif %}" data-reaction-value="love" data-reaction-label="Love this name" data-result-name="{{ result.name }}" aria-pressed="{{ 'true' if decision_support.current_reaction == 'love' else 'false' }}">
+      Love this name
+    </button>
+    <button type="button" class="{% if decision_support.current_reaction == 'maybe' %}is-selected{% endif %}" data-reaction-value="maybe" data-reaction-label="Keep as a maybe" data-result-name="{{ result.name }}" aria-pressed="{{ 'true' if decision_support.current_reaction == 'maybe' else 'false' }}">
+      Keep as a maybe
+    </button>
+    <button type="button" class="{% if decision_support.current_reaction == 'no' %}is-selected{% endif %}" data-reaction-value="no" data-reaction-label="Not for us" data-result-name="{{ result.name }}" aria-pressed="{{ 'true' if decision_support.current_reaction == 'no' else 'false' }}">
+      Not for us
+    </button>
+  </div>
+  <p class="reaction-status" aria-live="polite"></p>
+{% endmacro %}
+
 {% block title %}{{ result.name }} | NamEngine {{ vertical.display_name }}{% endblock %}
 
 {% block content %}
-  <section class="detail-shell">
+  <section class="detail-shell{% if vertical.slug == 'baby' %} baby-name-detail{% endif %}"{% if vertical.slug == 'baby' %} data-session-id="{{ session.id }}"{% endif %}>
     <div class="detail-hero">
       <div>
         {% set page_logo = vertical.assets.get("page_logo", vertical.assets.get("logo")) %}
-        {% if page_logo %}
+        {% if page_logo and vertical.slug != "baby" %}
           <img class="vertical-page-logo small" src="{{ url_for('static', filename=page_logo) }}" alt="NamEngine {{ vertical.display_name }} logo">
         {% endif %}
-        <p class="eyebrow">NamEngine {{ vertical.display_name }} · Name detail</p>
+        <p class="eyebrow">{% if vertical.slug == "baby" %}A closer look{% else %}NamEngine {{ vertical.display_name }} · Name detail{% endif %}</p>
         <h1>{{ result.name }}</h1>
         {% if result.pronunciation %}
           <p class="chosen-pronunciation">{{ result.pronunciation }}</p>
@@ -19,13 +34,18 @@
           <p class="chosen-tagline">{{ result.tagline }}</p>
         {% endif %}
       </div>
-      <aside class="detail-fit-card">
+      {% if vertical.slug == "baby" %}
+        <div class="baby-detail-hero-actions">
+          {{ baby_reactions("hero") }}
+          <a class="baby-detail-return" href="/results/session/{{ session.id }}">← Return to results</a>
+        </div>
+      {% else %}<aside class="detail-fit-card">
         <p class="chosen-kicker">Best fit</p>
         <p>{{ result.fit_note }}</p>
-      </aside>
+      </aside>{% endif %}
     </div>
 
-    <div class="detail-actions">
+    {% if vertical.slug != "baby" %}<div class="detail-actions">
       <form action="/choose" method="post">
         <input type="hidden" name="session_id" value="{{ session.id }}">
         <input type="hidden" name="result_id" value="{{ result.id }}">
@@ -34,15 +54,127 @@
       <a class="button-link" href="/compare/{{ session.id }}">Compare favorites</a>
       <a class="button-link secondary-button" href="/results/session/{{ session.id }}">Back to results</a>
       <a class="button-link secondary-button" href="/{{ vertical.slug }}?{{ session.brief_json|brief_query_string }}">Adjust direction</a>
-    </div>
+    </div>{% endif %}
 
     {% set domain_info = result.metadata.get("domain_info") if result.metadata else None %}
     {% if domain_info %}
       {% include "_domain_info.html" %}
     {% endif %}
 
-    {% include "_baby_name_fact_card.html" %}
+    {% if vertical.slug == "baby" %}
+      {% if decision_support.recommendation_reason or decision_support.matched_preferences or decision_support.strongest_fit or decision_support.family_fit %}
+        <section class="chosen-detail baby-detail-primary baby-decision-section">
+          <p class="eyebrow">Why this made your list</p>
+          <h2>Why {{ result.name }} is worth considering</h2>
+          {% if decision_support.recommendation_reason %}<p class="baby-decision-lead">{{ decision_support.recommendation_reason }}</p>{% endif %}
+          {% if decision_support.strongest_fit %}
+            <div class="baby-strongest-fit">
+              <strong>Strongest fit</strong>
+              <p>{{ decision_support.strongest_fit }}</p>
+            </div>
+          {% endif %}
+          {% if decision_support.matched_preferences %}
+            <ul class="baby-preference-matches">
+              {% for match in decision_support.matched_preferences %}
+                <li>
+                  <strong>{{ match.preference }}</strong>
+                  <span>{{ match.evidence }} {{ match.fit }}</span>
+                </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+          {% if decision_support.family_fit %}
+            <div class="baby-family-fit">
+              <h3>Family fit</h3>
+              {% for key, note in decision_support.family_fit.items() %}<p>{{ note }}</p>{% endfor %}
+            </div>
+          {% endif %}
+        </section>
+      {% endif %}
 
+      {% if decision_support.real_life_impression or decision_support.nickname_considerations %}
+        <section class="chosen-detail baby-decision-section">
+          <p class="eyebrow">How it may feel in real life</p>
+          <h2>From childhood onward</h2>
+          {% if decision_support.real_life_impression %}
+            <dl class="baby-real-life-grid">
+              {% for key, note in decision_support.real_life_impression.items() %}
+                <div><dt>{{ key|replace('_', ' ')|title }}</dt><dd>{{ note }}</dd></div>
+              {% endfor %}
+            </dl>
+          {% endif %}
+          {% if decision_support.nickname_considerations %}
+            <div class="baby-nickname-note">
+              <h3>Nickname considerations</h3>
+              {% if decision_support.nickname_considerations.likely %}<p><strong>Likely:</strong> {{ decision_support.nickname_considerations.likely|join(', ') }}</p>{% endif %}
+              {% if decision_support.nickname_considerations.optional %}<p><strong>Optional:</strong> {{ decision_support.nickname_considerations.optional|join(', ') }}</p>{% endif %}
+              {% if decision_support.nickname_considerations.note %}<p>{{ decision_support.nickname_considerations.note }}</p>{% endif %}
+            </div>
+          {% endif %}
+        </section>
+      {% endif %}
+
+      {% if decision_support.comparisons %}
+        <section class="chosen-detail baby-decision-section">
+          <p class="eyebrow">Compared with names you liked</p>
+          <h2>Where {{ result.name }} sits in your list</h2>
+          <ul class="baby-name-comparisons">
+            {% for comparison in decision_support.comparisons %}
+              <li><strong>{{ comparison.name }}</strong><span>{{ comparison.comparison }}</span>{% if comparison.evidence %}<small>{{ comparison.evidence }}</small>{% endif %}</li>
+            {% endfor %}
+          </ul>
+        </section>
+      {% endif %}
+
+      {% if decision_support.tradeoffs %}
+        <section class="chosen-detail baby-decision-section baby-tradeoffs">
+          <p class="eyebrow">Tradeoffs to consider</p>
+          <h2>What to weigh before deciding</h2>
+          <ul>{% for tradeoff in decision_support.tradeoffs %}<li>{{ tradeoff }}</li>{% endfor %}</ul>
+          {% if decision_support.confidence_note %}<p class="baby-confidence-note">{{ decision_support.confidence_note }}</p>{% endif %}
+        </section>
+      {% elif decision_support.confidence_note %}
+        <aside class="baby-confidence-note">{{ decision_support.confidence_note }}</aside>
+      {% endif %}
+
+      {% include "_baby_name_fact_card.html" %}
+
+      {% if decision_support.practical_checks %}<details class="chosen-detail detail-validation baby-secondary-disclosure">
+        <summary>Practical checks</summary>
+        <div class="validation-list baby-secondary-disclosure-body">
+          {% for validation in decision_support.practical_checks %}
+            <div class="validation-pill validation-{{ validation.status }}">
+              <strong>{{ validation.label }}</strong>
+              <span>{{ validation.message }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      </details>{% endif %}
+
+      {% if decision_support.taste_insight %}
+        <aside class="chosen-detail baby-learning-note">
+          <p class="eyebrow">What NamEngine is learning</p>
+          <h2>Your reactions are shaping the next list</h2>
+          <p>{{ decision_support.taste_insight }}</p>
+        </aside>
+      {% endif %}
+
+      <section class="chosen-detail baby-next-decision">
+        <p class="eyebrow">Next decision</p>
+        <h2>How does {{ result.name }} feel now?</h2>
+        {{ baby_reactions("next-decision") }}
+        <div class="baby-next-links">
+          <form action="/choose" method="post">
+            <input type="hidden" name="session_id" value="{{ session.id }}">
+            <input type="hidden" name="result_id" value="{{ result.id }}">
+            <button class="choose-button" type="submit">Choose {{ result.name }}</button>
+          </form>
+          <a class="button-link" href="/compare/{{ session.id }}">Compare favorites</a>
+          <a class="button-link secondary-button" href="/results/session/{{ session.id }}">Return to results</a>
+          <a class="button-link secondary-button" href="/{{ vertical.slug }}?{{ session.brief_json|brief_query_string }}">Adjust direction</a>
+        </div>
+      </section>
+    {% else %}
     <div class="chosen-detail-grid detail-page-grid">
       <section class="chosen-detail">
         <h2>Why this name?</h2>
@@ -73,8 +205,9 @@
         </section>
       {% endif %}
     </div>
+    {% endif %}
 
-    {% if result.validation %}
+    {% if result.validation and vertical.slug != "baby" %}
       <section class="chosen-detail detail-validation">
         <h2>Validation</h2>
         <div class="validation-list">
@@ -88,11 +221,12 @@
       </section>
     {% endif %}
 
-    {% if taste_profile %}
+    {% if taste_profile and vertical.slug != "baby" %}
       <aside class="taste-profile compare-taste">
         <h2>Taste profile</h2>
         <p>{{ taste_profile.summary }}</p>
       </aside>
     {% endif %}
   </section>
+  {% if vertical.slug == "baby" %}<script src="{{ url_for('static', filename='js/reactions.js') }}?v=20260717-baby-decision-support"></script>{% endif %}
 {% endblock %}

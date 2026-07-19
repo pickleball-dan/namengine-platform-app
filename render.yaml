@@ -2,7 +2,7 @@ services:
   - type: web
     name: namengine-platform-app
     runtime: python
-    plan: free
+    plan: starter
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
     envVars:
@@ -11,7 +11,7 @@ services:
       - key: NAMENGINE_OPENAI_MODEL
         value: gpt-4.1-mini
       - key: NAMENGINE_OPENAI_TIMEOUT_SECONDS
-        value: "24"
+        value: "8"
       - key: NAMENGINE_OPENAI_MAX_OUTPUT_TOKENS
         value: "2600"
       - key: NAMENGINE_AI_PRIMARY_VERTICALS
@@ -22,6 +22,10 @@ services:
         value: gpt-image-1-mini
       - key: NAMENGINE_IMAGE_SIZE
         value: 1024x1024
+      - key: NAMENGINE_GENERATED_IMAGE_DIR
+        value: /var/data
+      - key: NAMENGINE_IMAGE_RETENTION_DAYS
+        value: "30"
       - key: NAMENGINE_BABY_BETA_PRICE
         value: "$19"
       - key: NAMENGINE_BABY_BETA_PAYMENT_LINK

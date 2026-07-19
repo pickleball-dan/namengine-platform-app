@@ -1,0 +1,27 @@
+{
+  "fixture_id": "baby-eval-recognizable-not-overused",
+  "schema_version": "name-evaluation-fixture-v1",
+  "vertical": "baby",
+  "title": "Recognizable but not overused",
+  "description": "Names should be easy to recognize while retaining some freshness.",
+  "intake": {"gender": "Gender-neutral", "style": "Modern", "familiarity_preference": "Recognizable but not overused", "timeless_vs_distinctive": "Balanced", "sound": "Warm", "discovery_style": "Balanced mix"},
+  "expected_naming_territories": ["recognizable", "modern", "warm"],
+  "desired_qualities": ["readable", "fresh", "versatile"],
+  "prohibited_qualities": ["obscure", "top-ten saturation"],
+  "reference_candidates": ["Rowan", "Ellis", "Quinn"],
+  "rejection_candidates": [],
+  "acceptance_criteria": {"minimum_normalized_score": 0.7, "criteria": [
+    {"criterion": "required_candidate_count", "weight": 1, "parameters": {"minimum": 8}},
+    {"criterion": "uniqueness", "weight": 1},
+    {"criterion": "familiarity_range", "weight": 1, "parameters": {"minimum": 0.25, "maximum": 0.7}},
+    {"criterion": "distinctiveness_range", "weight": 1, "parameters": {"minimum": 0.3, "maximum": 0.75}},
+    {"criterion": "style_fit", "weight": 1, "parameters": {"minimum": 0.55}},
+    {"criterion": "explanation_completeness", "weight": 1},
+    {"criterion": "metadata_completeness", "weight": 1},
+    {"criterion": "valid_bounded_scores", "weight": 1},
+    {"criterion": "privacy_safety", "weight": 1}
+  ]},
+  "regression_notes": "Evaluate the familiarity band rather than any single popularity rank.",
+  "tags": ["baby", "balanced", "recognizable"],
+  "enabled": true
+}

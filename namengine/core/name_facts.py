@@ -612,13 +612,13 @@ def build_name_fact_card(vertical_slug: str, result: Mapping[str, Any]) -> dict[
     tags = [str(item) for item in result.get("tags", []) if item]
     validation = result.get("validation") or []
 
-    origin_meaning = facts.get("origin_meaning") or _fallback_origin_meaning(result)
+    origin_meaning = facts.get("origin_meaning") or _available_origin_meaning(result)
     pronunciation = str(result.get("pronunciation") or "").strip()
     popularity_snapshot = _popularity_snapshot(key, result)
-    famous_namesakes = facts.get("famous_namesakes") or ["Namesake data is being expanded for this beta card."]
-    nicknames_variants = facts.get("nicknames_variants") or _fallback_variants(name)
-    similar_names = facts.get("similar_names") or _fallback_similar_names(name, tags)
-    good_to_know = _good_to_know(name, result, validation, facts)
+    famous_namesakes = facts.get("famous_namesakes") or []
+    nicknames_variants = facts.get("nicknames_variants") or []
+    similar_names = facts.get("similar_names") or []
+    good_to_know = _available_good_to_know(result, validation, popularity_snapshot)
 
     return {
         "title": f"{name} name card",
@@ -631,7 +631,7 @@ def build_name_fact_card(vertical_slug: str, result: Mapping[str, Any]) -> dict[
         "similar_names": similar_names,
         "good_to_know": good_to_know,
         "why_it_fits": str(result.get("why_this_name") or result.get("fit_note") or ""),
-        "source_note": "Popularity uses SSA national baby-name data through 2024 when available; exact figures can change as SSA releases new annual data.",
+        "source_note": "Popularity uses SSA national baby-name data through 2024 when available; exact figures can change as SSA releases new annual data." if popularity_snapshot else "",
     }
 
 
@@ -639,51 +639,16 @@ def _key(name: str) -> str:
     return "".join(char for char in name.lower() if char.isalnum())
 
 
-def _fallback_origin_meaning(result: Mapping[str, Any]) -> str:
+def _available_origin_meaning(result: Mapping[str, Any]) -> str:
+    origin = str(result.get("origin") or "").strip()
     meaning = str(result.get("meaning") or "").strip()
-    if meaning and not meaning.startswith("A baby name shaped"):
-        return meaning
-    return "Origin and meaning data is being expanded; this card currently emphasizes fit, sound, and usage context."
+    if origin and meaning:
+        return f"{meaning} · {origin}"
+    return meaning or origin
 
 
-def _popularity_snapshot(key: str, result: Mapping[str, Any]) -> dict[str, str]:
-    if key in BABY_POPULARITY_SNAPSHOTS:
-        return BABY_POPULARITY_SNAPSHOTS[key]
-    return _fallback_popularity_snapshot(result)
-
-
-def _fallback_popularity_snapshot(result: Mapping[str, Any]) -> dict[str, str]:
-    scores = result.get("scores") or {}
-    popularity_score = float(scores.get("baby_popularity", scores.get("distinctiveness", 0.74)) or 0.74)
-    if popularity_score <= 0.62:
-        current_feel = "Familiar"
-        scale = "Likely a mainstream or historically familiar choice; exact SSA count is being expanded."
-    elif popularity_score <= 0.75:
-        current_feel = "Recognizable"
-        scale = "Likely visible but not everywhere; exact SSA count is being expanded."
-    else:
-        current_feel = "Distinctive"
-        scale = "Likely lower-use than mainstream classics; exact SSA count is being expanded."
-    return {
-        "current_feel": current_feel,
-        "latest": "Latest SSA rank/count not available in this beta card yet.",
-        "trend": "Trend data is being expanded.",
-        "scale": scale,
-    }
-
-
-def _fallback_variants(name: str) -> list[str]:
-    if len(name) <= 4:
-        return [name]
-    return [name, name[:3]]
-
-
-def _fallback_similar_names(name: str, tags: list[str]) -> list[str]:
-    if "warm" in tags:
-        return ["Mira", "Nora", "Luca"]
-    if "family-ready" in tags:
-        return ["Clara", "Julian", "Eloise"]
-    return ["Clara", "Maren", "Theo"]
+def _popularity_snapshot(key: str, result: Mapping[str, Any]) -> dict[str, str] | None:
+    return BABY_POPULARITY_SNAPSHOTS.get(key)
 
 
 def _style_vibe(result: Mapping[str, Any], tags: list[str]) -> list[str]:
@@ -692,29 +657,28 @@ def _style_vibe(result: Mapping[str, Any], tags: list[str]) -> list[str]:
     for cue in ("Classic", "Warm", "Soft", "Modern", "Elegant", "Distinctive", "International"):
         if cue.lower() in tagline and cue not in vibes:
             vibes.append(cue)
-    return vibes[:5] or ["Wearable", "Warm", "Family Ready"]
+    return vibes[:5]
 
 
-def _good_to_know(
-    name: str,
+def _available_good_to_know(
     result: Mapping[str, Any],
     validation: list[Any],
-    facts: Mapping[str, Any],
+    popularity_snapshot: dict[str, str] | None,
 ) -> list[str]:
-    notes: list[str] = []
-    if facts.get("nicknames_variants"):
-        notes.append("Has natural nickname or spelling-variant options.")
-    if len(name) <= 5:
-        notes.append("Short enough to pair easily with many surnames.")
-    else:
-        notes.append("Worth saying out loud with the surname for rhythm.")
-
-    popularity_message = " ".join(
-        str(item.get("message", "")) if isinstance(item, Mapping) else str(getattr(item, "message", ""))
+    risks = [str(item).strip() for item in result.get("risks", []) if str(item).strip()]
+    if not popularity_snapshot:
+        risks = [
+            item
+            for item in risks
+            if not any(
+                term in item.casefold()
+                for term in ("popularity", "popular", "overused", "common in")
+            )
+        ]
+    if risks:
+        return risks[:4]
+    messages = [
+        str(item.get("message", "")).strip() if isinstance(item, Mapping) else str(getattr(item, "message", "")).strip()
         for item in validation
-    ).lower()
-    if "familiar" in popularity_message:
-        notes.append("Familiarity may be part of its comfort and charm.")
-    elif "distinctive" in popularity_message:
-        notes.append("Distinctive enough to feel considered without feeling hard to use.")
-    return notes[:4]
+    ]
+    return [message for message in messages if message][:2]

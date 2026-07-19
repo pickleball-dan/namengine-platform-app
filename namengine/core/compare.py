@@ -14,8 +14,6 @@ def build_compare_items(session_id: str, limit: int = 6) -> list[dict[str, Any]]
         return []
 
     selected: dict[str, dict[str, Any]] = {}
-    maybe: dict[str, dict[str, Any]] = {}
-
     for snapshot in snapshots:
         session = snapshot["session"]
         results_by_id = {
@@ -36,13 +34,8 @@ def build_compare_items(session_id: str, limit: int = 6) -> list[dict[str, Any]]
             key = item["name"].lower()
             if value == "love":
                 selected[key] = item
-                maybe.pop(key, None)
-            elif value == "maybe" and key not in selected:
-                maybe[key] = item
 
     items = list(selected.values())
-    if len(items) < 2:
-        items.extend(item for item in maybe.values() if item["name"].lower() not in selected)
 
     latest = snapshots[-1]
     for row in latest["results"][:limit]:

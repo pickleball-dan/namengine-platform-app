@@ -3,6 +3,16 @@
 from __future__ import annotations
 
 from namengine.core import Question, VerticalConfig, VerticalVisualConfig
+from namengine.verticals.baby_taxonomy import (
+    BABY_CULTURAL_HERITAGE_OPTIONS,
+    BABY_DISCOVERY_STYLE_OPTIONS,
+    BABY_DISTINCTIVENESS_OPTIONS,
+    BABY_FAMILIARITY_OPTIONS,
+    BABY_GENDER_OPTIONS,
+    BABY_INSPIRATION_OPTIONS,
+    BABY_SOUND_OPTIONS,
+    BABY_STYLE_OPTIONS,
+)
 
 
 PET_DISCOVERY_STYLE_OPTIONS = (
@@ -65,94 +75,6 @@ PET_INSPIRATION_OPTIONS = (
     "Geography",
     "Vintage",
     "Pop culture",
-)
-
-BABY_GENDER_OPTIONS = ("Girl", "Boy", "Gender-neutral", "Surprise me")
-BABY_DISCOVERY_STYLE_OPTIONS = (
-    "Classic favorites",
-    "Balanced mix",
-    "Unexpected finds",
-    "Rare but wearable",
-)
-BABY_STYLE_OPTIONS = (
-    "Classic",
-    "Modern",
-    "Soft and romantic",
-    "Strong and tailored",
-    "Vintage revival",
-    "Nature-inspired",
-    "Globally familiar",
-)
-BABY_DISTINCTIVENESS_OPTIONS = (
-    "Strongly timeless",
-    "Mostly timeless",
-    "Balanced",
-    "Mostly distinctive",
-    "Strongly distinctive",
-)
-BABY_FAMILIARITY_OPTIONS = (
-    "Very familiar and easy",
-    "Recognizable but not overused",
-    "A little less common",
-    "Memorable and rarer",
-)
-BABY_SOUND_OPTIONS = (
-    "Soft",
-    "Bright",
-    "Strong",
-    "Elegant",
-    "Playful",
-    "Calm",
-    "Warm",
-)
-BABY_INSPIRATION_OPTIONS = (
-    "Family heritage",
-    "Nature",
-    "Literature",
-    "Saints & classics",
-    "Music",
-    "Places",
-    "Meaning first",
-    "Modern favorites",
-)
-BABY_CULTURAL_HERITAGE_OPTIONS = (
-    "No preference",
-    "African",
-    "African American",
-    "Arab / Middle Eastern",
-    "Armenian",
-    "Australian",
-    "Brazilian",
-    "Chinese",
-    "Danish",
-    "Dutch",
-    "English",
-    "Filipino",
-    "French",
-    "German",
-    "Greek",
-    "Indian",
-    "Irish",
-    "Italian",
-    "Japanese",
-    "Jewish",
-    "Korean",
-    "Mexican",
-    "Native American / Indigenous",
-    "Norwegian",
-    "Persian / Iranian",
-    "Polish",
-    "Portuguese",
-    "Russian",
-    "Scottish",
-    "Spanish",
-    "Swedish",
-    "Turkish",
-    "Ukrainian",
-    "Vietnamese",
-    "Welsh",
-    "International / blended",
-    "Something else — I’ll describe it",
 )
 
 BUSINESS_STAGE_OPTIONS = (
@@ -535,7 +457,10 @@ BABY = VerticalConfig(
         "line": "rgba(41, 52, 79, 0.13)",
     },
     assets={
-        "logo": "images/baby/namengine-baby-logo.png",
+        "logo": "images/namengine-baby.svg",
+        "header_logo": "images/namengine-baby.svg",
+        "page_logo": "images/namengine-baby.svg",
+        "card_logo": "images/namengine-baby-icon.svg",
         "share_image": "images/baby/namengine-baby-share.png",
     },
     visual=VerticalVisualConfig(

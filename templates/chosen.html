@@ -3,17 +3,17 @@
 {% block title %}{{ chosen.name }} | NamEngine{% endblock %}
 
 {% block content %}
-  {% set keepsake_label = "keepsake" if vertical.slug == "baby" else "portrait" %}
-  {% set keepsake_ready_alt = "Baby blanket keepsake for " ~ chosen.name if vertical.slug == "baby" else "Framed portrait of " ~ chosen.name %}
-  {% set keepsake_setup_text = "Keepsake setup needed" if vertical.slug == "baby" else "Portrait setup needed" %}
-  {% set keepsake_failed_text = "Keepsake could not be created" if vertical.slug == "baby" else "Portrait could not be created" %}
-  {% set keepsake_creating_text = "Creating keepsake" if vertical.slug == "baby" else "Creating portrait" %}
+  {% set keepsake_label = "keepsake" if vertical.slug == "baby" else ("brand direction board" if vertical.slug == "business" else "portrait") %}
+  {% set keepsake_ready_alt = "Baby blanket keepsake for " ~ chosen.name if vertical.slug == "baby" else ("Brand direction board for " ~ chosen.name if vertical.slug == "business" else "Framed portrait of " ~ chosen.name) %}
+  {% set keepsake_setup_text = "Keepsake preview isn’t available right now" if vertical.slug == "baby" else "Image creation is not configured" %}
+  {% set keepsake_failed_text = "Your " ~ keepsake_label ~ " could not be created" %}
+  {% set keepsake_creating_text = "Creating " ~ keepsake_label %}
   <section class="chosen-shell">
     {% set page_logo = vertical.assets.get("page_logo", vertical.assets.get("logo")) %}
-    {% if page_logo %}
+    {% if page_logo and vertical.slug != "baby" %}
       <img class="vertical-page-logo small" src="{{ url_for('static', filename=page_logo) }}" alt="NamEngine {{ vertical.display_name }} logo">
     {% endif %}
-    <p class="eyebrow">Chosen {{ chosen.vertical.title() }} Name</p>
+    <p class="eyebrow">{% if vertical.slug == "baby" %}A name to hold onto{% else %}Chosen {{ chosen.vertical.title() }} Name{% endif %}</p>
 
     <section
       class="share-preview vertical-{{ vertical.slug }}{% if portrait %} has-portrait{% endif %}"
@@ -21,13 +21,14 @@
       {% if portrait and portrait.status not in ["ready", "not_configured", "failed"] %}
         data-portrait-status-url="{{ url_for('chosen_portrait_status', chosen_id=chosen.id) }}"
       {% endif %}
+      {% if portrait %}data-portrait-retry-url="{{ url_for('retry_chosen_portrait', chosen_id=chosen.id) }}"{% endif %}
     >
       {% if portrait %}
-        <figure class="pet-portrait-frame{% if vertical.slug == 'baby' %} baby-keepsake-frame{% endif %}" data-pet-portrait-frame>
+        <figure class="pet-portrait-frame{% if vertical.slug == 'baby' %} baby-keepsake-frame{% elif vertical.slug == 'business' %} business-image-frame{% endif %}" data-pet-portrait-frame>
           {% if portrait.url %}
             <img data-pet-portrait-image src="{{ portrait.url }}" alt="{{ keepsake_ready_alt }}">
           {% else %}
-            <div class="pet-portrait-placeholder{% if vertical.slug == 'baby' %} baby-keepsake-placeholder{% endif %}" data-pet-portrait-placeholder>
+            <div class="pet-portrait-placeholder{% if vertical.slug == 'baby' %} baby-keepsake-placeholder{% elif vertical.slug == 'business' %} business-image-placeholder{% endif %}{% if portrait.status == 'failed' %} is-failed{% endif %}" data-pet-portrait-placeholder>
               {% if vertical.slug == "baby" %}
                 <span class="blanket-fold" aria-hidden="true"></span>
                 <span class="portrait-monogram blanket-embroidered-name" aria-label="Baby blanket keepsake embroidered with {{ chosen.name }}">{{ chosen.name }}</span>
@@ -37,10 +38,13 @@
               {% if portrait.status == "not_configured" %}
                 <span class="portrait-status">{{ keepsake_setup_text }}</span>
               {% elif portrait.status == "failed" %}
-                <span class="portrait-status">{{ keepsake_failed_text }}</span>
+                <span class="portrait-status" data-pet-portrait-status>{{ keepsake_failed_text }}</span>
               {% else %}
                 <span class="portrait-progress" aria-hidden="true"></span>
                 <span class="portrait-status" data-pet-portrait-status>{{ keepsake_creating_text }}</span>
+              {% endif %}
+              {% if portrait.status != "not_configured" %}
+                <button class="portrait-retry" type="button" data-portrait-retry{% if portrait.status != "failed" %} hidden{% endif %}>Try again</button>
               {% endif %}
             </div>
           {% endif %}
@@ -48,7 +52,7 @@
         </figure>
       {% endif %}
       <div class="share-preview-copy">
-        <p class="share-preview-label">Final pick</p>
+        <p class="share-preview-label">{% if vertical.slug == "baby" %}Your chosen name{% else %}Final pick{% endif %}</p>
         <h1>Meet {{ chosen.name }}</h1>
         {% if result.pronunciation %}
           <p class="share-preview-pronunciation">{{ result.pronunciation }}</p>
@@ -73,12 +77,12 @@
 
     <div class="chosen-detail-grid">
       <section class="chosen-detail">
-        <h2>Why this name?</h2>
+        <h2>{% if vertical.slug == "baby" %}Why this name feels right{% else %}Why this name?{% endif %}</h2>
         <p>{{ result.why_this_name }}</p>
       </section>
 
       <section class="chosen-detail">
-        <h2>Best fit</h2>
+        <h2>{% if vertical.slug == "baby" %}Style and feeling{% else %}Best fit{% endif %}</h2>
         <p>{{ result.fit_note }}</p>
       </section>
     </div>
@@ -109,20 +113,33 @@
       button.textContent = "Link copied";
     });
 
-    const portraitShell = document.querySelector("[data-portrait-status-url]");
+    const portraitShell = document.querySelector("[data-portrait-retry-url]");
     const portraitFrame = document.querySelector("[data-pet-portrait-frame]");
     const portraitStatus = document.querySelector("[data-pet-portrait-status]");
+    const retryButton = document.querySelector("[data-portrait-retry]");
     const readyAlt = {{ keepsake_ready_alt|tojson }};
     const failedText = {{ keepsake_failed_text|tojson }};
     const creatingText = {{ keepsake_creating_text|tojson }};
-    const finishingText = {{ ("Finishing keepsake" if vertical.slug == "baby" else "Finishing portrait")|tojson }};
-    const stillCreatingText = {{ ("Still creating keepsake" if vertical.slug == "baby" else "Still creating portrait")|tojson }};
+    const finishingText = {{ ("Finishing " ~ keepsake_label)|tojson }};
+    const stillCreatingText = {{ ("Still creating " ~ keepsake_label)|tojson }};
 
-    if (portraitShell && portraitFrame) {
+    const showFailure = () => {
+      portraitFrame?.querySelector("[data-pet-portrait-placeholder]")?.classList.add("is-failed");
+      portraitFrame?.querySelector(".portrait-progress")?.remove();
+      if (portraitStatus) portraitStatus.textContent = failedText;
+      if (retryButton) {
+        retryButton.hidden = false;
+        retryButton.disabled = false;
+        retryButton.textContent = "Try again";
+      }
+    };
+
+    let pollPortrait;
+    if (portraitShell && portraitFrame && portraitShell.dataset.portraitStatusUrl) {
       let attempts = 0;
       const maxAttempts = 30;
 
-      const pollPortrait = async () => {
+      pollPortrait = async () => {
         attempts += 1;
         try {
           const response = await fetch(portraitShell.dataset.portraitStatusUrl, {
@@ -142,7 +159,7 @@
           }
 
           if (portrait.status === "failed" && portraitStatus) {
-            portraitStatus.textContent = failedText;
+            showFailure();
             return;
           }
 
@@ -162,5 +179,32 @@
 
       window.setTimeout(pollPortrait, 1200);
     }
+
+    retryButton?.addEventListener("click", async () => {
+      const retryUrl = portraitShell?.dataset.portraitRetryUrl;
+      if (!retryUrl) return;
+      retryButton.disabled = true;
+      retryButton.textContent = "Retrying…";
+      if (portraitStatus) portraitStatus.textContent = creatingText;
+      try {
+        const response = await fetch(retryUrl, {
+          method: "POST",
+          headers: { "Accept": "application/json" },
+        });
+        if (!response.ok) throw new Error("retry failed");
+        const payload = await response.json();
+        if (payload.portrait?.status === "not_configured") {
+          if (portraitStatus) portraitStatus.textContent = {{ keepsake_setup_text|tojson }};
+          retryButton.hidden = true;
+          return;
+        }
+        retryButton.hidden = true;
+        portraitShell.dataset.portraitStatusUrl = {{ url_for('chosen_portrait_status', chosen_id=chosen.id)|tojson }};
+        pollPortrait = pollPortrait || (() => window.location.reload());
+        window.setTimeout(pollPortrait, 400);
+      } catch (error) {
+        showFailure();
+      }
+    });
   </script>
 {% endblock %}

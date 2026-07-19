@@ -3,16 +3,36 @@
   const current = document.querySelector("[data-progress-current]");
   const eyebrow = document.querySelector("[data-progress-eyebrow]");
   const visual = document.querySelector("[data-progress-visual]");
+  const visualLabel = document.querySelector(".progress-visual-label");
   const note = document.querySelector("[data-progress-note]");
   const steps = Array.from(document.querySelectorAll("[data-progress-step]"));
   const forms = Array.from(document.querySelectorAll("form"));
   const minimumProgressMs = 10000;
-  const longWaitMessages = [
+  const defaultLongWaitMessages = [
     "Working hard to get your perfect matches.",
     "Exploring meaning, sound, and cultural fit.",
     "Comparing the strongest names against your taste.",
     "Almost there — shaping the final shortlist."
   ];
+  const babyLongWaitMessages = [
+    "Bringing together everything you shared…",
+    "Exploring names that fit your style…",
+    "Looking at sound, meaning, and feeling…",
+    "Finding names worth considering…"
+  ];
+  const petLongWaitMessages = [
+    "Getting to know their personality...",
+    "Listening for names that are joyful to call...",
+    "Balancing affection, energy, and everyday fit...",
+    "Finding names that feel unmistakably like them..."
+  ];
+  const businessLongWaitMessages = [
+    "Reading the market and positioning signals...",
+    "Testing clarity, credibility, and distinctiveness...",
+    "Considering audience fit and launch practicality...",
+    "Building the strongest strategic shortlist..."
+  ];
+  let longWaitMessages = defaultLongWaitMessages;
 
   if (!forms.length) {
     return;
@@ -62,16 +82,37 @@
     const vibe = formValue(form, ["vibe", "style", "tone"]);
     const culture = formValue(form, "cultural_heritage");
     const isBaby = subject === "this baby name";
+    const isPet = Boolean(formValue(form, ["pet_type", "species"]));
+    const isBusiness = Boolean(formValue(form, "business_description"));
+    longWaitMessages = isBaby
+      ? babyLongWaitMessages
+      : isPet
+        ? petLongWaitMessages
+        : isBusiness
+          ? businessLongWaitMessages
+          : defaultLongWaitMessages;
     const feelLine = vibe ? `Matching the ${vibe.toLowerCase()} feel` : "Matching the feel";
     const cultureLine = culture && culture !== "No preference"
       ? `Exploring ${culture.toLowerCase()} meaning and sound`
       : "Exploring meaning and sound";
     const labels = isBaby ? [
-      "Reading your baby-name direction",
+      "Bringing together everything you shared",
       cultureLine,
+      "Exploring names that fit your style",
+      "Looking at sound, meaning, and feeling",
+      "Finding names worth considering",
+    ] : isPet ? [
+      "Getting to know their personality",
+      "Listening for names that are joyful to call",
       feelLine,
-      "Checking pronunciation and family fit",
-      "Working hard to get your perfect matches",
+      "Checking sound and everyday fit",
+      "Finding names that feel like them",
+    ] : isBusiness ? [
+      "Reading your business brief",
+      "Mapping the audience and category",
+      feelLine,
+      "Checking credibility and launch fit",
+      "Building the strategic shortlist",
     ] : [
       "Reading the details",
       `Finding names for ${subject}`,
@@ -81,12 +122,25 @@
     ];
 
     if (eyebrow) {
-      eyebrow.textContent = isBaby ? "Building your baby-name shortlist" : `Building a shortlist for ${subject}`;
+      eyebrow.textContent = isBaby
+        ? "A thoughtful first look"
+        : isPet
+          ? "Finding names that feel like them"
+          : isBusiness
+            ? "Building your strategic brand shortlist"
+            : `Building a shortlist for ${subject}`;
+    }
+    if (visualLabel && isBaby) {
+      visualLabel.textContent = "Family fit";
     }
     if (note) {
       note.textContent = isBaby
-        ? "The name engine is weighing meaning, sound, culture, and family fit. This can take a little longer for richer matches."
-        : "A few quick checks before the list appears.";
+        ? "We’re listening to your story, style, and the feeling you want a name to carry."
+        : isPet
+          ? "We’re matching personality, sound, affection, and everyday callability."
+          : isBusiness
+            ? "We’re weighing positioning, audience, distinctiveness, and practical launch fit."
+            : "A few quick checks before the list appears.";
     }
     steps.forEach((step, index) => {
       const label = labels[index] || cleanValue(step.dataset.progressHeadline || step.textContent);
@@ -228,7 +282,9 @@
       error.className = "field-error";
       field.appendChild(error);
     }
-    error.textContent = "Required before we can generate names.";
+    error.textContent = document.body.classList.contains("vertical-baby")
+      ? "Please answer this before we continue."
+      : "Required before we can generate names.";
   }
 
   function focusFirstInvalid(form) {

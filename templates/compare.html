@@ -5,11 +5,11 @@
 {% block content %}
   <section class="compare-shell">
     {% set page_logo = vertical.assets.get("page_logo", vertical.assets.get("logo")) %}
-    {% if page_logo %}
+    {% if page_logo and vertical.slug != "baby" %}
       <img class="vertical-page-logo small" src="{{ url_for('static', filename=page_logo) }}" alt="NamEngine {{ vertical.display_name }} logo">
     {% endif %}
-    <p class="eyebrow">Compare Favorites</p>
-    <h1>Choose with confidence.</h1>
+    <p class="eyebrow">{% if vertical.slug == "baby" %}Your shortlist{% else %}Compare Favorites{% endif %}</p>
+    <h1>{% if vertical.slug == "baby" %}See how your favorites feel together.{% else %}Choose with confidence.{% endif %}</h1>
     <p class="compare-lede">Round {{ session.round_number }} · {{ items|length }} names, compared on fit, sound, warmth, and what is worth considering.</p>
     {% if taste_profile %}
       <aside class="taste-profile compare-taste">
@@ -31,11 +31,13 @@
               <p class="tagline">{{ item.tagline }}</p>
             {% endif %}
 
-            <dl class="compare-facts">
-              <div>
-                <dt>Best if</dt>
-                <dd>{{ item.best_if }}</dd>
-              </div>
+            <div class="compare-best-fit">
+              <strong>Best if</strong>
+              <p>{{ item.best_if }}</p>
+            </div>
+            <details class="compare-card-details">
+              <summary>{% if vertical.slug == "baby" %}Compare the details{% else %}Comparison details{% endif %}</summary>
+              <dl class="compare-facts">
               <div>
                 <dt>Worth noting</dt>
                 <dd>{{ item.watch_out }}</dd>
@@ -52,7 +54,8 @@
                 <dt>Distinctiveness</dt>
                 <dd>{{ item.distinctiveness }}</dd>
               </div>
-            </dl>
+              </dl>
+            </details>
 
             <form action="/choose" method="post">
               <input type="hidden" name="session_id" value="{{ item.session_id }}">
@@ -65,8 +68,8 @@
       </div>
     {% else %}
       <div class="empty-state">
-        <h2>No favorites yet</h2>
-        <p>React to a few names first. Love and Maybe picks become your comparison set.</p>
+        <h2>{% if vertical.slug == "baby" %}Your shortlist is waiting.{% else %}No favorites yet{% endif %}</h2>
+        <p>{% if vertical.slug == "baby" %}Choose “Love it” on a few names, and they’ll be ready to compare here.{% else %}Love a few names first. Your saved names will become your comparison set.{% endif %}</p>
         <a class="button-link" href="/{{ vertical.slug }}">Start a new {{ vertical.display_name|lower }} search</a>
       </div>
     {% endif %}

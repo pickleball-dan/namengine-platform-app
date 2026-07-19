@@ -6,12 +6,12 @@
   <section class="results-shell shared-shortlist" data-session-id="{{ session.id }}">
     <div class="results-heading">
       {% set page_logo = vertical.assets.get("page_logo", vertical.assets.get("logo")) %}
-      {% if page_logo %}
+      {% if page_logo and vertical.slug != "baby" %}
         <img class="vertical-page-logo small" src="{{ url_for('static', filename=page_logo) }}" alt="NamEngine {{ vertical.display_name }} logo">
       {% endif %}
       <p class="eyebrow">Shared NamEngine {{ vertical.display_name }} list</p>
-      <h1>A saved list, ready to compare.</h1>
-      <p>Use this page to review the names, choose a favorite, or start your own direction.</p>
+      <h1>{% if vertical.slug == "baby" %}A thoughtful list, ready to share.{% else %}A saved list, ready to compare.{% endif %}</h1>
+      <p>{% if vertical.slug == "baby" %}Take your time with these names. You can explore each one or begin a naming conversation of your own.{% else %}Use this page to review the names, choose a favorite, or start your own direction.{% endif %}</p>
       <div class="results-header-links">
         <a class="button-link" href="/{{ vertical.slug }}">Start your own list</a>
         <a class="button-link secondary-button" href="/feedback">Give feedback</a>
@@ -29,7 +29,7 @@
         {% endfor %}
       </dl>
       <p class="reaction-counts">
-        Loved {{ reaction_counts.love }} · Maybe {{ reaction_counts.maybe }} · No {{ reaction_counts.no }}
+        Loved {{ reaction_counts.love }} · No {{ reaction_counts.no }}
       </p>
       {% if taste_profile %}
         <div class="taste-profile">
@@ -58,17 +58,27 @@
             {% include "_domain_info.html" %}
           {% endif %}
 
-          <section>
-            <h3>{{ vertical.result_field_labels.get("why_this_name", "Why this name?") }}</h3>
-            <p>{{ item.why_this_name }}</p>
-          </section>
+          {% if vertical.slug == "baby" %}
+            <details class="shared-result-details">
+              <summary>Why this name fits</summary>
+              <div class="shared-result-details-body">
+                <p>{{ item.why_this_name }}</p>
+                <h3>Style and feeling</h3>
+                <p>{{ item.fit_note }}</p>
+              </div>
+            </details>
+          {% else %}
+            <section>
+              <h3>{{ vertical.result_field_labels.get("why_this_name", "Why this name?") }}</h3>
+              <p>{{ item.why_this_name }}</p>
+            </section>
+            <section>
+              <h3>{{ vertical.result_field_labels.get("fit_note", "Fit") }}</h3>
+              <p>{{ item.fit_note }}</p>
+            </section>
+          {% endif %}
 
-          <section>
-            <h3>{{ vertical.result_field_labels.get("fit_note", "Fit") }}</h3>
-            <p>{{ item.fit_note }}</p>
-          </section>
-
-          <a class="button-link detail-link" href="{{ url_for('name_detail', vertical_slug=vertical.slug, session_id=session.id, result_id=item.id) }}">Open detail</a>
+          <a class="button-link detail-link" href="{{ url_for('name_detail', vertical_slug=vertical.slug, session_id=session.id, result_id=item.id) }}">{% if vertical.slug == "baby" %}Explore {{ item.name }}{% else %}Open detail{% endif %}</a>
           <form action="/choose" method="post">
             <input type="hidden" name="session_id" value="{{ session.id }}">
             <input type="hidden" name="result_id" value="{{ item.id }}">

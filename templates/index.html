@@ -3,110 +3,39 @@
 {% block title %}NamEngine{% endblock %}
 
 {% block content %}
-<section class="home-hero">
-  <div class="home-hero-copy">
-    <div class="home-brand-lockup">
-      <div class="home-brand-mark" aria-hidden="true"><span>N</span></div>
-      <p class="eyebrow">The TASTE ENGINE</p>
-    </div>
-    <h1>Find the name that feels right.</h1>
-    <p>
-      NamEngine shapes names around what you are naming, then learns from your
-      reactions until the direction feels clear, calm, and genuinely usable.
-    </p>
+{% set home_card_logos = {
+  "baby": "images/namengine-baby.svg",
+  "pet": "images/namengine-pets.svg",
+  "business": "images/namengine-biz.svg"
+} %}
+<section class="home-hero home-hero-flagship home-hero-clean">
+  <div class="home-hero-copy home-hero-actions-only">
     <div class="hero-actions">
-      <a class="button-link" href="/baby/beta">Baby paid beta</a>
-      <a class="button-link secondary-button home-secondary-button" href="#verticals">Pick your vertical</a>
-    </div>
-    <div class="home-proof-strip" aria-label="Shared product signals">
-      <span>Mobile-first</span>
-      <span>Baby paid beta ready</span>
-      <span>Reaction-based refinement</span>
-      <span>Privacy + disclaimers</span>
+      <a class="button-link secondary-button home-secondary-button" href="#engine-options">Explore all naming experiences</a>
     </div>
   </div>
 
-  <aside class="home-visual-panel" aria-label="Product system preview">
+  <aside id="engine-options" class="home-visual-panel home-taste-panel" aria-label="How NamEngine adapts taste across naming experiences">
     <div class="home-panel-heading">
-      <span>Shared vertical system</span>
-      <strong>One Namegine frame. Distinct emotional lanes.</strong>
+      <span>Inside the engine</span>
+      <strong>One thoughtful process, tuned to what you’re naming.</strong>
     </div>
     <div class="home-signal-stack">
-      {% for slug in ["pet", "baby", "business", "product"] %}
+      {% for slug in ["baby", "pet", "business"] %}
         {% set item = verticals[slug] %}
         <a
           class="home-signal-card"
           href="{{ item.route_prefix }}"
-          style="--signal-accent: {{ item.theme.get('accent', '#18212f') }}; --signal-soft: {{ item.theme.get('accent_soft', 'rgba(24, 33, 47, 0.08)') }}; --signal-warm: {{ item.theme.get('accent_pet', '#f2b84b') }};"
+          style="--signal-accent: {{ item.theme.get('accent', '#18212f') }}; --signal-soft: {{ item.theme.get('accent_soft', 'rgba(24, 33, 47, 0.08)') }}; --signal-warm: {{ item.theme.get('accent_warm', '#f2b84b') }};"
         >
-          <img src="{{ url_for('static', filename=item.assets.get('logo')) }}" alt="NamEngine {{ item.display_name }}">
+          <img class="home-signal-wordmark" src="{{ url_for('static', filename=home_card_logos.get(slug, item.assets.get('card_logo', item.assets.get('logo')))) }}" alt="NamEngine {{ item.display_name }}">
           <span>
-            <strong>{{ item.display_name }}</strong>
             <small>{{ item.visual.hero_message }}</small>
           </span>
-          <em>{{ item.visual.result_card_style }}</em>
         </a>
       {% endfor %}
     </div>
   </aside>
 </section>
 
-<section class="home-verticals" id="verticals" aria-label="Choose a vertical">
-  <div class="section-heading">
-    <p class="eyebrow">Pick your vertical</p>
-    <h2>Start from the naming problem, not a generic generator.</h2>
-  </div>
-
-  <div class="vertical-grid home-vertical-grid">
-    {% for slug, item in verticals.items() %}
-      <a
-        class="vertical-card home-vertical-card"
-        href="{{ item.route_prefix }}"
-        aria-label="NamEngine {{ item.display_name }}"
-        style="--card-accent: {{ item.theme.get('accent', '#18212f') }}; --card-soft: {{ item.theme.get('accent_soft', 'rgba(24, 33, 47, 0.08)') }}; --card-warm-soft: {{ item.theme.get('accent_warm_soft', 'rgba(242, 184, 75, 0.16)') }};"
-      >
-        <img
-          src="{{ url_for('static', filename=item.assets.get('logo')) }}"
-          alt="NamEngine {{ item.display_name }}"
-          class="vertical-card-logo home-vert-logo"
-        >
-        <div class="home-card-copy">
-          <strong class="vertical-name">{{ item.display_name }}</strong>
-          <span class="vertical-label">{{ item.object_label|capitalize }}</span>
-          <p>{{ item.visual.hero_message }}</p>
-        </div>
-        <div class="home-card-points" aria-label="{{ item.display_name }} signals">
-          {% for point in item.visual.identity_points[:3] %}
-            <span>{{ point }}</span>
-          {% endfor %}
-        </div>
-      </a>
-    {% endfor %}
-  </div>
-</section>
-
-<section class="home-system-panel" aria-label="How the shared system works">
-  <div class="section-heading">
-    <p class="eyebrow">Shared product system</p>
-    <h2>Consistent structure underneath. Vertical-specific feeling on top.</h2>
-  </div>
-
-  <div class="home-system-grid">
-    <div>
-      <span class="system-number">01</span>
-      <strong>Shared intake rhythm</strong>
-      <p>Each vertical uses the same calm mobile-first flow, then adjusts the questions to the decision.</p>
-    </div>
-    <div>
-      <span class="system-number">02</span>
-      <strong>Shared results contract</strong>
-      <p>Every result set keeps the same reaction, refinement, and compare mechanics so launches stay fast.</p>
-    </div>
-    <div>
-      <span class="system-number">03</span>
-      <strong>Distinct emotional lanes</strong>
-      <p>Palette, motifs, icon direction, and hero voice shift by vertical without breaking the Namegine family.</p>
-    </div>
-  </div>
-</section>
 {% endblock %}

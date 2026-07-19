@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import logging
 import os
+import re
+import time
 from threading import Lock, Thread
 from hashlib import sha1
 from urllib.parse import urlencode
@@ -17,9 +19,11 @@ except ImportError:  # pragma: no cover - Render uses real env vars; local dev m
 
 from namengine import CONTRACT_VERSION
 from namengine.core import (
+    AIGenerationError,
     ReactionError,
     build_brief,
     build_compare_items,
+    build_public_reaction,
     build_reaction,
     build_taste_profile,
     build_trust_cue,
@@ -27,10 +31,13 @@ from namengine.core import (
     ensure_keepsake_for_chosen,
     generate_names,
     generate_with_router,
+    get_failed_generation_audits,
     get_reaction_counts,
+    get_recent_audit_sessions,
     is_ai_generation_configured,
     get_chosen_snapshot,
     get_database_path,
+    generated_image_directory,
     get_session_snapshot,
     keepsake_preview_for_chosen,
     get_taste_profile,
@@ -38,16 +45,23 @@ from namengine.core import (
     load_taste_engine_fixtures,
     ModelProvider,
     prepare_keepsake_for_chosen,
+    safe_provider_error_for_log,
     refine_session,
     run_taste_engine_fixture_set,
     save_reaction,
     save_chosen_name,
+    save_failed_generation_audit,
     save_session,
     StorageError,
     summarize_taste_engine_eval,
     vertical_theme_style,
 )
 from namengine.core.name_facts import build_name_fact_card
+from namengine.core.baby_decision_support import build_baby_decision_support
+from namengine.core.storage import get_session_chain_snapshots
+from namengine.core.taste_evolution import build_taste_evolution
+from namengine.core.ai_generation import DEFAULT_MODEL
+from namengine.core.prompt_versions import prompt_version_for
 from namengine.core.schemas import NameResult, NamingBrief, ValidationResult, to_plain_data
 from namengine.core.validation import filter_results_for_brief
 from namengine.verticals import VERTICALS, get_vertical
@@ -61,6 +75,56 @@ MIN_REACTIONS_FOR_REFINEMENT = 3
 
 class NameGenerationUnavailable(RuntimeError):
     """Raised when the production naming engine cannot return honest LLM results."""
+
+
+_UNHELPFUL_CARD_VALUES = {
+    "unknown",
+    "not available",
+    "not applicable",
+    "n/a",
+    "none",
+    "tbd",
+}
+
+
+def meaningful_card_text(value) -> str:
+    """Return useful customer-facing summary text, excluding placeholders."""
+    text = " ".join(str(value or "").split()).strip()
+    lowered = text.lower().rstrip(".")
+    if not text or lowered in _UNHELPFUL_CARD_VALUES:
+        return ""
+    if any(
+        marker in lowered
+        for marker in (
+            "data is being expanded",
+            "coming soon",
+            "beta placeholder",
+            "name shaped for",
+        )
+    ):
+        return ""
+    return text
+
+
+def collapsed_result_meaning(result) -> str:
+    """Read a concise meaning without inferring one from generic origin prose."""
+    direct = result.get("meaning") if isinstance(result, dict) else getattr(result, "meaning", "")
+    meaning = meaningful_card_text(direct)
+    if meaning:
+        return meaning
+
+    metadata = result.get("metadata", {}) if isinstance(result, dict) else getattr(result, "metadata", {})
+    if not isinstance(metadata, dict):
+        return ""
+    meaning = meaningful_card_text(metadata.get("meaning"))
+    if meaning:
+        return meaning
+
+    combined = meaningful_card_text(metadata.get("meaning_and_origin") or metadata.get("origin_meaning"))
+    if not combined:
+        return ""
+    match = re.search(r"(?:^|[;|])\s*meaning\s*:\s*([^;|]+)", combined, flags=re.IGNORECASE)
+    return meaningful_card_text(match.group(1)) if match else ""
 
 
 
@@ -204,11 +268,20 @@ def result_detail_from_session(session_id: str, result_id: str) -> dict | None:
 
     for row in snapshot["results"]:
         if row["id"] == result_id:
+            reaction_values = _reaction_values(snapshot)
+            available_results: list[dict] = []
+            for chain_snapshot in get_session_chain_snapshots(session_id):
+                available_results.extend(
+                    json_loads(item["result_json"])
+                    for item in chain_snapshot.get("results", [])
+                )
             return {
                 "session": snapshot["session"],
                 "result": json_loads(row["result_json"]),
                 "reaction_counts": snapshot["reaction_counts"],
                 "taste_profile": _taste_profile_from_snapshot(snapshot),
+                "reaction_value": reaction_values.get(result_id, ""),
+                "available_results": available_results,
             }
     return None
 
@@ -258,6 +331,14 @@ def _reaction_total(reaction_counts: dict[str, int]) -> int:
     return sum(int(reaction_counts.get(value, 0)) for value in ("love", "maybe", "no"))
 
 
+def _reaction_values(snapshot: dict | None) -> dict[str, str]:
+    return {
+        str(row["result_id"]): str(row["value"])
+        for row in (snapshot or {}).get("reactions", [])
+        if row.get("value") in {"love", "maybe", "no"}
+    }
+
+
 def _brief_from_snapshot(snapshot: dict) -> NamingBrief:
     return NamingBrief(**json_loads(snapshot["session"]["brief_json"]))
 
@@ -297,6 +378,7 @@ def _render_results_snapshot(
             trust_cue=build_trust_cue(names),
             session_id=session_id,
             reaction_counts=reaction_counts,
+            reaction_values=_reaction_values(snapshot),
             reaction_total=_reaction_total(reaction_counts),
             min_reactions_for_refinement=MIN_REACTIONS_FOR_REFINEMENT,
             taste_profile=_taste_profile_from_snapshot(snapshot),
@@ -340,10 +422,13 @@ def create_app() -> Flask:
 
     @app.errorhandler(NameGenerationUnavailable)
     def generation_unavailable(exc: NameGenerationUnavailable):
+        requested_slug = request.path.strip("/").split("/", 1)[0]
+        error_vertical = get_vertical(requested_slug) if requested_slug in VERTICALS else None
         return (
             render_template(
                 "generation_unavailable.html",
                 message=str(exc) or "We could not generate names right now.",
+                vertical=error_vertical,
             ),
             503,
         )
@@ -362,9 +447,12 @@ def create_app() -> Flask:
             "feeling_section_titles": feeling_section_titles,
             "section_strength_field": section_strength_field,
             "feeling_center_icon": feeling_center_icon,
+            "meaningful_card_text": meaningful_card_text,
+            "collapsed_result_meaning": collapsed_result_meaning,
         }
 
     app.add_template_filter(brief_query_string, "brief_query_string")
+    app.add_template_filter(_safe_audit_value, "safe_audit")
 
     @app.get("/")
     def index():
@@ -464,6 +552,7 @@ def create_app() -> Flask:
             trust_cue=build_trust_cue(names),
             session_id=session_id,
             reaction_counts=get_reaction_counts(session_id),
+            reaction_values=_reaction_values(get_session_snapshot(session_id)),
             taste_profile=json_loads(taste_profile_row["profile_json"]) if taste_profile_row else None,
             round_number=1,
             parent_session_id=None,
@@ -528,6 +617,7 @@ def create_app() -> Flask:
             trust_cue=build_trust_cue(names),
             session_id=session_id,
             reaction_counts=get_reaction_counts(session_id),
+            reaction_values=_reaction_values(get_session_snapshot(session_id)),
             taste_profile=json_loads(taste_profile_row["profile_json"]) if taste_profile_row else None,
             round_number=1,
             parent_session_id=None,
@@ -541,13 +631,20 @@ def create_app() -> Flask:
     @app.post("/api/react")
     def react():
         payload = request.get_json(silent=True) or request.form
+        session_id = str(payload.get("session_id", ""))
+        result_id = str(payload.get("result_id", ""))
+        value = str(payload.get("value", ""))
+        snapshot = get_session_snapshot(session_id) if session_id else None
 
         try:
-            reaction = build_reaction(
-                session_id=str(payload.get("session_id", "")),
-                result_id=str(payload.get("result_id", "")),
-                value=str(payload.get("value", "")),
-            )
+            if snapshot and snapshot["session"]["vertical"] == "baby" and value == "maybe":
+                reaction = build_reaction(session_id, result_id, value)
+            else:
+                reaction = build_public_reaction(
+                    session_id=session_id,
+                    result_id=result_id,
+                    value=value,
+                )
         except ReactionError as exc:
             return jsonify({"error": str(exc)}), 400
 
@@ -627,6 +724,7 @@ def create_app() -> Flask:
             trust_cue=build_trust_cue(names),
             session_id=child_session_id,
             reaction_counts=get_reaction_counts(child_session_id),
+            reaction_values=_reaction_values(child_snapshot),
             taste_profile=taste_profile,
             round_number=round_number,
             parent_session_id=session_id,
@@ -654,10 +752,11 @@ def create_app() -> Flask:
     def shared_shortlist(session_id: str):
         snapshot = get_session_snapshot(session_id)
         if snapshot is None:
+            vertical_slug = next((slug for slug in VERTICALS if session_id.startswith(slug)), None)
             return render_template(
                 "share_missing.html",
                 session_id=session_id,
-                vertical=get_vertical("pet") if session_id.startswith("pet") else None,
+                vertical=get_vertical(vertical_slug) if vertical_slug else None,
             ), 410
 
         vertical = get_vertical(snapshot["session"]["vertical"])
@@ -674,8 +773,27 @@ def create_app() -> Flask:
             taste_profile=taste_profile,
         )
 
+    @app.get("/dev/engine-audit")
+    def engine_audit_index():
+        if not _engine_audit_enabled():
+            abort(404)
+        vertical_slug = str(request.args.get("vertical") or "baby").strip().lower()
+        if vertical_slug not in VERTICALS:
+            abort(400)
+        limit = min(_positive_int(request.args.get("limit")) or 50, 200)
+        return render_template(
+            "engine_audit_index.html",
+            vertical=get_vertical(vertical_slug),
+            selected_vertical=vertical_slug,
+            limit=limit,
+            sessions=get_recent_audit_sessions(vertical_slug, limit),
+            failures=get_failed_generation_audits(vertical_slug, limit),
+        )
+
     @app.get("/dev/engine-audit/<session_id>")
     def engine_audit(session_id: str):
+        if not _engine_audit_enabled():
+            abort(404)
         snapshot = get_session_snapshot(session_id)
         if snapshot is None:
             abort(404)
@@ -688,7 +806,30 @@ def create_app() -> Flask:
             brief=json_loads(snapshot["session"]["brief_json"]),
             names=_names_from_snapshot(snapshot),
             reaction_counts=get_reaction_counts(session_id),
+            chosen_names=snapshot["chosen_names"],
             audit=_engine_audit_from_snapshot(snapshot),
+        )
+
+    @app.get("/dev/taste-evolution/<session_id>")
+    def taste_evolution(session_id: str):
+        if not _engine_audit_enabled():
+            abort(404)
+        snapshot = get_session_snapshot(session_id)
+        if snapshot is None:
+            abort(404)
+        parent_session_id = snapshot["session"].get("parent_session_id")
+        if not parent_session_id:
+            abort(404)
+        parent_snapshot = get_session_snapshot(parent_session_id)
+        if parent_snapshot is None:
+            abort(404)
+
+        return render_template(
+            "taste_evolution.html",
+            vertical=get_vertical(snapshot["session"]["vertical"]),
+            session=snapshot["session"],
+            parent_session=parent_snapshot["session"],
+            evolution=build_taste_evolution(parent_snapshot, snapshot),
         )
 
     @app.get("/dev/eval-report")
@@ -725,6 +866,18 @@ def create_app() -> Flask:
         if vertical.slug != vertical_slug:
             abort(404)
 
+        decision_support = (
+            build_baby_decision_support(
+                detail["result"],
+                detail["session"],
+                detail["taste_profile"],
+                detail["available_results"],
+                detail["reaction_value"],
+            )
+            if vertical.slug == "baby"
+            else None
+        )
+
         return render_template(
             "name_detail.html",
             vertical=vertical,
@@ -733,6 +886,7 @@ def create_app() -> Flask:
             name_fact_card=build_name_fact_card(vertical.slug, detail["result"]),
             reaction_counts=detail["reaction_counts"],
             taste_profile=detail["taste_profile"],
+            decision_support=decision_support,
         )
 
     @app.get("/chosen/<chosen_id>")
@@ -756,13 +910,15 @@ def create_app() -> Flask:
 
     @app.get("/generated/pet-portraits/<filename>")
     def generated_pet_portrait(filename: str):
-        portrait_dir = get_database_path().parent / "generated_pet_portraits"
-        return send_from_directory(portrait_dir, filename)
+        return send_from_directory(generated_image_directory("pet"), filename)
 
     @app.get("/generated/baby-keepsakes/<filename>")
     def generated_baby_keepsake(filename: str):
-        keepsake_dir = get_database_path().parent / "generated_baby_keepsakes"
-        return send_from_directory(keepsake_dir, filename)
+        return send_from_directory(generated_image_directory("baby"), filename)
+
+    @app.get("/generated/business-images/<filename>")
+    def generated_business_image(filename: str):
+        return send_from_directory(generated_image_directory("business"), filename)
 
     @app.get("/api/chosen/<chosen_id>/portrait")
     def chosen_portrait_status(chosen_id: str):
@@ -778,6 +934,19 @@ def create_app() -> Flask:
             {
                 "chosen_id": chosen_id,
                 "runtime": keepsake_runtime_config(vertical_slug),
+                "portrait": portrait or {"status": "not_attempted"},
+            }
+        )
+
+    @app.post("/api/chosen/<chosen_id>/portrait/retry")
+    def retry_chosen_portrait(chosen_id: str):
+        snapshot = get_chosen_snapshot(chosen_id)
+        if snapshot is None:
+            abort(404)
+        portrait = _queue_keepsake_generation(chosen_id, force_retry=True)
+        return jsonify(
+            {
+                "chosen_id": chosen_id,
                 "portrait": portrait or {"status": "not_attempted"},
             }
         )
@@ -849,20 +1018,63 @@ def _engine_audit_from_snapshot(snapshot: dict) -> dict:
             for name in names
         }
     )
-    return {
-        "generation_id": metadata.get("generation_id") or snapshot["session"]["id"],
-        "prompt_version": metadata.get("prompt_version", "unknown"),
-        "engine_pipeline": metadata.get("engine_pipeline", "unknown"),
-        "model": metadata.get("model", "unknown"),
-        "providers": providers,
-        "ai_calls": ai_calls,
-        "usage_totals": usage_totals,
-        "total_latency_ms": total_latency_ms,
-        "taste_strategy": metadata.get("taste_strategy", {}),
-        "candidate_pool": metadata.get("candidate_pool", []),
-        "rejected_candidates": metadata.get("rejected_candidates", []),
-        "result_metadata": metadata,
-    }
+    return _safe_audit_value(
+        {
+            "generation_id": metadata.get("generation_id") or snapshot["session"]["id"],
+            "prompt_version": metadata.get("prompt_version", "unknown"),
+            "intake_schema_version": metadata.get("intake_schema_version", "unknown"),
+            "normalizer_version": metadata.get("normalizer_version", "unknown"),
+            "intake_adapter_version": metadata.get("intake_adapter_version", "unknown"),
+            "canonical_intent_version": metadata.get("canonical_intent_version", "unknown"),
+            "engine_pipeline": metadata.get("engine_pipeline", "unknown"),
+            "model": metadata.get("model", "unknown"),
+            "providers": providers,
+            "ai_calls": ai_calls,
+            "usage_totals": usage_totals,
+            "total_latency_ms": total_latency_ms,
+            "taste_strategy": metadata.get("taste_strategy", {}),
+            "candidate_pool": metadata.get("candidate_pool", []),
+            "rejected_candidates": metadata.get("rejected_candidates", []),
+            "result_metadata": metadata,
+        }
+    )
+
+
+def _safe_audit_value(value):
+    """Redact credential-shaped values before rendering internal audit data."""
+    if isinstance(value, dict):
+        return {
+            key: "[redacted]" if _is_sensitive_audit_key(key) else _safe_audit_value(item)
+            for key, item in value.items()
+        }
+    if isinstance(value, list):
+        return [_safe_audit_value(item) for item in value]
+    if isinstance(value, tuple):
+        return tuple(_safe_audit_value(item) for item in value)
+    return value
+
+
+def _is_sensitive_audit_key(key) -> bool:
+    normalized = str(key).strip().lower().replace("-", "_")
+    return (
+        normalized
+        in {
+            "authorization",
+            "cookie",
+            "credentials",
+            "password",
+            "private_key",
+            "secret",
+            "set_cookie",
+            "token",
+        }
+        or "api_key" in normalized
+        or "apikey" in normalized
+        or normalized.endswith("_password")
+        or normalized.endswith("_private_key")
+        or normalized.endswith("_secret")
+        or normalized.endswith("_token")
+    )
 
 
 def _positive_int(value) -> int | None:
@@ -875,23 +1087,41 @@ def _positive_int(value) -> int | None:
     return parsed if parsed > 0 else None
 
 
+def _engine_audit_enabled() -> bool:
+    return os.getenv("NAMENGINE_ENABLE_ENGINE_AUDIT") == "1"
+
+
 def _generate_names_for_route(vertical, brief: NamingBrief) -> list[NameResult]:
     if _should_use_ai_for_vertical(vertical):
+        started_at = time.perf_counter()
         try:
             names = generate_with_router(
                 vertical=vertical,
                 brief=brief,
                 providers=[ModelProvider.OPENAI],
+                fallback_on_provider_error=True,
             )
+            if not names:
+                raise AIGenerationError("generation returned no usable names")
         except Exception as exc:  # pragma: no cover - live provider behavior
             logger.exception("LLM generation failed for %s", vertical.slug)
+            safe_message = "We’re having trouble generating this list right now. Please try again shortly."
+            try:
+                save_failed_generation_audit(
+                    vertical=vertical.slug,
+                    provider=ModelProvider.OPENAI.value,
+                    model=os.getenv("NAMENGINE_OPENAI_MODEL", DEFAULT_MODEL),
+                    prompt_version=prompt_version_for(vertical.slug),
+                    latency_ms=int((time.perf_counter() - started_at) * 1000),
+                    customer_intake=_audit_customer_intake(brief),
+                    exception_type=type(exc).__name__,
+                    safe_error_message=safe_message,
+                )
+            except Exception:  # pragma: no cover - audit failure must not replace product response
+                logger.exception("Could not persist failed generation audit for %s", vertical.slug)
             raise NameGenerationUnavailable(
-                "We’re having trouble generating this list right now. Please try again shortly."
+                safe_message
             ) from exc
-        if not names:
-            raise NameGenerationUnavailable(
-                "We’re having trouble generating this list right now. Please try again shortly."
-            )
         for name in names:
             name.metadata.setdefault("source", "openai")
             name.metadata.setdefault("provider", "openai")
@@ -899,6 +1129,13 @@ def _generate_names_for_route(vertical, brief: NamingBrief) -> list[NameResult]:
         return names
 
     return generate_names(vertical, brief, use_ai=False)
+
+
+def _audit_customer_intake(brief: NamingBrief) -> dict:
+    """Keep the existing audit payload without duplicating canonical context."""
+    payload = to_plain_data(brief)
+    payload.pop("canonical_intent", None)
+    return payload
 
 
 def _ai_primary_verticals() -> set[str]:
@@ -951,7 +1188,7 @@ def _try_generate_keepsake(chosen_id: str):
     snapshot = get_chosen_snapshot(chosen_id)
     if snapshot is None or snapshot["result"] is None:
         return None
-    if snapshot["chosen"].get("vertical") not in {"pet", "baby"}:
+    if snapshot["chosen"].get("vertical") not in {"pet", "baby", "business"}:
         return None
 
     result = to_plain_data(json_loads(snapshot["result"]["result_json"]))
@@ -966,7 +1203,7 @@ def _try_generate_keepsake(chosen_id: str):
             "Keepsake generation failed for %s: %s: %s",
             chosen_id,
             exc.__class__.__name__,
-            str(exc)[:500],
+            safe_provider_error_for_log(exc),
         )
         return None
 
@@ -975,17 +1212,17 @@ def _keepsake_preview(chosen_id: str):
     snapshot = get_chosen_snapshot(chosen_id)
     if snapshot is None or snapshot["result"] is None:
         return None
-    if snapshot["chosen"].get("vertical") not in {"pet", "baby"}:
+    if snapshot["chosen"].get("vertical") not in {"pet", "baby", "business"}:
         return None
 
     return keepsake_preview_for_chosen(snapshot["chosen"], snapshot["session"])
 
 
-def _queue_keepsake_generation(chosen_id: str):
+def _queue_keepsake_generation(chosen_id: str, *, force_retry: bool = False):
     snapshot = get_chosen_snapshot(chosen_id)
     if snapshot is None or snapshot["result"] is None:
         return None
-    if snapshot["chosen"].get("vertical") not in {"pet", "baby"}:
+    if snapshot["chosen"].get("vertical") not in {"pet", "baby", "business"}:
         return None
 
     result = to_plain_data(json_loads(snapshot["result"]["result_json"]))
@@ -993,6 +1230,7 @@ def _queue_keepsake_generation(chosen_id: str):
         snapshot["chosen"],
         result,
         snapshot["session"],
+        force_retry=force_retry,
     )
     if not portrait or portrait.get("status") in {"ready", "not_configured", "failed"}:
         return portrait

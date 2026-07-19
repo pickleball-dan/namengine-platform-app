@@ -1,0 +1,30 @@
+{
+  "fixture_id": "baby-eval-classic-soft-familiar-girl",
+  "schema_version": "name-evaluation-fixture-v1",
+  "vertical": "baby",
+  "title": "Classic, soft, familiar girl names",
+  "description": "A gentle, established list that feels immediately wearable without becoming bland.",
+  "intake": {"gender": "Girl", "style": "Classic", "familiarity_preference": "Very familiar", "timeless_vs_distinctive": "Mostly timeless", "sound": "Soft", "discovery_style": "Familiar favorites", "avoid": "Nevaeh"},
+  "expected_naming_territories": ["classic", "soft", "timeless"],
+  "desired_qualities": ["familiar", "gentle", "wearable"],
+  "prohibited_qualities": ["invented spelling", "harsh"],
+  "reference_candidates": ["Clara", "Alice", "Lucy"],
+  "rejection_candidates": ["Nevaeh"],
+  "acceptance_criteria": {"minimum_normalized_score": 0.72, "criteria": [
+    {"criterion": "required_candidate_count", "weight": 1, "parameters": {"minimum": 8}},
+    {"criterion": "duplicate_prevention", "weight": 1},
+    {"criterion": "prohibited_names", "weight": 1},
+    {"criterion": "familiarity_range", "weight": 1, "parameters": {"minimum": 0.2, "maximum": 0.65}},
+    {"criterion": "gender_fit", "weight": 1},
+    {"criterion": "style_fit", "weight": 1, "parameters": {"minimum": 0.55}},
+    {"criterion": "sound_strength_fit", "weight": 1, "parameters": {"minimum": 0.55}},
+    {"criterion": "explanation_completeness", "weight": 1},
+    {"criterion": "metadata_completeness", "weight": 1},
+    {"criterion": "valid_bounded_scores", "weight": 1},
+    {"criterion": "privacy_safety", "weight": 1},
+    {"criterion": "deterministic_ordering", "weight": 0.5, "required": false}
+  ]},
+  "regression_notes": "Judge the classic-soft lane, not exact reproduction of the reference names.",
+  "tags": ["baby", "classic", "familiar", "gender-fit"],
+  "enabled": true
+}

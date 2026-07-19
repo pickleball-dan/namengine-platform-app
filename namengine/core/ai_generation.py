@@ -9,6 +9,15 @@ import uuid
 from collections.abc import Callable
 from typing import Any
 
+import namengine.core.quality_adapters  # Registers built-in vertical adapters.
+from namengine.core.prompt_versions import DEFAULT_PROMPT_VERSION, prompt_version_for
+from namengine.core.quality_framework import (
+    apply_quality_metadata,
+    build_quality_taste_thesis,
+    improve_quality_explanations,
+    quality_model_score_keys,
+    quality_prompt_guidance,
+)
 from namengine.core.schemas import (
     NameResult,
     NamingBrief,
@@ -19,8 +28,8 @@ from namengine.core.validation import validate_results
 
 
 DEFAULT_MODEL = "gpt-4.1-mini"
-DEFAULT_TIMEOUT_SECONDS = 24.0
-PROMPT_VERSION = "namengine-taste-engine-v1"
+DEFAULT_TIMEOUT_SECONDS = 8.0
+PROMPT_VERSION = DEFAULT_PROMPT_VERSION
 TASTE_STRATEGY_SCHEMA_NAME = "namengine_taste_strategy_v1"
 NAME_GENERATION_SCHEMA_NAME = "namengine_name_generation_v1"
 
@@ -55,6 +64,7 @@ def generate_ai_names(
     selected_model = model or os.getenv("NAMENGINE_OPENAI_MODEL", DEFAULT_MODEL)
     client = client_factory() if client_factory else None
     generation_id = f"gen-{uuid.uuid4().hex[:12]}"
+    prompt_version = prompt_version_for(vertical.slug)
 
     taste_strategy = build_local_taste_strategy(
         vertical=vertical,
@@ -73,29 +83,42 @@ def generate_ai_names(
         previous_names=previous_names or [],
         count=target_count,
         taste_strategy=taste_strategy,
+        prompt_version=prompt_version,
     )
     generation_call = _call_openai_with_metadata(
         prompt=prompt,
         model=selected_model,
         client_factory=(lambda: client) if client is not None else None,
-        response_format=name_generation_response_format(),
+        response_format=name_generation_response_format(vertical.slug),
     )
     generation_audit = parse_generation_audit_response(generation_call["text"])
     results = parse_ai_generation_response(generation_call["text"], vertical.slug)
     if not results:
         raise AIGenerationError("AI generation returned no usable names")
 
-    validated = validate_results(vertical, brief, results[: prompt["count"]])
+    selected_results = results[: prompt["count"]]
+    improve_quality_explanations(vertical.slug, selected_results, brief)
+    validated = validate_results(vertical, brief, selected_results)
+    apply_quality_metadata(vertical.slug, validated, brief)
+    from namengine.core.intake import version_metadata_for_brief
+
+    intake_metadata = version_metadata_for_brief(brief)
     for result in validated:
+        result.metadata.update(intake_metadata)
         result.metadata["taste_strategy"] = taste_strategy
         result.metadata["engine_pipeline"] = "weighted_prompt_v1+candidate_ranker_v1"
-        result.metadata["prompt_version"] = PROMPT_VERSION
+        result.metadata["prompt_version"] = prompt_version
         result.metadata["generation_id"] = generation_id
         result.metadata["model"] = selected_model
         result.metadata["candidate_pool"] = generation_audit["candidate_pool"]
         result.metadata["rejected_candidates"] = generation_audit["rejected_candidates"]
         result.metadata["ai_calls"] = [
-            _call_audit_summary("candidate_generator_ranker_v1", generation_call, prompt),
+            _call_audit_summary(
+                "candidate_generator_ranker_v1",
+                generation_call,
+                prompt,
+                prompt_version,
+            ),
         ]
     return validated
 
@@ -110,19 +133,42 @@ def build_local_taste_strategy(
 ) -> dict[str, Any]:
     """Create the naming strategy locally so production needs only one LLM call."""
     inputs = brief.inputs
-    cultural_heritage = str(inputs.get("cultural_heritage") or "No preference").strip()
-    style = str(inputs.get("style") or "").strip()
-    sound = str(inputs.get("sound") or "").strip()
-    discovery = str(inputs.get("discovery_style") or "").strip()
-    familiarity = str(inputs.get("familiarity_preference") or "").strip()
+    taxonomy_diagnostics = _baby_taxonomy_diagnostics(vertical, brief)
+    taxonomy_projection = taxonomy_diagnostics.get("baby_taxonomy_projection", {})
+    baby_taxonomy = _baby_taxonomy_contract()[0] if vertical.slug == "baby" else None
+    cultural_heritage = (
+        baby_taxonomy.project_prompt_value(
+            "cultural_heritage",
+            inputs.get("cultural_heritage") or "No preference",
+        )
+        if vertical.slug == "baby"
+        else str(inputs.get("cultural_heritage") or "No preference").strip()
+    )
+    if vertical.slug == "baby":
+        style = taxonomy_projection["style_direction"]
+        sound = taxonomy_projection["sound_direction"]
+        discovery = taxonomy_projection["discovery_direction"]
+        familiarity = taxonomy_projection["familiarity_direction"]
+    else:
+        style = str(inputs.get("style") or "").strip()
+        sound = str(inputs.get("sound") or "").strip()
+        discovery = str(inputs.get("discovery_style") or "").strip()
+        familiarity = str(inputs.get("familiarity_preference") or "").strip()
     weighting = _taste_weighting_payload(brief)
     target_count = count or _count_for_round(vertical, round_number)
     prior_summary = taste_profile.summary if taste_profile else ""
     previous = previous_names or []
 
-    thesis_parts = [part for part in [style, sound, cultural_heritage] if part and part.lower() != "no preference"]
-    taste_thesis = " / ".join(thesis_parts) if thesis_parts else vertical.prompt_context
+    taste_thesis = build_quality_taste_thesis(vertical.slug, brief, weighting)
+    if taste_thesis is None:
+        thesis_parts = [
+            part
+            for part in [style, sound, cultural_heritage]
+            if part and part.lower() != "no preference"
+        ]
+        taste_thesis = " / ".join(thesis_parts) if thesis_parts else vertical.prompt_context
     return {
+        **taxonomy_diagnostics,
         "taste_thesis": taste_thesis,
         "primary_priorities": [
             f"Return exactly {target_count} strong final names.",
@@ -156,6 +202,7 @@ def build_taste_interpreter_prompt(
 ) -> dict[str, Any]:
     """Build the first-stage prompt that translates inputs into naming strategy."""
     return {
+        **_baby_taxonomy_diagnostics(vertical, brief),
         "role": "NamEngine chief taste interpreter",
         "engine_stage": "taste_interpreter_v1",
         "vertical": vertical.slug,
@@ -269,6 +316,7 @@ def build_generation_prompt(
     previous_names: list[str],
     count: int,
     taste_strategy: dict[str, Any] | None = None,
+    prompt_version: str | None = None,
 ) -> dict[str, Any]:
     round_goal = {
         1: "Discovery: explore strong but varied naming lanes.",
@@ -276,9 +324,14 @@ def build_generation_prompt(
         3: "Finalists: produce the most choose-worthy names only.",
     }.get(round_number, "One more specific round: respond narrowly to the user's latest direction.")
 
+    taxonomy_diagnostics = _baby_taxonomy_diagnostics(vertical, brief)
+
     return {
+        **taxonomy_diagnostics,
         "role": "NamEngine senior naming strategist",
         "engine_stage": "candidate_generator_ranker_v1",
+        "prompt_version": prompt_version
+        or prompt_version_for(vertical.slug),
         "vertical": vertical.slug,
         "vertical_context": vertical.prompt_context,
         "round_number": round_number,
@@ -336,14 +389,23 @@ def build_generation_prompt(
                 "risks",
                 "tags",
                 "scores",
-            ],
-            "score_keys": ["callability", "warmth", "distinctiveness"],
-            "metadata_guidance": [
-                "Return only the final names array; do not include candidate_pool or rejected_candidates in the live response",
-                "why_this_name should explain why this name won against the user's taste thesis",
-                "fit_note should connect to a concrete user input, not generic praise",
-                "risks should be honest and practical",
-            ],
+            ] + (
+                [
+                    "recommendation_reason",
+                    "matched_preferences",
+                    "strongest_fit",
+                    "real_life_impression",
+                    "tradeoffs",
+                    "comparison_position",
+                    "nickname_considerations",
+                    "family_fit",
+                    "confidence_note",
+                ]
+                if vertical.slug == "baby"
+                else []
+            ),
+            "score_keys": _score_keys(vertical.slug),
+            "metadata_guidance": _explanation_guidance(vertical.slug),
         },
     }
 
@@ -383,9 +445,14 @@ def _baby_generation_guidance(vertical: VerticalConfig, brief: NamingBrief) -> d
     if vertical.slug != "baby":
         return {}
 
-    cultural_heritage = str(brief.inputs.get("cultural_heritage") or "").strip()
-    cultural_context = str(brief.inputs.get("cultural_context") or "").strip()
-    style = str(brief.inputs.get("style") or "").strip()
+    baby_taxonomy, _taxonomy_version = _baby_taxonomy_contract()
+    taxonomy_projection = baby_taxonomy.prompt_projection(brief.inputs)
+    cultural_heritage = baby_taxonomy.project_prompt_value(
+        "cultural_heritage",
+        brief.inputs.get("cultural_heritage"),
+    )
+    cultural_context = taxonomy_projection["inspiration_direction"]
+    style = taxonomy_projection["style_direction"]
     guidance: dict[str, Any] = {
         "meaning_and_vibe_are_first_class": True,
         "names_should_feel_like_human_curation_not_database_lookup": True,
@@ -393,6 +460,20 @@ def _baby_generation_guidance(vertical: VerticalConfig, brief: NamingBrief) -> d
         "meaning_field_should_be_specific_when_known": True,
         "tagline_should_capture_emotional_vibe": True,
         "why_this_name_should_connect_style_heritage_sound_and_family_context": True,
+        "decision_support_requirements": {
+            "recommendation_reason": "Explain why the name earned a place using concrete intake or reaction evidence.",
+            "matched_preferences": "Name the selected preference, the user evidence, and the name-specific fit.",
+            "strongest_fit": "State the single most decision-relevant fit, without generic praise.",
+            "real_life_impression": "Describe childhood, adulthood, and overall use only when supported by sound and form.",
+            "tradeoffs": "Give honest practical considerations; do not restate generic strengths.",
+            "comparison_position": "Only name comparisons supported by prior reacted names or supplied taste-profile evidence.",
+            "nickname_considerations": "Separate likely from optional forms and acknowledge uncertainty.",
+            "family_fit": "Use supplied surname/family context only; do not invent initials or relatives.",
+            "confidence_note": "Separate supported evidence from subjective family judgment.",
+        },
+        "do_not_repeat_style_meaning_or_origin_as_reasoning": True,
+        "do_not_invent_comparisons_popularity_initials_or_family_context": True,
+        "empty_values_are_better_than_filler_when_evidence_is_missing": True,
     }
     if cultural_heritage and cultural_heritage.lower() not in {"no preference", "none"}:
         guidance.update(
@@ -413,7 +494,52 @@ def _baby_generation_guidance(vertical: VerticalConfig, brief: NamingBrief) -> d
     return guidance
 
 
-def name_generation_response_format() -> dict[str, Any]:
+def name_generation_response_format(vertical_slug: str | None = None) -> dict[str, Any]:
+    score_keys = _score_keys(vertical_slug or "")
+    required = [
+        "name",
+        "pronunciation",
+        "tagline",
+        "origin",
+        "meaning",
+        "why_this_name",
+        "fit_note",
+        "risks",
+        "tags",
+        "scores",
+    ]
+    properties: dict[str, Any] = {
+        "name": {"type": "string"},
+        "pronunciation": {"type": "string"},
+        "tagline": {"type": "string"},
+        "origin": {"type": "string"},
+        "meaning": {"type": "string"},
+        "why_this_name": {"type": "string"},
+        "fit_note": {"type": "string"},
+        "risks": {"type": "array", "items": {"type": "string"}},
+        "tags": {"type": "array", "items": {"type": "string"}},
+        "scores": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": score_keys,
+            "properties": {key: {"type": "number"} for key in score_keys},
+        },
+    }
+    if vertical_slug == "baby":
+        required.extend(
+            [
+                "recommendation_reason",
+                "matched_preferences",
+                "strongest_fit",
+                "real_life_impression",
+                "tradeoffs",
+                "comparison_position",
+                "nickname_considerations",
+                "family_fit",
+                "confidence_note",
+            ]
+        )
+        properties.update(_baby_decision_schema_properties())
     return {
         "type": "json_schema",
         "name": NAME_GENERATION_SCHEMA_NAME,
@@ -429,44 +555,91 @@ def name_generation_response_format() -> dict[str, Any]:
                     "items": {
                         "type": "object",
                         "additionalProperties": False,
-                        "required": [
-                            "name",
-                            "pronunciation",
-                            "tagline",
-                            "origin",
-                            "meaning",
-                            "why_this_name",
-                            "fit_note",
-                            "risks",
-                            "tags",
-                            "scores",
-                        ],
-                        "properties": {
-                            "name": {"type": "string"},
-                            "pronunciation": {"type": "string"},
-                            "tagline": {"type": "string"},
-                            "origin": {"type": "string"},
-                            "meaning": {"type": "string"},
-                            "why_this_name": {"type": "string"},
-                            "fit_note": {"type": "string"},
-                            "risks": {"type": "array", "items": {"type": "string"}},
-                            "tags": {"type": "array", "items": {"type": "string"}},
-                            "scores": {
-                                "type": "object",
-                                "additionalProperties": False,
-                                "required": ["callability", "warmth", "distinctiveness"],
-                                "properties": {
-                                    "callability": {"type": "number"},
-                                    "warmth": {"type": "number"},
-                                    "distinctiveness": {"type": "number"},
-                                },
-                            },
-                        },
+                        "required": required,
+                        "properties": properties,
                     },
                 }
             },
         },
     }
+
+
+def _baby_decision_schema_properties() -> dict[str, Any]:
+    preference = {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["preference", "evidence", "fit"],
+        "properties": {
+            "preference": {"type": "string"},
+            "evidence": {"type": "string"},
+            "fit": {"type": "string"},
+        },
+    }
+    string_array = {"type": "array", "items": {"type": "string"}}
+    return {
+        "recommendation_reason": {"type": "string"},
+        "matched_preferences": {"type": "array", "items": preference},
+        "strongest_fit": {"type": "string"},
+        "real_life_impression": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["childhood", "adulthood", "overall"],
+            "properties": {
+                "childhood": {"type": "string"},
+                "adulthood": {"type": "string"},
+                "overall": {"type": "string"},
+            },
+        },
+        "tradeoffs": string_array,
+        "comparison_position": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["softer_than", "stronger_than", "more_familiar_than", "more_distinctive_than"],
+            "properties": {
+                "softer_than": string_array,
+                "stronger_than": string_array,
+                "more_familiar_than": string_array,
+                "more_distinctive_than": string_array,
+            },
+        },
+        "nickname_considerations": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["likely", "optional", "note"],
+            "properties": {
+                "likely": string_array,
+                "optional": string_array,
+                "note": {"type": "string"},
+            },
+        },
+        "family_fit": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["surname_or_context", "sound_note", "initials_note"],
+            "properties": {
+                "surname_or_context": {"type": "string"},
+                "sound_note": {"type": "string"},
+                "initials_note": {"type": "string"},
+            },
+        },
+        "confidence_note": {"type": "string"},
+    }
+
+
+def _score_keys(vertical_slug: str) -> list[str]:
+    return list(
+        quality_model_score_keys(vertical_slug, ("callability", "warmth", "distinctiveness"))
+    )
+
+
+def _explanation_guidance(vertical_slug: str) -> list[str]:
+    guidance = [
+        "Return only the final names array; do not include candidate_pool or rejected_candidates in the live response",
+        "why_this_name should explain why this name won against the user's taste thesis",
+        "fit_note should connect to a concrete user input, not generic praise",
+        "risks should be honest and practical",
+    ]
+    return guidance + list(quality_prompt_guidance(vertical_slug, ()))
 
 def parse_taste_strategy_response(raw_text: str) -> dict[str, Any]:
     payload = _loads_json_payload(raw_text)
@@ -529,6 +702,25 @@ def parse_ai_generation_response(raw_text: str, vertical_slug: str) -> list[Name
                 meaning=str(row.get("meaning", "")).strip(),
                 why_this_name=str(row.get("why_this_name", "")).strip(),
                 fit_note=str(row.get("fit_note", "")).strip(),
+                recommendation_reason=str(row.get("recommendation_reason", "")).strip(),
+                matched_preferences=_matched_preferences(row.get("matched_preferences")),
+                strongest_fit=str(row.get("strongest_fit", "")).strip(),
+                real_life_impression=_decision_text_map(
+                    row.get("real_life_impression"), ("childhood", "adulthood", "overall")
+                ),
+                tradeoffs=_string_list(row.get("tradeoffs")),
+                comparison_position=_decision_list_map(
+                    row.get("comparison_position"),
+                    ("softer_than", "stronger_than", "more_familiar_than", "more_distinctive_than"),
+                ),
+                nickname_considerations=_nickname_considerations(
+                    row.get("nickname_considerations")
+                ),
+                family_fit=_decision_text_map(
+                    row.get("family_fit"),
+                    ("surname_or_context", "sound_note", "initials_note"),
+                ),
+                confidence_note=str(row.get("confidence_note", "")).strip(),
                 risks=_string_list(row.get("risks")),
                 tags=_string_list(row.get("tags")),
                 scores=_scores(row.get("scores")),
@@ -536,6 +728,44 @@ def parse_ai_generation_response(raw_text: str, vertical_slug: str) -> list[Name
             )
         )
     return results
+
+
+def _matched_preferences(value: Any) -> list[dict[str, str]]:
+    rows = value if isinstance(value, list) else []
+    output = []
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        item = {
+            key: str(row.get(key, "")).strip()
+            for key in ("preference", "evidence", "fit")
+        }
+        if all(item.values()):
+            output.append(item)
+    return output
+
+
+def _decision_text_map(value: Any, keys: tuple[str, ...]) -> dict[str, str]:
+    row = value if isinstance(value, dict) else {}
+    return {
+        key: text
+        for key in keys
+        if (text := str(row.get(key, "")).strip())
+    }
+
+
+def _decision_list_map(value: Any, keys: tuple[str, ...]) -> dict[str, list[str]]:
+    row = value if isinstance(value, dict) else {}
+    return {key: _string_list(row.get(key)) for key in keys}
+
+
+def _nickname_considerations(value: Any) -> dict[str, Any]:
+    row = value if isinstance(value, dict) else {}
+    return {
+        "likely": _string_list(row.get("likely")),
+        "optional": _string_list(row.get("optional")),
+        "note": str(row.get("note", "")).strip(),
+    }
 
 
 def parse_generation_audit_response(raw_text: str) -> dict[str, list[dict[str, Any]]]:
@@ -608,16 +838,46 @@ def _call_openai_with_metadata(
     raise AIGenerationError("OpenAI response did not include output_text")
 
 
-def _call_audit_summary(stage: str, call: dict[str, Any], prompt: dict[str, Any]) -> dict[str, Any]:
+def _call_audit_summary(
+    stage: str,
+    call: dict[str, Any],
+    prompt: dict[str, Any],
+    prompt_version: str = PROMPT_VERSION,
+) -> dict[str, Any]:
     return {
+        **(
+            {"baby_taxonomy_version": prompt["baby_taxonomy_version"]}
+            if prompt.get("baby_taxonomy_version")
+            else {}
+        ),
         "stage": stage,
         "model": call.get("model"),
         "latency_ms": call.get("latency_ms"),
         "usage": call.get("usage") or {},
-        "prompt_version": PROMPT_VERSION,
+        "prompt_version": prompt_version,
         "schema_name": call.get("schema_name"),
         "prompt": prompt,
     }
+
+
+def _baby_taxonomy_diagnostics(
+    vertical: VerticalConfig,
+    brief: NamingBrief,
+) -> dict[str, Any]:
+    if vertical.slug != "baby":
+        return {}
+    baby_taxonomy, taxonomy_version = _baby_taxonomy_contract()
+    return {
+        "baby_taxonomy_version": taxonomy_version,
+        "baby_taxonomy_projection": baby_taxonomy.prompt_projection(brief.inputs),
+    }
+
+
+def _baby_taxonomy_contract():
+    """Load the Baby taxonomy after core initialization to avoid registry cycles."""
+    from namengine.verticals.baby_taxonomy import BABY_TAXONOMY, BABY_TAXONOMY_VERSION
+
+    return BABY_TAXONOMY, BABY_TAXONOMY_VERSION
 
 
 def _usage_payload(usage: Any) -> dict[str, int]:

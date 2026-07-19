@@ -2,11 +2,15 @@
 
 from __future__ import annotations
 
+import logging
 import time
 from collections.abc import Callable
 
 from namengine.core.ai_generation import AIGenerationError, generate_ai_names
+import namengine.core.quality_adapters  # Registers built-in vertical adapters.
+from namengine.core.quality_framework import rank_quality_candidates, score_quality_result
 from namengine.core.generation import generate_fallback_names
+from namengine.core.intake import version_metadata_for_brief
 from namengine.core.schemas import (
     GenerationCandidate,
     ModelProvider,
@@ -24,6 +28,9 @@ ProviderCallable = Callable[
 ]
 
 
+logger = logging.getLogger(__name__)
+
+
 def generate_with_router(
     vertical: VerticalConfig,
     brief: NamingBrief,
@@ -32,6 +39,7 @@ def generate_with_router(
     previous_names: list[str] | None = None,
     providers: list[ModelProvider] | None = None,
     count: int | None = None,
+    fallback_on_provider_error: bool = False,
 ) -> list[NameResult]:
     provider_results = route_generation(
         vertical=vertical,
@@ -40,15 +48,21 @@ def generate_with_router(
         taste_profile=taste_profile,
         previous_names=previous_names or [],
         providers=providers,
+        fallback_on_provider_error=fallback_on_provider_error,
     )
-    candidates = score_provider_results(provider_results)
+    candidates = score_provider_results(provider_results, brief=brief, vertical=vertical)
     selected = select_best_candidates(
         candidates,
         count=count or _count_for_round(vertical, round_number),
         previous_names=previous_names or [],
         allow_previous_fill=vertical.slug != "baby" and round_number < 4,
+        vertical_slug=vertical.slug,
     )
-    return [candidate.result for candidate in selected]
+    results = [candidate.result for candidate in selected]
+    intake_metadata = version_metadata_for_brief(brief)
+    for result in results:
+        result.metadata.update(intake_metadata)
+    return results
 
 
 def route_generation(
@@ -58,6 +72,7 @@ def route_generation(
     taste_profile: TasteProfile | None,
     previous_names: list[str],
     providers: list[ModelProvider] | None = None,
+    fallback_on_provider_error: bool = False,
 ) -> list[ProviderResult]:
     selected_providers = providers or [ModelProvider.OPENAI, ModelProvider.FALLBACK]
     results: list[ProviderResult] = []
@@ -72,20 +87,43 @@ def route_generation(
                 previous_names=previous_names,
             )
         )
+    if (
+        fallback_on_provider_error
+        and ModelProvider.FALLBACK not in selected_providers
+        and any(result.status != "ok" for result in results)
+    ):
+        results.append(
+            _run_provider(
+                provider=ModelProvider.FALLBACK,
+                vertical=vertical,
+                brief=brief,
+                round_number=round_number,
+                taste_profile=taste_profile,
+                previous_names=previous_names,
+            )
+        )
     return results
 
 
 def score_provider_results(
     provider_results: list[ProviderResult],
+    brief: NamingBrief | None = None,
+    vertical: VerticalConfig | None = None,
 ) -> list[GenerationCandidate]:
     candidates: list[GenerationCandidate] = []
     for provider_result in provider_results:
         if provider_result.status != "ok":
             continue
         for result in provider_result.names:
-            score, reasons = score_name_result(result, provider_result.provider)
+            score, reasons = score_name_result(
+                result,
+                provider_result.provider,
+                brief=brief,
+                vertical=vertical,
+            )
             result.metadata["provider"] = provider_result.provider.value
             result.metadata.setdefault("source", provider_result.provider.value)
+            result.metadata["quality_reasons"] = reasons
             candidates.append(
                 GenerationCandidate(
                     result=result,
@@ -100,7 +138,14 @@ def score_provider_results(
 def score_name_result(
     result: NameResult,
     provider: ModelProvider,
+    brief: NamingBrief | None = None,
+    vertical: VerticalConfig | None = None,
 ) -> tuple[float, list[str]]:
+    vertical_slug = vertical.slug if vertical else (brief.vertical if brief else "")
+    quality_score = score_quality_result(vertical_slug, result, brief) if brief else None
+    if quality_score is not None:
+        return quality_score
+
     reasons: list[str] = []
     score = 0.0
 
@@ -134,11 +179,13 @@ def select_best_candidates(
     count: int,
     previous_names: list[str] | None = None,
     allow_previous_fill: bool = True,
+    vertical_slug: str | None = None,
 ) -> list[GenerationCandidate]:
     previous = {name.lower() for name in (previous_names or [])}
     seen: set[str] = set()
     selected: list[GenerationCandidate] = []
-    for candidate in sorted(candidates, key=lambda item: item.quality_score, reverse=True):
+    ranked = rank_quality_candidates(candidates, vertical_slug)
+    for candidate in ranked:
         key = candidate.result.name.lower()
         if key in seen or key in previous:
             continue
@@ -149,7 +196,7 @@ def select_best_candidates(
             break
 
     if allow_previous_fill and len(selected) < count:
-        for candidate in sorted(candidates, key=lambda item: item.quality_score, reverse=True):
+        for candidate in ranked:
             key = candidate.result.name.lower()
             if key in seen:
                 continue
@@ -190,12 +237,40 @@ def _run_provider(
             latency_ms=_latency_ms(start),
         )
     except Exception as exc:
+        latency_ms = _latency_ms(start)
+        if _is_timeout_exception(exc):
+            logger.warning(
+                "Provider timeout provider=%s latency_ms=%s",
+                provider.value,
+                latency_ms,
+            )
+        else:
+            logger.exception(
+                "Model provider failed provider=%s vertical=%s round=%s error_type=%s error=%s",
+                provider.value,
+                vertical.slug,
+                round_number,
+                type(exc).__name__,
+                exc,
+            )
         return ProviderResult(
             provider=provider,
             status="error",
             error=str(exc),
-            latency_ms=_latency_ms(start),
+            latency_ms=latency_ms,
         )
+
+
+def _is_timeout_exception(exc: BaseException) -> bool:
+    """Recognize SDK timeouts through provider exception wrapping."""
+    current: BaseException | None = exc
+    seen: set[int] = set()
+    while current is not None and id(current) not in seen:
+        seen.add(id(current))
+        if isinstance(current, TimeoutError) or type(current).__name__ == "APITimeoutError":
+            return True
+        current = current.__cause__ or current.__context__
+    return False
 
 
 def _provider_callable(provider: ModelProvider) -> ProviderCallable:

@@ -7,8 +7,10 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
+import namengine.core.quality_adapters  # Registers built-in vertical adapters.
 from namengine.core.briefs import build_brief
 from namengine.core.generation import generate_names
+from namengine.core.quality_framework import evaluate_quality_attributes
 from namengine.core.schemas import NameResult, NamingBrief, VerticalConfig
 
 DEFAULT_FIXTURE_PATH = Path(__file__).resolve().parents[2] / "tests" / "fixtures" / "taste_engine_eval_fixtures.json"
@@ -22,6 +24,7 @@ class TasteEngineFixture:
     inputs: dict[str, Any]
     feelings: dict[str, int] = field(default_factory=dict)
     expected_signals: list[str] = field(default_factory=list)
+    quality_thresholds: dict[str, float] = field(default_factory=dict)
     contrast_group: str = ""
 
 
@@ -35,6 +38,8 @@ class TasteEngineEvalResult:
     prompt_version: str
     model: str
     signal_hits: list[str]
+    attribute_scores: dict[str, float] = field(default_factory=dict)
+    quality_passed: bool = True
 
 
 @dataclass(slots=True)
@@ -61,6 +66,10 @@ def load_taste_engine_fixtures(path: Path | str | None = None) -> list[TasteEngi
                 inputs=dict(row.get("inputs", {})),
                 feelings={str(key): int(value) for key, value in dict(row.get("feelings", {})).items()},
                 expected_signals=[str(item) for item in row.get("expected_signals", [])],
+                quality_thresholds={
+                    str(key): float(value)
+                    for key, value in dict(row.get("quality_thresholds", {})).items()
+                },
                 contrast_group=str(row.get("contrast_group", "")),
             )
         )
@@ -93,6 +102,11 @@ def run_taste_engine_fixture(
     if "fallback" in provider:
         provider = "fallback"
     signal_hits = _signal_hits(fixture, names)
+    attribute_scores = evaluate_quality_attributes(fixture.vertical, brief, names)
+    quality_passed = all(
+        attribute_scores.get(attribute, 0.0) >= threshold
+        for attribute, threshold in fixture.quality_thresholds.items()
+    )
     return TasteEngineEvalResult(
         fixture=fixture,
         names=names,
@@ -102,6 +116,8 @@ def run_taste_engine_fixture(
         prompt_version=str(metadata.get("prompt_version") or "fallback"),
         model=str(metadata.get("model") or "fallback"),
         signal_hits=signal_hits,
+        attribute_scores=attribute_scores,
+        quality_passed=quality_passed,
     )
 
 
@@ -157,6 +173,8 @@ def summarize_taste_engine_eval(results: list[TasteEngineEvalResult]) -> dict[st
         "contrast_count": len(contrasts),
         "contrast_pass_count": sum(1 for contrast in contrasts if contrast.passed),
         "signal_hit_count": sum(len(result.signal_hits) for result in results),
+        "quality_pass_count": sum(1 for result in results if result.quality_passed),
+        "attribute_averages": _attribute_averages(results),
         "fixtures": [
             {
                 "id": result.fixture.id,
@@ -165,6 +183,8 @@ def summarize_taste_engine_eval(results: list[TasteEngineEvalResult]) -> dict[st
                 "provider": result.provider,
                 "pipeline": result.pipeline,
                 "signal_hits": result.signal_hits,
+                "attribute_scores": result.attribute_scores,
+                "quality_passed": result.quality_passed,
             }
             for result in results
         ],
@@ -207,3 +227,15 @@ def _signal_hits(fixture: TasteEngineFixture, names: list[NameResult]) -> list[s
         ]
     ).lower()
     return [signal for signal in fixture.expected_signals if signal.lower() in haystack]
+
+
+def _attribute_averages(results: list[TasteEngineEvalResult]) -> dict[str, float]:
+    keys = sorted({key for result in results for key in result.attribute_scores})
+    return {
+        key: round(
+            sum(result.attribute_scores[key] for result in results if key in result.attribute_scores)
+            / sum(1 for result in results if key in result.attribute_scores),
+            3,
+        )
+        for key in keys
+    }
