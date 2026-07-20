@@ -102,6 +102,10 @@ a {
   width: min(var(--brand-header-baby-width), 50vw);
 }
 
+.vertical-baby .site-header .brand-logo-wordmark {
+  width: min(var(--brand-header-baby-width), 50vw);
+}
+
 .site-nav {
   display: flex;
   align-items: center;

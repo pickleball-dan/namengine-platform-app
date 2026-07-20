@@ -773,6 +773,68 @@ def _baby_decision_schema_properties() -> dict[str, Any]:
     }
 
 
+def _baby_decision_schema_properties() -> dict[str, Any]:
+    preference = {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["preference", "evidence", "fit"],
+        "properties": {
+            "preference": {"type": "string"},
+            "evidence": {"type": "string"},
+            "fit": {"type": "string"},
+        },
+    }
+    string_array = {"type": "array", "items": {"type": "string"}}
+    return {
+        "recommendation_reason": {"type": "string"},
+        "matched_preferences": {"type": "array", "items": preference},
+        "strongest_fit": {"type": "string"},
+        "real_life_impression": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["childhood", "adulthood", "overall"],
+            "properties": {
+                "childhood": {"type": "string"},
+                "adulthood": {"type": "string"},
+                "overall": {"type": "string"},
+            },
+        },
+        "tradeoffs": string_array,
+        "comparison_position": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["softer_than", "stronger_than", "more_familiar_than", "more_distinctive_than"],
+            "properties": {
+                "softer_than": string_array,
+                "stronger_than": string_array,
+                "more_familiar_than": string_array,
+                "more_distinctive_than": string_array,
+            },
+        },
+        "nickname_considerations": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["likely", "optional", "note"],
+            "properties": {
+                "likely": string_array,
+                "optional": string_array,
+                "note": {"type": "string"},
+            },
+        },
+        "family_fit": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["surname_or_context", "sound_note", "initials_note"],
+            "properties": {
+                "surname_or_context": {"type": "string"},
+                "sound_note": {"type": "string"},
+                "initials_note": {"type": "string"},
+            },
+        },
+        "confidence_note": {"type": "string"},
+    }
+
+
 def _score_keys(vertical_slug: str) -> list[str]:
     return list(
         quality_model_score_keys(vertical_slug, ("callability", "warmth", "distinctiveness"))
