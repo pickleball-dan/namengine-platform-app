@@ -197,8 +197,9 @@
       <article class="engine-audit-card engine-audit-card-wide">
         <h2>AI calls</h2>
         {% for call in audit.ai_calls %}
+          {% set metrics = call.metrics|default({}) %}
           <details class="engine-audit-call">
-            <summary>{{ call.stage }} · {{ call.latency_ms }} ms · output {{ call.metrics.output_json_chars|default(0) }} chars · {{ call.model }}</summary>
+            <summary>{{ call.stage }} · {{ call.latency_ms }} ms · output {{ metrics.output_json_chars|default(0) }} chars · {{ call.model }}</summary>
             <pre>{{ call|tojson(indent=2) }}</pre>
           </details>
         {% else %}

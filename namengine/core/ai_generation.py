@@ -522,6 +522,12 @@ def build_finalizer_prompt(
     candidate_pool: list[dict[str, Any]],
     prompt_version: str | None = None,
 ) -> dict[str, Any]:
+    top_level_keys = ["names"] if vertical.slug == "baby" else ["names", "rejected_candidates"]
+    rejected_candidate_fields = (
+        []
+        if vertical.slug == "baby"
+        else ["name", "territory", "rejection_reason", "lost_to", "score_summary"]
+    )
     return {
         **_baby_taxonomy_diagnostics(vertical, brief),
         "role": "NamEngine critic, ranker, and finalizer",
@@ -560,7 +566,7 @@ def build_finalizer_prompt(
         "validation_expectations": list(vertical.validation_modules),
         "output_contract": {
             "format": "json",
-            "top_level_keys": ["names", "rejected_candidates"],
+            "top_level_keys": top_level_keys,
             "required_name_fields": [
                 "name",
                 "pronunciation",
@@ -574,7 +580,7 @@ def build_finalizer_prompt(
                 "scores",
             ],
             "score_keys": _score_keys(vertical.slug),
-            "rejected_candidate_fields": ["name", "territory", "rejection_reason", "lost_to", "score_summary"],
+            "rejected_candidate_fields": rejected_candidate_fields,
             "metadata_guidance": _explanation_guidance(vertical.slug),
         },
     }
@@ -663,21 +669,34 @@ def name_generation_response_format(vertical_slug: str | None = None) -> dict[st
             "properties": {key: {"type": "number"} for key in score_keys},
         },
     }
-    if vertical_slug == "baby":
-        required.extend(
-            [
-                "recommendation_reason",
-                "matched_preferences",
-                "strongest_fit",
-                "real_life_impression",
-                "tradeoffs",
-                "comparison_position",
-                "nickname_considerations",
-                "family_fit",
-                "confidence_note",
-            ]
-        )
-        properties.update(_baby_decision_schema_properties())
+    schema_required = ["names"] if vertical_slug == "baby" else ["names", "rejected_candidates"]
+    schema_properties: dict[str, Any] = {
+        "names": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": False,
+                "required": required,
+                "properties": properties,
+            },
+        }
+    }
+    if vertical_slug != "baby":
+        schema_properties["rejected_candidates"] = {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": False,
+                "required": ["name", "territory", "rejection_reason", "lost_to", "score_summary"],
+                "properties": {
+                    "name": {"type": "string"},
+                    "territory": {"type": "string"},
+                    "rejection_reason": {"type": "string"},
+                    "lost_to": {"type": "string"},
+                    "score_summary": {"type": "string"},
+                },
+            },
+        }
     return {
         "type": "json_schema",
         "name": NAME_GENERATION_SCHEMA_NAME,
@@ -686,33 +705,8 @@ def name_generation_response_format(vertical_slug: str | None = None) -> dict[st
         "schema": {
             "type": "object",
             "additionalProperties": False,
-            "required": ["names", "rejected_candidates"],
-            "properties": {
-                "names": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "additionalProperties": False,
-                        "required": required,
-                        "properties": properties,
-                    },
-                },
-                "rejected_candidates": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "additionalProperties": False,
-                        "required": ["name", "territory", "rejection_reason", "lost_to", "score_summary"],
-                        "properties": {
-                            "name": {"type": "string"},
-                            "territory": {"type": "string"},
-                            "rejection_reason": {"type": "string"},
-                            "lost_to": {"type": "string"},
-                            "score_summary": {"type": "string"},
-                        },
-                    },
-                },
-            },
+            "required": schema_required,
+            "properties": schema_properties,
         },
     }
 
@@ -1016,13 +1010,39 @@ def _call_openai_with_metadata(
     except Exception as exc:  # pragma: no cover - live SDK/network behavior
         raise AIGenerationError(str(exc)) from exc
 
+    state = _response_state(response)
     text = getattr(response, "output_text", "")
+    output_text = str(text) if text else ""
+    if state["incomplete"]:
+        latency_ms = int((time.perf_counter() - start) * 1000)
+        usage = _usage_payload(getattr(response, "usage", None))
+        response_json = _response_json_payload(response)
+        reason = state["incomplete_reason"] or state["status"] or "unknown"
+        logger.warning(
+            "OpenAI response incomplete stage=%s model=%s status=%s reason=%s latency_ms=%s prompt_tokens=%s completion_tokens=%s output_json_chars=%s raw_response_json_chars=%s",
+            prompt.get("engine_stage") or prompt.get("prompt_type") or "unknown",
+            model,
+            state["status"],
+            reason,
+            latency_ms,
+            usage.get("input_tokens", 0),
+            usage.get("output_tokens", 0),
+            len(output_text),
+            len(response_json) if response_json else 0,
+        )
+        raise AIGenerationError(
+            "OpenAI response incomplete "
+            f"stage={prompt.get('engine_stage') or prompt.get('prompt_type') or 'unknown'} "
+            f"model={model} status={state['status'] or 'unknown'} reason={reason} "
+            f"output_json_chars={len(output_text)}"
+        )
     if text:
-        output_text = str(text)
         latency_ms = int((time.perf_counter() - start) * 1000)
         usage = _usage_payload(getattr(response, "usage", None))
         response_json = _response_json_payload(response)
         metrics = {
+            "status": state["status"] or "unknown",
+            "incomplete_reason": state["incomplete_reason"] or "",
             "prompt_json_chars": len(prompt_json),
             "prompt_json_bytes": len(prompt_json.encode("utf-8")),
             "request_input_chars": len(system_content) + len(prompt_json),
@@ -1032,9 +1052,10 @@ def _call_openai_with_metadata(
             "raw_response_json_bytes": len(response_json.encode("utf-8")) if response_json else 0,
         }
         logger.warning(
-            "OpenAI call metrics stage=%s model=%s latency_ms=%s prompt_tokens=%s completion_tokens=%s prompt_json_chars=%s output_json_chars=%s raw_response_json_chars=%s",
+            "OpenAI call metrics stage=%s model=%s status=%s latency_ms=%s prompt_tokens=%s completion_tokens=%s prompt_json_chars=%s output_json_chars=%s raw_response_json_chars=%s",
             prompt.get("engine_stage") or prompt.get("prompt_type") or "unknown",
             model,
+            state["status"] or "unknown",
             latency_ms,
             usage.get("input_tokens", 0),
             usage.get("output_tokens", 0),
@@ -1051,6 +1072,61 @@ def _call_openai_with_metadata(
             "schema_name": response_format.get("name") if response_format else None,
         }
     raise AIGenerationError("OpenAI response did not include output_text")
+
+
+def _response_state(response: Any) -> dict[str, Any]:
+    status = _string_attr_or_item(response, "status")
+    incomplete_details = _attr_or_item(response, "incomplete_details")
+    incomplete_reason = _incomplete_reason(incomplete_details)
+
+    item_statuses: list[str] = []
+    output = _attr_or_item(response, "output")
+    if isinstance(output, list):
+        for item in output:
+            item_status = _string_attr_or_item(item, "status")
+            if item_status:
+                item_statuses.append(item_status)
+            item_incomplete_details = _attr_or_item(item, "incomplete_details")
+            if not incomplete_reason:
+                incomplete_reason = _incomplete_reason(item_incomplete_details)
+
+    incomplete = bool(incomplete_reason)
+    if status and status not in {"completed", "complete"}:
+        incomplete = True
+        incomplete_reason = incomplete_reason or status
+    incomplete_item_statuses = [item for item in item_statuses if item not in {"completed", "complete"}]
+    if incomplete_item_statuses:
+        incomplete = True
+        incomplete_reason = incomplete_reason or ",".join(incomplete_item_statuses)
+
+    return {
+        "status": status or "unknown",
+        "incomplete": incomplete,
+        "incomplete_reason": incomplete_reason or "",
+        "output_item_statuses": item_statuses,
+    }
+
+
+def _attr_or_item(value: Any, key: str) -> Any:
+    if isinstance(value, dict):
+        return value.get(key)
+    return getattr(value, key, None)
+
+
+def _string_attr_or_item(value: Any, key: str) -> str:
+    item = _attr_or_item(value, key)
+    return str(item).strip() if item is not None else ""
+
+
+def _incomplete_reason(details: Any) -> str:
+    if not details:
+        return ""
+    reason = _string_attr_or_item(details, "reason")
+    if reason:
+        return reason
+    if isinstance(details, dict):
+        return json.dumps(details, sort_keys=True)
+    return str(details).strip()
 
 
 def _call_audit_summary(

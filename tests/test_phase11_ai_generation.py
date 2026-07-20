@@ -30,7 +30,7 @@ from namengine.core.ai_generation import (
     name_generation_response_format,
     taste_strategy_response_format,
 )
-from namengine.verticals import PET
+from namengine.verticals import BABY, PET
 
 
 STRATEGY_RESPONSE = json.dumps(
@@ -156,8 +156,12 @@ AI_RESPONSE = json.dumps(
 
 
 class FakeResponse:
-    def __init__(self, output_text):
+    def __init__(self, output_text, status=None, incomplete_details=None, usage=None, output=None):
         self.output_text = output_text
+        self.status = status
+        self.incomplete_details = incomplete_details
+        self.usage = usage
+        self.output = output
 
 
 class FakeResponses:
@@ -171,7 +175,10 @@ class FakeResponses:
         self.calls.append(kwargs)
         if not self.output_texts:
             raise AssertionError("No fake AI responses left")
-        return FakeResponse(self.output_texts.pop(0))
+        next_response = self.output_texts.pop(0)
+        if isinstance(next_response, FakeResponse):
+            return next_response
+        return FakeResponse(next_response)
 
 
 class FakeClient:
@@ -217,6 +224,7 @@ class PhaseElevenAIGenerationTest(unittest.TestCase):
         strategy_format = taste_strategy_response_format()
         pool_format = candidate_pool_response_format()
         names_format = name_generation_response_format()
+        baby_names_format = name_generation_response_format("baby")
 
         self.assertEqual(strategy_format["type"], "json_schema")
         self.assertEqual(strategy_format["name"], TASTE_STRATEGY_SCHEMA_NAME)
@@ -234,6 +242,27 @@ class PhaseElevenAIGenerationTest(unittest.TestCase):
         self.assertTrue(names_format["strict"])
         self.assertEqual(names_format["schema"]["required"], ["names", "rejected_candidates"])
         self.assertIn("scores", names_format["schema"]["properties"]["names"]["items"]["required"])
+
+        self.assertEqual(baby_names_format["schema"]["required"], ["names"])
+        self.assertNotIn("rejected_candidates", baby_names_format["schema"]["properties"])
+        baby_required = baby_names_format["schema"]["properties"]["names"]["items"]["required"]
+        self.assertEqual(
+            baby_required,
+            [
+                "name",
+                "pronunciation",
+                "tagline",
+                "origin",
+                "meaning",
+                "why_this_name",
+                "fit_note",
+                "risks",
+                "tags",
+                "scores",
+            ],
+        )
+        self.assertNotIn("matched_preferences", baby_required)
+        self.assertNotIn("real_life_impression", baby_required)
 
     def test_candidate_generation_prompt_uses_pass_one_taste_strategy(self):
         brief = build_brief(PET, {"species": "Dog", "style": "Warm"})
@@ -300,6 +329,49 @@ class PhaseElevenAIGenerationTest(unittest.TestCase):
         self.assertTrue(prompt["finalizer_rules"]["only_choose_from_candidate_pool"])
         self.assertTrue(prompt["finalizer_rules"]["reject_before_ranking"])
 
+    def test_baby_finalizer_prompt_requests_live_result_fields_only(self):
+        brief = build_brief(BABY, {"gender": "Girl", "style": "Warm", "sound": "Soft"})
+        strategy = parse_taste_strategy_response(STRATEGY_RESPONSE)
+        pool = parse_candidate_pool_response(CANDIDATE_RESPONSE)
+
+        prompt = build_finalizer_prompt(
+            vertical=BABY,
+            brief=brief,
+            round_number=2,
+            taste_profile=None,
+            previous_names=["Maya"],
+            count=8,
+            taste_strategy=strategy,
+            candidate_pool=pool,
+        )
+
+        self.assertEqual(prompt["output_contract"]["top_level_keys"], ["names"])
+        self.assertEqual(prompt["output_contract"]["rejected_candidate_fields"], [])
+        self.assertNotIn("matched_preferences", prompt["output_contract"]["required_name_fields"])
+
+    def test_incomplete_openai_response_is_rejected_before_json_parse(self):
+        brief = build_brief(PET, {"species": "Dog", "style": "Warm"})
+        truncated = '{"names":[{"name":"Lumi","why_this_name":"cut off'
+        fake_client = FakeClient(
+            STRATEGY_RESPONSE,
+            CANDIDATE_RESPONSE,
+            FakeResponse(
+                truncated,
+                status="incomplete",
+                incomplete_details={"reason": "max_output_tokens"},
+            ),
+        )
+
+        with patch.dict(os.environ, {"OPENAI_API_KEY": "test-key"}):
+            with self.assertRaises(AIGenerationError) as captured:
+                generate_ai_names(PET, brief, round_number=1, client_factory=lambda: fake_client)
+
+        message = str(captured.exception)
+        self.assertIn("OpenAI response incomplete", message)
+        self.assertIn("critic_ranker_finalizer_v1", message)
+        self.assertIn("max_output_tokens", message)
+        self.assertNotIn("not valid JSON", message)
+
     def test_parse_ai_response_rejects_invalid_json(self):
         with self.assertRaises(AIGenerationError):
             parse_ai_generation_response("not json", "pet")
@@ -335,6 +407,8 @@ class PhaseElevenAIGenerationTest(unittest.TestCase):
         )
         self.assertGreater(results[0].metadata["ai_calls"][0]["metrics"]["prompt_json_chars"], 0)
         self.assertGreater(results[0].metadata["ai_calls"][2]["metrics"]["output_json_chars"], 0)
+        self.assertEqual(results[0].metadata["ai_calls"][2]["metrics"]["status"], "unknown")
+        self.assertIn("incomplete_reason", results[0].metadata["ai_calls"][2]["metrics"])
         self.assertEqual(fake_client.responses.calls[1]["input"][1]["content"].count("Warm, bright, easy-to-call"), 1)
         self.assertIn("Lumi", fake_client.responses.calls[2]["input"][1]["content"])
 

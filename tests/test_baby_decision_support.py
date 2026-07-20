@@ -96,15 +96,15 @@ class BabyDecisionSupportTest(unittest.TestCase):
         brief = NamingBrief(vertical="baby", inputs=inputs or {"gender": "Girl", "style": "Classic"})
         save_session(session_id, "baby", brief, results)
 
-    def test_baby_schema_and_parser_preserve_structured_decision_fields(self):
+    def test_baby_schema_is_compact_but_parser_preserves_structured_decision_fields(self):
         schema = name_generation_response_format("baby")["schema"]["properties"]["names"]["items"]
         for field in (
             "recommendation_reason", "matched_preferences", "strongest_fit",
             "real_life_impression", "tradeoffs", "comparison_position",
             "nickname_considerations", "family_fit", "confidence_note",
         ):
-            self.assertIn(field, schema["required"])
-            self.assertIn(field, schema["properties"])
+            self.assertNotIn(field, schema["required"])
+            self.assertNotIn(field, schema["properties"])
 
         source = rich_result("baby-1", "Eleanor", ["Classic", "Substantial"])
         payload = {
