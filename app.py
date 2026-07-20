@@ -705,7 +705,7 @@ def create_app() -> Flask:
                 session_id,
                 vertical,
                 instruction=instruction,
-                use_ai=_should_use_ai_for_vertical(vertical),
+                generator=_generate_names_for_route,
             )
         except StorageError:
             abort(404)
@@ -1110,13 +1110,24 @@ def _engine_audit_enabled() -> bool:
     return os.getenv("NAMENGINE_ENABLE_ENGINE_AUDIT") == "1"
 
 
-def _generate_names_for_route(vertical, brief: NamingBrief) -> list[NameResult]:
+def _generate_names_for_route(
+    vertical,
+    brief: NamingBrief,
+    *,
+    round_number: int = 1,
+    taste_summary: str = "",
+    taste_profile=None,
+    previous_names: list[str] | None = None,
+) -> list[NameResult]:
     if _should_use_ai_for_vertical(vertical):
         started_at = time.perf_counter()
         try:
             names = generate_with_router(
                 vertical=vertical,
                 brief=brief,
+                round_number=round_number,
+                taste_profile=taste_profile,
+                previous_names=previous_names or [],
                 providers=[ModelProvider.OPENAI],
                 fallback_on_provider_error=True,
             )
@@ -1156,7 +1167,15 @@ def _generate_names_for_route(vertical, brief: NamingBrief) -> list[NameResult]:
             name.metadata["ai_primary_requested"] = True
         return names
 
-    return generate_names(vertical, brief, use_ai=False)
+    return generate_names(
+        vertical,
+        brief,
+        round_number=round_number,
+        taste_summary=taste_summary,
+        taste_profile=taste_profile,
+        previous_names=previous_names or [],
+        use_ai=False,
+    )
 
 
 def _audit_customer_intake(brief: NamingBrief) -> dict:
@@ -1194,8 +1213,16 @@ def _cached_names_match_current_rules(
     brief: NamingBrief,
     names: list[NameResult],
 ) -> bool:
-    if _should_use_ai_for_vertical(vertical) and not all(_result_is_ai_sourced(name) for name in names):
-        return False
+    if _should_use_ai_for_vertical(vertical):
+        all_ai = all(_result_is_ai_sourced(name) for name in names)
+        all_current_failure_fallback = all(
+            not _result_is_ai_sourced(name)
+            and name.metadata.get("ai_primary_requested") is True
+            and name.metadata.get("ai_primary_fallback") is True
+            for name in names
+        )
+        if not (all_ai or all_current_failure_fallback):
+            return False
     if vertical.slug == "baby":
         if len(filter_results_for_brief(vertical, brief, names)) != len(names):
             return False
