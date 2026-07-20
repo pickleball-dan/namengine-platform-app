@@ -32,7 +32,7 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.assertIn("July 20, 2026", text)
         self.assertIn("trusted AI service providers", text)
         self.assertIn("NamEngine does not sell personal information", text)
-        self.assertIn("privacy@namengine.com", text)
+        self.assertIn("support@nam-engine.com", text)
         self.assertNotIn("replace with your preferred contact email", text)
 
     def test_terms_policy_has_production_disclosures(self):
