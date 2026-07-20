@@ -6,7 +6,7 @@
   {% set polished_verticals = ["baby", "pet", "business"] %}
   {% set is_polished_flow = vertical.slug in polished_verticals %}
   {% set flow_copy = {
-    "baby": ["A thoughtful place to begin", "Let’s discover your child’s name together.", "We’ll learn about your family’s story, your style, and the names that resonate with you.", "Most parents finish in about 3–5 minutes.", "Your naming direction", "Tell us what matters to your family.", "There are no perfect answers. Choose what feels closest, and we’ll help you refine from there."],
+    "baby": ["A thoughtful place to begin", "Let’s discover your child’s name together.", "We’ll learn about your family’s story, your style, and the names that resonate with you.", "Take as much time as you need.", "Your naming direction", "Tell us what matters to your family.", "There are no perfect answers. Choose what feels closest, and we’ll help you refine from there."],
     "pet": ["A joyful place to begin", "Let’s find the name that feels like them.", "Tell us about their personality, their story, and the names that make you smile.", "Most pet parents finish in about 3–5 minutes.", "Their naming direction", "Tell us who they are.", "Follow your instinct. The little details that make them themselves are often the best naming clues."],
     "business": ["A strategic place to begin", "Let’s find a name your business can grow into.", "We’ll connect your positioning, audience, and commercial goals to names built for the real market.", "Most founders finish in about 5–7 minutes.", "Your brand direction", "Define the business behind the name.", "Clear inputs create sharper options. Share the commercial signals that matter most right now."]
   } %}
@@ -27,7 +27,14 @@
           <p class="eyebrow">{{ copy[0] }}</p>
           <h1>{{ copy[1] }}</h1>
           <p class="baby-welcome-copy">{{ copy[2] }}</p>
-          <p class="baby-welcome-time"><span aria-hidden="true">◷</span> {{ copy[3] }}</p>
+          {% if vertical.slug == "baby" %}
+            <div class="baby-lifetime-note" aria-label="Thoughtful naming note">
+              <strong>A child’s name is one of the few gifts that lasts a lifetime.</strong>
+              <em>Take as much time as you need. Every thoughtful answer helps us recommend names that truly feel right.</em>
+            </div>
+          {% else %}
+            <p class="baby-welcome-time"><span aria-hidden="true">◷</span> {{ copy[3] }}</p>
+          {% endif %}
           <div class="hero-actions">
             <a class="button-link baby-begin-button" href="#{{ vertical.slug }}-intake-form">Begin</a>
             {% if vertical.slug == "pet" %}<a class="button-link secondary-button" href="/pet/original">Create an original pet name</a>{% endif %}
