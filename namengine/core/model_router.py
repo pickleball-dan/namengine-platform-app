@@ -244,6 +244,13 @@ def _run_provider(
                 provider.value,
                 latency_ms,
             )
+        elif _is_incomplete_openai_response(exc):
+            logger.warning(
+                "Provider incomplete response provider=%s latency_ms=%s error=%s",
+                provider.value,
+                latency_ms,
+                exc,
+            )
         else:
             logger.exception(
                 "Model provider failed provider=%s vertical=%s round=%s error_type=%s error=%s",
@@ -271,6 +278,10 @@ def _is_timeout_exception(exc: BaseException) -> bool:
             return True
         current = current.__cause__ or current.__context__
     return False
+
+
+def _is_incomplete_openai_response(exc: BaseException) -> bool:
+    return isinstance(exc, AIGenerationError) and "OpenAI response incomplete" in str(exc)
 
 
 def _provider_callable(provider: ModelProvider) -> ProviderCallable:

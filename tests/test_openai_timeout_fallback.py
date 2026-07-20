@@ -20,6 +20,13 @@ def _openai_timeout(*args, **kwargs):
         raise AIGenerationError("request timed out") from exc
 
 
+def _openai_incomplete(*args, **kwargs):
+    raise AIGenerationError(
+        "OpenAI response incomplete stage=critic_ranker_finalizer_v1 model=gpt-4.1-mini "
+        "status=incomplete reason=max_output_tokens output_json_chars=12102"
+    )
+
+
 class OpenAITimeoutFallbackTest(unittest.TestCase):
     def setUp(self):
         create_app()
@@ -67,6 +74,30 @@ class OpenAITimeoutFallbackTest(unittest.TestCase):
             [result.provider for result in results],
         )
         self.assertEqual(["error", "ok"], [result.status for result in results])
+
+    def test_incomplete_openai_response_is_expected_and_falls_back_without_traceback(self):
+        with patch.object(model_router, "_openai_provider", side_effect=_openai_incomplete):
+            with self.assertLogs(model_router.logger, level="WARNING") as captured:
+                results = model_router.route_generation(
+                    self.vertical,
+                    self.brief,
+                    2,
+                    None,
+                    ["Maya", "Nora"],
+                    [ModelProvider.OPENAI],
+                    fallback_on_provider_error=True,
+                )
+
+        self.assertEqual(
+            [ModelProvider.OPENAI, ModelProvider.FALLBACK],
+            [result.provider for result in results],
+        )
+        self.assertEqual(["error", "ok"], [result.status for result in results])
+        output = "\n".join(captured.output)
+        self.assertIn("Provider incomplete response provider=openai", output)
+        self.assertIn("max_output_tokens", output)
+        self.assertNotIn("Traceback", output)
+        self.assertTrue(results[1].names)
 
     def test_fallback_failure_keeps_unexpected_traceback(self):
         with patch.object(model_router, "_openai_provider", side_effect=_openai_timeout), patch.object(
