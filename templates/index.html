@@ -1,83 +1,46 @@
 {% extends "base.html" %}
 
-{% block title %}NamEngine · Find the name that feels right{% endblock %}
-
-{% block header_class %}launch-site-header{% endblock %}
-
-{% block header_nav %}
-  <a class="launch-nav-primary" href="/baby">Baby</a>
-{% endblock %}
-
-{% block footer_tagline %}Thoughtful naming support for life’s meaningful choices.{% endblock %}
-{% block footer_class %}launch-site-footer{% endblock %}
+{% block title %}NamEngine{% endblock %}
 
 {% block content %}
-<div class="home-decor" aria-hidden="true">
-  <span class="home-decor-glow home-decor-glow-teal"></span>
-  <span class="home-decor-glow home-decor-glow-coral"></span>
-  <span class="home-decor-glow home-decor-glow-gold"></span>
-  <svg class="home-decor-line home-decor-line-left" viewBox="0 0 220 620" aria-hidden="true" focusable="false">
-    <path d="M196 18C86 88 50 174 88 276c42 112 9 185-58 274" />
-    <path d="M154 122C88 184 83 245 138 306c52 58 48 121-14 190" />
-  </svg>
-  <svg class="home-decor-line home-decor-line-right" viewBox="0 0 220 620" aria-hidden="true" focusable="false">
-    <path d="M24 24c112 66 148 153 108 262-39 106-9 181 62 270" />
-    <path d="M74 116c68 62 72 124 16 188-52 60-47 124 16 194" />
-  </svg>
-  <span class="home-sparkle home-sparkle-one"></span>
-  <span class="home-sparkle home-sparkle-two"></span>
-  <span class="home-sparkle home-sparkle-three"></span>
-</div>
-<section class="home-mockup-stage home-hero" aria-label="NamEngine naming experiences">
-  <a class="visually-hidden" href="#verticals">Explore all naming experiences</a>
-  <div class="home-mockup-card">
-    <div class="home-mockup-copy">
-      <p class="eyebrow">Inside the Engine</p>
-      <h1>One thoughtful<br>process,<br>tuned to what<br>you’re naming.</h1>
+{% set home_card_logos = {
+  "baby": "images/namengine-baby.svg",
+  "pet": "images/namengine-pets.svg",
+  "business": "images/namengine-biz.svg"
+} %}
+{% set home_card_logo_colors = {
+  "baby": "#FF6B6B",
+  "pet": "#F2B544",
+  "business": "#3FA6A0"
+} %}
+<section class="home-hero home-hero-flagship home-hero-clean">
+  <div class="home-hero-copy home-hero-actions-only">
+    <div class="hero-actions">
+      <a class="button-link secondary-button home-secondary-button" href="#engine-options">Explore all naming experiences</a>
     </div>
-
-    <section class="home-verticals" id="verticals" aria-label="Choose a vertical">
-      <div class="vertical-grid home-vertical-grid">
-        {% for slug in ["baby", "pet", "business"] %}
-          {% set item = verticals[slug] %}
-          {% set row_copy = {
-            "baby": "Thoughtful names for life’s biggest moment.",
-            "pet": "Let’s shape the right pet name.",
-            "business": "Find a name your business can grow into."
-          } %}
-          {% set row_logo = {
-            "baby": "images/namengine-baby.svg",
-            "pet": "images/namengine-pets.svg",
-            "business": "images/namengine-biz.svg"
-          } %}
-          <a
-            class="vertical-card home-vertical-card"
-            href="{{ item.route_prefix }}"
-            aria-label="NamEngine {{ item.display_name }}"
-            style="--card-accent: {{ item.theme.get('accent', '#18212f') }}; --card-soft: {{ item.theme.get('accent_soft', 'rgba(24, 33, 47, 0.08)') }}; --card-warm-soft: {{ item.theme.get('accent_warm_soft', 'rgba(242, 184, 75, 0.16)') }};"
-          >
-            <span class="home-card-brand-lockup">
-              <img
-                src="{{ url_for('static', filename=row_logo.get(slug, item.assets.get('card_logo', item.assets.get('logo')))) }}"
-                alt="NamEngine {{ item.display_name }}"
-                class="vertical-card-logo home-vert-logo"
-              >
-            </span>
-            <span class="home-card-divider" aria-hidden="true"></span>
-            <span class="home-card-copy">
-              <span class="visually-hidden"><strong class="vertical-name">{{ item.display_name }}</strong><span class="vertical-label">{{ item.object_label|capitalize }}</span></span>
-              <span>{{ row_copy.get(slug) }}</span>
-            </span>
-            <span class="home-card-arrow" aria-hidden="true">
-              <svg viewBox="0 0 18 18" focusable="false">
-                <path d="M5.25 9h7.1M9.5 5.25 13.25 9 9.5 12.75" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-
-            </span>
-          </a>
-        {% endfor %}
-      </div>
-    </section>
   </div>
+
+  <aside id="engine-options" class="home-visual-panel home-taste-panel" aria-label="How NamEngine adapts taste across naming experiences">
+    <div class="home-panel-heading">
+      <span>Inside the engine</span>
+      <strong>One thoughtful process, tuned to what you’re naming.</strong>
+    </div>
+    <div class="home-signal-stack">
+      {% for slug in ["baby", "pet", "business"] %}
+        {% set item = verticals[slug] %}
+        <a
+          class="home-signal-card"
+          href="{{ item.route_prefix }}"
+          style="--signal-accent: {{ home_card_logo_colors.get(slug, item.theme.get('accent', '#18212f')) }}; --signal-soft: {{ item.theme.get('accent_soft', 'rgba(24, 33, 47, 0.08)') }}; --signal-warm: {{ item.theme.get('accent_warm', '#f2b84b') }}; --signal-name-color: {{ home_card_logo_colors.get(slug, item.theme.get('accent', '#18212f')) }};"
+        >
+          <img class="home-signal-wordmark" src="{{ url_for('static', filename=home_card_logos.get(slug, item.assets.get('card_logo', item.assets.get('logo')))) }}" alt="NamEngine {{ item.display_name }}">
+          <span>
+            <small>{{ item.visual.hero_message }}</small>
+          </span>
+        </a>
+      {% endfor %}
+    </div>
+  </aside>
 </section>
+
 {% endblock %}

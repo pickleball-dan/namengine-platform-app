@@ -15,127 +15,45 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/platform.css') }}?v=20260719-homepage-header-scale-cleanup-v1-20260716-homepage-shared-layout-hotfix-v1-approved-brand-v2-20260720-homepage-premium-shell-v1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/platform.css') }}?v=20260719-homepage-header-scale-cleanup-v1">
   </head>
   <body {% if vertical is defined %}class="vertical-{{ vertical.slug }}" style="{{ vertical_theme_style(vertical) }}"{% endif %}>
     {% set active_brand_logo = vertical.assets.get("header_logo") if vertical is defined and vertical.assets.get("header_logo") else "images/namengine.svg" %}
     {% set active_brand_alt = "NamEngine " ~ vertical.display_name if vertical is defined and vertical.assets.get("header_logo") else "NamEngine" %}
-    {% if request.endpoint == "index" %}
-      <header class="site-header site-header-premium">
-        <a class="brand" href="/" aria-label="NamEngine home">
-          <img class="brand-logo brand-logo-wordmark" src="{{ url_for('static', filename=active_brand_logo) }}" alt="{{ active_brand_alt }}">
-        </a>
-        <nav class="site-nav site-nav-premium" aria-label="Primary navigation">
-          <div class="naming-menu" data-naming-menu>
-            <button class="naming-menu-trigger" type="button" aria-expanded="true" aria-controls="naming-menu-panel" data-naming-menu-trigger>
-              <span>What are you naming?</span>
-              <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-                <path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
-            <div class="naming-menu-panel" id="naming-menu-panel" role="menu" data-naming-menu-panel>
-              <div class="naming-menu-intro">
-                <strong>What are you naming?</strong>
-                <p>Every NamEngine experience uses the same thoughtful process, tailored to what you’re naming.</p>
-              </div>
-              <div class="naming-menu-section" aria-label="Live experiences">
-                {% for slug in ["baby", "pet", "business"] %}
-                  {% set item = verticals[slug] %}
-                  {% set menu_copy = {
-                    "baby": "Thoughtful names for life’s biggest moment.",
-                    "pet": "Names full of personality.",
-                    "business": "Build a name your business can grow into."
-                  } %}
-                  <a class="naming-menu-row naming-menu-row-{{ slug }}" role="menuitem" href="{{ item.route_prefix }}" style="--menu-accent: {{ item.theme.get('accent', '#18212f') }}; --menu-soft: {{ item.theme.get('accent_soft', 'rgba(24, 33, 47, 0.08)') }};">
-                    <span class="naming-menu-icon" aria-hidden="true"></span>
-                    <span>
-                      <strong>{{ item.display_name }}</strong>
-                      <small>{{ menu_copy.get(slug) }}</small>
-                    </span>
-                  </a>
-                {% endfor %}
-              </div>
-              <div class="naming-menu-coming" aria-label="Coming soon naming experiences">
-                <span class="naming-menu-kicker">Coming Soon</span>
-                {% for label in ["Product", "Book", "Game"] %}
-                  <span class="naming-menu-row naming-menu-row-muted naming-menu-row-{{ label|lower }}" role="menuitem" aria-disabled="true" tabindex="-1">
-                    <span class="naming-menu-icon" aria-hidden="true"></span>
-                    <span>
-                      <strong>{{ label }}</strong>
-                      <small>In development</small>
-                    </span>
-                  </span>
-                {% endfor %}
-              </div>
-            </div>
-          </div>
-          <button class="site-nav-placeholder" type="button" aria-disabled="true" title="Coming soon">About</button>
-          <button class="site-nav-placeholder" type="button" aria-disabled="true" title="Coming soon">Pricing</button>
-          <button class="site-nav-placeholder" type="button" aria-disabled="true" title="Coming soon">Sign In</button>
-        </nav>
-      </header>
-    {% else %}
-      <header class="site-header">
-        <a class="brand" href="/" aria-label="NamEngine home">
-          <img class="brand-logo brand-logo-wordmark" src="{{ url_for('static', filename=active_brand_logo) }}" alt="{{ active_brand_alt }}">
-        </a>
-        <nav class="site-nav" aria-label="Primary navigation">
-          {% if vertical is defined and vertical.slug in ["baby", "pet", "business"] %}
-            <a href="/">Home</a>
-            <a href="/privacy">Privacy</a>
-          {% else %}
-            <a href="/">Home</a>
-          {% endif %}
-        </nav>
-      </header>
-    {% endif %}
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="NamEngine home">
+        <img class="brand-logo brand-logo-wordmark" src="{{ url_for('static', filename=active_brand_logo) }}" alt="{{ active_brand_alt }}">
+      </a>
+      <nav class="site-nav" aria-label="Primary navigation">
+        {% if request.endpoint == "index" %}
+          {% for slug in ["baby", "pet", "business"] %}
+            {% set item = verticals[slug] %}
+            <a href="{{ item.route_prefix }}">{{ item.display_name }}</a>
+          {% endfor %}
+        {% elif vertical is defined and vertical.slug in ["baby", "pet", "business"] %}
+          <a href="/">Home</a>
+          <a href="/privacy">Privacy</a>
+        {% else %}
+          <a href="/">Home</a>
+        {% endif %}
+      </nav>
+    </header>
 
     <main>
       {% block content %}{% endblock %}
     </main>
 
-    <footer class="site-footer site-footer-premium">
-      <div class="footer-grid" aria-label="NamEngine footer">
-        <div class="footer-brand-block footer-column">
-          <img class="footer-brand-logo" src="{{ url_for('static', filename=active_brand_logo) }}" alt="{{ active_brand_alt }}">
-          <p>Helping people discover names they’ll love for a lifetime.</p>
-          <div class="footer-socials" aria-label="Social links shown in approved mockup">
-            <span aria-hidden="true">◎</span>
-            <span aria-hidden="true">f</span>
-            <span aria-hidden="true">♥</span>
-            <span aria-hidden="true">p</span>
-          </div>
-        </div>
-        <nav class="footer-column footer-links-group" aria-label="Naming experiences">
-          <h2>Naming Experiences</h2>
-          {% for slug in ["baby", "pet", "business"] %}
-            {% set item = verticals[slug] %}
-            <a href="{{ item.route_prefix }}">{{ item.display_name }}</a>
-          {% endfor %}
-          <h2 class="footer-subheading">Coming Soon</h2>
-          {% for label in ["Product", "Book", "Game"] %}
-            <span class="footer-unavailable" aria-disabled="true">{{ label }}</span>
-          {% endfor %}
-        </nav>
-        <nav class="footer-column footer-links-group" aria-label="Company links">
-          <h2>Company</h2>
-          <span class="footer-unavailable" aria-disabled="true">About</span>
-          <span class="footer-unavailable" aria-disabled="true">Pricing</span>
-          <span class="footer-unavailable" aria-disabled="true">How It Works</span>
-          <span class="footer-unavailable" aria-disabled="true">Contact</span>
-        </nav>
-        <nav class="footer-column footer-links-group" aria-label="Legal links">
-          <h2>Legal</h2>
-          <a href="/privacy">Privacy Policy</a>
-          <a href="/terms">Terms of Use</a>
-          <a href="/disclaimers">AI Disclosures</a>
-          <a href="/data-protection">Data Protection</a>
-        </nav>
+    <footer class="site-footer">
+      <div class="footer-brand-block">
+        <img class="footer-brand-logo" src="{{ url_for('static', filename=active_brand_logo) }}" alt="{{ active_brand_alt }}">
+        <span>AI-assisted name discovery, guided by your taste and final judgment.</span>
       </div>
-      <p class="footer-bottom-line">© 2026 NamEngine LLC · Built with AI, guided by people.</p>
+      <nav class="footer-links" aria-label="Legal and trust links">
+        <a href="/privacy">Privacy</a>
+        <a href="/terms">Terms</a>
+        <a href="/disclaimers">Disclaimers</a>
+        <a href="/data-protection">Data Protection</a>
+      </nav>
     </footer>
-    {% if request.endpoint == "index" %}
-      <script src="{{ url_for('static', filename='js/site-nav.js') }}?v=20260720-homepage-premium-shell-v1" defer></script>
-    {% endif %}
   </body>
 </html>

@@ -194,10 +194,8 @@ class ResultsMobileStabilizationTest(unittest.TestCase):
         self.assertIn("main > .home-verticals > .home-vertical-grid", css[hotfix:])
         self.assertIn("grid-template-columns: minmax(0, 1fr);", css[hotfix:])
         self.assertIn("20260719-homepage-header-scale-cleanup-v1", body)
-        self.assertIn("home-mockup-stage home-hero", body)
-        self.assertIn("home-mockup-card", body)
-        self.assertNotIn("home-visual-panel", body)
-        self.assertNotIn("home-taste-panel", body)
+        self.assertIn("home-visual-panel", body)
+        self.assertIn("home-taste-panel", body)
         self.assertNotIn("home-system-panel", body)
 
 

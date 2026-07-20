@@ -1185,13 +1185,6 @@ def _audit_customer_intake(brief: NamingBrief) -> dict:
     return payload
 
 
-def _audit_customer_intake(brief: NamingBrief) -> dict:
-    """Keep the existing audit payload without duplicating canonical context."""
-    payload = to_plain_data(brief)
-    payload.pop("canonical_intent", None)
-    return payload
-
-
 def _ai_primary_verticals() -> set[str]:
     raw_value = os.getenv("NAMENGINE_AI_PRIMARY_VERTICALS", "baby")
     if raw_value.strip().lower() in {"", "none", "off", "false", "0"}:
