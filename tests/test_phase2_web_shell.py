@@ -9,7 +9,7 @@ class PhaseTwoWebShellTest(unittest.TestCase):
         self.app.testing = True
         self.client = self.app.test_client()
 
-    def test_home_lists_vertical_routes(self):
+    def test_home_launches_baby_and_marks_future_verticals_coming_soon(self):
         response = self.client.get("/")
 
         self.assertEqual(response.status_code, 200)
