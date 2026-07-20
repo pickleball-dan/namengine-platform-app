@@ -10,18 +10,30 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
 
     def test_public_legal_pages_render(self):
         pages = {
-            "/privacy": "Privacy Policy",
-            "/terms": "Terms of Use",
-            "/disclaimers": "Disclaimers",
-            "/data-protection": "Data Protection",
+            "/privacy": ("Privacy Policy", "Legal note"),
+            "/terms": ("Terms of Use", "Beta notice"),
+            "/disclaimers": ("Disclaimers", "Beta notice"),
+            "/data-protection": ("Data Protection", "Beta notice"),
         }
-        for path, expected in pages.items():
+        for path, (expected, notice_label) in pages.items():
             with self.subTest(path=path):
                 response = self.app.get(path)
                 self.assertEqual(response.status_code, 200)
                 text = response.get_data(as_text=True)
                 self.assertIn(expected, text)
-                self.assertIn("Beta notice", text)
+                self.assertIn(notice_label, text)
+
+    def test_privacy_policy_has_production_disclosures(self):
+        response = self.app.get("/privacy")
+        text = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Effective Date:", text)
+        self.assertIn("July 20, 2026", text)
+        self.assertIn("trusted AI service providers", text)
+        self.assertIn("NamEngine does not sell personal information", text)
+        self.assertIn("privacy@namengine.com", text)
+        self.assertNotIn("replace with your preferred contact email", text)
 
     def test_footer_has_trust_links(self):
         response = self.app.get("/")

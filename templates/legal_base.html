@@ -11,8 +11,8 @@
   </div>
 
   <div class="legal-notice">
-    <strong>Beta notice:</strong>
-    <span>These pages are practical launch copy for NamEngine’s beta. They should be reviewed by qualified counsel before a broad public launch.</span>
+    <strong>{{ legal_notice_label | default("Beta notice:") }}</strong>
+    <span>{{ legal_notice_text | default("These pages are practical launch copy for NamEngine’s beta. They should be reviewed by qualified counsel before a broad public launch.") }}</span>
   </div>
 
   <div class="legal-content">
