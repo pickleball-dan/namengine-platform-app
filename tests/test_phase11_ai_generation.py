@@ -324,7 +324,7 @@ class PhaseElevenAIGenerationTest(unittest.TestCase):
         self.assertEqual(results[0].metadata["candidate_pool"][0]["name"], "Lumi")
         self.assertEqual(results[0].metadata["rejected_candidates"][0]["name"], "Nova")
         self.assertEqual(len(fake_client.responses.calls), 3)
-        self.assertTrue(all(call["timeout"] == 7.0 for call in fake_client.responses.calls))
+        self.assertTrue(all(call["timeout"] == 60.0 for call in fake_client.responses.calls))
         self.assertTrue(all(call["max_output_tokens"] == 2600 for call in fake_client.responses.calls))
         self.assertEqual(fake_client.responses.calls[0]["text"]["format"]["name"], TASTE_STRATEGY_SCHEMA_NAME)
         self.assertEqual(fake_client.responses.calls[1]["text"]["format"]["name"], CANDIDATE_POOL_SCHEMA_NAME)
