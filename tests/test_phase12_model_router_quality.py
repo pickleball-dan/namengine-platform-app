@@ -22,7 +22,7 @@ from namengine.core import (
     save_session,
     summarize_quality_runs,
 )
-from namengine.verticals import PET
+from namengine.verticals import BABY, PET
 from namengine.core.schemas import NameResult
 
 
@@ -124,6 +124,63 @@ class PhaseTwelveModelRouterQualityTest(unittest.TestCase):
 
         self.assertEqual(len(names), 4)
         self.assertTrue(all(item.metadata["provider"] == "fallback" for item in names))
+
+    def test_baby_round_three_falls_back_when_openai_selection_is_all_previous_names(self):
+        brief = build_brief(BABY, {"gender": "Girl", "style": "Warm", "sound": "Soft"})
+        previous_names = [
+            "Maya",
+            "Nora",
+            "Amina",
+            "Asha",
+            "Ayana",
+            "Hana",
+            "Haru",
+            "Imani",
+            "Celia",
+            "Eshe",
+            "Rami",
+            "Yuna",
+            "Giovanni",
+            "Lena",
+            "Iris",
+            "Ada",
+        ]
+        duplicate_openai = [
+            NameResult(
+                id="openai-duplicate-maya",
+                name="Maya",
+                slug="maya",
+                why_this_name="Duplicate from an earlier round.",
+                fit_note="Already seen.",
+                scores={"fit": 0.9, "usability": 0.9, "distinctiveness": 0.7},
+                metadata={"source": "openai"},
+            ),
+            NameResult(
+                id="openai-duplicate-nora",
+                name="Nora",
+                slug="nora",
+                why_this_name="Duplicate from an earlier round.",
+                fit_note="Already seen.",
+                scores={"fit": 0.9, "usability": 0.9, "distinctiveness": 0.7},
+                metadata={"source": "openai"},
+            ),
+        ]
+
+        with patch("namengine.core.model_router._openai_provider", return_value=duplicate_openai):
+            with self.assertLogs("namengine.core.model_router", level="WARNING") as captured:
+                names = generate_with_router(
+                    vertical=BABY,
+                    brief=brief,
+                    round_number=3,
+                    previous_names=previous_names,
+                    providers=[ModelProvider.OPENAI],
+                    fallback_on_provider_error=True,
+                )
+
+        self.assertEqual(len(names), 6)
+        self.assertFalse({item.name.lower() for item in names} & {item.lower() for item in previous_names})
+        self.assertTrue(all(item.metadata["provider"] == "fallback" for item in names))
+        self.assertIn("Model selection shortfall", "\n".join(captured.output))
 
     def test_public_generate_names_uses_router(self):
         brief = build_brief(PET, {"species": "Dog", "style": "Warm"})

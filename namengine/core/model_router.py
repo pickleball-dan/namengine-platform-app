@@ -58,6 +58,37 @@ def generate_with_router(
         allow_previous_fill=vertical.slug != "baby" and round_number < 4,
         vertical_slug=vertical.slug,
     )
+    target_count = count or _count_for_round(vertical, round_number)
+    if (
+        fallback_on_provider_error
+        and len(selected) < target_count
+        and ModelProvider.FALLBACK not in {result.provider for result in provider_results}
+    ):
+        logger.warning(
+            "Model selection shortfall provider=openai vertical=%s round=%s selected=%s target=%s; trying fallback fill",
+            vertical.slug,
+            round_number,
+            len(selected),
+            target_count,
+        )
+        provider_results.append(
+            _run_provider(
+                provider=ModelProvider.FALLBACK,
+                vertical=vertical,
+                brief=brief,
+                round_number=round_number,
+                taste_profile=taste_profile,
+                previous_names=previous_names or [],
+            )
+        )
+        candidates = score_provider_results(provider_results, brief=brief, vertical=vertical)
+        selected = select_best_candidates(
+            candidates,
+            count=target_count,
+            previous_names=previous_names or [],
+            allow_previous_fill=vertical.slug != "baby" and round_number < 4,
+            vertical_slug=vertical.slug,
+        )
     results = [candidate.result for candidate in selected]
     intake_metadata = version_metadata_for_brief(brief)
     for result in results:
