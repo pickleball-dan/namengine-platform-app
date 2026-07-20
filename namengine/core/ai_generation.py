@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 import time
 import uuid
@@ -33,6 +34,8 @@ PROMPT_VERSION = DEFAULT_PROMPT_VERSION
 TASTE_STRATEGY_SCHEMA_NAME = "namengine_taste_strategy_v1"
 CANDIDATE_POOL_SCHEMA_NAME = "namengine_candidate_pool_v1"
 NAME_GENERATION_SCHEMA_NAME = "namengine_name_generation_v1"
+
+logger = logging.getLogger(__name__)
 
 
 class AIGenerationError(RuntimeError):
@@ -986,19 +989,21 @@ def _call_openai_with_metadata(
     start = time.perf_counter()
     try:
         client = client_factory() if client_factory else _default_client()
+        system_content = (
+            "You are NamEngine, an expert naming strategist. "
+            "Follow the supplied structured output schema exactly."
+        )
+        prompt_json = json.dumps(prompt, ensure_ascii=True)
         kwargs = {
             "model": model,
             "input": [
                 {
                     "role": "system",
-                    "content": (
-                        "You are NamEngine, an expert naming strategist. "
-                        "Follow the supplied structured output schema exactly."
-                    ),
+                    "content": system_content,
                 },
                 {
                     "role": "user",
-                    "content": json.dumps(prompt, ensure_ascii=True),
+                    "content": prompt_json,
                 },
             ],
             "temperature": 0.75,
@@ -1013,11 +1018,36 @@ def _call_openai_with_metadata(
 
     text = getattr(response, "output_text", "")
     if text:
+        output_text = str(text)
+        latency_ms = int((time.perf_counter() - start) * 1000)
+        usage = _usage_payload(getattr(response, "usage", None))
+        response_json = _response_json_payload(response)
+        metrics = {
+            "prompt_json_chars": len(prompt_json),
+            "prompt_json_bytes": len(prompt_json.encode("utf-8")),
+            "request_input_chars": len(system_content) + len(prompt_json),
+            "output_json_chars": len(output_text),
+            "output_json_bytes": len(output_text.encode("utf-8")),
+            "raw_response_json_chars": len(response_json) if response_json else 0,
+            "raw_response_json_bytes": len(response_json.encode("utf-8")) if response_json else 0,
+        }
+        logger.warning(
+            "OpenAI call metrics stage=%s model=%s latency_ms=%s prompt_tokens=%s completion_tokens=%s prompt_json_chars=%s output_json_chars=%s raw_response_json_chars=%s",
+            prompt.get("engine_stage") or prompt.get("prompt_type") or "unknown",
+            model,
+            latency_ms,
+            usage.get("input_tokens", 0),
+            usage.get("output_tokens", 0),
+            metrics["prompt_json_chars"],
+            metrics["output_json_chars"],
+            metrics["raw_response_json_chars"],
+        )
         return {
-            "text": str(text),
+            "text": output_text,
             "model": model,
-            "latency_ms": int((time.perf_counter() - start) * 1000),
-            "usage": _usage_payload(getattr(response, "usage", None)),
+            "latency_ms": latency_ms,
+            "usage": usage,
+            "metrics": metrics,
             "schema_name": response_format.get("name") if response_format else None,
         }
     raise AIGenerationError("OpenAI response did not include output_text")
@@ -1039,6 +1069,7 @@ def _call_audit_summary(
         "model": call.get("model"),
         "latency_ms": call.get("latency_ms"),
         "usage": call.get("usage") or {},
+        "metrics": call.get("metrics") or {},
         "prompt_version": prompt_version,
         "schema_name": call.get("schema_name"),
         "prompt": prompt,
@@ -1063,6 +1094,16 @@ def _baby_taxonomy_contract():
     from namengine.verticals.baby_taxonomy import BABY_TAXONOMY, BABY_TAXONOMY_VERSION
 
     return BABY_TAXONOMY, BABY_TAXONOMY_VERSION
+
+
+def _response_json_payload(response: Any) -> str:
+    dump_json = getattr(response, "model_dump_json", None)
+    if callable(dump_json):
+        try:
+            return str(dump_json())
+        except Exception:  # pragma: no cover - defensive SDK compatibility
+            return ""
+    return ""
 
 
 def _usage_payload(usage: Any) -> dict[str, int]:

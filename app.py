@@ -997,10 +997,21 @@ def _engine_audit_from_snapshot(snapshot: dict) -> dict:
     metadata = first.metadata if first else {}
     ai_calls = metadata.get("ai_calls") if isinstance(metadata.get("ai_calls"), list) else []
     usage_totals = {"input_tokens": 0, "output_tokens": 0, "total_tokens": 0}
+    metrics_totals = {
+        "prompt_json_chars": 0,
+        "prompt_json_bytes": 0,
+        "request_input_chars": 0,
+        "output_json_chars": 0,
+        "output_json_bytes": 0,
+        "raw_response_json_chars": 0,
+        "raw_response_json_bytes": 0,
+    }
     total_latency_ms = 0
+    ai_call_count = 0
     for call in ai_calls:
         if not isinstance(call, dict):
             continue
+        ai_call_count += 1
         try:
             total_latency_ms += int(call.get("latency_ms") or 0)
         except (TypeError, ValueError):
@@ -1009,6 +1020,12 @@ def _engine_audit_from_snapshot(snapshot: dict) -> dict:
         for key in usage_totals:
             try:
                 usage_totals[key] += int(usage.get(key) or 0)
+            except (TypeError, ValueError):
+                pass
+        metrics = call.get("metrics") if isinstance(call.get("metrics"), dict) else {}
+        for key in metrics_totals:
+            try:
+                metrics_totals[key] += int(metrics.get(key) or 0)
             except (TypeError, ValueError):
                 pass
 
@@ -1031,6 +1048,8 @@ def _engine_audit_from_snapshot(snapshot: dict) -> dict:
             "providers": providers,
             "ai_calls": ai_calls,
             "usage_totals": usage_totals,
+            "metrics_totals": metrics_totals,
+            "ai_call_count": ai_call_count,
             "total_latency_ms": total_latency_ms,
             "taste_strategy": metadata.get("taste_strategy", {}),
             "candidate_pool": metadata.get("candidate_pool", []),

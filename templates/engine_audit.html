@@ -33,10 +33,15 @@
           <dt>Round</dt><dd>{{ session.round_number }}</dd>
           <dt>Parent session</dt><dd>{{ session.parent_session_id or 'none' }}</dd>
           <dt>Refinement prompt</dt><dd>{{ session.refinement_prompt or 'none' }}</dd>
+          <dt>Model calls</dt><dd>{{ audit.ai_call_count }}</dd>
           <dt>Latency</dt><dd>{{ audit.total_latency_ms }} ms</dd>
           <dt>Tokens</dt>
           <dd>
             input {{ audit.usage_totals.input_tokens }} · output {{ audit.usage_totals.output_tokens }} · total {{ audit.usage_totals.total_tokens }}
+          </dd>
+          <dt>Payload sizes</dt>
+          <dd>
+            prompt JSON {{ audit.metrics_totals.prompt_json_chars }} chars · output JSON {{ audit.metrics_totals.output_json_chars }} chars · raw response {{ audit.metrics_totals.raw_response_json_chars }} chars
           </dd>
           <dt>Feedback</dt>
           <dd>Love {{ reaction_counts.love }} · Maybe {{ reaction_counts.maybe }} · No {{ reaction_counts.no }}</dd>
@@ -193,7 +198,7 @@
         <h2>AI calls</h2>
         {% for call in audit.ai_calls %}
           <details class="engine-audit-call">
-            <summary>{{ call.stage }} · {{ call.latency_ms }} ms · {{ call.model }}</summary>
+            <summary>{{ call.stage }} · {{ call.latency_ms }} ms · output {{ call.metrics.output_json_chars|default(0) }} chars · {{ call.model }}</summary>
             <pre>{{ call|tojson(indent=2) }}</pre>
           </details>
         {% else %}

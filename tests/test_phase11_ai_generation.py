@@ -333,6 +333,8 @@ class PhaseElevenAIGenerationTest(unittest.TestCase):
             [item["schema_name"] for item in results[0].metadata["ai_calls"]],
             [TASTE_STRATEGY_SCHEMA_NAME, CANDIDATE_POOL_SCHEMA_NAME, NAME_GENERATION_SCHEMA_NAME],
         )
+        self.assertGreater(results[0].metadata["ai_calls"][0]["metrics"]["prompt_json_chars"], 0)
+        self.assertGreater(results[0].metadata["ai_calls"][2]["metrics"]["output_json_chars"], 0)
         self.assertEqual(fake_client.responses.calls[1]["input"][1]["content"].count("Warm, bright, easy-to-call"), 1)
         self.assertIn("Lumi", fake_client.responses.calls[2]["input"][1]["content"])
 

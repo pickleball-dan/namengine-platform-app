@@ -81,6 +81,9 @@ class FakeResponse:
         self.output_text = output_text
         self.usage = usage
 
+    def model_dump_json(self):
+        return json.dumps({"output_text": self.output_text, "usage": self.usage})
+
 
 class FakeResponses:
     def __init__(self):
@@ -139,7 +142,11 @@ class PhaseTwentyOneEngineAuditTest(unittest.TestCase):
         self.assertIn("namengine-taste-engine-v1", body)
         self.assertIn("three_pass_llm_v1", body)
         self.assertIn("critic_ranker_finalizer_v1", body)
+        self.assertIn("Model calls", body)
         self.assertIn("input 480", body)
+        self.assertIn("output JSON", body)
+        self.assertIn("output_json_chars", body)
+        self.assertIn("raw_response_json_chars", body)
         self.assertIn("input_tokens\": 200", body)
         self.assertIn("Candidate pool", body)
         self.assertIn("Rejected candidates", body)
