@@ -206,9 +206,12 @@ main {
   padding: 12px;
   text-decoration: none;
   background:
-    linear-gradient(90deg, var(--signal-soft), rgba(255, 255, 255, 0.82)),
+    linear-gradient(90deg,
+      color-mix(in srgb, var(--signal-name-color, var(--signal-accent)) 18%, white),
+      color-mix(in srgb, var(--signal-name-color, var(--signal-accent)) 8%, white) 54%,
+      rgba(255, 255, 255, 0.9)),
     #ffffff;
-  border: 1px solid rgba(24, 33, 47, 0.1);
+  border: 1px solid color-mix(in srgb, var(--signal-name-color, var(--signal-accent)) 22%, white);
   border-left: 4px solid var(--signal-accent);
   border-radius: 8px;
 }

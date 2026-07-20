@@ -8,6 +8,11 @@
   "pet": "images/namengine-pets.svg",
   "business": "images/namengine-biz.svg"
 } %}
+{% set home_card_logo_colors = {
+  "baby": "#FF6B6B",
+  "pet": "#F2B544",
+  "business": "#3FA6A0"
+} %}
 <section class="home-hero home-hero-flagship home-hero-clean">
   <div class="home-hero-copy home-hero-actions-only">
     <div class="hero-actions">
@@ -26,7 +31,7 @@
         <a
           class="home-signal-card"
           href="{{ item.route_prefix }}"
-          style="--signal-accent: {{ item.theme.get('accent', '#18212f') }}; --signal-soft: {{ item.theme.get('accent_soft', 'rgba(24, 33, 47, 0.08)') }}; --signal-warm: {{ item.theme.get('accent_warm', '#f2b84b') }};"
+          style="--signal-accent: {{ home_card_logo_colors.get(slug, item.theme.get('accent', '#18212f')) }}; --signal-soft: {{ item.theme.get('accent_soft', 'rgba(24, 33, 47, 0.08)') }}; --signal-warm: {{ item.theme.get('accent_warm', '#f2b84b') }}; --signal-name-color: {{ home_card_logo_colors.get(slug, item.theme.get('accent', '#18212f')) }};"
         >
           <img class="home-signal-wordmark" src="{{ url_for('static', filename=home_card_logos.get(slug, item.assets.get('card_logo', item.assets.get('logo')))) }}" alt="NamEngine {{ item.display_name }}">
           <span>
