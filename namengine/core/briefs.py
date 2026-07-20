@@ -25,6 +25,7 @@ def build_brief(vertical: VerticalConfig, source: Mapping[str, Any]) -> NamingBr
         _apply_pet_legacy_aliases(inputs, source)
 
     _apply_registered_intake_aliases(vertical.slug, inputs, source)
+    _apply_taste_strength_inputs(inputs, source)
 
     avoid_source = inputs.get("avoid", source.get("avoid", ""))
     avoid = _split_terms(str(avoid_source)) if avoid_source else []
@@ -59,6 +60,28 @@ def _apply_pet_legacy_aliases(inputs: dict[str, Any], source: Mapping[str, Any])
             inputs[new_key] = raw_value.strip() if isinstance(raw_value, str) else raw_value
         if old_key not in inputs and inputs.get(new_key):
             inputs[old_key] = inputs[new_key]
+
+
+def _apply_taste_strength_inputs(inputs: dict[str, Any], source: Mapping[str, Any]) -> None:
+    strengths: dict[str, int] = {}
+    for key, value in source.items():
+        if not str(key).startswith("taste_strength_"):
+            continue
+        try:
+            strength = int(float(value))
+        except (TypeError, ValueError):
+            continue
+        strength = max(0, min(100, strength))
+        clean_key = str(key)
+        inputs[clean_key] = strength
+        strengths[clean_key[len("taste_strength_") :]] = strength
+
+    if strengths:
+        strongest = max(strengths.items(), key=lambda item: item[1])
+        readable = strongest[0].replace("_", " ")
+        inputs["taste_focus"] = (
+            f"Let {readable} guide this list most while still honoring every intake answer."
+        )
 
 
 def _apply_registered_intake_aliases(
