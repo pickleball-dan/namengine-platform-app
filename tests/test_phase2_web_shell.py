@@ -55,7 +55,7 @@ class PhaseTwoWebShellTest(unittest.TestCase):
         body = response.get_data(as_text=True)
         self.assertIn("NamEngine Baby", body)
         self.assertIn("Let’s discover your child’s name together.", body)
-        self.assertIn("Most parents finish in about 3–5 minutes.", body)
+        self.assertIn("A child’s name is one of the few gifts that lasts a lifetime.", body)
         self.assertIn("About your baby", body)
         self.assertIn("Name style", body)
         self.assertIn("Fit and feeling", body)
