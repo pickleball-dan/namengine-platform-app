@@ -11,9 +11,9 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
     def test_public_legal_pages_render(self):
         pages = {
             "/privacy": ("Privacy Policy", "Legal note"),
-            "/terms": ("Terms of Use", "Beta notice"),
-            "/disclaimers": ("Disclaimers", "Beta notice"),
-            "/data-protection": ("Data Protection", "Beta notice"),
+            "/terms": ("Terms of Use", "Legal note"),
+            "/disclaimers": ("AI Disclosures &amp; Responsible Use", "Legal note"),
+            "/data-protection": ("Data Protection &amp; Privacy Policy", "Legal note"),
         }
         for path, (expected, notice_label) in pages.items():
             with self.subTest(path=path):
@@ -34,6 +34,43 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.assertIn("NamEngine does not sell personal information", text)
         self.assertIn("privacy@namengine.com", text)
         self.assertNotIn("replace with your preferred contact email", text)
+
+    def test_terms_policy_has_production_disclosures(self):
+        response = self.app.get("/terms")
+        text = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Effective Date:", text)
+        self.assertIn("July 20, 2026", text)
+        self.assertIn("NamEngine LLC", text)
+        self.assertIn("artificial intelligence services", text)
+        self.assertIn("THE SERVICES ARE PROVIDED", text)
+        self.assertIn("support@nam-engine.com", text)
+        self.assertNotIn("replace if different", text)
+
+    def test_ai_disclosures_have_responsible_use_copy(self):
+        response = self.app.get("/disclaimers")
+        text = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("AI Disclosures &amp; Responsible Use", text)
+        self.assertIn("Effective Date:", text)
+        self.assertIn("July 20, 2026", text)
+        self.assertIn("AI is intended to assist your decision-making", text)
+        self.assertIn("NamEngine does not reserve names for individual users", text)
+        self.assertIn("support@nam-engine.com", text)
+
+    def test_data_protection_has_production_privacy_copy(self):
+        response = self.app.get("/data-protection")
+        text = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Data Protection &amp; Privacy Policy", text)
+        self.assertIn("Effective Date:", text)
+        self.assertIn("July 20, 2026", text)
+        self.assertIn("We never sell your personal information", text)
+        self.assertIn("trusted artificial intelligence technology providers", text)
+        self.assertIn("privacy@nam-engine.com", text)
 
     def test_footer_has_trust_links(self):
         response = self.app.get("/")
