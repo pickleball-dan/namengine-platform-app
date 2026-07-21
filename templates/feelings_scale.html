@@ -27,6 +27,10 @@
       </div>
 
       <div class="baby-interview-header">
+        <nav class="baby-interview-nav" aria-label="Baby name discovery navigation">
+          <a class="baby-interview-back" href="{{ intake_edit_url(vertical, brief, 'avoid') }}#{{ vertical.slug }}-intake-form">← Back</a>
+          <a class="baby-interview-exit" href="{{ vertical.route_prefix }}">Save & exit</a>
+        </nav>
         <div class="baby-question-progress" aria-live="polite">
           <strong class="baby-progress-title">Now tell us what matters most.</strong>
           <div class="baby-progress-track" role="progressbar" aria-label="Interview progress" aria-valuemin="1" aria-valuenow="1" aria-valuemax="1"><span style="width: 100%"></span></div>
@@ -37,7 +41,7 @@
       <section class="baby-final-question baby-question" data-baby-final-question>
         <p class="baby-question-kicker">Your naming direction <span class="baby-kicker-heart" aria-hidden="true"></span></p>
         <div class="baby-question-heading">
-          <h1>What should guide the search?</h1>
+          <h1>Do you want us to prioritize anything?</h1>
         </div>
         <p class="baby-question-lede">We’ll honor everything you shared. This simply tells us where to listen most closely.</p>
         <div class="baby-choice-list" role="radiogroup" aria-label="Search priority">

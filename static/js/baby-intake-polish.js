@@ -14,7 +14,7 @@
   const questionOrder = [
     "gender", "style", "familiarity_preference", "discovery_style",
     "timeless_vs_distinctive", "sound", "cultural_context", "cultural_heritage",
-    "family_context", "partner_alignment", "avoid", "notes"
+    "family_context", "notes", "partner_alignment", "avoid"
   ];
   const orderIndex = new Map(questionOrder.map((id, index) => [id, index]));
   const questions = Array.from(form.querySelectorAll("[data-baby-question]"))
@@ -297,6 +297,24 @@
     return applicable[index + 1] || null;
   }
 
+  function previousQuestion(question) {
+    syncConditions();
+    const applicable = applicableQuestions();
+    const index = applicable.indexOf(question);
+    return index > 0 ? applicable[index - 1] : null;
+  }
+
+  function goBackOneStep(event) {
+    if (!document.body.classList.contains("baby-interview-started")) return;
+    const activeQuestion = questions.find((question) => question.dataset.questionId === activeId && !question.hidden);
+    const previous = activeQuestion ? previousQuestion(activeQuestion) : (checkIn && !checkIn.hidden ? checkInAnchorQuestion() : null);
+    if (!previous) return;
+    event.preventDefault();
+    window.clearTimeout(transitionTimer);
+    confirmation.textContent = "";
+    showQuestion(previous);
+  }
+
   function confirmAndAdvance(question, label) {
     confirmation.textContent = label ? `Saved — ${label}` : "Saved";
     question.classList.add("is-confirmed");
@@ -398,6 +416,11 @@
   }
 
   form.addEventListener("click", (event) => {
+    const navBack = event.target.closest("[data-baby-nav-back]");
+    if (navBack) {
+      goBackOneStep(event);
+      return;
+    }
     const checkInChoice = event.target.closest("[data-checkin-value]");
     if (checkInChoice) {
       selectCheckInResponse(checkInChoice);

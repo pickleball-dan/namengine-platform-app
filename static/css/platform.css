@@ -5658,8 +5658,44 @@ button {
 
 .vertical-baby .baby-conversation .baby-interview-header {
   grid-template-columns: minmax(220px, 300px) minmax(250px, 340px);
-  gap: 36px;
+  gap: 16px 36px;
   padding-bottom: clamp(24px, 3vh, 34px);
+}
+
+.vertical-baby .baby-interview-nav {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 42px;
+  padding-bottom: 2px;
+}
+
+.vertical-baby .baby-interview-nav a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 8px 13px;
+  color: #53627a;
+  font-size: 13px;
+  font-weight: 850;
+  line-height: 1;
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(16, 43, 84, 0.1);
+  border-radius: 999px;
+  box-shadow: 0 8px 20px rgba(48, 43, 58, 0.045);
+}
+
+.vertical-baby .baby-interview-back {
+  color: var(--baby-navy);
+}
+
+.vertical-baby .baby-interview-exit {
+  color: #c96b78;
+  background: rgba(255, 247, 248, 0.84);
+  border-color: rgba(255, 107, 87, 0.16);
 }
 
 .vertical-baby .baby-conversation .baby-interview-brand {
@@ -6105,6 +6141,10 @@ button {
     grid-template-columns: minmax(180px, 240px) minmax(220px, 280px);
   }
 
+  .vertical-baby .baby-interview-nav {
+    padding-inline: 2px;
+  }
+
   .vertical-baby .baby-conversation .baby-choice-list { gap: 12px; }
   .vertical-baby .baby-conversation .baby-choice:not(.baby-choice-illustrated) {
     min-height: 68px;
@@ -6138,9 +6178,20 @@ button {
 
   .vertical-baby .baby-conversation .baby-interview-header {
     grid-template-columns: minmax(0, 1fr);
-    justify-items: center;
+    justify-items: stretch;
     gap: 18px;
     padding-bottom: 28px;
+  }
+
+  .vertical-baby .baby-interview-nav {
+    width: 100%;
+    min-height: 38px;
+  }
+
+  .vertical-baby .baby-interview-nav a {
+    min-height: 34px;
+    padding: 8px 11px;
+    font-size: 12px;
   }
 
   .vertical-baby .baby-conversation .baby-interview-brand {

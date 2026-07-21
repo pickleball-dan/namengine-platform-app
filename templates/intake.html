@@ -128,6 +128,10 @@
           <span class="baby-nursery-heart baby-nursery-heart-two"></span>
         </div>
         <div class="baby-interview-header">
+          <nav class="baby-interview-nav" aria-label="Baby name discovery navigation">
+            <a class="baby-interview-back" href="{{ vertical.route_prefix }}" data-baby-nav-back>← Back</a>
+            <a class="baby-interview-exit" href="{{ vertical.route_prefix }}">Save & exit</a>
+          </nav>
           <div class="baby-question-progress" aria-live="polite">
             <strong class="baby-progress-title" data-baby-progress-title>Let’s get to know your family.</strong>
             <div class="baby-progress-track" role="progressbar" aria-label="Interview progress" aria-valuemin="1" aria-valuenow="1" aria-valuemax="1" data-baby-progressbar>
@@ -340,7 +344,7 @@
   {% include "progress_overlay.html" %}
   <script src="{{ url_for('static', filename='js/progress.js') }}"></script>
   {% if is_polished_flow %}
-    <script src="{{ url_for('static', filename='js/baby-intake-polish.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/baby-intake-polish.js') }}?v=20260720-baby-back-flow-v1"></script>
   {% endif %}
   {% if vertical.slug in ["pet", "baby", "business", "product"] %}
     <script src="{{ url_for('static', filename='js/taste-history.js') }}"></script>
