@@ -135,11 +135,31 @@
     };
 
     let pollPortrait;
+    let resetPortraitPolling = () => {};
     if (portraitShell && portraitFrame && portraitShell.dataset.portraitStatusUrl) {
       let attempts = 0;
-      const maxAttempts = 30;
+      let stoppedPolling = false;
+      const retryDelaysMs = [1200, 2500, 4000, 6000, 8000, 10000, 15000, 20000];
+
+      const scheduleNextPortraitPoll = () => {
+        if (stoppedPolling || !portraitShell.dataset.portraitStatusUrl) return;
+        const delay = retryDelaysMs[Math.min(attempts, retryDelaysMs.length - 1)];
+        window.setTimeout(pollPortrait, delay);
+      };
+
+      const stopPortraitPolling = (message) => {
+        stoppedPolling = true;
+        portraitShell.removeAttribute("data-portrait-status-url");
+        if (message && portraitStatus) portraitStatus.textContent = message;
+      };
+
+      resetPortraitPolling = () => {
+        attempts = 0;
+        stoppedPolling = false;
+      };
 
       pollPortrait = async () => {
+        if (stoppedPolling || !portraitShell.dataset.portraitStatusUrl) return;
         attempts += 1;
         try {
           const response = await fetch(portraitShell.dataset.portraitStatusUrl, {
@@ -154,11 +174,12 @@
             image.src = portrait.url;
             image.alt = readyAlt;
             portraitFrame.querySelector("[data-pet-portrait-placeholder]")?.replaceWith(image);
-            portraitShell.removeAttribute("data-portrait-status-url");
+            stopPortraitPolling();
             return;
           }
 
           if (portrait.status === "failed" && portraitStatus) {
+            stopPortraitPolling();
             showFailure();
             return;
           }
@@ -172,13 +193,16 @@
           }
         }
 
-        if (attempts < maxAttempts) {
-          window.setTimeout(pollPortrait, 2000);
+        if (attempts >= retryDelaysMs.length) {
+          stopPortraitPolling(stillCreatingText);
+          return;
         }
+        scheduleNextPortraitPoll();
       };
 
-      window.setTimeout(pollPortrait, 1200);
+      scheduleNextPortraitPoll();
     }
+
 
     retryButton?.addEventListener("click", async () => {
       const retryUrl = portraitShell?.dataset.portraitRetryUrl;
@@ -200,7 +224,11 @@
         }
         retryButton.hidden = true;
         portraitShell.dataset.portraitStatusUrl = {{ url_for('chosen_portrait_status', chosen_id=chosen.id)|tojson }};
-        pollPortrait = pollPortrait || (() => window.location.reload());
+        if (pollPortrait) {
+          resetPortraitPolling();
+        } else {
+          pollPortrait = () => window.location.reload();
+        }
         window.setTimeout(pollPortrait, 400);
       } catch (error) {
         showFailure();

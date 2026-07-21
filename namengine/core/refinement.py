@@ -8,6 +8,7 @@ from uuid import uuid4
 
 from namengine.core.briefs import build_brief
 from namengine.core.generation import generate_names
+from namengine.core.openai_telemetry import openai_telemetry_context
 from namengine.core.schemas import NameResult, NamingBrief, VerticalConfig
 from namengine.core.storage import (
     StorageError,
@@ -69,19 +70,26 @@ def refine_session(
         "taste_profile": taste_profile,
         "previous_names": previous_names,
     }
-    if generator is None:
-        results = generate_names(
-            vertical,
-            brief,
-            use_ai=use_ai,
-            **generation_kwargs,
-        )
-    else:
-        results = generator(vertical, brief, **generation_kwargs)
     if next_round >= 4:
         session_id = f"{parent_session_id}-r{next_round}-{uuid4().hex[:8]}"
     else:
         session_id = f"{parent_session_id}-r{next_round}"
+    with openai_telemetry_context(
+        session_id=session_id,
+        parent_session_id=parent_session_id,
+        vertical=vertical.slug,
+        round_number=next_round,
+        action="generate_refinement",
+    ):
+        if generator is None:
+            results = generate_names(
+                vertical,
+                brief,
+                use_ai=use_ai,
+                **generation_kwargs,
+            )
+        else:
+            results = generator(vertical, brief, **generation_kwargs)
     save_session(
         session_id,
         vertical.slug,

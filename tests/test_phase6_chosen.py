@@ -330,6 +330,25 @@ class PhaseSixChosenNameTest(unittest.TestCase):
         self.assertEqual(details["gender"], "Girl")
         self.assertEqual(details["style"], "Classic")
 
+    def test_chosen_keepsake_polling_uses_backoff_not_fixed_interval(self):
+        query = b"gender=Girl&style=Classic&sound=Soft&family_context=Surname+Parker"
+        session_id = make_session_id("baby", query)
+        self.client.get(f"/baby/results?{query.decode('utf-8')}")
+
+        response = self.client.post(
+            "/choose",
+            data={"session_id": session_id, "result_id": "baby-1"},
+            follow_redirects=True,
+        )
+        body = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("const retryDelaysMs = [1200, 2500, 4000, 6000, 8000, 10000, 15000, 20000];", body)
+        self.assertIn("stopPortraitPolling(stillCreatingText);", body)
+        self.assertIn("resetPortraitPolling();", body)
+        self.assertNotIn("const maxAttempts = 30;", body)
+        self.assertNotIn("window.setTimeout(pollPortrait, 2000);", body)
+
     def test_baby_keepsake_prompt_uses_blanket_not_baby_photo(self):
         brief = {
             "inputs": {

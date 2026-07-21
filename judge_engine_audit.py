@@ -18,10 +18,13 @@ import argparse
 import csv
 import json
 import os
+import time
 from datetime import datetime
 from pathlib import Path
 from statistics import mean
 from typing import Any, Callable
+
+from namengine.core.openai_telemetry import log_text_usage
 
 try:
     from dotenv import load_dotenv
@@ -165,20 +168,50 @@ def judge_row_with_ai(
     client = client_factory()
     selected_model = model or os.getenv("NAMENGINE_AI_JUDGE_MODEL", DEFAULT_AI_JUDGE_MODEL)
     prompt = build_ai_judge_prompt(row)
-    response = client.responses.create(
-        model=selected_model,
-        input=[
-            {
-                "role": "system",
-                "content": (
-                    "You are an independent naming-product QA judge. You are blind to the code. "
-                    "Score harshly enough to be useful. Do not reward mechanical pass/fail alone. "
-                    "Prefer concise, actionable notes. Return only valid JSON."
-                ),
+    started_at = time.perf_counter()
+    try:
+        response = client.responses.create(
+            model=selected_model,
+            input=[
+                {
+                    "role": "system",
+                    "content": (
+                        "You are an independent naming-product QA judge. You are blind to the code. "
+                        "Score harshly enough to be useful. Do not reward mechanical pass/fail alone. "
+                        "Prefer concise, actionable notes. Return only valid JSON."
+                    ),
+                },
+                {"role": "user", "content": json.dumps(prompt, ensure_ascii=False)},
+            ],
+            response_format=ai_judge_response_format(),
+        )
+    except Exception as exc:
+        log_text_usage(
+            model_requested=selected_model,
+            duration_ms=int((time.perf_counter() - started_at) * 1000),
+            status="failed",
+            retry_number=0,
+            error_type=type(exc).__name__,
+            action="engine_audit_judge",
+            context={
+                "session_id": row.get("session_id"),
+                "vertical": row.get("vertical"),
+                "round_number": row.get("round_number"),
             },
-            {"role": "user", "content": json.dumps(prompt, ensure_ascii=False)},
-        ],
-        response_format=ai_judge_response_format(),
+        )
+        raise
+    log_text_usage(
+        response=response,
+        model_requested=selected_model,
+        duration_ms=int((time.perf_counter() - started_at) * 1000),
+        status="success",
+        retry_number=0,
+        action="engine_audit_judge",
+        context={
+            "session_id": row.get("session_id"),
+            "vertical": row.get("vertical"),
+            "round_number": row.get("round_number"),
+        },
     )
     payload = json.loads(response.output_text)
     cuts = [str(item) for item in payload.get("names_to_cut", [])]

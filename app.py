@@ -61,6 +61,7 @@ from namengine.core.baby_decision_support import build_baby_decision_support
 from namengine.core.storage import get_session_chain_snapshots
 from namengine.core.taste_evolution import build_taste_evolution
 from namengine.core.ai_generation import DEFAULT_MODEL
+from namengine.core.openai_telemetry import openai_telemetry_context
 from namengine.core.prompt_versions import prompt_version_for
 from namengine.core.schemas import NameResult, NamingBrief, ValidationResult, to_plain_data
 from namengine.core.validation import filter_results_for_brief
@@ -357,7 +358,12 @@ def _render_results_snapshot(
     names = _names_from_snapshot(snapshot)
     brief = _brief_from_snapshot(snapshot)
     if not _cached_names_match_current_rules(vertical, brief, names):
-        names = _generate_names_for_route(vertical, brief)
+        names = _generate_names_for_route(
+            vertical,
+            brief,
+            session_id=session_id,
+            parent_session_id=snapshot["session"].get("parent_session_id"),
+        )
         save_session(
             session_id,
             vertical.slug,
@@ -541,7 +547,7 @@ def create_app() -> Flask:
         if snapshot and snapshot["results"]:
             names = _names_from_snapshot(snapshot)
         else:
-            names = _generate_names_for_route(vertical, brief)
+            names = _generate_names_for_route(vertical, brief, session_id=session_id)
             save_session(session_id, vertical.slug, brief, names)
         taste_profile_row = get_taste_profile(session_id)
         return render_template(
@@ -572,10 +578,10 @@ def create_app() -> Flask:
         if snapshot and snapshot["results"]:
             names = _names_from_snapshot(snapshot)
             if not _cached_names_match_current_rules(vertical, brief, names):
-                names = _generate_names_for_route(vertical, brief)
+                names = _generate_names_for_route(vertical, brief, session_id=session_id)
                 save_session(session_id, vertical.slug, brief, names)
         else:
-            names = _generate_names_for_route(vertical, brief)
+            names = _generate_names_for_route(vertical, brief, session_id=session_id)
             save_session(session_id, vertical.slug, brief, names)
         return session_id
 
@@ -603,10 +609,10 @@ def create_app() -> Flask:
         if snapshot and snapshot["results"]:
             names = _names_from_snapshot(snapshot)
             if not _cached_names_match_current_rules(vertical, brief, names):
-                names = _generate_names_for_route(vertical, brief)
+                names = _generate_names_for_route(vertical, brief, session_id=session_id)
                 save_session(session_id, vertical.slug, brief, names)
         else:
-            names = _generate_names_for_route(vertical, brief)
+            names = _generate_names_for_route(vertical, brief, session_id=session_id)
             save_session(session_id, vertical.slug, brief, names)
         taste_profile_row = get_taste_profile(session_id)
         return render_template(
@@ -1118,19 +1124,32 @@ def _generate_names_for_route(
     taste_summary: str = "",
     taste_profile=None,
     previous_names: list[str] | None = None,
+    session_id: str | None = None,
+    parent_session_id: str | None = None,
 ) -> list[NameResult]:
     if _should_use_ai_for_vertical(vertical):
         started_at = time.perf_counter()
         try:
-            names = generate_with_router(
-                vertical=vertical,
-                brief=brief,
+            with openai_telemetry_context(
+                session_id=session_id,
+                parent_session_id=parent_session_id,
+                vertical=vertical.slug,
                 round_number=round_number,
-                taste_profile=taste_profile,
-                previous_names=previous_names or [],
-                providers=[ModelProvider.OPENAI],
-                fallback_on_provider_error=True,
-            )
+                action=(
+                    "generate_refinement"
+                    if round_number > 1
+                    else "generate_initial_names"
+                ),
+            ):
+                names = generate_with_router(
+                    vertical=vertical,
+                    brief=brief,
+                    round_number=round_number,
+                    taste_profile=taste_profile,
+                    previous_names=previous_names or [],
+                    providers=[ModelProvider.OPENAI],
+                    fallback_on_provider_error=True,
+                )
             if not names:
                 raise AIGenerationError("generation returned no usable names")
         except Exception as exc:  # pragma: no cover - live provider behavior
