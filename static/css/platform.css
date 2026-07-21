@@ -8813,8 +8813,64 @@ button {
     color: #cf6f80;
   }
 
+  .site-footer-reference {
+    padding-top: 18px;
+  }
+
   .site-footer-inner {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: min(100% - 32px, 420px);
+    gap: 18px 22px;
+    padding-bottom: 18px;
+  }
+
+  .site-footer-reference .footer-brand-block {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: 112px minmax(0, 1fr);
+    align-items: center;
+    gap: 12px;
+  }
+
+  .site-footer-reference .footer-brand-logo {
+    width: 112px;
+    margin: 0;
+  }
+
+  .site-footer-reference .footer-brand-block p {
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  .footer-socials {
+    display: none;
+  }
+
+  .footer-column {
+    gap: 3px;
+  }
+
+  .footer-column h2 {
+    margin-bottom: 5px;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+  }
+
+  .footer-column .footer-subheading {
+    margin: 5px 0 2px;
+  }
+
+  .footer-column a,
+  .footer-column span {
+    font-size: 12px;
+    line-height: 1.22;
+  }
+
+  .footer-bottom-line {
+    width: min(100% - 32px, 420px);
+    padding-top: 12px;
+    font-size: 11px;
+    line-height: 1.35;
   }
 }
 
