@@ -26,6 +26,7 @@ from namengine.core.schemas import (
     VerticalConfig,
 )
 from namengine.core.validation import validate_results
+from namengine.core.openai_telemetry import record_openai_telemetry
 
 
 DEFAULT_MODEL = "gpt-4.1-mini"
@@ -1008,7 +1009,18 @@ def _call_openai_with_metadata(
             kwargs["text"] = {"format": response_format}
         response = client.responses.create(**kwargs)
     except Exception as exc:  # pragma: no cover - live SDK/network behavior
+        record_openai_telemetry(
+            request_type="responses.create", model=model, started_at=start,
+            success=False, context=str(prompt.get("engine_stage") or prompt.get("prompt_type") or "generation"),
+            error_type=exc.__class__.__name__,
+        )
         raise AIGenerationError(str(exc)) from exc
+
+    record_openai_telemetry(
+        request_type="responses.create", model=model, started_at=start, success=True,
+        usage=getattr(response, "usage", None),
+        context=str(prompt.get("engine_stage") or prompt.get("prompt_type") or "generation"),
+    )
 
     state = _response_state(response)
     text = getattr(response, "output_text", "")

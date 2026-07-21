@@ -18,10 +18,12 @@ import argparse
 import csv
 import json
 import os
+import time
 from datetime import datetime
 from pathlib import Path
 from statistics import mean
 from typing import Any, Callable
+from namengine.core.openai_telemetry import record_openai_telemetry
 
 try:
     from dotenv import load_dotenv
@@ -165,9 +167,11 @@ def judge_row_with_ai(
     client = client_factory()
     selected_model = model or os.getenv("NAMENGINE_AI_JUDGE_MODEL", DEFAULT_AI_JUDGE_MODEL)
     prompt = build_ai_judge_prompt(row)
-    response = client.responses.create(
-        model=selected_model,
-        input=[
+    started_at = time.perf_counter()
+    try:
+        response = client.responses.create(
+            model=selected_model,
+            input=[
             {
                 "role": "system",
                 "content": (
@@ -178,8 +182,12 @@ def judge_row_with_ai(
             },
             {"role": "user", "content": json.dumps(prompt, ensure_ascii=False)},
         ],
-        response_format=ai_judge_response_format(),
-    )
+            response_format=ai_judge_response_format(),
+        )
+    except Exception as exc:
+        record_openai_telemetry(request_type="responses.create", model=selected_model, started_at=started_at, success=False, context="ai_judge", error_type=exc.__class__.__name__)
+        raise
+    record_openai_telemetry(request_type="responses.create", model=selected_model, started_at=started_at, success=True, usage=getattr(response, "usage", None), context="ai_judge")
     payload = json.loads(response.output_text)
     cuts = [str(item) for item in payload.get("names_to_cut", [])]
     row = _apply_judgment(

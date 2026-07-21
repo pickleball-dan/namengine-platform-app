@@ -14,6 +14,7 @@ from urllib.request import urlopen
 from openai import OpenAI
 
 from namengine.core.storage import get_database_path, update_chosen_metadata
+from namengine.core.openai_telemetry import record_openai_telemetry
 
 
 PORTRAIT_DIRNAME = "generated_pet_portraits"
@@ -237,6 +238,7 @@ def ensure_keepsake_for_chosen(
     path.parent.mkdir(parents=True, exist_ok=True)
     cleanup_generated_images(vertical_slug)
 
+    image_started = time.perf_counter()
     try:
         response = OpenAI().images.generate(
             model=portrait["model"],
@@ -245,6 +247,11 @@ def ensure_keepsake_for_chosen(
             n=1,
         )
     except Exception as exc:
+        record_openai_telemetry(
+            request_type="images.generate", model=portrait["model"], started_at=image_started,
+            success=False, image_count=1, image_size=portrait["size"],
+            context="keepsake_image_generation", error_type=exc.__class__.__name__,
+        )
         portrait.update(
             {
                 "status": "failed",
@@ -257,6 +264,12 @@ def ensure_keepsake_for_chosen(
             {metadata_key: {key: value for key, value in portrait.items() if key != "prompt"}},
         )
         raise
+
+    record_openai_telemetry(
+        request_type="images.generate", model=portrait["model"], started_at=image_started,
+        success=True, image_count=1, image_size=portrait["size"], context="keepsake_image_generation",
+        usage=getattr(response, "usage", None),
+    )
 
     try:
         image_bytes = _image_bytes_from_response(response)
