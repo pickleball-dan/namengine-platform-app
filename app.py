@@ -468,6 +468,10 @@ def create_app() -> Flask:
             paid=request.args.get("paid") == "1",
         )
 
+    @app.get("/about")
+    def about():
+        return render_template("about.html")
+
     @app.get("/privacy")
     def privacy_policy():
         return render_template("legal_privacy.html")
