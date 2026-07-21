@@ -24,6 +24,12 @@ services:
         value: 1024x1024
       - key: NAMENGINE_GENERATED_IMAGE_DIR
         value: /var/data
+      - key: NAMENGINE_OPENAI_TELEMETRY_PATH
+        value: /var/data/openai-telemetry.jsonl
+      - key: NAMENGINE_OPENAI_TELEMETRY_MAX_SCAN_RECORDS
+        value: "250000"
+      - key: MISSION_CONTROL_TELEMETRY_TOKEN
+        sync: false
       - key: NAMENGINE_IMAGE_RETENTION_DAYS
         value: "30"
       - key: NAMENGINE_BABY_BETA_PRICE

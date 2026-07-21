@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 import os
 import re
+import secrets
 import time
 from threading import Lock, Thread
 from hashlib import sha1
@@ -61,6 +62,7 @@ from namengine.core.baby_decision_support import build_baby_decision_support
 from namengine.core.storage import get_session_chain_snapshots
 from namengine.core.taste_evolution import build_taste_evolution
 from namengine.core.ai_generation import DEFAULT_MODEL
+from namengine.core.openai_telemetry import TelemetryQueryError, aggregate_openai_telemetry
 from namengine.core.prompt_versions import prompt_version_for
 from namengine.core.schemas import NameResult, NamingBrief, ValidationResult, to_plain_data
 from namengine.core.validation import filter_results_for_brief
@@ -457,6 +459,41 @@ def create_app() -> Flask:
     @app.get("/")
     def index():
         return render_template("index.html", verticals=VERTICALS)
+
+    @app.get("/api/internal/mission-control/openai-usage")
+    def mission_control_openai_usage():
+        expected_token = os.getenv("MISSION_CONTROL_TELEMETRY_TOKEN", "").strip()
+        if not expected_token:
+            return jsonify({"error": "telemetry_unavailable"}), 503
+
+        authorization = request.headers.get("Authorization", "")
+        scheme, separator, supplied_token = authorization.partition(" ")
+        if (
+            separator != " "
+            or scheme.lower() != "bearer"
+            or not supplied_token
+            or not secrets.compare_digest(supplied_token, expected_token)
+        ):
+            return jsonify({"error": "unauthorized"}), 401
+
+        allowed_parameters = {"start", "end", "request_type", "model", "success"}
+        if set(request.args) - allowed_parameters or any(
+            len(request.args.getlist(key)) != 1 for key in request.args
+        ):
+            return jsonify({"error": "invalid_query"}), 400
+        try:
+            report = aggregate_openai_telemetry(
+                start=request.args.get("start"),
+                end=request.args.get("end"),
+                request_type=request.args.get("request_type"),
+                model=request.args.get("model"),
+                success=request.args.get("success"),
+            )
+        except TelemetryQueryError as exc:
+            return jsonify({"error": "invalid_query", "message": str(exc)}), 400
+        response = jsonify(report)
+        response.headers["Cache-Control"] = "private, no-store"
+        return response
 
     @app.get("/baby/beta")
     def baby_beta():
