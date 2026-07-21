@@ -21,6 +21,14 @@
       {% set page_logo = vertical.assets.get("page_logo", vertical.assets.get("logo")) %}
       {% if is_polished_flow %}
         <div class="baby-welcome">
+          {% if vertical.slug == "baby" %}
+            <div class="baby-welcome-decor" aria-hidden="true">
+              <span class="baby-welcome-art baby-welcome-cloud"></span>
+              <span class="baby-welcome-art baby-welcome-mobile"></span>
+              <span class="baby-welcome-art baby-welcome-leaves"></span>
+              <span class="baby-welcome-art baby-welcome-teddy"></span>
+            </div>
+          {% endif %}
           {% if page_logo and vertical.slug != "baby" %}
             <img class="vertical-page-logo" src="{{ url_for('static', filename=page_logo) }}" alt="NamEngine {{ vertical.display_name }} logo">
           {% endif %}
