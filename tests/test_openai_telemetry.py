@@ -1,5 +1,8 @@
 import json
+import os
+import tempfile
 import unittest
+from datetime import UTC, datetime
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
@@ -7,6 +10,8 @@ from namengine.core.ai_generation import AIGenerationError, _call_openai_with_me
 from namengine.core.openai_telemetry import (
     IMAGE_USAGE_PREFIX,
     TEXT_USAGE_PREFIX,
+    TelemetryQueryError,
+    aggregate_openai_telemetry,
     extract_text_usage,
     log_image_usage,
     log_text_usage,
@@ -202,6 +207,137 @@ class OpenAIUsageTelemetryTest(unittest.TestCase):
             self.assertNotIn(key, payload)
         self.assertNotIn("parent@example.com", serialized)
         self.assertNotIn("Private Name", serialized)
+
+    def test_existing_text_event_also_writes_aggregate_safe_jsonl(self):
+        with tempfile.TemporaryDirectory() as directory:
+            target = os.path.join(directory, "telemetry.jsonl")
+            with patch.dict(os.environ, {"NAMENGINE_OPENAI_TELEMETRY_PATH": target}):
+                with patch("namengine.core.openai_telemetry.logger"):
+                    with openai_telemetry_context(session_id="private-session", vertical="baby"):
+                        log_text_usage(
+                            response=response_with_usage(),
+                            model_requested="gpt-test-requested",
+                            duration_ms=321,
+                            status="success",
+                            action="generate_refinement",
+                        )
+
+            event = json.loads(open(target, encoding="utf-8").read())
+            self.assertEqual(event["request_type"], "responses.create")
+            self.assertEqual(event["model"], "gpt-test-returned")
+            self.assertEqual(event["total_tokens"], 165)
+            self.assertNotIn("session_id", event)
+            self.assertNotIn("response_id", event)
+
+
+class OpenAITelemetryAggregationTest(unittest.TestCase):
+    def setUp(self):
+        self.tempdir = tempfile.TemporaryDirectory()
+        self.target = os.path.join(self.tempdir.name, "telemetry.jsonl")
+        self.environment = patch.dict(os.environ, {"NAMENGINE_OPENAI_TELEMETRY_PATH": self.target})
+        self.environment.start()
+
+    def tearDown(self):
+        self.environment.stop()
+        self.tempdir.cleanup()
+
+    def _event(self, timestamp, **overrides):
+        event = {
+            "timestamp": timestamp,
+            "request_type": "responses.create",
+            "model": "gpt-4.1-mini",
+            "latency_ms": 100,
+            "success": True,
+            "input_tokens": 10,
+            "output_tokens": 5,
+            "total_tokens": 15,
+            "context": "generation",
+        }
+        event.update(overrides)
+        return event
+
+    def _write(self, records, trailing="\n"):
+        with open(self.target, "w", encoding="utf-8") as handle:
+            handle.write("\n".join(json.dumps(item) for item in records) + trailing)
+
+    def test_aggregates_text_images_failures_and_missing_usage(self):
+        self._write([
+            self._event("2026-07-20T10:00:00Z"),
+            self._event(
+                "2026-07-20T11:00:00Z",
+                success=False,
+                latency_ms=300,
+                input_tokens=None,
+                output_tokens=None,
+                total_tokens=None,
+                error_type="TimeoutError",
+            ),
+            self._event(
+                "2026-07-21T12:00:00Z",
+                request_type="images.generate",
+                model="gpt-image-1-mini",
+                context="generate_chosen_keepsake",
+                latency_ms=500,
+                input_tokens=None,
+                output_tokens=None,
+                total_tokens=None,
+                image_count=1,
+            ),
+        ])
+
+        report = aggregate_openai_telemetry(
+            start="2026-07-20",
+            end="2026-07-21",
+            now=datetime(2026, 7, 21, 20, tzinfo=UTC),
+        )
+
+        self.assertEqual(report["summary"]["request_count"], 3)
+        self.assertEqual(report["summary"]["success_count"], 2)
+        self.assertEqual(report["summary"]["failure_count"], 1)
+        self.assertEqual(report["summary"]["total_tokens"], 15)
+        self.assertEqual(report["summary"]["image_generation_count"], 1)
+        self.assertEqual(report["summary"]["requests_missing_token_usage"], 2)
+        self.assertEqual(report["summary"]["average_latency_ms"], 300.0)
+        self.assertEqual(
+            report["failures_by_error_type"],
+            [{"error_type": "TimeoutError", "failure_count": 1}],
+        )
+
+    def test_filters_by_date_request_type_model_and_success(self):
+        self._write([
+            self._event("2026-07-18T10:00:00Z"),
+            self._event("2026-07-20T10:00:00Z", model="other-model"),
+            self._event("2026-07-20T11:00:00Z", success=False),
+            self._event("2026-07-21T10:00:00Z", request_type="images.generate"),
+        ])
+
+        report = aggregate_openai_telemetry(
+            start="2026-07-20",
+            end="2026-07-20",
+            request_type="responses.create",
+            model="gpt-4.1-mini",
+            success="false",
+        )
+
+        self.assertEqual(report["summary"]["request_count"], 1)
+        self.assertEqual(report["summary"]["failure_count"], 1)
+
+    def test_malformed_partial_missing_and_empty_files_are_safe(self):
+        self._write([self._event("2026-07-20T10:00:00Z")], trailing="\n{not-json\n{\"timestamp\":")
+        report = aggregate_openai_telemetry(start="2026-07-20", end="2026-07-20")
+        self.assertEqual(report["summary"]["request_count"], 1)
+
+        os.remove(self.target)
+        missing = aggregate_openai_telemetry(start="2026-07-20", end="2026-07-20")
+        self.assertEqual(missing["summary"]["request_count"], 0)
+
+        open(self.target, "w", encoding="utf-8").close()
+        empty = aggregate_openai_telemetry(start="2026-07-20", end="2026-07-20")
+        self.assertEqual(empty["requests_by_day"], [])
+
+    def test_unbounded_date_range_is_rejected(self):
+        with self.assertRaisesRegex(TelemetryQueryError, "cannot exceed"):
+            aggregate_openai_telemetry(start="2026-01-01", end="2026-07-20")
 
 
 if __name__ == "__main__":

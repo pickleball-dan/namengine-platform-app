@@ -239,6 +239,19 @@ The live implementation contract now also includes a typed `VerticalVisualConfig
 inside each `VerticalConfig`. See `docs/vertical-config-schema.md` for the field
 shape and `docs/vertical-launch-checklist.md` for the launch checklist.
 
+## Mission Control OpenAI usage telemetry
+
+NamEngine continues to emit its existing structured OpenAI usage logs. When
+`NAMENGINE_OPENAI_TELEMETRY_PATH` is set, the same safe events are also written as aggregate-safe
+JSONL on NamEngine's persistent disk. On Render, use `/var/data/openai-telemetry.jsonl`.
+
+The read-only aggregate endpoint at `/api/internal/mission-control/openai-usage` requires
+`MISSION_CONTROL_TELEMETRY_TOKEN`. Configure it as a Render secret and use the same value as
+`NAMENGINE_TELEMETRY_TOKEN` in the Mission Control telemetry gateway. Never commit either value.
+
+The endpoint returns aggregates only. It does not return raw events, session or chosen identifiers,
+prompts, generated names, intake answers, authorization headers, credentials, or filesystem paths.
+
 ## Verify
 
 ```powershell
