@@ -7,10 +7,25 @@
     <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/favicon.svg') }}">
     <link rel="apple-touch-icon" href="{{ url_for('static', filename='images/app-icon.svg') }}">
     {% if vertical is defined and vertical.assets.get("share_image") %}
-      <meta property="og:title" content="NamEngine {{ vertical.display_name }}">
-      <meta property="og:description" content="{{ vertical.visual.hero_support or vertical.prompt_context }}">
-      <meta property="og:image" content="{{ url_for('static', filename=vertical.assets.get('share_image'), _external=True) }}">
+      {% set social_title = social_title|default(self.title()|striptags|trim) %}
+      {% set social_description = social_description|default(vertical.visual.hero_support or vertical.prompt_context) %}
+      {% set social_image = social_image|default(url_for('static', filename=vertical.assets.get('share_image'), _external=True)) %}
+      <meta property="og:type" content="website">
+      <meta property="og:site_name" content="NamEngine">
+      <meta property="og:url" content="{{ request.url }}">
+      <meta property="og:title" content="{{ social_title }}">
+      <meta property="og:description" content="{{ social_description }}">
+      <meta property="og:image" content="{{ social_image }}">
+      <meta property="og:image:secure_url" content="{{ social_image }}">
+      <meta property="og:image:type" content="{{ 'image/jpeg' if social_image.endswith('.jpg') or social_image.endswith('.jpeg') else 'image/png' }}">
+      <meta property="og:image:width" content="1200">
+      <meta property="og:image:height" content="630">
+      <meta property="og:image:alt" content="{{ social_title }}">
       <meta name="twitter:card" content="summary_large_image">
+      <meta name="twitter:title" content="{{ social_title }}">
+      <meta name="twitter:description" content="{{ social_description }}">
+      <meta name="twitter:image" content="{{ social_image }}">
+      <meta name="twitter:image:alt" content="{{ social_title }}">
     {% endif %}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
