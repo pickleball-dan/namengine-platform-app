@@ -30,7 +30,7 @@ class PhaseFourteenProgressExperienceTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         body = response.get_data(as_text=True)
         self.assertIn('action="/pet/feelings"', body)
-        self.assertIn("Building a shortlist around this identity", body)
+        self.assertIn("Finding names for this identity", body)
         self.assertIn("A few quick checks before the list appears.", body)
         self.assertIn("Finding names for this identity", body)
         self.assertIn("Checking sound and use", body)
@@ -103,7 +103,9 @@ class PhaseFourteenProgressExperienceTest(unittest.TestCase):
         self.assertIn("namengine:progress-step", script)
         self.assertIn("is-pulsing", script)
         self.assertIn("personalizeProgress(form)", script)
-        self.assertIn("Building a shortlist for ${subject}", script)
+        self.assertIn("pageVertical", script)
+        self.assertIn("overlay.dataset.progressVertical", script)
+        self.assertIn("[data-taste-vertical]", script)
         self.assertIn("Finding names for ${subject}", script)
         self.assertIn("HTMLFormElement.prototype.submit.call(form)", script)
         self.assertIn('visual.dataset.progressPhase = String(index + 1)', script)
@@ -140,6 +142,7 @@ class PhaseFourteenProgressExperienceTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         body = response.get_data(as_text=True)
         self.assertIn("baby-thinking-panel", body)
+        self.assertIn('data-progress-vertical="baby"', body)
         self.assertNotIn("baby-thinking-arm", body)
 
         css_path = os.path.join(self.app.static_folder, "css", "platform.css")
@@ -152,10 +155,20 @@ class PhaseFourteenProgressExperienceTest(unittest.TestCase):
         self.assertIn(".progress-visual > * { display: none; }", css)
         self.assertIn('data-progress-phase="4"', css)
         self.assertIn("rgba(255, 107, 87, 0.34)", css)
-        self.assertIn(".baby-thinking-panel .progress-steps li.is-active { color: var(--baby-ui-green); }", css)
-        self.assertIn(".baby-thinking-panel .progress-steps li.is-active::before { background: var(--baby-ui-green); }", css)
+        self.assertIn(".baby-thinking-panel .progress-steps {", css)
+        self.assertIn("clip: rect(0 0 0 0);", css)
         self.assertNotIn("baby-thinking-left-arm-wave", css)
         self.assertNotIn("baby-thinking-right-arm-wave", css)
+
+    def test_baby_refinement_progress_keeps_baby_identity(self):
+        response = self.client.get("/baby/results?gender=Girl&style=Classic&sound=Soft")
+
+        self.assertEqual(response.status_code, 200)
+        body = response.get_data(as_text=True)
+        self.assertIn('data-taste-vertical="baby"', body)
+        self.assertIn('data-progress-vertical="baby"', body)
+        self.assertIn("baby-thinking-panel", body)
+        self.assertIn('action="/refine"', body)
 
 
 if __name__ == "__main__":

@@ -64,7 +64,7 @@ class BabyFlowPolishV1Test(unittest.TestCase):
         body = response.get_data(as_text=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn("What should guide the search?", body)
+        self.assertIn("Do you want us to prioritize anything?", body)
         self.assertIn("Skip for now", body)
         self.assertIn('data-baby-final-skip', body)
         self.assertIn('action="/baby/results"', body)
@@ -94,7 +94,7 @@ class BabyFlowPolishV1Test(unittest.TestCase):
         self.assertIn("Interpreting your naming taste", progress)
         self.assertIn("Building a broader candidate pool", progress)
         self.assertIn("Rejecting weaker fits before we show you finalists", progress)
-        self.assertIn("Shaping the shortlist", progress)
+        self.assertIn("Shaping the final names", progress)
         self.assertIn('visualLabel.textContent = "Family fit"', progress)
         self.assertIn("[data-saved-count]", reactions)
         self.assertIn("is-complete", intake_polish)

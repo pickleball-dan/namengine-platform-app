@@ -1,4 +1,4 @@
-<div class="progress-overlay" data-progress-overlay hidden>
+<div class="progress-overlay" data-progress-overlay{% if vertical is defined %} data-progress-vertical="{{ vertical.slug }}"{% endif %} hidden>
   <div class="progress-panel{% if vertical is defined and vertical.slug == 'baby' %} baby-thinking-panel{% endif %}" role="status" aria-live="polite">
     <div class="progress-visual" aria-hidden="true" data-progress-visual>
       <span class="progress-orbit progress-orbit-one"></span>
@@ -10,7 +10,7 @@
       <span class="progress-visual-label">{% if vertical is defined and vertical.slug == "baby" %}Family fit{% else %}Identity fit{% endif %}</span>
     </div>
     <div class="progress-copy">
-      <p class="eyebrow" data-progress-eyebrow>Building a shortlist around this identity</p>
+      <p class="eyebrow" data-progress-eyebrow>Finding names for this identity</p>
       <h2 data-progress-current>Finding names that feel right</h2>
       <p class="progress-note" data-progress-note>A few quick checks before the list appears.</p>
       <ol class="progress-steps">

@@ -49,7 +49,7 @@ LANE_PLANS = {
     "business": {
         1: ("positioning core", "Highest-confidence brand names that fit the audience, category, and launch position."),
         2: ("brand-shape alternatives", "Fresh names that test nearby shapes such as compound, evocative, premium, clear, or ownable."),
-        3: ("launch-ready shortlist", "Sharper names with practical brand, domain, and positioning discipline."),
+        3: ("launch-ready names", "Sharper names with practical brand, domain, and positioning discipline."),
         4: ("wider ownable territory", "Broader names that search for more ownable territory while staying commercially credible."),
     },
 }

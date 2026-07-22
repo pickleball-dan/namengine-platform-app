@@ -12,14 +12,14 @@
     "Working hard to get your perfect matches.",
     "Exploring meaning, sound, and cultural fit.",
     "Comparing the strongest names against your taste.",
-    "Almost there — shaping the final shortlist."
+    "Almost there — shaping the final names."
   ];
   const babyLongWaitMessages = [
     "Interpreting your naming taste…",
     "Building a broader candidate pool…",
     "Comparing names against your story and style…",
     "Rejecting weaker fits before we show you finalists…",
-    "Shaping the shortlist — quality matters more than speed…",
+    "Shaping the final names — quality matters more than speed…",
     "Still working. We’re keeping the page here while NamEngine thinks…"
   ];
   const petLongWaitMessages = [
@@ -32,7 +32,7 @@
     "Reading the market and positioning signals...",
     "Testing clarity, credibility, and distinctiveness...",
     "Considering audience fit and launch practicality...",
-    "Building the strongest strategic shortlist..."
+    "Building the strongest strategic names..."
   ];
   let longWaitMessages = defaultLongWaitMessages;
 
@@ -62,7 +62,39 @@
     return "";
   }
 
-  function subjectFor(form) {
+  function pageVertical() {
+    const overlayVertical = cleanValue(overlay && overlay.dataset.progressVertical);
+    if (overlayVertical) {
+      return overlayVertical;
+    }
+    const tasteRoot = document.querySelector("[data-taste-vertical]");
+    const tasteVertical = cleanValue(tasteRoot && tasteRoot.dataset.tasteVertical);
+    if (tasteVertical) {
+      return tasteVertical;
+    }
+    if (document.body.classList.contains("vertical-baby")) {
+      return "baby";
+    }
+    if (document.body.classList.contains("vertical-pet")) {
+      return "pet";
+    }
+    if (document.body.classList.contains("vertical-business")) {
+      return "business";
+    }
+    return "";
+  }
+
+  function subjectFor(form, vertical) {
+    if (vertical === "baby") {
+      return "this baby name";
+    }
+    if (vertical === "pet") {
+      const petType = formValue(form, ["pet_type", "species"]);
+      return petType ? `this ${petType.toLowerCase()}` : "this pet";
+    }
+    if (vertical === "business") {
+      return "this brand";
+    }
     const petType = formValue(form, ["pet_type", "species"]);
     if (petType) {
       return `this ${petType.toLowerCase()}`;
@@ -80,12 +112,13 @@
   }
 
   function personalizeProgress(form) {
-    const subject = subjectFor(form);
+    const vertical = pageVertical();
+    const subject = subjectFor(form, vertical);
     const vibe = formValue(form, ["vibe", "style", "tone"]);
     const culture = formValue(form, "cultural_heritage");
-    const isBaby = subject === "this baby name";
-    const isPet = Boolean(formValue(form, ["pet_type", "species"]));
-    const isBusiness = Boolean(formValue(form, "business_description"));
+    const isBaby = vertical === "baby" || subject === "this baby name";
+    const isPet = vertical === "pet" || Boolean(formValue(form, ["pet_type", "species"]));
+    const isBusiness = vertical === "business" || Boolean(formValue(form, "business_description"));
     longWaitMessages = isBaby
       ? babyLongWaitMessages
       : isPet
@@ -114,7 +147,7 @@
       "Mapping the audience and category",
       feelLine,
       "Checking credibility and launch fit",
-      "Building the strategic shortlist",
+      "Building the strategic names",
     ] : [
       "Reading the details",
       `Finding names for ${subject}`,
@@ -129,8 +162,8 @@
         : isPet
           ? "Finding names that feel like them"
           : isBusiness
-            ? "Building your strategic brand shortlist"
-            : `Building a shortlist for ${subject}`;
+            ? "Building your strategic brand names"
+            : `Finding names for ${subject}`;
     }
     if (visualLabel && isBaby) {
       visualLabel.textContent = "Family fit";

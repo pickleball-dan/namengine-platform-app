@@ -15,7 +15,7 @@ class BabyUiConsistencyTest(unittest.TestCase):
 
         self.assertNotIn('data-choice-value="Family heritage"', body)
         self.assertIn('<option value="Family heritage"', body)
-        self.assertIn("Answering helps us shape a more personal shortlist", body)
+        self.assertIn("Answering helps us shape more personal names", body)
         self.assertIn("Skip for now", body)
 
     def test_baby_reaction_labels_preserve_engine_values(self):

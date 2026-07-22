@@ -8,7 +8,7 @@
     {% if page_logo and vertical.slug != "baby" %}
       <img class="vertical-page-logo small" src="{{ url_for('static', filename=page_logo) }}" alt="NamEngine {{ vertical.display_name }} logo">
     {% endif %}
-    <p class="eyebrow">{% if vertical.slug == "baby" %}Your shortlist{% else %}Compare Favorites{% endif %}</p>
+    <p class="eyebrow">{% if vertical.slug == "baby" %}Your favorites{% else %}Compare Favorites{% endif %}</p>
     <h1>{% if vertical.slug == "baby" %}See how your favorites feel together.{% else %}Choose with confidence.{% endif %}</h1>
     <p class="compare-lede">Round {{ session.round_number }} · {{ items|length }} names, compared on fit, sound, warmth, and what is worth considering.</p>
     {% if taste_profile %}
@@ -68,7 +68,7 @@
       </div>
     {% else %}
       <div class="empty-state">
-        <h2>{% if vertical.slug == "baby" %}Your shortlist is waiting.{% else %}No favorites yet{% endif %}</h2>
+        <h2>{% if vertical.slug == "baby" %}Your favorites are waiting.{% else %}No favorites yet{% endif %}</h2>
         <p>{% if vertical.slug == "baby" %}Choose “Love it” on a few names, and they’ll be ready to compare here.{% else %}Love a few names first. Your saved names will become your comparison set.{% endif %}</p>
         <a class="button-link" href="/{{ vertical.slug }}">Start a new {{ vertical.display_name|lower }} search</a>
       </div>

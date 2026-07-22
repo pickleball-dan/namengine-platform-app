@@ -48,9 +48,9 @@
         sound: "We’re narrowing in on the right fit.",
         cultural_context: "We’re narrowing in on the right fit.",
         cultural_heritage: "We’re narrowing in on the right fit.",
-        family_context: "We’re refining your perfect shortlist.",
-        partner_alignment: "We’re refining your perfect shortlist.",
-        avoid: "We’re refining your perfect shortlist.",
+        family_context: "We're refining your best-fit names.",
+        partner_alignment: "We're refining your best-fit names.",
+        avoid: "We're refining your best-fit names.",
         notes: "Almost there."
       }
     }
