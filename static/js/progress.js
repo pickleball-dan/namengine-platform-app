@@ -158,6 +158,7 @@
     });
     current.textContent = steps[index].dataset.progressHeadline || steps[index].textContent;
     if (visual) {
+      visual.dataset.progressPhase = String(index + 1);
       visual.classList.remove("is-pulsing");
       void visual.offsetWidth;
       visual.classList.add("is-pulsing");

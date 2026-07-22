@@ -1604,6 +1604,14 @@ button {
   line-height: 0.9;
 }
 
+.baby-keepsake-placeholder .blanket-embroidered-name {
+  display: block;
+  max-width: calc(100% - 24px);
+  font-size: clamp(30px, 10vw, 46px);
+  line-height: 0.94;
+  overflow-wrap: anywhere;
+}
+
 .portrait-progress {
   position: relative;
   z-index: 1;
@@ -2177,11 +2185,16 @@ button {
 
 .progress-steps li {
   position: relative;
+  display: none;
   min-height: 34px;
   padding: 7px 8px 7px 30px;
   color: #687386;
   font-weight: 800;
   border-radius: 7px;
+}
+
+.progress-steps li.is-active {
+  display: block;
 }
 
 .progress-steps li::before {
@@ -7472,21 +7485,66 @@ button {
     baby-thinking-bear-hop 720ms ease-out;
 }
 
+.vertical-baby .baby-thinking-panel .progress-visual::before,
 .vertical-baby .baby-thinking-panel .progress-visual::after {
   position: absolute;
-  right: 12%;
-  top: 16%;
-  width: 13%;
   aspect-ratio: 1;
   content: "";
-  background: rgba(255, 255, 255, 0.82);
-  border: 1px solid rgba(255, 107, 87, 0.22);
+  background: rgba(255, 255, 255, 0.94);
+  border: 2px solid rgba(255, 107, 87, 0.34);
   border-radius: 999px;
-  box-shadow:
-    18px 18px 0 -5px rgba(255, 255, 255, 0.74),
-    18px 18px 0 -4px rgba(255, 107, 87, 0.12);
-  opacity: 0.72;
+  filter: none;
+  opacity: 0.78;
   animation: baby-thinking-bubble 2.2s ease-in-out infinite;
+}
+
+.vertical-baby .baby-thinking-panel .progress-visual::before {
+  top: 7%;
+  right: 4%;
+  z-index: 1;
+  width: 10%;
+  box-shadow:
+    -22px 14px 0 -5px rgba(255, 255, 255, 0.92),
+    -22px 14px 0 -3px rgba(255, 107, 87, 0.24);
+}
+
+.vertical-baby .baby-thinking-panel .progress-visual::after {
+  top: 18%;
+  right: 11%;
+  width: 15%;
+  box-shadow:
+    20px 19px 0 -5px rgba(255, 255, 255, 0.92),
+    20px 19px 0 -3px rgba(255, 107, 87, 0.24),
+    -13px 35px 0 -8px rgba(255, 255, 255, 0.88),
+    -13px 35px 0 -6px rgba(255, 107, 87, 0.2);
+}
+
+.vertical-baby .baby-thinking-panel .progress-visual[data-progress-phase="1"]::before {
+  opacity: 0;
+}
+
+.vertical-baby .baby-thinking-panel .progress-visual[data-progress-phase="3"]::before,
+.vertical-baby .baby-thinking-panel .progress-visual[data-progress-phase="4"]::before,
+.vertical-baby .baby-thinking-panel .progress-visual[data-progress-phase="5"]::before {
+  opacity: 0.9;
+  box-shadow:
+    -22px 14px 0 -5px rgba(255, 255, 255, 0.94),
+    -22px 14px 0 -3px rgba(255, 107, 87, 0.26),
+    11px 34px 0 -7px rgba(255, 255, 255, 0.9),
+    11px 34px 0 -5px rgba(255, 107, 87, 0.22);
+}
+
+.vertical-baby .baby-thinking-panel .progress-visual[data-progress-phase="4"]::after,
+.vertical-baby .baby-thinking-panel .progress-visual[data-progress-phase="5"]::after {
+  width: 16%;
+  opacity: 0.95;
+  box-shadow:
+    21px 18px 0 -5px rgba(255, 255, 255, 0.95),
+    21px 18px 0 -3px rgba(255, 107, 87, 0.28),
+    -14px 36px 0 -8px rgba(255, 255, 255, 0.92),
+    -14px 36px 0 -6px rgba(255, 107, 87, 0.24),
+    12px 52px 0 -9px rgba(255, 255, 255, 0.88),
+    12px 52px 0 -7px rgba(255, 107, 87, 0.18);
 }
 
 .vertical-baby .baby-thinking-panel .progress-visual > * { display: none; }
@@ -7496,7 +7554,8 @@ button {
   font-family: "Cormorant Garamond", Georgia, serif;
 }
 
-.vertical-baby .baby-thinking-panel .progress-steps li.is-active { color: var(--baby-ui-coral); }
+.vertical-baby .baby-thinking-panel .progress-steps li.is-active { color: var(--baby-ui-green); }
+.vertical-baby .baby-thinking-panel .progress-steps li.is-active::before { background: var(--baby-ui-green); }
 .vertical-baby .baby-thinking-panel .progress-steps li.is-complete { color: var(--baby-ui-green); }
 
 @keyframes baby-thinking-bear-breathe {
