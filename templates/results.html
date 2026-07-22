@@ -37,10 +37,10 @@
       </p>
       {% if launch_results %}
         <p class="baby-results-framing">{{ result_framing[vertical.slug] }}</p>
-        <div class="baby-saved-progress" aria-live="polite" data-learning-round="{{ round_number }}">
+        <div class="baby-saved-progress" aria-live="polite" data-learning-round="{{ round_number }}"{% if parent_reaction_counts %} data-parent-loved="{{ parent_reaction_counts.love }}" data-parent-round="{{ round_number - 1 }}"{% endif %}>
           <span aria-hidden="true">♥</span>
-          <strong data-saved-count>{% if vertical.slug == "baby" %}You loved {{ reaction_counts.love }} {{ "name" if reaction_counts.love == 1 else "names" }} in Round {{ round_number }}.{% else %}Saved {{ reaction_counts.love }} {{ "name" if reaction_counts.love == 1 else "names" }}{% endif %}</strong>
-          <small>{{ saved_notes[vertical.slug] }}</small>
+          <strong data-saved-count>{% if vertical.slug == "baby" %}{% if round_number > 1 and parent_reaction_counts %}Round {{ round_number }} was shaped by {{ parent_reaction_counts.love }} loved {{ "name" if parent_reaction_counts.love == 1 else "names" }} from Round {{ round_number - 1 }}. You’ve loved {{ reaction_counts.love }} {{ "name" if reaction_counts.love == 1 else "names" }} in this round so far.{% else %}You’ve loved {{ reaction_counts.love }} {{ "name" if reaction_counts.love == 1 else "names" }} in this round so far.{% endif %}{% else %}Saved {{ reaction_counts.love }} {{ "name" if reaction_counts.love == 1 else "names" }}{% endif %}</strong>
+          <small>{% if vertical.slug == "baby" and round_number > 1 and parent_reaction_counts %}React to this round to keep refining the next list.{% else %}{{ saved_notes[vertical.slug] }}{% endif %}</small>
         </div>
       {% endif %}
       {% if trust_cue and vertical.slug != "baby" %}

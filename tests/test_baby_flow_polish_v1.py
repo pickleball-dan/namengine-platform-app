@@ -74,7 +74,7 @@ class BabyFlowPolishV1Test(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("Based on everything you’ve shared", body)
         self.assertIn("baby-saved-progress", body)
-        self.assertIn("You loved 0 names in Round 1", body)
+        self.assertIn("You’ve loved 0 names in this round so far", body)
         self.assertIn("refine your next recommendations", body)
         self.assertIn("result-explore-link", body)
         self.assertIn("Love it", body)

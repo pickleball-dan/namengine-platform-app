@@ -8,14 +8,35 @@ Purpose: track local NamEngine changes that should be reviewed, verified, and pu
 
 - [x] Baby chosen keepsake/portrait placeholder overflow fix
   - File: `static/css/platform.css`
-  - Reason: long selected baby names like “Serenella” overflowed the keepsake card.
-  - Status: local fix made; needs local visual review.
+  - Reason: selected baby names could overflow the keepsake card because the shared `.portrait-monogram` rule overrode the smaller blanket name sizing.
+  - Fix: added a more specific `.baby-keepsake-placeholder .blanket-embroidered-name` rule to cap width, restore clamped sizing, and allow safe wrapping.
+  - Verification: `python -m pytest tests/test_phase6_chosen.py -q` passed: 14 passed.
+  - Status: local fix made; needs local visual review before bundled push.
+
+- [x] Baby results saved-progress round clarity fix
+  - Files: `app.py`, `templates/results.html`, `static/js/reactions.js`, `tests/test_phase7_refinement.py`, `tests/test_baby_flow_polish_v1.py`, `tests/test_baby_ui_consistency.py`
+  - Reason: Round 2+ copy said “You loved 0 names in Round 2,” which was technically current-round data but looked like it contradicted prior-round love reactions used for refinement.
+  - Fix: Round 2+ now says the list was shaped by loved names from the previous round and separately shows loved names in the current round so far; live reaction updates preserve that context.
+  - Verification: `python -m pytest tests/test_phase7_refinement.py tests/test_baby_flow_polish_v1.py tests/test_baby_ui_consistency.py -q` passed: 22 passed.
+  - Status: local fix made; needs local visual review before bundled push.
 
 - [x] Baby generation teddy/progress phase visibility fix
   - Files: `static/js/progress.js`, `static/css/platform.css`
   - Reason: phase 1/2 of the name-generation overlay could appear visually static/generic; Baby detection depended too much on submitted fields.
   - Architecture: shared progress JS now detects the active vertical and exposes `data-progress-phase`; Baby styles consume that shared phase state for teddy/bubble motion.
   - Verification: intercepted local Playwright run confirmed phase 1 → 2 → 3 labels/classes advance without hitting `/baby/results`; `tests/test_phase14_progress_experience.py` passed.
+
+- [x] Generation overlay one-line active progress fix
+  - Files: `static/css/platform.css`, `tests/test_phase14_progress_experience.py`
+  - Reason: the full five-step progress list was redundant with the bold headline and could be cut off on mobile.
+  - Fix: keep the existing progress markup/logic but visually display only the active step line.
+  - Verification: `python -m pytest tests/test_phase14_progress_experience.py -q` passed: 9 passed.
+
+- [x] Baby teddy thinking bubbles visibility/progression fix
+  - Files: `static/css/platform.css`, `static/js/progress.js`, `tests/test_phase14_progress_experience.py`
+  - Reason: teddy-bear thinking bubbles were too faint and did not feel more active as generation progressed; active progress message color read too red/coral.
+  - Fix: strengthened bubble contrast, added a fuller bubble cluster, exposed `data-progress-phase` from progress JS so later phases show denser bubbles, and changed the active Baby progress message/dot to green.
+  - Verification: `python -m pytest tests/test_phase14_progress_experience.py -q` passed: 9 passed.
 
 ### Ready / likely in scope
 

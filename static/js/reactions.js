@@ -13,8 +13,13 @@
     const loved = Number(counts.love || 0);
     const babyResults = document.body.classList.contains("vertical-baby");
     if (babyResults) {
-      const round = savedCount.closest("[data-learning-round]")?.dataset.learningRound || "1";
-      savedCount.textContent = `You loved ${loved} ${loved === 1 ? "name" : "names"} in Round ${round}.`;
+      const progressCard = savedCount.closest("[data-learning-round]");
+      const parentLoved = progressCard?.dataset.parentLoved;
+      const parentRound = progressCard?.dataset.parentRound;
+      const parentPrefix = parentLoved && parentRound
+        ? `Round ${progressCard.dataset.learningRound || "2"} was shaped by ${parentLoved} loved ${Number(parentLoved) === 1 ? "name" : "names"} from Round ${parentRound}. `
+        : "";
+      savedCount.textContent = `${parentPrefix}You’ve loved ${loved} ${loved === 1 ? "name" : "names"} in this round so far.`;
       return;
     }
     savedCount.textContent = `Saved ${loved} ${loved === 1 ? "name" : "names"}`;

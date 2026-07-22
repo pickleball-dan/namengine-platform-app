@@ -32,7 +32,7 @@ class BabyUiConsistencyTest(unittest.TestCase):
         results = result_response.get_data(as_text=True)
         self.assertIn("Here’s what stood out", results)
         self.assertIn("these names best match your style and preferences", results)
-        self.assertIn("You loved 0 names in Round 1", results)
+        self.assertIn("You’ve loved 0 names in this round so far", results)
         self.assertIn("using those preferences to refine your next recommendations", results)
         self.assertEqual(results.count('class="result-name-link"'), 8)
         self.assertEqual(results.count('class="result-explore-link"'), 8)

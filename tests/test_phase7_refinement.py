@@ -93,6 +93,21 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         self.assertIn("Generate New List", body)
         self.assertIn("Hazel", body)
 
+    def test_baby_round_two_saved_progress_separates_parent_and_current_round(self):
+        session_id = self._seed_baby_round_one()
+        save_reaction(build_reaction(session_id, "baby-4", "love"))
+        response = self.client.post(
+            "/refine",
+            data={"session_id": session_id, "instruction": "fresh but still classic"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        body = response.get_data(as_text=True)
+        self.assertIn("Round 2 was shaped by 2 loved names from Round 1.", body)
+        self.assertIn("You’ve loved 0 names in this round so far.", body)
+        self.assertIn("React to this round to keep refining the next list.", body)
+        self.assertNotIn("You loved 0 names in Round 2", body)
+
     def test_progress_refine_redirects_to_saved_results_page(self):
         session_id = self._seed_round_one()
         response = self.client.post(

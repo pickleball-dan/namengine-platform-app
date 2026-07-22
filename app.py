@@ -375,6 +375,8 @@ def _render_results_snapshot(
         )
         snapshot = get_session_snapshot(session_id) or snapshot
     reaction_counts = get_reaction_counts(session_id)
+    parent_session_id = snapshot["session"]["parent_session_id"]
+    parent_reaction_counts = get_reaction_counts(parent_session_id) if parent_session_id else None
     return (
         render_template(
             "results.html",
@@ -384,12 +386,13 @@ def _render_results_snapshot(
             trust_cue=build_trust_cue(names),
             session_id=session_id,
             reaction_counts=reaction_counts,
+            parent_reaction_counts=parent_reaction_counts,
             reaction_values=_reaction_values(snapshot),
             reaction_total=_reaction_total(reaction_counts),
             min_reactions_for_refinement=MIN_REACTIONS_FOR_REFINEMENT,
             taste_profile=_taste_profile_from_snapshot(snapshot),
             round_number=int(snapshot["session"]["round_number"]),
-            parent_session_id=snapshot["session"]["parent_session_id"],
+            parent_session_id=parent_session_id,
             original_mode=session_id.startswith("pet-original"),
             refinement_error=refinement_error,
         ),
@@ -730,6 +733,7 @@ def create_app() -> Flask:
             trust_cue=build_trust_cue(names),
             session_id=child_session_id,
             reaction_counts=get_reaction_counts(child_session_id),
+            parent_reaction_counts=get_reaction_counts(session_id),
             reaction_values=_reaction_values(child_snapshot),
             taste_profile=taste_profile,
             round_number=round_number,

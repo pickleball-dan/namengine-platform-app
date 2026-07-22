@@ -106,6 +106,7 @@ class PhaseFourteenProgressExperienceTest(unittest.TestCase):
         self.assertIn("Building a shortlist for ${subject}", script)
         self.assertIn("Finding names for ${subject}", script)
         self.assertIn("HTMLFormElement.prototype.submit.call(form)", script)
+        self.assertIn('visual.dataset.progressPhase = String(index + 1)', script)
 
     def test_progress_overlay_has_synced_node_animation_styles(self):
         css_path = os.path.join(self.app.static_folder, "css", "platform.css")
@@ -123,6 +124,16 @@ class PhaseFourteenProgressExperienceTest(unittest.TestCase):
         self.assertIn("text-align: center", css)
         self.assertIn("background: #fff8ef", css)
 
+    def test_progress_stepper_only_displays_active_line(self):
+        css_path = os.path.join(self.app.static_folder, "css", "platform.css")
+        with open(css_path, encoding="utf-8") as css_file:
+            css = css_file.read()
+
+        self.assertIn(".progress-steps li {", css)
+        self.assertIn("display: none;", css)
+        self.assertIn(".progress-steps li.is-active {", css)
+        self.assertIn("display: block;", css)
+
     def test_baby_progress_bear_keeps_motion_without_fake_hands(self):
         response = self.client.get("/baby")
 
@@ -139,6 +150,10 @@ class PhaseFourteenProgressExperienceTest(unittest.TestCase):
         self.assertIn("baby-thinking-bear-hop", css)
         self.assertIn("baby-thinking-bubble", css)
         self.assertIn(".progress-visual > * { display: none; }", css)
+        self.assertIn('data-progress-phase="4"', css)
+        self.assertIn("rgba(255, 107, 87, 0.34)", css)
+        self.assertIn(".baby-thinking-panel .progress-steps li.is-active { color: var(--baby-ui-green); }", css)
+        self.assertIn(".baby-thinking-panel .progress-steps li.is-active::before { background: var(--baby-ui-green); }", css)
         self.assertNotIn("baby-thinking-left-arm-wave", css)
         self.assertNotIn("baby-thinking-right-arm-wave", css)
 
