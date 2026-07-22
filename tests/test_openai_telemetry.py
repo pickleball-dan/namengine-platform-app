@@ -1,11 +1,21 @@
+import base64
 import json
 import os
 import tempfile
 import unittest
 from datetime import UTC, datetime
+from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
+from app import create_app
+from namengine.core import (
+    build_brief,
+    ensure_keepsake_for_chosen,
+    get_chosen_snapshot,
+    save_chosen_name,
+    save_session,
+)
 from namengine.core.ai_generation import AIGenerationError, _call_openai_with_metadata
 from namengine.core.openai_telemetry import (
     IMAGE_USAGE_PREFIX,
@@ -17,6 +27,8 @@ from namengine.core.openai_telemetry import (
     log_text_usage,
     openai_telemetry_context,
 )
+from namengine.core.schemas import NameResult
+from namengine.verticals import PET
 
 
 class FakeResponses:
@@ -51,6 +63,22 @@ def response_with_usage(text="{\"names\": []}"):
             output_tokens_details=SimpleNamespace(reasoning_tokens=12),
         ),
     )
+
+
+def response_without_usage(text="{\"names\": []}"):
+    return SimpleNamespace(
+        id="resp_no_usage_test",
+        model="gpt-test-returned",
+        output_text=text,
+        status="completed",
+        incomplete_details=None,
+        output=[],
+    )
+
+
+def read_jsonl(path):
+    with open(path, encoding="utf-8") as handle:
+        return [json.loads(line) for line in handle if line.strip()]
 
 
 def logged_payload(logger_mock):
@@ -230,6 +258,217 @@ class OpenAIUsageTelemetryTest(unittest.TestCase):
             self.assertEqual(event["total_tokens"], 165)
             self.assertNotIn("session_id", event)
             self.assertNotIn("response_id", event)
+
+    def test_successful_text_call_writes_one_aggregate_record(self):
+        with tempfile.TemporaryDirectory() as directory:
+            target = os.path.join(directory, "telemetry.jsonl")
+            forbidden_prompt = {
+                "engine_stage": "candidate_generator_v1",
+                "customer_intake": "parent@example.com wants Private Name",
+                "generated_names": ["Private Name"],
+                "session_id": "private-session-id",
+            }
+            with patch.dict(os.environ, {"NAMENGINE_OPENAI_TELEMETRY_PATH": target}):
+                result = _call_openai_with_metadata(
+                    prompt=forbidden_prompt,
+                    model="gpt-test-requested",
+                    client_factory=lambda: FakeClient(response=response_with_usage("Private Name response text")),
+                )
+
+            records = read_jsonl(target)
+            self.assertEqual(len(records), 1)
+            event = records[0]
+            self.assertEqual(result["text"], "Private Name response text")
+            self.assertEqual(event["request_type"], "responses.create")
+            self.assertEqual(event["context"], "candidate_generator_v1")
+            self.assertEqual(event["model"], "gpt-test-returned")
+            self.assertTrue(event["success"])
+            self.assertEqual(event["input_tokens"], 120)
+            self.assertEqual(event["output_tokens"], 45)
+            self.assertEqual(event["total_tokens"], 165)
+            self.assertIsInstance(event["latency_ms"], int)
+            serialized = json.dumps(event)
+            for forbidden in (
+                "parent@example.com",
+                "Private Name",
+                "customer_intake",
+                "generated_names",
+                "session_id",
+                "private-session-id",
+                "response text",
+            ):
+                self.assertNotIn(forbidden, serialized)
+
+    def test_failed_text_call_writes_one_aggregate_record_and_reraises_original(self):
+        with tempfile.TemporaryDirectory() as directory:
+            target = os.path.join(directory, "telemetry.jsonl")
+            error = TimeoutError("parent@example.com Private Name")
+            with patch.dict(os.environ, {"NAMENGINE_OPENAI_TELEMETRY_PATH": target}):
+                with self.assertRaises(TimeoutError) as captured:
+                    _call_openai_with_metadata(
+                        prompt={
+                            "engine_stage": "critic_ranker_finalizer_v1",
+                            "prompt": "parent@example.com Private Name",
+                        },
+                        model="gpt-test-requested",
+                        client_factory=lambda: FakeClient(error=error),
+                    )
+
+            self.assertIs(captured.exception, error)
+            records = read_jsonl(target)
+            self.assertEqual(len(records), 1)
+            event = records[0]
+            self.assertEqual(event["request_type"], "responses.create")
+            self.assertEqual(event["context"], "critic_ranker_finalizer_v1")
+            self.assertEqual(event["model"], "gpt-test-requested")
+            self.assertFalse(event["success"])
+            self.assertEqual(event["error_type"], "TimeoutError")
+            self.assertIsNone(event["input_tokens"])
+            self.assertIsNone(event["output_tokens"])
+            self.assertIsNone(event["total_tokens"])
+            serialized = json.dumps(event)
+            self.assertNotIn("parent@example.com", serialized)
+            self.assertNotIn("Private Name", serialized)
+            self.assertNotIn("prompt", serialized)
+
+    def test_text_call_missing_usage_fields_does_not_fail_generation(self):
+        with tempfile.TemporaryDirectory() as directory:
+            target = os.path.join(directory, "telemetry.jsonl")
+            with patch.dict(os.environ, {"NAMENGINE_OPENAI_TELEMETRY_PATH": target}):
+                result = _call_openai_with_metadata(
+                    prompt={"engine_stage": "taste_interpreter_v1"},
+                    model="gpt-test-requested",
+                    client_factory=lambda: FakeClient(response=response_without_usage("unchanged")),
+                )
+
+            self.assertEqual(result["text"], "unchanged")
+            records = read_jsonl(target)
+            self.assertEqual(len(records), 1)
+            self.assertIsNone(records[0]["input_tokens"])
+            self.assertIsNone(records[0]["output_tokens"])
+            self.assertIsNone(records[0]["total_tokens"])
+
+    def test_text_call_telemetry_write_failure_does_not_fail_generation(self):
+        with patch(
+            "namengine.core.openai_telemetry._append_jsonl_event",
+            side_effect=OSError("telemetry disk unavailable"),
+        ):
+            result = _call_openai_with_metadata(
+                prompt={"engine_stage": "taste_interpreter_v1"},
+                model="gpt-test-requested",
+                client_factory=lambda: FakeClient(response=response_with_usage("unchanged")),
+            )
+
+        self.assertEqual(result["text"], "unchanged")
+
+    def _image_snapshot(self, directory):
+        app = create_app()
+        app.testing = True
+        brief = build_brief(
+            PET,
+            {
+                "pet_type": "Dog",
+                "pet_breed": "Whippet",
+                "style": "Classic",
+                "notes": "owner email parent@example.com",
+            },
+        )
+        result = NameResult(
+            id="pet-1",
+            name="Private Name",
+            slug="private-name",
+            tagline="A confident fit",
+            why_this_name="It fits the brief.",
+            fit_note="Strong match.",
+        )
+        session_id = "private-image-session"
+        save_session(session_id, PET.slug, brief, [result])
+        chosen = save_chosen_name(session_id, result.id)
+        return get_chosen_snapshot(chosen.id)
+
+    def test_successful_image_call_writes_one_aggregate_record(self):
+        with tempfile.TemporaryDirectory() as directory:
+            target = os.path.join(directory, "telemetry.jsonl")
+            env = {
+                "NAMENGINE_DB_PATH": str(Path(directory) / "test.sqlite3"),
+                "NAMENGINE_GENERATED_IMAGE_DIR": directory,
+                "NAMENGINE_OPENAI_TELEMETRY_PATH": target,
+                "OPENAI_API_KEY": "test-key",
+                "NAMENGINE_IMAGE_MODEL": "gpt-image-test",
+                "NAMENGINE_DISABLE_PET_IMAGES": "0",
+            }
+            with patch.dict(os.environ, env):
+                snapshot = self._image_snapshot(directory)
+                png = base64.b64encode(b"valid-png-bytes").decode("ascii")
+                with patch("namengine.core.pet_portrait.OpenAI") as client:
+                    client.return_value.images.generate.return_value = {
+                        "data": [{"b64_json": png}],
+                    }
+                    image = ensure_keepsake_for_chosen(
+                        snapshot["chosen"],
+                        {"name": "Private Name", "tagline": "A confident fit"},
+                        snapshot["session"],
+                    )
+
+            self.assertEqual(image["status"], "ready")
+            records = read_jsonl(target)
+            self.assertEqual(len(records), 1)
+            event = records[0]
+            self.assertEqual(event["request_type"], "images.generate")
+            self.assertEqual(event["model"], "gpt-image-test")
+            self.assertTrue(event["success"])
+            self.assertEqual(event["image_count"], 1)
+            self.assertEqual(event["context"], "generate_chosen_keepsake")
+            self.assertIsInstance(event["latency_ms"], int)
+            serialized = json.dumps(event)
+            for forbidden in (
+                "parent@example.com",
+                "Private Name",
+                "Whippet",
+                "private-image-session",
+                "session_id",
+                "chosen_id",
+                "valid-png-bytes",
+                "b64_json",
+            ):
+                self.assertNotIn(forbidden, serialized)
+
+    def test_failed_image_call_writes_one_aggregate_record_and_reraises(self):
+        with tempfile.TemporaryDirectory() as directory:
+            target = os.path.join(directory, "telemetry.jsonl")
+            env = {
+                "NAMENGINE_DB_PATH": str(Path(directory) / "test.sqlite3"),
+                "NAMENGINE_GENERATED_IMAGE_DIR": directory,
+                "NAMENGINE_OPENAI_TELEMETRY_PATH": target,
+                "OPENAI_API_KEY": "test-key",
+                "NAMENGINE_IMAGE_MODEL": "gpt-image-test",
+                "NAMENGINE_DISABLE_PET_IMAGES": "0",
+            }
+            error = RuntimeError("parent@example.com Private Name")
+            with patch.dict(os.environ, env):
+                snapshot = self._image_snapshot(directory)
+                with patch("namengine.core.pet_portrait.OpenAI") as client:
+                    client.return_value.images.generate.side_effect = error
+                    with self.assertRaises(RuntimeError) as captured:
+                        ensure_keepsake_for_chosen(
+                            snapshot["chosen"],
+                            {"name": "Private Name"},
+                            snapshot["session"],
+                        )
+
+            self.assertIs(captured.exception, error)
+            records = read_jsonl(target)
+            self.assertEqual(len(records), 1)
+            event = records[0]
+            self.assertEqual(event["request_type"], "images.generate")
+            self.assertEqual(event["model"], "gpt-image-test")
+            self.assertFalse(event["success"])
+            self.assertEqual(event["image_count"], 1)
+            self.assertEqual(event["error_type"], "RuntimeError")
+            serialized = json.dumps(event)
+            self.assertNotIn("parent@example.com", serialized)
+            self.assertNotIn("Private Name", serialized)
+            self.assertNotIn("prompt", serialized)
 
 
 class OpenAITelemetryAggregationTest(unittest.TestCase):

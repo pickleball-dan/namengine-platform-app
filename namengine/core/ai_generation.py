@@ -11,6 +11,7 @@ from collections.abc import Callable
 from typing import Any
 
 import namengine.core.quality_adapters  # Registers built-in vertical adapters.
+from namengine.core.openai_telemetry import log_text_usage
 from namengine.core.prompt_versions import DEFAULT_PROMPT_VERSION, prompt_version_for
 from namengine.core.quality_framework import (
     apply_quality_metadata,
@@ -1006,18 +1007,39 @@ def _call_openai_with_metadata(
         }
         if response_format is not None:
             kwargs["text"] = {"format": response_format}
-        response = client.responses.create(**kwargs)
-    except Exception as exc:  # pragma: no cover - live SDK/network behavior
+    except Exception as exc:  # pragma: no cover - live SDK setup/serialization behavior
         raise AIGenerationError(str(exc)) from exc
 
+    try:
+        response = client.responses.create(**kwargs)
+    except Exception as exc:  # pragma: no cover - live SDK/network behavior
+        latency_ms = int((time.perf_counter() - start) * 1000)
+        log_text_usage(
+            response=None,
+            model_requested=model,
+            duration_ms=latency_ms,
+            status="failed",
+            error_type=exc.__class__.__name__,
+            action=_openai_stage(prompt),
+        )
+        raise
+
+    latency_ms = int((time.perf_counter() - start) * 1000)
     state = _response_state(response)
     text = getattr(response, "output_text", "")
     output_text = str(text) if text else ""
     if state["incomplete"]:
-        latency_ms = int((time.perf_counter() - start) * 1000)
         usage = _usage_payload(getattr(response, "usage", None))
         response_json = _response_json_payload(response)
         reason = state["incomplete_reason"] or state["status"] or "unknown"
+        log_text_usage(
+            response=response,
+            model_requested=model,
+            duration_ms=latency_ms,
+            status="failed",
+            error_type="AIGenerationError",
+            action=_openai_stage(prompt),
+        )
         logger.warning(
             "OpenAI response incomplete stage=%s model=%s status=%s reason=%s latency_ms=%s prompt_tokens=%s completion_tokens=%s output_json_chars=%s raw_response_json_chars=%s",
             prompt.get("engine_stage") or prompt.get("prompt_type") or "unknown",
@@ -1037,7 +1059,13 @@ def _call_openai_with_metadata(
             f"output_json_chars={len(output_text)}"
         )
     if text:
-        latency_ms = int((time.perf_counter() - start) * 1000)
+        log_text_usage(
+            response=response,
+            model_requested=model,
+            duration_ms=latency_ms,
+            status="success",
+            action=_openai_stage(prompt),
+        )
         usage = _usage_payload(getattr(response, "usage", None))
         response_json = _response_json_payload(response)
         metrics = {
@@ -1071,7 +1099,19 @@ def _call_openai_with_metadata(
             "metrics": metrics,
             "schema_name": response_format.get("name") if response_format else None,
         }
+    log_text_usage(
+        response=response,
+        model_requested=model,
+        duration_ms=latency_ms,
+        status="failed",
+        error_type="AIGenerationError",
+        action=_openai_stage(prompt),
+    )
     raise AIGenerationError("OpenAI response did not include output_text")
+
+
+def _openai_stage(prompt: dict[str, Any]) -> str:
+    return str(prompt.get("engine_stage") or prompt.get("prompt_type") or "unknown")
 
 
 def _response_state(response: Any) -> dict[str, Any]:

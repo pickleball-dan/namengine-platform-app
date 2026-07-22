@@ -13,6 +13,7 @@ from urllib.request import urlopen
 
 from openai import OpenAI
 
+from namengine.core.openai_telemetry import log_image_usage
 from namengine.core.storage import get_database_path, update_chosen_metadata
 
 
@@ -237,6 +238,7 @@ def ensure_keepsake_for_chosen(
     path.parent.mkdir(parents=True, exist_ok=True)
     cleanup_generated_images(vertical_slug)
 
+    image_start = time.perf_counter()
     try:
         response = OpenAI().images.generate(
             model=portrait["model"],
@@ -245,6 +247,17 @@ def ensure_keepsake_for_chosen(
             n=1,
         )
     except Exception as exc:
+        latency_ms = int((time.perf_counter() - image_start) * 1000)
+        log_image_usage(
+            response=None,
+            action="generate_chosen_keepsake",
+            model=portrait["model"],
+            size=portrait["size"],
+            number_of_images=1,
+            duration_ms=latency_ms,
+            status="failed",
+            error_type=exc.__class__.__name__,
+        )
         portrait.update(
             {
                 "status": "failed",
@@ -257,6 +270,17 @@ def ensure_keepsake_for_chosen(
             {metadata_key: {key: value for key, value in portrait.items() if key != "prompt"}},
         )
         raise
+
+    latency_ms = int((time.perf_counter() - image_start) * 1000)
+    log_image_usage(
+        response=response,
+        action="generate_chosen_keepsake",
+        model=portrait["model"],
+        size=portrait["size"],
+        number_of_images=1,
+        duration_ms=latency_ms,
+        status="success",
+    )
 
     try:
         image_bytes = _image_bytes_from_response(response)
