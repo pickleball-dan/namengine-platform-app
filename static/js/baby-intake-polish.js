@@ -381,7 +381,7 @@
     clearDependentConditionOverrides(question);
     clearQuestion(question);
     skipped.add(question.dataset.questionId);
-    confirmAndAdvance(question, "Skipped for now");
+    confirmAndAdvance(question, "Skipped");
   }
 
   function selectCheckInResponse(button) {

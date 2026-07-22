@@ -58,7 +58,7 @@ class BabyConversationalIntakeV1Test(unittest.TestCase):
         self.assertIn('name="taste_strength_fit_and_feeling" value="33"', body)
         self.assertIn("Wonderful.", body)
         self.assertIn("We’re creating names that feel uniquely yours...", body)
-        self.assertIn('class="baby-skip" type="button" data-baby-final-skip>Skip for now</button>', body)
+        self.assertIn('class="baby-text-continue" type="button" data-baby-final-skip>Skip</button>', body)
         self.assertNotIn("Find names that feel right</button>", body)
 
     def test_optional_multiple_choice_questions_show_skip(self):
@@ -73,7 +73,7 @@ class BabyConversationalIntakeV1Test(unittest.TestCase):
         ):
             with self.subTest(question_id=question_id):
                 question = self.question_markup(body, question_id)
-                self.assertIn('class="baby-skip" data-baby-skip>Skip for now</button>', question)
+                self.assertIn('class="baby-text-continue" data-baby-skip>Skip</button>', question)
 
     def test_required_multiple_choice_questions_do_not_show_skip(self):
         body = self.client.get("/baby").get_data(as_text=True)
@@ -126,7 +126,7 @@ class BabyConversationalIntakeV1Test(unittest.TestCase):
         self.assertIn('button.setAttribute("aria-checked", "false")', clear_question)
         self.assertIn("clearQuestion(question)", skip_question)
         self.assertIn("skipped.add(question.dataset.questionId)", skip_question)
-        self.assertIn('confirmAndAdvance(question, "Skipped for now")', skip_question)
+        self.assertIn('confirmAndAdvance(question, "Skipped")', skip_question)
         self.assertIn("skipped.delete(question.dataset.questionId)", select_choice)
 
     def test_heritage_question_is_visible_independent_of_inspiration_choice(self):
@@ -251,7 +251,7 @@ class BabyConversationalIntakeV1Test(unittest.TestCase):
 
         self.assertIn("updateProgress(question)", show_question)
         self.assertIn("if (next) showQuestion(next)", confirmation)
-        self.assertIn('confirmAndAdvance(question, "Skipped for now")', skip_question)
+        self.assertIn('confirmAndAdvance(question, "Skipped")', skip_question)
         self.assertIn("if (question) showQuestion(question)", click_handler)
 
     def test_nursery_art_is_local_decorative_and_does_not_replace_labels(self):

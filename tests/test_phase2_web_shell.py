@@ -75,7 +75,8 @@ class PhaseTwoWebShellTest(unittest.TestCase):
         self.assertIn('id="style" name="style" required', body)
         self.assertIn('id="sound" name="sound" required', body)
         self.assertIn("Optional", body)
-        self.assertIn("Skip for now", body)
+        self.assertIn(">Skip</button>", body)
+        self.assertNotIn("Skip for now", body)
 
     def test_unknown_vertical_404s(self):
         response = self.client.get("/spaceship")

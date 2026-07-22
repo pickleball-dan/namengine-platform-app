@@ -68,8 +68,8 @@ class BabyCheckInV1Test(unittest.TestCase):
         body = self.client.get("/baby").get_data(as_text=True)
 
         self.assertIn('action="/baby/feelings"', body)
-        self.assertIn('class="baby-skip" data-baby-skip>Skip for now</button>', body)
-        self.assertIn('confirmAndAdvance(question, "Skipped for now")', self.js)
+        self.assertIn('class="baby-text-continue" data-baby-skip>Skip</button>', body)
+        self.assertIn('confirmAndAdvance(question, "Skipped")', self.js)
         self.assertIn("HTMLFormElement.prototype.submit.call(form)", self.js)
 
     def test_checkin_is_excluded_from_visible_answer_history(self):

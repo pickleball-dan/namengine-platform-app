@@ -158,7 +158,7 @@
               </div>
               {% if question.id == "gender" %}<p class="baby-question-lede">This helps us find names that feel just right.</p>{% endif %}
               {% if not question.required %}<p class="baby-optional-note">Optional · Personalizes results</p>{% endif %}
-              {% if not question.required %}<p class="baby-optional-help">Answering helps us shape more personal names. You can always skip for now.</p>{% endif %}
+              {% if not question.required %}<p class="baby-optional-help">Answering helps us shape more personal names.</p>{% endif %}
               {% if question.help_text %}<p class="baby-question-help">{{ question.help_text }}</p>{% endif %}
 
               {% if question.choices %}
@@ -192,7 +192,7 @@
                 {% endif %}
                 {% if not question.required %}
                   <div class="baby-question-actions">
-                    <button type="button" class="baby-skip" data-baby-skip>Skip for now</button>
+                    <button type="button" class="baby-text-continue" data-baby-skip>Skip</button>
                   </div>
                 {% endif %}
               {% elif question.kind == "textarea" %}
@@ -203,8 +203,11 @@
 
               {% if not question.choices %}
                 <div class="baby-question-actions">
-                  <button type="button" class="baby-text-continue" data-baby-continue>Continue</button>
-                  {% if not question.required %}<button type="button" class="baby-skip" data-baby-skip>Skip for now</button>{% endif %}
+                  {% if question.required %}
+                    <button type="button" class="baby-text-continue" data-baby-continue>Continue</button>
+                  {% else %}
+                    <button type="button" class="baby-text-continue" data-baby-skip>Skip</button>
+                  {% endif %}
                 </div>
               {% endif %}
             </section>

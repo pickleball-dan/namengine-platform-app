@@ -65,7 +65,8 @@ class BabyFlowPolishV1Test(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("Do you want us to prioritize anything?", body)
-        self.assertIn("Skip for now", body)
+        self.assertIn(">Skip</button>", body)
+        self.assertNotIn("Skip for now", body)
         self.assertIn('data-baby-final-skip', body)
         self.assertIn('action="/baby/results"', body)
 
