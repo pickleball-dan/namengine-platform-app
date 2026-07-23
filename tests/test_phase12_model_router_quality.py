@@ -23,7 +23,7 @@ from namengine.core import (
     summarize_quality_runs,
 )
 from namengine.verticals import BABY, PET
-from namengine.core.schemas import NameResult
+from namengine.core.schemas import NameResult, ProviderResult
 
 
 class PhaseTwelveModelRouterQualityTest(unittest.TestCase):
@@ -239,8 +239,87 @@ class PhaseTwelveModelRouterQualityTest(unittest.TestCase):
         )
 
         self.assertEqual(run.brief_id, "pet-gentle-dog")
-        self.assertGreater(run.average_score, 0.6)
+        self.assertGreater(run.average_score, 0.9)
         self.assertEqual(run.avoided_name_hits, 0)
+        self.assertEqual(run.duplicate_count, 0)
+        self.assertTrue(run.selected)
+        for candidate in run.selected:
+            with self.subTest(name=candidate.result.name):
+                self.assertEqual(candidate.result.metadata["prompt_version"], "namengine-pet-quality-v1")
+                self.assertEqual(candidate.result.metadata["quality_score_version"], "pet-quality-score-v1")
+                self.assertIn("callability", candidate.result.metadata["quality_scores"])
+                self.assertIn("personality_match", candidate.result.metadata["quality_scores"])
+                self.assertIn("dog", candidate.result.why_this_name.lower())
+                self.assertIn("call", candidate.result.fit_note.lower())
+
+    def test_all_pet_quality_fixtures_keep_adapter_metadata_and_avoid_hits_out(self):
+        fixture = Path(__file__).parent / "fixtures" / "pet_quality_briefs.json"
+        quality_briefs = load_quality_briefs(fixture)
+
+        runs = [
+            run_quality_brief(brief, PET, providers=[ModelProvider.FALLBACK])
+            for brief in quality_briefs
+        ]
+
+        self.assertEqual({run.brief_id for run in runs}, {"pet-gentle-dog", "pet-quiet-cat"})
+        for run in runs:
+            with self.subTest(brief=run.brief_id):
+                self.assertGreater(run.average_score, 0.9)
+                self.assertEqual(run.avoided_name_hits, 0)
+                self.assertEqual(run.duplicate_count, 0)
+                selected_names = {candidate.result.name.lower() for candidate in run.selected}
+                fixture_row = next(item for item in quality_briefs if item.id == run.brief_id)
+                self.assertFalse(selected_names & {name.lower() for name in fixture_row.must_avoid})
+                for candidate in run.selected:
+                    self.assertEqual(candidate.result.metadata["prompt_version"], "namengine-pet-quality-v1")
+                    self.assertEqual(candidate.result.metadata["quality_score_version"], "pet-quality-score-v1")
+
+    def test_pet_adapter_ranks_callable_pet_name_above_awkward_fantasy_shape(self):
+        brief = build_brief(
+            PET,
+            {
+                "pet_type": "Dog",
+                "style": "Warm and easy to call",
+                "vibe": "Gentle and loyal",
+                "pronunciation_importance": "Very important",
+            },
+        )
+        callable_name = NameResult(
+            id="candidate-milo",
+            name="Milo",
+            slug="milo",
+            pronunciation="MY-loh",
+            tagline="Warm, clear, and easy to call.",
+            meaning="A friendly everyday dog name.",
+            why_this_name="Milo fits a gentle and loyal dog because it is warm, familiar, and easy to call.",
+            fit_note="Best for a dog whose name should feel natural to call across the room.",
+            risks=["Low practical risk; still test it out loud."],
+            tags=["callable", "warm", "gentle"],
+            scores={"callability": 0.95, "warmth": 0.9, "distinctiveness": 0.58},
+        )
+        awkward_name = NameResult(
+            id="candidate-xyqtharion",
+            name="Xyqtharion",
+            slug="xyqtharion",
+            pronunciation="zick-THAIR-ee-on",
+            tagline="Invented and dramatic.",
+            meaning="A fantasy-shaped invented option.",
+            why_this_name="Xyqtharion is unusual but creates friction for a gentle dog.",
+            fit_note="Harder to call quickly across the room.",
+            risks=["Hard to pronounce and likely to be confusing when called."],
+            tags=["invented", "fantasy"],
+            scores={"callability": 0.25, "warmth": 0.35, "distinctiveness": 0.95},
+        )
+        provider_results = [
+            ProviderResult(provider=ModelProvider.FALLBACK, names=[awkward_name, callable_name])
+        ]
+
+        candidates = score_provider_results(provider_results, brief=brief, vertical=PET)
+        selected = select_best_candidates(candidates, count=2, vertical_slug=PET.slug)
+
+        self.assertEqual([candidate.result.name for candidate in selected], ["Milo", "Xyqtharion"])
+        self.assertGreater(callable_name.metadata["quality_score"], awkward_name.metadata["quality_score"])
+        self.assertLess(awkward_name.metadata["quality_scores"]["callability"], 0.5)
 
     def test_quality_summary_reports_provider_status(self):
         fixture = Path(__file__).parent / "fixtures" / "pet_quality_briefs.json"

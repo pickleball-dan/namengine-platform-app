@@ -98,8 +98,8 @@ def improve_pet_explanations(results: list[NameResult], brief: NamingBrief) -> N
         openings = (
             f"{result.name} fits a {personality} {pet} because it keeps the sound callable while staying in the {style} lane.",
             f"For this {pet}, {result.name} balances {style} style with a name shape that is easy to use out loud.",
-            f"{result.name} earns a spot by connecting the pet's {personality} side to practical everyday calling.",
-            f"What helps {result.name} work here is the mix of {callability} and {style} warmth.",
+            f"{result.name} earns a spot by connecting this {pet}'s {personality} side to practical everyday calling.",
+            f"What helps {result.name} work for this {pet} is the mix of {callability} and {style} warmth.",
         )
         details = [openings[index % len(openings)]]
         if portrait:
@@ -207,7 +207,9 @@ def _callability_score(result: NameResult) -> float:
     clean = re.sub(r"[^a-z]", "", result.name.lower())
     length_score = 0.95 if 3 <= len(clean) <= 7 else 0.74
     pronunciation_score = 0.9 if result.pronunciation else 0.58
-    return _rounded(model_score * 0.55 + length_score * 0.25 + pronunciation_score * 0.2)
+    risk_text = " ".join(result.risks).lower()
+    friction = 0.18 if any(term in risk_text for term in ("hard to pronounce", "confusing", "harder to call")) else 0.0
+    return _rounded(max(0.0, model_score * 0.55 + length_score * 0.25 + pronunciation_score * 0.2 - friction))
 
 
 def _obvious_brief_violations(brief: NamingBrief, results: list[NameResult]) -> int:
