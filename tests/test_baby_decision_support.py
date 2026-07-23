@@ -200,22 +200,22 @@ class BabyDecisionSupportTest(unittest.TestCase):
         self.assertIn('aria-label="How does Eleanor feel?"', body)
         self.assertIn('aria-live="polite"', body)
         self.assertIn("Love this name", body)
-        self.assertIn("Keep as a maybe", body)
         self.assertIn("Not for us", body)
+        self.assertNotIn("Keep as a maybe", body)
+        self.assertNotIn('data-reaction-value="maybe"', body)
         self.assertIn("<details", body)
         self.assertNotIn("engine_pipeline", body)
         self.assertNotIn("generation_id", body)
 
-    def test_baby_maybe_reaction_works_while_pet_contract_is_unchanged(self):
+    def test_baby_maybe_reaction_is_rejected_while_pet_contract_is_unchanged(self):
         self.save_baby("baby-maybe", [rich_result("baby-1", "Eleanor", ["Classic"])])
         response = self.client.post(
             "/api/react",
             json={"session_id": "baby-maybe", "result_id": "baby-1", "value": "maybe"},
         )
-        self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.get_json()["reaction"]["value"], "maybe")
+        self.assertEqual(response.status_code, 400)
         body = self.client.get("/baby/name/baby-maybe/baby-1").get_data(as_text=True)
-        self.assertIn('class="is-selected" data-reaction-value="maybe"', body)
+        self.assertNotIn('data-reaction-value="maybe"', body)
 
         pet = NameResult(id="pet-1", name="Milo", slug="milo")
         save_session("pet-no-maybe", "pet", NamingBrief(vertical="pet", inputs={"species": "Dog"}), [pet])

@@ -5,9 +5,6 @@
     <button type="button" class="{% if decision_support.current_reaction == 'love' %}is-selected{% endif %}" data-reaction-value="love" data-reaction-label="Love this name" data-result-name="{{ result.name }}" aria-pressed="{{ 'true' if decision_support.current_reaction == 'love' else 'false' }}">
       Love this name
     </button>
-    <button type="button" class="{% if decision_support.current_reaction == 'maybe' %}is-selected{% endif %}" data-reaction-value="maybe" data-reaction-label="Keep as a maybe" data-result-name="{{ result.name }}" aria-pressed="{{ 'true' if decision_support.current_reaction == 'maybe' else 'false' }}">
-      Keep as a maybe
-    </button>
     <button type="button" class="{% if decision_support.current_reaction == 'no' %}is-selected{% endif %}" data-reaction-value="no" data-reaction-label="Not for us" data-result-name="{{ result.name }}" aria-pressed="{{ 'true' if decision_support.current_reaction == 'no' else 'false' }}">
       Not for us
     </button>

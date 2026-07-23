@@ -24,7 +24,6 @@ from namengine.core import (
     build_brief,
     build_compare_items,
     build_public_reaction,
-    build_reaction,
     build_taste_profile,
     build_trust_cue,
     compare_contrast_groups,
@@ -638,17 +637,13 @@ def create_app() -> Flask:
         session_id = str(payload.get("session_id", ""))
         result_id = str(payload.get("result_id", ""))
         value = str(payload.get("value", ""))
-        snapshot = get_session_snapshot(session_id) if session_id else None
 
         try:
-            if snapshot and snapshot["session"]["vertical"] == "baby" and value == "maybe":
-                reaction = build_reaction(session_id, result_id, value)
-            else:
-                reaction = build_public_reaction(
-                    session_id=session_id,
-                    result_id=result_id,
-                    value=value,
-                )
+            reaction = build_public_reaction(
+                session_id=session_id,
+                result_id=result_id,
+                value=value,
+            )
         except ReactionError as exc:
             return jsonify({"error": str(exc)}), 400
 
