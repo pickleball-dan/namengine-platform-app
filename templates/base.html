@@ -12,7 +12,7 @@
       {% set social_image = social_image|default(url_for('static', filename=vertical.assets.get('share_image'), _external=True)) %}
       <meta property="og:type" content="website">
       <meta property="og:site_name" content="NamEngine">
-      <meta property="og:url" content="{{ request.url }}">
+      <meta property="og:url" content="{{ request.base_url }}">
       <meta property="og:title" content="{{ social_title }}">
       <meta property="og:description" content="{{ social_description }}">
       <meta property="og:image" content="{{ social_image }}">

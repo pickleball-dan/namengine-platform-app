@@ -26,7 +26,7 @@ class PhaseTwentyFeelingsScaleTest(unittest.TestCase):
                 body = response.get_data(as_text=True)
                 self.assertIn("Feelings Scale", body)
                 if slug == "baby":
-                    self.assertIn("What should guide the search?", body)
+                    self.assertIn("Do you want us to prioritize anything?", body)
                     self.assertIn("Now tell us what matters most.", body)
                 else:
                     self.assertIn("What do I feel strong about?", body)
