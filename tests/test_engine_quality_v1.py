@@ -8,6 +8,7 @@ from unittest.mock import patch
 from app import create_app
 from namengine.core import (
     BABY_PROMPT_VERSION,
+    PET_PROMPT_VERSION,
     QualityAdapter,
     build_brief,
     generate_ai_names,
@@ -22,6 +23,7 @@ from namengine.core.baby_quality_adapter import (
     BABY_QUALITY_SCORE_WEIGHTS,
     improve_baby_explanations,
 )
+from namengine.core.pet_quality_adapter import PET_QUALITY_SCORE_WEIGHTS
 from namengine.core.prompt_versions import DEFAULT_PROMPT_VERSION, prompt_version_for
 from namengine.core.quality_framework import (
     build_quality_taste_thesis,
@@ -33,7 +35,7 @@ from namengine.core.quality_framework import (
     unregister_quality_adapter,
 )
 from namengine.core.schemas import GenerationCandidate, ModelProvider, NameResult, NamingBrief
-from namengine.verticals import get_vertical
+from namengine.verticals import PET, get_vertical
 
 
 STRATEGY_RESPONSE = json.dumps(
@@ -187,6 +189,7 @@ class EngineQualityV1Test(unittest.TestCase):
         self.assertEqual(
             results[0].metadata["ai_calls"][0]["prompt_version"],
             BABY_PROMPT_VERSION,
+    PET_PROMPT_VERSION,
         )
         save_session("baby-quality-prompt", "baby", brief, results)
         response = self.client.get("/dev/engine-audit/baby-quality-prompt")
@@ -407,7 +410,7 @@ class EngineQualityV1Test(unittest.TestCase):
         with self.assertRaises(ValueError):
             register_quality_adapter(replace(valid, prompt_version="prompt-v2"))
 
-    def test_deterministic_ranking_is_shared_and_pet_keeps_legacy_order(self):
+    def test_deterministic_ranking_is_shared_and_unregistered_vertical_keeps_legacy_order(self):
         slug = "test-ranking"
         register_quality_adapter(
             QualityAdapter(
@@ -437,9 +440,9 @@ class EngineQualityV1Test(unittest.TestCase):
             [item.result.name for item in rank_quality_candidates([zora, aiko], slug)],
             ["Aiko", "Zora"],
         )
-        self.assertIsNone(quality_adapter_for("pet"))
+        self.assertIsNone(quality_adapter_for("character"))
         self.assertEqual(
-            [item.result.name for item in rank_quality_candidates([zora, aiko], "pet")],
+            [item.result.name for item in rank_quality_candidates([zora, aiko], "character")],
             ["Zora", "Aiko"],
         )
 
@@ -455,6 +458,61 @@ class EngineQualityV1Test(unittest.TestCase):
         )
         ranked_variants = rank_quality_candidates([first_variant, second_variant], slug)
         self.assertEqual([item.result.origin for item in ranked_variants], ["Japanese", "Zulu"])
+
+    def test_pet_is_a_registered_platform_adapter(self):
+        adapter = quality_adapter_for("pet")
+
+        self.assertIsNotNone(adapter)
+        self.assertEqual(adapter.prompt_version, PET_PROMPT_VERSION)
+        self.assertEqual(prompt_version_for("pet"), PET_PROMPT_VERSION)
+        self.assertEqual(adapter.score_weights, PET_QUALITY_SCORE_WEIGHTS)
+        self.assertEqual(adapter.model_score_keys, ("callability", "warmth", "distinctiveness"))
+
+    def test_pet_quality_adapter_scores_callability_warmth_and_distinctiveness(self):
+        brief = build_brief(
+            PET,
+            {
+                "pet_type": "Dog",
+                "pet_breed": "Whippet",
+                "pet_color": "Blue gray",
+                "pet_life_stage": "Mature",
+                "style": "Modern",
+                "vibe": "Gentle",
+                "pronunciation_importance": "Very important",
+                "familiarity_preference": "A little less common",
+                "timeless_vs_distinctive": "Mostly distinctive",
+                "partner_alignment": "human-name but not too serious",
+                "avoid": "Spot",
+            },
+        )
+        result = NameResult(
+            id="pet-lumi",
+            name="Lumi",
+            slug="lumi",
+            pronunciation="LOO-mee",
+            tagline="Bright, soft, and easy to call.",
+            meaning="Suggests light and warmth.",
+            why_this_name="Lumi fits a gentle dog while feeling fresh and easy to call.",
+            fit_note="Best for a warm affectionate dog.",
+            risks=["Less traditional than Max or Bella."],
+            tags=["callable", "warm", "fresh", "gentle"],
+            scores={"callability": 0.92, "warmth": 0.9, "distinctiveness": 0.82},
+        )
+
+        score, reasons = score_quality_result("pet", result, brief)
+
+        self.assertGreater(score, 0.75)
+        self.assertTrue(reasons)
+        self.assertEqual(result.metadata["quality_score_version"], "pet-quality-score-v1")
+        self.assertIn("callability", result.metadata["quality_scores"])
+        self.assertIn("warmth", result.metadata["quality_scores"])
+        self.assertIn("distinctiveness", result.metadata["quality_scores"])
+        thesis = build_quality_taste_thesis("pet", brief, {})
+        self.assertIn("Pet: Dog", thesis)
+        self.assertIn("Breed: Whippet", thesis)
+        self.assertIn("Life stage: Mature", thesis)
+        self.assertIn("Callability: Very important", thesis)
+        self.assertIn("Notes/tensions: human-name but not too serious", thesis)
 
 
 if __name__ == "__main__":

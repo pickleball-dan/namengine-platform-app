@@ -858,7 +858,12 @@ def generate_fallback_names(
             )
         )
 
-    return validate_results(vertical, brief, results[:result_count])
+    selected = validate_results(vertical, brief, results[:result_count])
+    improve_quality_explanations(vertical.slug, selected, brief)
+    apply_quality_metadata(vertical.slug, selected, brief)
+    for result in selected:
+        result.metadata["prompt_version"] = prompt_version_for(vertical.slug)
+    return selected
 
 
 

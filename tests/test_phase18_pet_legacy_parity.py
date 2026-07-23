@@ -4,6 +4,8 @@ import unittest
 from pathlib import Path
 
 from app import create_app, make_session_id
+from namengine.core import build_brief
+from namengine.verticals import PET
 
 
 class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
@@ -47,6 +49,49 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
         self.assertNotIn("Puppy", body)
         self.assertNotIn("Adult", body)
         self.assertNotIn("Senior", body)
+
+    def test_pet_intake_question_contract_is_locked_for_underlayment_migration(self):
+        contract = [
+            {
+                "id": question.id,
+                "label": question.label,
+                "kind": question.kind,
+                "required": question.required,
+                "choices": question.choices,
+                "placeholder": question.placeholder,
+                "help_text": question.help_text,
+                "section": question.section,
+            }
+            for question in PET.intake_questions
+        ]
+
+        self.assertEqual(
+            contract,
+            [
+                {"id": "pet_type", "label": "Who's joining the family?", "kind": "text", "required": True, "choices": ("Dog", "Cat", "Horse", "Bird", "Rabbit", "Reptile", "Other"), "placeholder": "", "help_text": "", "section": "About your pet"},
+                {"id": "pet_gender", "label": "Gender", "kind": "text", "required": False, "choices": ("Male", "Female", "Neutral"), "placeholder": "", "help_text": "", "section": "About your pet"},
+                {"id": "pet_breed", "label": "Breed", "kind": "text", "required": False, "choices": (), "placeholder": "Golden retriever, tabby, mixed breed...", "help_text": "", "section": "About your pet"},
+                {"id": "pet_color", "label": "Color", "kind": "text", "required": False, "choices": (), "placeholder": "Honey, black and white, brindle...", "help_text": "", "section": "About your pet"},
+                {"id": "pet_life_stage", "label": "Young or mature?", "kind": "text", "required": False, "choices": ("Young", "Mature"), "placeholder": "", "help_text": "", "section": "About your pet"},
+                {"id": "notes", "label": "Tell us about your pet", "kind": "textarea", "required": False, "choices": (), "placeholder": "Personality, funny quirks, names to avoid, favorite themes...", "help_text": "", "section": "About your pet"},
+                {"id": "discovery_style", "label": "How adventurous should we be?", "kind": "text", "required": False, "choices": ("Classic favorites", "Balanced mix", "Unexpected finds", "Completely original"), "placeholder": "", "help_text": "Choose the lane for this first pass.", "section": "Name style"},
+                {"id": "style", "label": "What overall style feels closest?", "kind": "text", "required": True, "choices": ("Classic", "Modern", "Soft and romantic", "Strong and tailored", "Uncommon but usable"), "placeholder": "", "help_text": "", "section": "Name style"},
+                {"id": "timeless_vs_distinctive", "label": "Would you lean more timeless or more distinctive?", "kind": "text", "required": False, "choices": ("Strongly timeless", "Mostly timeless", "Balanced", "Mostly distinctive", "Strongly distinctive"), "placeholder": "", "help_text": "", "section": "Name style"},
+                {"id": "familiarity_preference", "label": "How familiar should the name feel?", "kind": "text", "required": False, "choices": ("Very familiar and easy", "Recognizable but not overused", "A little less common", "Memorable and rarer"), "placeholder": "", "help_text": "", "section": "Name style"},
+                {"id": "pronunciation_importance", "label": "How easy should it be to call?", "kind": "text", "required": False, "choices": ("Very important", "Helpful but not absolute", "Open to slight friction"), "placeholder": "", "help_text": "", "section": "Fit and feeling"},
+                {"id": "vibe", "label": "What personality should the name capture?", "kind": "text", "required": True, "choices": ("Playful", "Loyal", "Elegant", "Brave", "Curious", "Gentle", "Mischievous", "Regal", "Adventurous", "Quirky", "Sweet", "Tough"), "placeholder": "", "help_text": "", "section": "Fit and feeling"},
+                {"id": "cultural_context", "label": "Name inspiration", "kind": "text", "required": False, "choices": ("Nature", "Mythology", "Human names", "Food & drink", "Literature", "Movies & TV", "Music", "Geography", "Vintage", "Pop culture"), "placeholder": "", "help_text": "", "section": "Fit and feeling"},
+                {"id": "partner_alignment", "label": "Anything you're torn between?", "kind": "textarea", "required": False, "choices": (), "placeholder": "Cute or serious, silly or elegant, human-name or pet-name, everyone else's opinions...", "help_text": "", "section": "Fit and feeling"},
+            ],
+        )
+
+    def test_pet_legacy_species_and_personality_aliases_still_build_current_brief(self):
+        brief = build_brief(PET, {"species": "Cat", "personality": "Quiet", "style": "Classic"})
+
+        self.assertEqual(brief.inputs["pet_type"], "Cat")
+        self.assertEqual(brief.inputs["species"], "Cat")
+        self.assertEqual(brief.inputs["vibe"], "Quiet")
+        self.assertEqual(brief.inputs["personality"], "Quiet")
 
     def test_pet_original_mode_exists_and_generates_original_results(self):
         response = self.client.get("/pet/original")

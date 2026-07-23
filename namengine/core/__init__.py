@@ -13,7 +13,7 @@ from .ai_generation import (
     parse_generation_audit_response,
     parse_taste_strategy_response,
 )
-from .prompt_versions import BABY_PROMPT_VERSION, prompt_version_for, registered_prompt_versions
+from .prompt_versions import BABY_PROMPT_VERSION, PET_PROMPT_VERSION, prompt_version_for, registered_prompt_versions
 from .quality_framework import QualityAdapter, quality_adapter_for, register_quality_adapter
 from .briefs import build_brief
 from .canonical_intent import CANONICAL_INTENT_VERSION, CanonicalNamingIntent
@@ -250,6 +250,7 @@ __all__ = [
     "ChosenName",
     "AIGenerationError",
     "BABY_PROMPT_VERSION",
+    "PET_PROMPT_VERSION",
     "QualityAdapter",
     "prompt_version_for",
     "registered_prompt_versions",

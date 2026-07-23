@@ -5,7 +5,8 @@ from __future__ import annotations
 
 DEFAULT_PROMPT_VERSION = "namengine-taste-engine-v1"
 BABY_PROMPT_VERSION = "namengine-baby-quality-v1"
-_BUILTIN_PROMPT_VERSIONS = {"baby": BABY_PROMPT_VERSION}
+PET_PROMPT_VERSION = "namengine-pet-quality-v1"
+_BUILTIN_PROMPT_VERSIONS = {"baby": BABY_PROMPT_VERSION, "pet": PET_PROMPT_VERSION}
 _PROMPT_VERSIONS: dict[str, str] = dict(_BUILTIN_PROMPT_VERSIONS)
 
 
