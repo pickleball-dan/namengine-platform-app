@@ -103,12 +103,12 @@ def improve_pet_explanations(results: list[NameResult], brief: NamingBrief) -> N
             f"What helps {result.name} work for this {pet} is the mix of {callability} and {style} warmth.",
         )
         details = [openings[index % len(openings)]]
-        if original_reason:
-            details.append(original_reason)
         if portrait:
-            details.append(f"It can sit naturally with the portrait details you gave: {portrait}.")
+            details.append(f"It reflects the pet details you gave: {portrait}.")
         if life_stage:
             details.append(f"It is usable for a {life_stage} pet, not just a one-stage nickname.")
+        if original_reason:
+            details.append(original_reason)
         if brief.avoid:
             details.append("It avoids the names explicitly ruled out in the brief.")
 
