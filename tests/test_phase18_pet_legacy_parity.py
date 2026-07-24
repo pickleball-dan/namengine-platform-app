@@ -1,10 +1,11 @@
+import json
 import os
 import tempfile
 import unittest
 from pathlib import Path
 
 from app import create_app, make_session_id
-from namengine.core import build_brief
+from namengine.core import build_brief, get_session_snapshot
 from namengine.verticals import PET
 
 
@@ -157,6 +158,42 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
         self.assertIn('data-reaction-value="love"', body)
         self.assertIn('data-reaction-value="no"', body)
         self.assertNotIn('data-reaction-value="maybe"', body)
+
+    def test_pet_results_route_keeps_quality_metadata_internal_and_pet_markup_clean(self):
+        query = (
+            b"pet_type=Dog&pet_breed=Whippet&pet_color=Blue+gray&pet_life_stage=Mature"
+            b"&style=Modern&vibe=Gentle&pronunciation_importance=Very+important"
+            b"&familiarity_preference=A+little+less+common"
+            b"&timeless_vs_distinctive=Mostly+distinctive"
+            b"&partner_alignment=human-name+but+not+too+serious&avoid=Spot"
+        )
+        session_id = make_session_id("pet", query)
+
+        response = self.client.get(f"/pet/results?{query.decode('utf-8')}")
+        body = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("vertical-pet", body)
+        self.assertIn("result-tags", body)
+        self.assertNotIn("baby-result-tags", body)
+        self.assertNotIn("quality_score_version", body)
+        self.assertNotIn("pet-quality-score-v1", body)
+        self.assertNotIn("namengine-pet-quality-v1", body)
+        self.assertIn("dog", body.lower())
+        self.assertIn("call", body.lower())
+        self.assertIn("Whippet", body)
+        self.assertIn("Blue gray", body)
+        self.assertIn("Gentle", body)
+
+        snapshot = get_session_snapshot(session_id)
+        self.assertTrue(snapshot)
+        first = json.loads(snapshot["results"][0]["result_json"])
+        self.assertEqual(first["metadata"]["prompt_version"], "namengine-pet-quality-v1")
+        self.assertEqual(first["metadata"]["quality_score_version"], "pet-quality-score-v1")
+        self.assertIn("callability", first["metadata"]["quality_scores"])
+        self.assertIn("personality_match", first["metadata"]["quality_scores"])
+        self.assertIn("dog", first["why_this_name"].lower())
+        self.assertIn("call", first["fit_note"].lower())
 
     def test_shared_shortlist_route_renders_saved_session(self):
         query = b"pet_type=Dog&style=Classic&vibe=Playful"

@@ -121,7 +121,7 @@
               {% endif %}
             </div>
             {% if launch_results %}
-              <div class="baby-result-tags"{% if item.tags %} aria-label="Qualities of {{ item.name }}"{% else %} aria-hidden="true"{% endif %}>
+              <div class="result-tags{% if vertical.slug == 'baby' %} baby-result-tags{% endif %}"{% if item.tags %} aria-label="Qualities of {{ item.name }}"{% else %} aria-hidden="true"{% endif %}>
                 {% for tag in item.tags[:3] %}<span>{{ tag }}{% if not loop.last %}&nbsp;{% endif %}</span>{% endfor %}
               </div>
             {% endif %}

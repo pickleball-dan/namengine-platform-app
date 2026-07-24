@@ -2595,7 +2595,7 @@ button {
     -webkit-line-clamp: 1;
   }
 
-  .results-accordion-ready .result-card:not(.is-expanded) .baby-result-tags {
+  .results-accordion-ready .result-card:not(.is-expanded) .result-tags {
     display: none;
   }
 
