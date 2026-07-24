@@ -252,6 +252,76 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
         self.assertEqual(persisted_result["metadata"]["prompt_version"], "namengine-pet-quality-v1")
         self.assertEqual(persisted_result["metadata"]["quality_score_version"], "pet-quality-score-v1")
 
+    def test_pet_compare_and_refine_loop_keeps_quality_metadata_internal(self):
+        query = (
+            b"pet_type=Dog&pet_breed=Whippet&pet_color=Blue+gray&pet_life_stage=Mature"
+            b"&style=Modern&vibe=Gentle&pronunciation_importance=Very+important"
+            b"&familiarity_preference=A+little+less+common"
+            b"&timeless_vs_distinctive=Mostly+distinctive"
+            b"&partner_alignment=human-name+but+not+too+serious&avoid=Spot"
+        )
+        session_id = make_session_id("pet", query)
+        self.client.get(f"/pet/results?{query.decode('utf-8')}")
+        parent_snapshot = get_session_snapshot(session_id)
+        parent_results = [json.loads(row["result_json"]) for row in parent_snapshot["results"]]
+
+        for result, value in zip(parent_results[:3], ("love", "love", "no")):
+            response = self.client.post(
+                "/api/react",
+                json={"session_id": session_id, "result_id": result["id"], "value": value},
+            )
+            self.assertEqual(response.status_code, 201)
+
+        compare = self.client.get(f"/compare/{session_id}")
+        compare_body = compare.get_data(as_text=True)
+
+        self.assertEqual(compare.status_code, 200)
+        self.assertIn("Compare Favorites", compare_body)
+        self.assertIn("Taste profile", compare_body)
+        self.assertIn("Callability", compare_body)
+        self.assertIn("Warmth", compare_body)
+        self.assertIn(parent_results[0]["name"], compare_body)
+        self.assertIn(parent_results[1]["name"], compare_body)
+        self.assertNotIn("quality_score_version", compare_body)
+        self.assertNotIn("pet-quality-score-v1", compare_body)
+        self.assertNotIn("namengine-pet-quality-v1", compare_body)
+        self.assertNotIn("baby-result-tags", compare_body)
+        self.assertNotIn("baby-decision-section", compare_body)
+        self.assertNotIn("Baby blanket", compare_body)
+
+        refined = self.client.post(
+            "/refine",
+            data={"session_id": session_id, "instruction": "warmer but still easy to call"},
+        )
+        refined_body = refined.get_data(as_text=True)
+        child_session_id = f"{session_id}-r2"
+        child_snapshot = get_session_snapshot(child_session_id)
+        child_results = [json.loads(row["result_json"]) for row in child_snapshot["results"]]
+
+        self.assertEqual(refined.status_code, 200)
+        self.assertEqual(child_snapshot["session"]["round_number"], 2)
+        self.assertEqual(child_snapshot["session"]["parent_session_id"], session_id)
+        self.assertIn("Round 2", refined_body)
+        self.assertIn("dog", refined_body.lower())
+        self.assertIn("call", refined_body.lower())
+        self.assertIn("Whippet", refined_body)
+        self.assertIn("Blue gray", refined_body)
+        self.assertNotIn("quality_score_version", refined_body)
+        self.assertNotIn("pet-quality-score-v1", refined_body)
+        self.assertNotIn("namengine-pet-quality-v1", refined_body)
+        self.assertNotIn("baby-result-tags", refined_body)
+        self.assertNotIn("baby-decision-section", refined_body)
+        self.assertNotIn("Baby blanket", refined_body)
+        self.assertFalse({item["name"] for item in parent_results} & {item["name"] for item in child_results})
+        for result in child_results:
+            with self.subTest(name=result["name"]):
+                self.assertEqual(result["metadata"]["prompt_version"], "namengine-pet-quality-v1")
+                self.assertEqual(result["metadata"]["quality_score_version"], "pet-quality-score-v1")
+                self.assertIn("callability", result["metadata"]["quality_scores"])
+                self.assertIn("personality_match", result["metadata"]["quality_scores"])
+                self.assertIn("dog", result["why_this_name"].lower())
+                self.assertIn("call", result["fit_note"].lower())
+
     def test_shared_shortlist_route_renders_saved_session(self):
         query = b"pet_type=Dog&style=Classic&vibe=Playful"
         session_id = make_session_id("pet", query)
