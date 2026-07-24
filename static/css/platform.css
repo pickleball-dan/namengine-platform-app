@@ -6574,6 +6574,161 @@ button {
   box-shadow: none;
 }
 
+.vertical-pet .baby-welcome > :not(.pet-welcome-decor) {
+  position: relative;
+  z-index: 2;
+}
+
+.vertical-pet .pet-welcome-decor,
+.vertical-pet .pet-play-scene {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.vertical-pet .pet-welcome-art,
+.vertical-pet .pet-play-art {
+  position: absolute;
+  display: block;
+  filter: drop-shadow(0 14px 22px rgba(31, 36, 48, 0.08));
+}
+
+.vertical-pet .pet-welcome-paw,
+.vertical-pet .pet-play-paw {
+  width: clamp(32px, 4vw, 54px);
+  height: clamp(28px, 3.4vw, 46px);
+  background: rgba(47, 148, 134, 0.24);
+  border-radius: 50% 50% 45% 45% / 58% 58% 42% 42%;
+  transform: rotate(-18deg);
+}
+
+.vertical-pet .pet-welcome-paw::before,
+.vertical-pet .pet-play-paw::before {
+  position: absolute;
+  top: -45%;
+  left: 12%;
+  width: 26%;
+  aspect-ratio: 1;
+  content: "";
+  background: rgba(47, 148, 134, 0.24);
+  border-radius: 50%;
+  box-shadow:
+    42% -18% 0 rgba(47, 148, 134, 0.24),
+    84% 0 0 rgba(47, 148, 134, 0.24),
+    124% 30% 0 rgba(47, 148, 134, 0.2);
+}
+
+.vertical-pet .pet-welcome-paw-one { top: 18%; right: 21%; opacity: 0.58; }
+.vertical-pet .pet-welcome-paw-two { top: 31%; right: 13%; opacity: 0.38; transform: rotate(16deg) scale(0.74); }
+
+.vertical-pet .pet-welcome-bone,
+.vertical-pet .pet-play-bone {
+  width: clamp(96px, 11vw, 152px);
+  height: clamp(30px, 3.4vw, 44px);
+  background: rgba(252, 186, 118, 0.36);
+  border: 2px solid rgba(252, 186, 118, 0.28);
+  border-radius: 999px;
+  transform: rotate(-12deg);
+}
+
+.vertical-pet .pet-welcome-bone::before,
+.vertical-pet .pet-welcome-bone::after,
+.vertical-pet .pet-play-bone::before,
+.vertical-pet .pet-play-bone::after {
+  position: absolute;
+  top: 50%;
+  width: 34%;
+  aspect-ratio: 1;
+  content: "";
+  background:
+    radial-gradient(circle at 32% 30%, rgba(255, 255, 255, 0.54) 0 18%, transparent 19%),
+    rgba(252, 186, 118, 0.42);
+  border: 2px solid rgba(252, 186, 118, 0.22);
+  border-radius: 50%;
+  transform: translateY(-50%);
+}
+
+.vertical-pet .pet-welcome-bone::before,
+.vertical-pet .pet-play-bone::before { left: -15%; box-shadow: 0 24px 0 -3px rgba(252, 186, 118, 0.42); }
+.vertical-pet .pet-welcome-bone::after,
+.vertical-pet .pet-play-bone::after { right: -15%; box-shadow: 0 -24px 0 -3px rgba(252, 186, 118, 0.42); }
+.vertical-pet .pet-welcome-bone { right: clamp(28px, 7%, 88px); bottom: clamp(30px, 8%, 72px); opacity: 0.64; }
+
+.vertical-pet .pet-welcome-ball,
+.vertical-pet .pet-play-ball {
+  width: clamp(54px, 6vw, 86px);
+  aspect-ratio: 1;
+  background:
+    radial-gradient(circle at 35% 28%, rgba(255, 255, 255, 0.6) 0 12%, transparent 13%),
+    linear-gradient(135deg, rgba(252, 186, 118, 0.9), rgba(252, 186, 118, 0.46));
+  border: 2px solid rgba(200, 132, 61, 0.18);
+  border-radius: 50%;
+}
+
+.vertical-pet .pet-welcome-ball::after,
+.vertical-pet .pet-play-ball::after {
+  position: absolute;
+  inset: 18% 48% 18% auto;
+  width: 16%;
+  content: "";
+  border-left: 3px solid rgba(47, 148, 134, 0.45);
+  border-radius: 50%;
+  transform: rotate(24deg);
+}
+
+.vertical-pet .pet-welcome-ball { left: clamp(34px, 7%, 92px); bottom: clamp(28px, 9%, 80px); opacity: 0.62; transform: rotate(8deg); }
+
+.vertical-pet .pet-welcome-tag,
+.vertical-pet .pet-play-tag {
+  width: clamp(58px, 6vw, 86px);
+  aspect-ratio: 0.86;
+  background:
+    radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.9) 0 8%, transparent 9%),
+    linear-gradient(145deg, rgba(47, 148, 134, 0.84), rgba(47, 148, 134, 0.52));
+  border: 2px solid rgba(20, 77, 72, 0.13);
+  border-radius: 18px 18px 28px 28px;
+  clip-path: polygon(50% 0, 100% 24%, 86% 100%, 14% 100%, 0 24%);
+}
+
+.vertical-pet .pet-welcome-tag::after,
+.vertical-pet .pet-play-tag::after {
+  position: absolute;
+  inset: 42% 18% auto;
+  height: 3px;
+  content: "";
+  background: rgba(255, 255, 255, 0.66);
+  border-radius: 999px;
+  box-shadow: 0 10px 0 rgba(255, 255, 255, 0.42);
+}
+
+.vertical-pet .pet-welcome-tag {
+  top: clamp(118px, 20%, 178px);
+  right: clamp(140px, 19%, 260px);
+  left: auto;
+  opacity: 0.34;
+  transform: rotate(-10deg) scale(0.88);
+}
+
+.vertical-pet .pet-conversation {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.vertical-pet .pet-conversation > :not(.pet-play-scene) {
+  position: relative;
+  z-index: 2;
+}
+
+.vertical-pet .pet-play-scene { opacity: 0.72; }
+.vertical-pet .pet-play-paw-one { top: 86px; right: 46px; opacity: 0.22; transform: rotate(18deg) scale(0.9); }
+.vertical-pet .pet-play-paw-two { top: 158px; right: 94px; opacity: 0.18; transform: rotate(-12deg) scale(0.68); }
+.vertical-pet .pet-play-ball { right: 28px; bottom: 42px; opacity: 0.32; transform: rotate(-18deg) scale(0.82); }
+.vertical-pet .pet-play-bone { left: 28px; bottom: 54px; opacity: 0.28; transform: rotate(10deg) scale(0.86); }
+.vertical-pet .pet-play-tag { left: clamp(22px, 6%, 72px); top: clamp(36px, 8%, 78px); opacity: 0.24; transform: rotate(9deg) scale(0.82); }
+
 :is(.vertical-pet, .vertical-business) .polished-intake-form :is(input, select, textarea) {
   min-height: 56px;
   padding: 14px 16px;
@@ -8996,3 +9151,36 @@ button {
   }
 }
 
+
+/* Pet logo placement: the approved Pet logo is the full NamEnginePets wordmark, not the bubble-only icon. */
+.vertical-pet .baby-welcome .vertical-page-logo,
+.vertical-pet :is(.results-heading, .compare-shell, .chosen-shell, .detail-shell, .feedback-shell, .original-intake-shell) > .vertical-page-logo {
+  width: min(360px, 82vw);
+  max-height: 96px;
+  object-fit: contain;
+  object-position: left center;
+}
+
+.vertical-pet .baby-welcome .vertical-page-logo {
+  margin-bottom: 22px;
+}
+
+.vertical-pet :is(.results-heading, .compare-shell, .chosen-shell, .detail-shell, .feedback-shell, .original-intake-shell) > .vertical-page-logo.small {
+  width: min(300px, 72vw);
+  max-height: 78px;
+}
+
+@media (max-width: 640px) {
+  .vertical-pet .baby-welcome .vertical-page-logo {
+    width: min(300px, 84vw);
+    max-height: 72px;
+  }
+}
+
+@media (max-width: 390px) {
+  .vertical-pet .baby-welcome .vertical-page-logo {
+    width: min(260px, 82vw);
+    max-height: 64px;
+    margin-bottom: 14px;
+  }
+}

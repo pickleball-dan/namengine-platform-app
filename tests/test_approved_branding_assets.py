@@ -61,12 +61,14 @@ class ApprovedBrandingAssetsTest(unittest.TestCase):
         self.assertNotIn("images/baby/namengine-baby-logo.png", body)
         self.assertNotIn("images/baby/namengine-baby-logo.svg", body)
 
-    def test_unfinished_pet_and_business_screens_keep_existing_logos(self):
+    def test_pet_uses_approved_pets_mark_and_business_keeps_existing_logo(self):
         pet = self.client.get("/pet").get_data(as_text=True)
         business = self.client.get("/business").get_data(as_text=True)
 
-        self.assertIn("images/pet/namengine-pet-logo-transparent.png", pet)
-        self.assertNotIn("images/namengine-pets.svg", pet)
+        self.assertIn("images/namengine-pets.svg", pet)
+        self.assertNotIn("images/namengine-pets-icon.svg", pet)
+        self.assertNotIn("images/pet/namengine-pet-logo-transparent.png", pet)
+        self.assertNotIn("images/pet/namengine-pet-card-share-v3.jpg", pet)
         self.assertIn("images/business/namengine-business-logo.png", business)
         self.assertNotIn("images/namengine-biz.svg", business)
 

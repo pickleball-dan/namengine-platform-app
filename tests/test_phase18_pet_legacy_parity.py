@@ -26,13 +26,15 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
             os.environ["NAMENGINE_DB_PATH"] = self.previous_db_path
         self.tempdir.cleanup()
 
-    def test_pet_uses_real_legacy_logo_assets(self):
+    def test_pet_uses_approved_active_graphic_assets(self):
         response = self.client.get("/pet")
         body = response.get_data(as_text=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn("images/pet/namengine-pet-logo-transparent.png", body)
-        self.assertIn("images/pet/namengine-pet-card-share-v3.jpg", body)
+        self.assertIn("images/namengine-pets.svg", body)
+        self.assertNotIn("images/namengine-pets-icon.svg", body)
+        self.assertNotIn("images/pet/namengine-pet-logo-transparent.png", body)
+        self.assertNotIn("images/pet/namengine-pet-card-share-v3.jpg", body)
         self.assertIn("vertical-page-logo", body)
 
     def test_pet_intake_collects_portrait_details(self):

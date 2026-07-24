@@ -321,8 +321,8 @@ PET = VerticalConfig(
         "line": "rgba(69, 48, 34, 0.11)",
     },
     assets={
-        "logo": "images/pet/namengine-pet-logo-transparent.png",
-        "share_image": "images/pet/namengine-pet-card-share-v3.jpg",
+        "logo": "images/namengine-pets.svg",
+        "share_image": "images/namengine-pets.svg",
     },
     visual=VerticalVisualConfig(
         audience=("pet parents", "families choosing an everyday call name"),

@@ -28,6 +28,13 @@
               <span class="baby-welcome-art baby-welcome-leaves"></span>
               <span class="baby-welcome-art baby-welcome-teddy"></span>
             </div>
+          {% elif vertical.slug == "pet" %}
+            <div class="pet-welcome-decor" aria-hidden="true">
+              <span class="pet-welcome-art pet-welcome-paw pet-welcome-paw-one"></span>
+              <span class="pet-welcome-art pet-welcome-paw pet-welcome-paw-two"></span>
+              <span class="pet-welcome-art pet-welcome-bone"></span>
+              <span class="pet-welcome-art pet-welcome-ball"></span>
+            </div>
           {% endif %}
           {% if page_logo and vertical.slug != "baby" %}
             <img class="vertical-page-logo" src="{{ url_for('static', filename=page_logo) }}" alt="NamEngine {{ vertical.display_name }} logo">
@@ -105,7 +112,7 @@
       {% endif %}
     </div>
 
-    <form id="{{ vertical.slug }}-intake-form" class="intake-form{% if is_polished_flow %} baby-intake-form polished-intake-form{% endif %}{% if vertical.slug == 'baby' %} baby-conversation{% endif %}" action="{% if feelings_scale_enabled(vertical) %}{{ vertical.route_prefix }}/feelings{% else %}{{ vertical.route_prefix }}/results{% endif %}" method="{% if feelings_scale_enabled(vertical) %}get{% else %}post{% endif %}"{% if not feelings_scale_enabled(vertical) %} data-progress-form{% endif %}{% if vertical.slug == 'baby' %} data-journey-vertical="baby"{% endif %}{% if vertical.slug == 'baby' and request.args.get('edit') %} data-edit-question="{{ request.args.get('edit') }}"{% endif %} novalidate>
+    <form id="{{ vertical.slug }}-intake-form" class="intake-form{% if is_polished_flow %} baby-intake-form polished-intake-form{% endif %}{% if vertical.slug == 'baby' %} baby-conversation{% endif %}{% if vertical.slug == 'pet' %} pet-conversation{% endif %}" action="{% if feelings_scale_enabled(vertical) %}{{ vertical.route_prefix }}/feelings{% else %}{{ vertical.route_prefix }}/results{% endif %}" method="{% if feelings_scale_enabled(vertical) %}get{% else %}post{% endif %}"{% if not feelings_scale_enabled(vertical) %} data-progress-form{% endif %}{% if vertical.slug == 'baby' %} data-journey-vertical="baby"{% endif %}{% if vertical.slug == 'baby' and request.args.get('edit') %} data-edit-question="{{ request.args.get('edit') }}"{% endif %} novalidate>
       {% if vertical.slug == "baby" %}
         {% set gender_descriptions = {
           "Girl": "We’re expecting a baby girl.",
@@ -243,6 +250,15 @@
 
         <button class="baby-native-submit" type="submit" tabindex="-1">Continue</button>
       {% else %}
+      {% if vertical.slug == "pet" %}
+        <div class="pet-play-scene" aria-hidden="true">
+          <span class="pet-play-art pet-play-paw pet-play-paw-one"></span>
+          <span class="pet-play-art pet-play-paw pet-play-paw-two"></span>
+          <span class="pet-play-art pet-play-ball"></span>
+          <span class="pet-play-art pet-play-bone"></span>
+          <span class="pet-play-art pet-play-tag"></span>
+        </div>
+      {% endif %}
       {% if is_polished_flow %}
         {% set baby_field_icons = {
           "gender": "○", "family_context": "◇", "cultural_heritage": "✦", "notes": "♡",
