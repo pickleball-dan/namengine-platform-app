@@ -113,9 +113,10 @@ def improve_pet_explanations(results: list[NameResult], brief: NamingBrief) -> N
             details.append("It avoids the names explicitly ruled out in the brief.")
 
         risk = next((item.strip().rstrip(".") for item in result.risks if item.strip()), "")
+        rationale = _limit_words(" ".join(details), 68)
         if risk:
-            details.append(f"Tradeoff: {risk}.")
-        result.why_this_name = _limit_words(" ".join(details), 80)
+            rationale = f"{rationale} Tradeoff: {risk}."
+        result.why_this_name = rationale
         result.fit_note = _limit_words(
             f"Best if you want a {style}, {personality} name that still feels natural to call across the room.",
             28,
