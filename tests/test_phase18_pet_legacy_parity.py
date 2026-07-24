@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 
 from app import create_app, make_session_id
-from namengine.core import build_brief, get_session_snapshot
+from namengine.core import build_brief, get_chosen_snapshot, get_session_snapshot
 from namengine.verticals import PET
 
 
@@ -194,6 +194,63 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
         self.assertIn("personality_match", first["metadata"]["quality_scores"])
         self.assertIn("dog", first["why_this_name"].lower())
         self.assertIn("call", first["fit_note"].lower())
+
+    def test_pet_detail_share_and_chosen_flow_keep_quality_metadata_internal(self):
+        query = (
+            b"pet_type=Dog&pet_breed=Whippet&pet_color=Blue+gray&pet_life_stage=Mature"
+            b"&style=Modern&vibe=Gentle&pronunciation_importance=Very+important"
+            b"&familiarity_preference=A+little+less+common"
+            b"&timeless_vs_distinctive=Mostly+distinctive"
+            b"&partner_alignment=human-name+but+not+too+serious&avoid=Spot"
+        )
+        session_id = make_session_id("pet", query)
+        self.client.get(f"/pet/results?{query.decode('utf-8')}")
+        snapshot = get_session_snapshot(session_id)
+        first = json.loads(snapshot["results"][0]["result_json"])
+        result_id = first["id"]
+        name = first["name"]
+
+        detail = self.client.get(f"/pet/name/{session_id}/{result_id}")
+        share = self.client.get(f"/share/{session_id}")
+        choose = self.client.post(
+            "/choose",
+            data={"session_id": session_id, "result_id": result_id},
+            follow_redirects=False,
+        )
+        chosen_id = get_session_snapshot(session_id)["chosen_names"][0]["id"]
+        chosen = self.client.get(f"/chosen/{chosen_id}")
+
+        self.assertEqual(detail.status_code, 200)
+        self.assertEqual(share.status_code, 200)
+        self.assertEqual(choose.status_code, 302)
+        self.assertIn(f"/chosen/{chosen_id}", choose.headers["Location"])
+        self.assertEqual(chosen.status_code, 200)
+
+        for response in (detail, share, chosen):
+            body = response.get_data(as_text=True)
+            with self.subTest(route=response.request.path):
+                self.assertIn(name, body)
+                self.assertIn("dog", body.lower())
+                self.assertIn("call", body.lower())
+                self.assertIn("Whippet", body)
+                self.assertIn("Blue gray", body)
+                self.assertNotIn("quality_score_version", body)
+                self.assertNotIn("pet-quality-score-v1", body)
+                self.assertNotIn("namengine-pet-quality-v1", body)
+                self.assertNotIn("baby-result-tags", body)
+                self.assertNotIn("baby-decision-section", body)
+                self.assertNotIn("Baby blanket", body)
+
+        chosen_snapshot = get_chosen_snapshot(chosen_id)
+        self.assertEqual(chosen_snapshot["chosen"]["name"], name)
+        self.assertEqual(chosen_snapshot["chosen"]["vertical"], "pet")
+        self.assertEqual(
+            chosen_snapshot["chosen"]["metadata"]["pet_portrait"]["details"],
+            {"breed": "Whippet", "color": "Blue gray", "life_stage": "Mature"},
+        )
+        persisted_result = json.loads(get_session_snapshot(session_id)["results"][0]["result_json"])
+        self.assertEqual(persisted_result["metadata"]["prompt_version"], "namengine-pet-quality-v1")
+        self.assertEqual(persisted_result["metadata"]["quality_score_version"], "pet-quality-score-v1")
 
     def test_shared_shortlist_route_renders_saved_session(self):
         query = b"pet_type=Dog&style=Classic&vibe=Playful"

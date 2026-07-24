@@ -180,11 +180,11 @@ class PhaseSixChosenNameTest(unittest.TestCase):
         body = response.get_data(as_text=True)
         self.assertIn("pet-portrait-frame", body)
         self.assertNotIn("pet-portrait-details", body)
-        self.assertNotIn("Breed", body)
-        self.assertNotIn("Golden Retriever", body)
-        self.assertNotIn("Color", body)
-        self.assertNotIn("Honey", body)
-        self.assertNotIn("Age", body)
+        self.assertNotIn("Breed</", body)
+        self.assertNotIn("Color</", body)
+        self.assertNotIn("Age</", body)
+        self.assertIn("Golden Retriever", body)
+        self.assertIn("Honey", body)
         self.assertIn("Theo", body)
 
         snapshot = get_chosen_snapshot(chosen_id)
@@ -278,8 +278,8 @@ class PhaseSixChosenNameTest(unittest.TestCase):
         self.assertEqual(chosen_response.status_code, 200)
         self.assertIn("pet-portrait-frame", chosen_body)
         self.assertNotIn("pet-portrait-details", chosen_body)
-        self.assertNotIn("Whippet", chosen_body)
-        self.assertNotIn("Blue gray", chosen_body)
+        self.assertIn("Whippet", chosen_body)
+        self.assertIn("Blue gray", chosen_body)
 
     def test_pet_portrait_prompt_is_timeless_and_avoids_generated_text(self):
         brief = {
