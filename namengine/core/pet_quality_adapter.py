@@ -95,6 +95,7 @@ def improve_pet_explanations(results: list[NameResult], brief: NamingBrief) -> N
     life_stage = str(inputs.get("pet_life_stage") or "").strip().lower()
 
     for index, result in enumerate(results):
+        original_reason = str(result.why_this_name or "").strip()
         openings = (
             f"{result.name} fits a {personality} {pet} because it keeps the sound callable while staying in the {style} lane.",
             f"For this {pet}, {result.name} balances {style} style with a name shape that is easy to use out loud.",
@@ -102,6 +103,8 @@ def improve_pet_explanations(results: list[NameResult], brief: NamingBrief) -> N
             f"What helps {result.name} work for this {pet} is the mix of {callability} and {style} warmth.",
         )
         details = [openings[index % len(openings)]]
+        if original_reason:
+            details.append(original_reason)
         if portrait:
             details.append(f"It can sit naturally with the portrait details you gave: {portrait}.")
         if life_stage:
@@ -112,7 +115,7 @@ def improve_pet_explanations(results: list[NameResult], brief: NamingBrief) -> N
         risk = next((item.strip().rstrip(".") for item in result.risks if item.strip()), "")
         if risk:
             details.append(f"Tradeoff: {risk}.")
-        result.why_this_name = _limit_words(" ".join(details), 62)
+        result.why_this_name = _limit_words(" ".join(details), 80)
         result.fit_note = _limit_words(
             f"Best if you want a {style}, {personality} name that still feels natural to call across the room.",
             28,

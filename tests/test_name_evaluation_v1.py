@@ -176,7 +176,7 @@ class NameEvaluationFrameworkV1Test(unittest.TestCase):
         self.assertNotIn("sk-this-must-never-be-rendered", serialized)
         self.assertIn("candidate[0].metadata.api_key", serialized)
 
-    def test_pet_generation_order_and_metadata_remain_legacy(self):
+    def test_pet_generation_order_and_quality_metadata_are_deterministic(self):
         brief = build_brief(PET, {"style": "Warm", "pet_type": "Dog", "vibe": "Gentle"})
         first = generate_names(PET, brief, use_ai=False)
         second = generate_names(PET, brief, use_ai=False)
@@ -184,7 +184,9 @@ class NameEvaluationFrameworkV1Test(unittest.TestCase):
         expected = ["Rosie", "Juniper", "Ollie", "Remy", "Lottie", "Theo", "Maple", "Clover"]
         self.assertEqual([item.name for item in first], expected)
         self.assertEqual([item.name for item in second], expected)
-        self.assertNotIn("quality_score_version", first[0].metadata)
+        self.assertEqual(first[0].metadata["prompt_version"], "namengine-pet-quality-v1")
+        self.assertEqual(first[0].metadata["quality_score_version"], "pet-quality-score-v1")
+        self.assertIn("quality_score", first[0].metadata)
 
 
 if __name__ == "__main__":

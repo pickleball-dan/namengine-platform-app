@@ -45,15 +45,15 @@ class ApprovedBrandingAssetsTest(unittest.TestCase):
         self.assertNotIn("home-brand-mark", body)
         self.assertNotIn("<span>NamEngine</span>", body)
 
-    def test_baby_pages_render_approved_baby_logo(self):
+    def test_baby_pages_use_shared_header_and_approved_baby_share_asset(self):
         response = self.client.get("/baby")
         body = response.get_data(as_text=True)
         header = body.split("</header>", 1)[0]
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn('/static/images/namengine-baby.svg', header)
-        self.assertIn('alt="NamEngine Baby"', header)
-        self.assertIn('/static/images/namengine-baby.svg', body)
+        self.assertIn('/static/images/namengine.svg', header)
+        self.assertIn('alt="NamEngine"', header)
+        self.assertIn('/static/images/baby/namengine-baby-share.png', body)
         welcome = body.split('<div class="baby-welcome">', 1)[1].split('<div class="hero-actions">', 1)[0]
         self.assertNotIn('/static/images/namengine-baby.svg', welcome)
         self.assertNotIn('class="vertical-page-logo', body)

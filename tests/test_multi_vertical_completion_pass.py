@@ -77,8 +77,9 @@ class MultiVerticalCompletionPassTest(unittest.TestCase):
 
         flow_header = self.client.get("/pet").get_data(as_text=True).split("</header>", 1)[0]
         self.assertIn('href="/"', flow_header)
-        self.assertIn('href="/privacy"', flow_header)
-        self.assertNotIn('href="/business"', flow_header)
+        self.assertIn('href="/about"', flow_header)
+        self.assertIn('href="/business"', flow_header)
+        self.assertNotIn('href="/privacy"', flow_header)
 
         self.assertEqual(self.client.get("/product").status_code, 200)
         self.assertEqual(self.client.get("/character").status_code, 200)

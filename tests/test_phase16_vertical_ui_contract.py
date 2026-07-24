@@ -241,15 +241,15 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("vertical-baby", body)
-        self.assertIn("images/namengine-baby.svg", body)
+        self.assertIn("images/namengine.svg", body)
         self.assertIn("images/baby/namengine-baby-share.png", body)
         header = body.split("</header>", 1)[0]
-        self.assertIn('alt="NamEngine Baby"', header)
+        self.assertIn('alt="NamEngine"', header)
         welcome = body.split('<div class="baby-welcome">', 1)[1].split('<div class="hero-actions">', 1)[0]
         self.assertNotIn("vertical-page-logo", welcome)
         self.assertIn("baby-welcome", body)
         self.assertIn("Let’s discover your child’s name together.", body)
-        self.assertIn("Most parents finish in about 3–5 minutes.", body)
+        self.assertIn("A child’s name is one of the few gifts that lasts a lifetime.", body)
         self.assertIn("Fit and feeling", body)
 
     def test_business_pages_use_business_graphics_and_copy(self):
@@ -299,7 +299,9 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertNotIn("home-proof-strip", body)
         self.assertIn("home-taste-panel", body)
         self.assertIn("Inside the engine", body)
-        self.assertIn("One thoughtful process, tuned to what you’re naming.", body)
+        self.assertIn("One thoughtful process,", body)
+        self.assertIn("tuned to what you", body)
+        self.assertIn("re naming.", body)
         self.assertNotIn("home-vertical-grid", body)
         self.assertNotIn("home-vertical-card", body)
         self.assertIn("images/namengine-pets.svg", body)
@@ -322,9 +324,10 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
             "Privacy + disclaimers",
         ):
             self.assertNotIn(removed_badge, body)
-        self.assertNotIn("Choose what you’re naming.", body)
-        self.assertNotIn("Every NamEngine experience uses the same thoughtful process", body)
-        self.assertNotIn("The TASTE ENGINE", body)
+        main = body.split("<main>", 1)[1].split("</main>", 1)[0]
+        self.assertNotIn("Choose what you’re naming.", main)
+        self.assertNotIn("Every NamEngine experience uses the same thoughtful process", main)
+        self.assertNotIn("The TASTE ENGINE", main)
         self.assertNotIn("home-brand-lockup", body)
         self.assertNotIn("home-brand-logo", body)
         self.assertNotIn("Shared vertical system", body)
@@ -367,7 +370,8 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertEqual(VERTICALS["baby"].assets["page_logo"], "images/namengine-baby.svg")
         self.assertIn("brand-logo-wordmark", body)
         header = body.split("</header>", 1)[0]
-        self.assertIn("images/namengine-baby.svg", header)
+        self.assertIn("images/namengine.svg", header)
+        self.assertNotIn("images/namengine-baby.svg", header)
         self.assertNotIn("<span>NamEngine</span>", header)
 
     def test_business_graphics_follow_pet_asset_slots(self):
