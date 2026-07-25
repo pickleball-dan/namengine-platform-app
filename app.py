@@ -1185,7 +1185,7 @@ def _audit_customer_intake(brief: NamingBrief) -> dict:
 
 
 def _ai_primary_verticals() -> set[str]:
-    raw_value = os.getenv("NAMENGINE_AI_PRIMARY_VERTICALS", "baby")
+    raw_value = os.getenv("NAMENGINE_AI_PRIMARY_VERTICALS", "baby,pet")
     if raw_value.strip().lower() in {"", "none", "off", "false", "0"}:
         return set()
     if raw_value.strip().lower() in {"all", "*"}:

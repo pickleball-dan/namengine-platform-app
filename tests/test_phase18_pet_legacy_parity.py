@@ -14,7 +14,9 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
         self.tempdir = tempfile.TemporaryDirectory()
         self.db_path = os.path.join(self.tempdir.name, "test.sqlite3")
         self.previous_db_path = os.environ.get("NAMENGINE_DB_PATH")
+        self.previous_ai_verticals = os.environ.get("NAMENGINE_AI_PRIMARY_VERTICALS")
         os.environ["NAMENGINE_DB_PATH"] = self.db_path
+        os.environ["NAMENGINE_AI_PRIMARY_VERTICALS"] = "none"
         self.app = create_app()
         self.app.testing = True
         self.client = self.app.test_client()
@@ -24,6 +26,10 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
             os.environ.pop("NAMENGINE_DB_PATH", None)
         else:
             os.environ["NAMENGINE_DB_PATH"] = self.previous_db_path
+        if self.previous_ai_verticals is None:
+            os.environ.pop("NAMENGINE_AI_PRIMARY_VERTICALS", None)
+        else:
+            os.environ["NAMENGINE_AI_PRIMARY_VERTICALS"] = self.previous_ai_verticals
         self.tempdir.cleanup()
 
     def test_pet_uses_approved_active_graphic_assets(self):
