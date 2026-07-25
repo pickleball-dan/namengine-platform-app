@@ -5,9 +5,13 @@
 {% block content %}
   {% set keepsake_label = "keepsake" if vertical.slug == "baby" else ("brand direction board" if vertical.slug == "business" else "portrait") %}
   {% set keepsake_ready_alt = "Baby blanket keepsake for " ~ chosen.name if vertical.slug == "baby" else ("Brand direction board for " ~ chosen.name if vertical.slug == "business" else "Framed portrait of " ~ chosen.name) %}
-  {% set keepsake_setup_text = "Keepsake preview isn’t available right now" if vertical.slug == "baby" else "Image creation is not configured" %}
+  {% set keepsake_setup_text = "Keepsake preview isn’t available right now" if vertical.slug == "baby" else ("Portrait preview will appear here when image creation is available" if vertical.slug == "pet" else "Image preview will appear here when image creation is available") %}
   {% set keepsake_failed_text = "Your " ~ keepsake_label ~ " could not be created" %}
   {% set keepsake_creating_text = "Creating " ~ keepsake_label %}
+  {% if vertical.slug == "pet" %}
+    {% set pet_type = session.brief_json|brief_value("pet_type", "species") or "pet" %}
+    {% set pet_vibe = session.brief_json|brief_value("vibe", "personality") or "their personality" %}
+  {% endif %}
   <section class="chosen-shell">
     {% set page_logo = vertical.assets.get("page_logo", vertical.assets.get("logo")) %}
     {% if page_logo and vertical.slug != "baby" %}
@@ -52,13 +56,20 @@
         </figure>
       {% endif %}
       <div class="share-preview-copy">
-        <p class="share-preview-label">{% if vertical.slug == "baby" %}Your chosen name{% else %}Final pick{% endif %}</p>
+        <p class="share-preview-label">{% if vertical.slug == "baby" %}Your chosen name{% elif vertical.slug == "pet" %}Chosen companion name{% else %}Final pick{% endif %}</p>
         <h1>Meet {{ chosen.name }}</h1>
         {% if result.pronunciation %}
           <p class="share-preview-pronunciation">{{ result.pronunciation }}</p>
         {% endif %}
         {% if result.tagline %}
           <p class="share-preview-tagline">{{ result.tagline }}</p>
+        {% endif %}
+        {% if vertical.slug == "pet" %}
+          <div class="pet-keepsake-checks" aria-label="Pet name quality checks">
+            <span>Everyday-ready</span>
+            <span>Pet-fit checked</span>
+            <span>{{ pet_vibe }} energy</span>
+          </div>
         {% endif %}
       </div>
     </section>
@@ -76,13 +87,13 @@
     {% include "_baby_name_fact_card.html" %}
 
     <div class="chosen-detail-grid">
-      <section class="chosen-detail">
-        <h2>{% if vertical.slug == "baby" %}Why this name feels right{% else %}Why this name?{% endif %}</h2>
+      <section class="chosen-detail{% if vertical.slug == 'pet' %} pet-premium-detail{% endif %}">
+        <h2>{% if vertical.slug == "baby" %}Why this name feels right{% elif vertical.slug == "pet" %}Why it fits{% else %}Why this name?{% endif %}</h2>
         <p>{{ result.why_this_name }}</p>
       </section>
 
-      <section class="chosen-detail">
-        <h2>{% if vertical.slug == "baby" %}Style and feeling{% else %}Best fit{% endif %}</h2>
+      <section class="chosen-detail{% if vertical.slug == 'pet' %} pet-premium-detail{% endif %}">
+        <h2>{% if vertical.slug == "baby" %}Style and feeling{% elif vertical.slug == "pet" %}Everyday fit{% else %}Best fit{% endif %}</h2>
         <p>{{ result.fit_note }}</p>
       </section>
     </div>

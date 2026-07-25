@@ -147,6 +147,8 @@ def feeling_section_titles(vertical) -> list[str]:
 
 
 def feelings_scale_enabled(vertical) -> bool:
+    if vertical.slug == "pet":
+        return False
     return len(feeling_section_titles(vertical)) >= 2
 
 
@@ -293,6 +295,16 @@ def brief_query_string(brief_json: str) -> str:
         if value not in ("", None)
     }
     return urlencode(inputs)
+
+
+def brief_value(brief_json: str, *keys: str) -> str:
+    brief = json_loads(brief_json)
+    inputs = brief.get("inputs", {})
+    for key in keys:
+        value = inputs.get(key)
+        if value not in ("", None):
+            return str(value)
+    return ""
 
 
 def make_session_id(vertical_slug: str, query_string: bytes) -> str:
@@ -451,6 +463,7 @@ def create_app() -> Flask:
         }
 
     app.add_template_filter(brief_query_string, "brief_query_string")
+    app.add_template_filter(brief_value, "brief_value")
     app.add_template_filter(_safe_audit_value, "safe_audit")
 
     @app.get("/")

@@ -688,10 +688,9 @@ def _brief_text(brief: NamingBrief, key: str, default: str = "") -> str:
 
 
 def _pet_fit_note(name: str, species: str, personality: str) -> str:
-    animal = (species or "pet").lower()
     if personality:
-        return f"Best for a {personality.lower()} {animal} whose name should feel natural in everyday use."
-    return f"Best for a {animal} whose name should be easy to say, remember, and share."
+        return f"Best for a pet with {personality.lower()} energy whose name should feel natural in everyday use."
+    return "Best for a pet name that should be easy to say, remember, and share."
 
 
 def _baby_fit_note(name: str, gender: str, sound: str) -> str:
@@ -819,7 +818,7 @@ def generate_fallback_names(
         if name.lower() in {item.lower() for item in brief.avoid}:
             risks.append("This name matches something in the avoid list.")
         if len(name) > 8:
-            risks.append("Slightly longer name; test how it feels when called.")
+            risks.append("Slightly longer name; test how it feels out loud.")
 
         if not risks:
             risks.append("Low practical risk; still test it out loud.")
@@ -830,7 +829,7 @@ def generate_fallback_names(
         )
         why = (
             f"{name} works because it {insight}. "
-            f"It stays in the {style.lower()} lane while giving a {species.lower()} name a distinct point of view."
+            f"It stays in the {style.lower()} lane and gives this pet name a clear point of view."
         )
         if taste_summary:
             why += f" {taste_summary}"

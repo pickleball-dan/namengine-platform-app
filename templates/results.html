@@ -14,6 +14,11 @@
     "pet": "Your favorites help us understand which names feel most like them.",
     "business": "Your favorites reveal the brand direction with the strongest commercial fit."
   } %}
+  {% if vertical.slug == "pet" %}
+    {% set pet_type = brief.inputs.get("pet_type") or brief.inputs.get("species") or "pet" %}
+    {% set pet_vibe = brief.inputs.get("vibe") or brief.inputs.get("personality") or "their personality" %}
+    {% set pet_style = brief.inputs.get("style") or "balanced" %}
+  {% endif %}
   <section
     class="results-shell"
     data-session-id="{{ session_id }}"
@@ -43,7 +48,19 @@
           <small>{{ saved_notes[vertical.slug] }}</small>
         </div>
       {% endif %}
-      {% if trust_cue and vertical.slug != "baby" %}
+      {% if vertical.slug == "pet" %}
+        <section class="pet-premium-panel" aria-label="Pet naming quality checks">
+          <div>
+            <p class="eyebrow">Name Style DNA</p>
+            <p>{{ pet_style }} names with {{ pet_vibe|lower }} energy for this pet.</p>
+          </div>
+          <ul>
+            <li>Sound checked</li>
+            <li>Personality matched</li>
+            <li>Everyday-ready</li>
+          </ul>
+        </section>
+      {% elif trust_cue and vertical.slug != "baby" %}
         <div class="trust-cue" aria-label="Generation summary">
           <strong>{{ names|length }} names checked for fit, sound, and distinctiveness.</strong>
           <span>React to the names below, then use the next-step panel at the bottom.</span>
@@ -121,8 +138,12 @@
               {% endif %}
             </div>
             {% if launch_results %}
-              <div class="result-tags{% if vertical.slug == 'baby' %} baby-result-tags{% endif %}"{% if item.tags %} aria-label="Qualities of {{ item.name }}"{% else %} aria-hidden="true"{% endif %}>
-                {% for tag in item.tags[:3] %}<span>{{ tag }}{% if not loop.last %}&nbsp;{% endif %}</span>{% endfor %}
+              <div class="result-tags{% if vertical.slug == 'baby' %} baby-result-tags{% elif vertical.slug == 'pet' %} pet-result-tags{% endif %}"{% if item.tags or vertical.slug == 'pet' %} aria-label="Qualities of {{ item.name }}"{% else %} aria-hidden="true"{% endif %}>
+                {% if vertical.slug == "pet" %}
+                  <span>Easy to say</span><span>Pet-fit checked</span><span>Warm sound</span>
+                {% else %}
+                  {% for tag in item.tags[:3] %}<span>{{ tag }}{% if not loop.last %}&nbsp;{% endif %}</span>{% endfor %}
+                {% endif %}
               </div>
             {% endif %}
           </div>
@@ -130,11 +151,11 @@
           <div class="reaction-row" aria-label="React to {{ item.name }}" data-result-id="{{ item.id }}">
             <button type="button" class="{% if current_reaction == 'love' %}is-selected{% endif %}" data-reaction-value="love" data-reaction-label="{% if vertical.slug == 'baby' %}Love it{% else %}Love{% endif %}" data-result-name="{{ item.name }}" aria-label="{% if vertical.slug == 'baby' %}Love {{ item.name }}{% else %}Love {{ item.name }}{% endif %}" aria-pressed="{{ 'true' if current_reaction == 'love' else 'false' }}" title="{% if vertical.slug == 'baby' %}Love it{% else %}Love{% endif %}">
               <img class="reaction-icon" src="{{ url_for('static', filename='images/reactions/love.jpg') }}" alt="">
-              <span>{% if vertical.slug == "baby" %}Love it{% else %}Love{% endif %}</span>
+              {% if vertical.slug != "baby" %}<span>Love</span>{% endif %}
             </button>
             <button type="button" class="{% if current_reaction == 'no' %}is-selected{% endif %}" data-reaction-value="no" data-reaction-label="{% if vertical.slug == 'baby' %}Not for us{% else %}No{% endif %}" data-result-name="{{ item.name }}" aria-label="{% if vertical.slug == 'baby' %}{{ item.name }} is not for us{% else %}No {{ item.name }}{% endif %}" aria-pressed="{{ 'true' if current_reaction == 'no' else 'false' }}" title="{% if vertical.slug == 'baby' %}Not for us{% else %}No{% endif %}">
               <img class="reaction-icon" src="{{ url_for('static', filename='images/reactions/no.jpg') }}" alt="">
-              <span>{% if vertical.slug == "baby" %}Not for us{% else %}No{% endif %}</span>
+              {% if vertical.slug != "baby" %}<span>No</span>{% endif %}
             </button>
           </div>
           <p class="reaction-status" aria-live="polite"></p>
@@ -165,6 +186,13 @@
               <h3>{{ vertical.result_field_labels.get("fit_note", "Fit") }}</h3>
               <p>{{ item.fit_note }}</p>
             </section>{% endif %}
+
+            {% if vertical.slug == "pet" %}
+              <section class="pet-call-test">
+                <h3>Sound test</h3>
+                <p>Try saying “{{ item.name }}” out loud a few times. It should feel clear, warm, and easy to repeat.</p>
+              </section>
+            {% endif %}
 
             {% if vertical.slug != "baby" and (item.origin or mobile_meaning) %}
               <section>
@@ -242,7 +270,7 @@
       <div>
         <p class="eyebrow">Next list</p>
         <h2>{% if vertical.slug == "baby" %}Would you like another thoughtful list?{% else %}Ready for a fresh list?{% endif %}</h2>
-        <p>{% if vertical.slug == "baby" %}Share how at least 3 names feel, and we’ll listen more closely next time.{% else %}We’ll use at least 3 Love or No reactions to sharpen the next set.{% endif %}</p>
+        <p>{% if vertical.slug == "baby" %}Share how at least 3 names feel, and we’ll listen more closely next time.{% elif vertical.slug == "pet" %}Use 3 Love or No reactions, and we’ll tune the next list around their personality.{% else %}We’ll use at least 3 Love or No reactions to sharpen the next set.{% endif %}</p>
       </div>
       <form
         class="bottom-refine-form"

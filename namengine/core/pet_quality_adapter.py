@@ -87,20 +87,19 @@ def build_pet_taste_thesis(brief: NamingBrief, weighting: dict[str, Any]) -> str
 def improve_pet_explanations(results: list[NameResult], brief: NamingBrief) -> None:
     """Write concise Pet-specific rationales with callability and personality evidence."""
     inputs = brief.inputs
-    pet = _direction(inputs, "pet_type", "pet").lower()
     style = _direction(inputs, "style", "pet-ready").lower()
     personality = _direction(inputs, "vibe", "their personality").lower()
-    callability = _direction(inputs, "pronunciation_importance", "everyday callability").lower()
+    callability = _direction(inputs, "pronunciation_importance", "everyday sound").lower()
     portrait = _joined_values(inputs.get("pet_breed"), inputs.get("pet_color"))
     life_stage = str(inputs.get("pet_life_stage") or "").strip().lower()
 
     for index, result in enumerate(results):
         original_reason = str(result.why_this_name or "").strip()
         openings = (
-            f"{result.name} fits a {personality} {pet} because it keeps the sound callable while staying in the {style} lane.",
-            f"For this {pet}, {result.name} balances {style} style with a name shape that is easy to use out loud.",
-            f"{result.name} earns a spot by connecting this {pet}'s {personality} side to practical everyday calling.",
-            f"What helps {result.name} work for this {pet} is the mix of {callability} and {style} warmth.",
+            f"{result.name} fits this pet because it keeps the sound approachable while staying in the {style} lane.",
+            f"{result.name} balances {style} style with a name shape that is easy to say out loud.",
+            f"{result.name} earns a spot by connecting {personality} energy to practical everyday use.",
+            f"What helps {result.name} work is the mix of {callability} and {style} warmth.",
         )
         details = [openings[index % len(openings)]]
         if portrait:
@@ -118,7 +117,7 @@ def improve_pet_explanations(results: list[NameResult], brief: NamingBrief) -> N
             rationale = f"{rationale} Tradeoff: {risk}."
         result.why_this_name = rationale
         result.fit_note = _limit_words(
-            f"Best if you want a {style}, {personality} name that still feels natural to call across the room.",
+            f"Best if you want a {style}, {personality} name that still feels natural in everyday use.",
             28,
         )
 

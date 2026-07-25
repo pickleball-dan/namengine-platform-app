@@ -1,19 +1,32 @@
 <div class="progress-overlay" data-progress-overlay{% if vertical is defined %} data-progress-vertical="{{ vertical.slug }}"{% endif %} hidden>
   <div class="progress-panel{% if vertical is defined and vertical.slug == 'baby' %} baby-thinking-panel{% endif %}" role="status" aria-live="polite">
-    <div class="progress-visual" aria-hidden="true" data-progress-visual>
-      <span class="progress-orbit progress-orbit-one"></span>
-      <span class="progress-orbit progress-orbit-two"></span>
-      <span class="progress-node progress-node-center"></span>
-      <span class="progress-node progress-node-one"></span>
-      <span class="progress-node progress-node-two"></span>
-      <span class="progress-node progress-node-three"></span>
-      <span class="progress-visual-label">{% if vertical is defined and vertical.slug == "baby" %}Family fit{% else %}Identity fit{% endif %}</span>
+    <div class="progress-visual{% if vertical is defined and vertical.slug == 'pet' %} pet-progress-visual{% endif %}" aria-hidden="true" data-progress-visual>
+      {% if vertical is defined and vertical.slug == "pet" %}
+        <span class="pet-progress-companion">
+          <span class="pet-progress-toe pet-progress-toe-one"></span>
+          <span class="pet-progress-toe pet-progress-toe-two"></span>
+          <span class="pet-progress-toe pet-progress-toe-three"></span>
+          <span class="pet-progress-pad"></span>
+        </span>
+        <span class="pet-progress-wave pet-progress-wave-one"></span>
+        <span class="pet-progress-wave pet-progress-wave-two"></span>
+        <span class="pet-progress-wave pet-progress-wave-three"></span>
+        <span class="progress-visual-label">Sound check</span>
+      {% else %}
+        <span class="progress-orbit progress-orbit-one"></span>
+        <span class="progress-orbit progress-orbit-two"></span>
+        <span class="progress-node progress-node-center"></span>
+        <span class="progress-node progress-node-one"></span>
+        <span class="progress-node progress-node-two"></span>
+        <span class="progress-node progress-node-three"></span>
+        <span class="progress-visual-label">{% if vertical is defined and vertical.slug == "baby" %}Family fit{% else %}Identity fit{% endif %}</span>
+      {% endif %}
     </div>
     <div class="progress-copy">
       <p class="eyebrow" data-progress-eyebrow>Finding names for this identity</p>
       <h2 data-progress-current>Finding names that feel right</h2>
       <p class="progress-note" data-progress-note>A few quick checks before the list appears.</p>
-      <ol class="progress-steps">
+      <ol class="progress-steps{% if vertical is defined and vertical.slug == 'pet' %} pet-progress-steps{% endif %}"{% if vertical is defined and vertical.slug == 'pet' %} hidden{% endif %}>
         <li data-progress-step data-progress-headline="Reading the details">Reading the details</li>
         <li data-progress-step data-progress-headline="Finding names for this identity">Finding names for this identity</li>
         <li data-progress-step data-progress-headline="Matching the feel">Matching the feel</li>

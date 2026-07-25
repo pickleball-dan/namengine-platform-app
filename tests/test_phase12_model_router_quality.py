@@ -249,8 +249,9 @@ class PhaseTwelveModelRouterQualityTest(unittest.TestCase):
                 self.assertEqual(candidate.result.metadata["quality_score_version"], "pet-quality-score-v1")
                 self.assertIn("callability", candidate.result.metadata["quality_scores"])
                 self.assertIn("personality_match", candidate.result.metadata["quality_scores"])
-                self.assertIn("dog", candidate.result.why_this_name.lower())
-                self.assertIn("call", candidate.result.fit_note.lower())
+                self.assertIn("this pet", candidate.result.why_this_name.lower())
+                self.assertIn("everyday", candidate.result.fit_note.lower())
+                self.assertNotIn("dog name", candidate.result.why_this_name.lower())
 
     def test_all_pet_quality_fixtures_keep_adapter_metadata_and_avoid_hits_out(self):
         fixture = Path(__file__).parent / "fixtures" / "pet_quality_briefs.json"
@@ -290,9 +291,9 @@ class PhaseTwelveModelRouterQualityTest(unittest.TestCase):
             slug="milo",
             pronunciation="MY-loh",
             tagline="Warm, clear, and easy to call.",
-            meaning="A friendly everyday dog name.",
-            why_this_name="Milo fits a gentle and loyal dog because it is warm, familiar, and easy to call.",
-            fit_note="Best for a dog whose name should feel natural to call across the room.",
+            meaning="A friendly everyday pet name.",
+            why_this_name="Milo fits this pet because it is warm, familiar, and easy to say.",
+            fit_note="Best for a pet whose name should feel natural in everyday use.",
             risks=["Low practical risk; still test it out loud."],
             tags=["callable", "warm", "gentle"],
             scores={"callability": 0.95, "warmth": 0.9, "distinctiveness": 0.58},
@@ -304,9 +305,9 @@ class PhaseTwelveModelRouterQualityTest(unittest.TestCase):
             pronunciation="zick-THAIR-ee-on",
             tagline="Invented and dramatic.",
             meaning="A fantasy-shaped invented option.",
-            why_this_name="Xyqtharion is unusual but creates friction for a gentle dog.",
-            fit_note="Harder to call quickly across the room.",
-            risks=["Hard to pronounce and likely to be confusing when called."],
+            why_this_name="Xyqtharion is unusual but creates friction for a gentle pet.",
+            fit_note="Harder to use quickly in everyday moments.",
+            risks=["Hard to pronounce and likely to be confusing out loud."],
             tags=["invented", "fantasy"],
             scores={"callability": 0.25, "warmth": 0.35, "distinctiveness": 0.95},
         )

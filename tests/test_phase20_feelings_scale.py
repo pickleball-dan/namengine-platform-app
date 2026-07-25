@@ -15,7 +15,6 @@ class PhaseTwentyFeelingsScaleTest(unittest.TestCase):
     def test_feelings_scale_routes_render_for_sectioned_verticals(self):
         cases = {
             "baby": "baby",
-            "pet": "dog",
             "business": "building",
             "product": "product",
         }
@@ -40,6 +39,12 @@ class PhaseTwentyFeelingsScaleTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 302)
         self.assertIn("/character/results", response.headers["Location"])
+
+    def test_pet_bypasses_feelings_scale(self):
+        response = self.client.get("/pet/feelings?pet_type=Dog&style=Classic&sound=Warm")
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/pet/results", response.headers["Location"])
 
     def test_feelings_scale_restores_saved_priority_values(self):
         response = self.client.get(

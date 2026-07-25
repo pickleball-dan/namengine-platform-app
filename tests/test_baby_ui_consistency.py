@@ -26,6 +26,8 @@ class BabyUiConsistencyTest(unittest.TestCase):
         self.assertIn('data-reaction-label="Love it"', body)
         self.assertIn('data-reaction-value="no"', body)
         self.assertIn('data-reaction-label="Not for us"', body)
+        self.assertNotIn('>Love it</span>', body)
+        self.assertNotIn('>Not for us</span>', body)
         self.assertNotIn('data-reaction-value="not_for_us"', body)
 
     def test_baby_results_detail_and_recovery_use_conversation_language(self):
@@ -71,6 +73,8 @@ class BabyUiConsistencyTest(unittest.TestCase):
         self.assertIn(".vertical-baby .result-card.is-expanded", css)
         self.assertIn("grid-template-rows: 18px minmax(82px, auto) minmax(108px, auto) 58px", css)
         self.assertIn(".vertical-baby .reaction-row button:is(:hover, :focus-visible)", css)
+        self.assertIn("width: 48px", css)
+        self.assertIn("width: 52px", css)
         self.assertIn("@media (max-width: 600px)", css)
         self.assertIn("overflow-x: hidden", css)
 

@@ -200,8 +200,9 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
         self.assertEqual(first["metadata"]["quality_score_version"], "pet-quality-score-v1")
         self.assertIn("callability", first["metadata"]["quality_scores"])
         self.assertIn("personality_match", first["metadata"]["quality_scores"])
-        self.assertIn("dog", first["why_this_name"].lower())
-        self.assertIn("call", first["fit_note"].lower())
+        self.assertIn("this pet", first["why_this_name"].lower())
+        self.assertIn("everyday", first["fit_note"].lower())
+        self.assertNotIn("dog name", first["why_this_name"].lower())
 
     def test_pet_detail_share_and_chosen_flow_keep_quality_metadata_internal(self):
         query = (
@@ -238,9 +239,10 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
             body = response.get_data(as_text=True)
             with self.subTest(route=response.request.path):
                 self.assertIn(name, body)
-                self.assertIn("dog", body.lower())
-                self.assertIn("call", body.lower())
-                self.assertIn("Whippet", body)
+                if response.request.path != f"/chosen/{chosen_id}":
+                    self.assertIn("dog", body.lower())
+                    self.assertIn("Whippet", body)
+                self.assertIn("pet", body.lower())
                 self.assertIn("Blue gray", body)
                 self.assertNotIn("quality_score_version", body)
                 self.assertNotIn("pet-quality-score-v1", body)
@@ -310,8 +312,8 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
         self.assertEqual(child_snapshot["session"]["round_number"], 2)
         self.assertEqual(child_snapshot["session"]["parent_session_id"], session_id)
         self.assertIn("Round 2", refined_body)
-        self.assertIn("dog", refined_body.lower())
-        self.assertIn("call", refined_body.lower())
+        self.assertIn("pet", refined_body.lower())
+        self.assertIn("Sound test", refined_body)
         self.assertIn("Whippet", refined_body)
         self.assertIn("Blue gray", refined_body)
         self.assertNotIn("quality_score_version", refined_body)
@@ -327,8 +329,9 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
                 self.assertEqual(result["metadata"]["quality_score_version"], "pet-quality-score-v1")
                 self.assertIn("callability", result["metadata"]["quality_scores"])
                 self.assertIn("personality_match", result["metadata"]["quality_scores"])
-                self.assertIn("dog", result["why_this_name"].lower())
-                self.assertIn("call", result["fit_note"].lower())
+                self.assertIn("this pet", result["why_this_name"].lower())
+                self.assertIn("everyday", result["fit_note"].lower())
+                self.assertNotIn("dog name", result["why_this_name"].lower())
 
     def test_shared_shortlist_route_renders_saved_session(self):
         query = b"pet_type=Dog&style=Classic&vibe=Playful"

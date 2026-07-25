@@ -322,7 +322,7 @@
         </fieldset>
       {% endfor %}
 
-      <button type="submit">{% if is_polished_flow %}Continue{% elif feelings_scale_enabled(vertical) %}Continue to Feelings Scale{% else %}Generate {{ vertical.display_name }} Names{% endif %}</button>
+      <button type="submit">{% if not feelings_scale_enabled(vertical) %}Generate {{ vertical.display_name }} Names{% elif is_polished_flow %}Continue{% else %}Continue to Feelings Scale{% endif %}</button>
       {% endif %}
     </form>
 
