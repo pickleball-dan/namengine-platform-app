@@ -15,7 +15,7 @@ services:
       - key: NAMENGINE_OPENAI_MAX_OUTPUT_TOKENS
         value: "2600"
       - key: NAMENGINE_AI_PRIMARY_VERTICALS
-        value: baby
+        value: baby,pet
       - key: NAMENGINE_DB_PATH
         value: /var/data/namengine.sqlite3
       - key: NAMENGINE_IMAGE_MODEL
