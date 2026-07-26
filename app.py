@@ -6,6 +6,8 @@ import logging
 import os
 import re
 import time
+from datetime import datetime, timezone
+from hmac import compare_digest
 from threading import Lock, Thread
 from hashlib import sha1
 from urllib.parse import urlencode
@@ -61,6 +63,7 @@ from namengine.core.storage import get_session_chain_snapshots
 from namengine.core.taste_evolution import build_taste_evolution
 from namengine.core.ai_generation import DEFAULT_MODEL
 from namengine.core.cost_estimates import estimate_ai_calls_cost_usd
+from namengine.core.mission_control_telemetry import build_openai_usage_report
 from namengine.core.prompt_versions import prompt_version_for
 from namengine.core.schemas import NameResult, NamingBrief, ValidationResult, to_plain_data
 from namengine.core.validation import filter_results_for_brief
@@ -645,6 +648,22 @@ def create_app() -> Flask:
     def session_results(session_id: str):
         return _render_results_snapshot(session_id)
 
+    @app.get("/api/internal/mission-control/openai-usage")
+    def mission_control_openai_usage():
+        if not _mission_control_authorized(request.headers.get("Authorization", "")):
+            return jsonify({"error": "unauthorized"}), 401
+        try:
+            report = build_openai_usage_report(
+                start=_parse_iso_datetime_arg(request.args.get("start")),
+                end=_parse_iso_datetime_arg(request.args.get("end")),
+                request_type=_optional_query_arg(request.args.get("request_type")),
+                model=_optional_query_arg(request.args.get("model")),
+                success=_parse_bool_arg(request.args.get("success")),
+            )
+        except ValueError:
+            return jsonify({"error": "invalid_query"}), 400
+        return jsonify(report)
+
     @app.post("/api/react")
     def react():
         payload = request.get_json(silent=True) or request.form
@@ -1126,6 +1145,47 @@ def _positive_int(value) -> int | None:
 
 def _engine_audit_enabled() -> bool:
     return os.getenv("NAMENGINE_ENABLE_ENGINE_AUDIT") == "1"
+
+
+def _mission_control_authorized(authorization_header: str) -> bool:
+    expected = os.getenv("NAMENGINE_TELEMETRY_TOKEN", "").strip()
+    if not expected:
+        return False
+    prefix = "Bearer "
+    if not authorization_header.startswith(prefix):
+        return False
+    supplied = authorization_header[len(prefix):].strip()
+    return bool(supplied) and compare_digest(supplied, expected)
+
+
+def _parse_iso_datetime_arg(value: str | None) -> datetime | None:
+    raw = str(value or "").strip()
+    if not raw:
+        return None
+    if raw.endswith("Z"):
+        raw = f"{raw[:-1]}+00:00"
+    # URL query parsing turns an unescaped timezone "+" into a space.
+    raw = raw.replace(" ", "+")
+    parsed = datetime.fromisoformat(raw)
+    if parsed.tzinfo is None:
+        return parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
+
+
+def _optional_query_arg(value: str | None) -> str | None:
+    raw = str(value or "").strip()
+    return raw or None
+
+
+def _parse_bool_arg(value: str | None) -> bool | None:
+    raw = str(value or "").strip().lower()
+    if not raw:
+        return None
+    if raw in {"1", "true", "yes"}:
+        return True
+    if raw in {"0", "false", "no"}:
+        return False
+    raise ValueError("invalid boolean query parameter")
 
 
 def _generate_names_for_route(

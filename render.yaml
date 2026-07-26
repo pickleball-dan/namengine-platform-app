@@ -14,6 +14,8 @@ services:
         value: "60"
       - key: NAMENGINE_OPENAI_MAX_OUTPUT_TOKENS
         value: "2600"
+      - key: NAMENGINE_TELEMETRY_TOKEN
+        sync: false
       - key: NAMENGINE_AI_PRIMARY_VERTICALS
         value: baby,pet
       - key: NAMENGINE_DB_PATH
