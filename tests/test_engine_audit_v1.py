@@ -184,6 +184,22 @@ class EngineAuditV1Test(unittest.TestCase):
         self.assertNotIn("provider secret", body)
         self.assertNotIn("traceback detail", body)
 
+    def test_engine_audit_tables_scroll_horizontally_on_mobile(self):
+        css_path = os.path.join(self.app.root_path, "static", "css", "platform.css")
+        with open(css_path, encoding="utf-8") as handle:
+            css = handle.read()
+        table_wrap_block = css.split(".engine-audit-table-wrap {", 1)[1].split("}", 1)[0]
+        table_block = css.split(".engine-audit-table {", 1)[1].split("}", 1)[0]
+        cell_block = css.split(".engine-audit-table th,\n.engine-audit-table td {", 1)[1].split("}", 1)[0]
+        header_block = css.split(".engine-audit-table th {", 1)[1].split("}", 1)[0]
+
+        self.assertIn("overflow-x: auto", table_wrap_block)
+        self.assertIn("-webkit-overflow-scrolling: touch", table_wrap_block)
+        self.assertIn("min-width: 1120px", table_block)
+        self.assertIn("overflow-wrap: normal", cell_block)
+        self.assertIn("word-break: normal", cell_block)
+        self.assertIn("white-space: nowrap", header_block)
+
 
 if __name__ == "__main__":
     unittest.main()

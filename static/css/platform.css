@@ -3907,11 +3907,14 @@ button {
 }
 
 .engine-audit-table-wrap {
+  max-width: 100%;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .engine-audit-table {
   width: 100%;
+  min-width: 1120px;
   border-collapse: collapse;
   font-size: 12px;
 }
@@ -3922,13 +3925,15 @@ button {
   border-bottom: 1px solid var(--line);
   text-align: left;
   vertical-align: top;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
+  word-break: normal;
 }
 
 .engine-audit-table th {
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  white-space: nowrap;
 }
 
 .engine-audit-table pre {
