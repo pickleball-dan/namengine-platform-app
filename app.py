@@ -60,6 +60,7 @@ from namengine.core.baby_decision_support import build_baby_decision_support
 from namengine.core.storage import get_session_chain_snapshots
 from namengine.core.taste_evolution import build_taste_evolution
 from namengine.core.ai_generation import DEFAULT_MODEL
+from namengine.core.cost_estimates import estimate_ai_calls_cost_usd
 from namengine.core.prompt_versions import prompt_version_for
 from namengine.core.schemas import NameResult, NamingBrief, ValidationResult, to_plain_data
 from namengine.core.validation import filter_results_for_brief
@@ -1020,6 +1021,10 @@ def _engine_audit_from_snapshot(snapshot: dict) -> dict:
     }
     total_latency_ms = 0
     ai_call_count = 0
+    cost_estimate = estimate_ai_calls_cost_usd(
+        ai_calls,
+        fallback_model=str(metadata.get("model") or ""),
+    )
     for call in ai_calls:
         if not isinstance(call, dict):
             continue
@@ -1060,6 +1065,7 @@ def _engine_audit_from_snapshot(snapshot: dict) -> dict:
             "providers": providers,
             "ai_calls": ai_calls,
             "usage_totals": usage_totals,
+            "cost_estimate": cost_estimate,
             "metrics_totals": metrics_totals,
             "ai_call_count": ai_call_count,
             "total_latency_ms": total_latency_ms,

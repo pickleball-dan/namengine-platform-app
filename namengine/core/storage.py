@@ -19,6 +19,7 @@ from namengine.core.schemas import (
     to_plain_data,
     utc_now_iso,
 )
+from namengine.core.cost_estimates import estimate_ai_calls_cost_usd
 from namengine.core.provider_performance import build_provider_performance
 
 
@@ -383,6 +384,11 @@ def get_recent_audit_sessions(
         metadata = result.get("metadata") if isinstance(result.get("metadata"), dict) else {}
         calls = metadata.get("ai_calls") if isinstance(metadata.get("ai_calls"), list) else []
         latency_ms = sum(_audit_call_latency(call) for call in calls)
+        usage_totals = _audit_usage_totals(calls)
+        cost_estimate = estimate_ai_calls_cost_usd(
+            calls,
+            fallback_model=str(metadata.get("model") or ""),
+        )
         summaries.append(
             {
                 "timestamp": row["created_at"],
@@ -393,6 +399,11 @@ def get_recent_audit_sessions(
                 "provider": str(metadata.get("provider") or metadata.get("source") or "unknown"),
                 "model": str(metadata.get("model") or "unknown"),
                 "total_latency_ms": latency_ms,
+                "input_tokens": usage_totals["input_tokens"],
+                "output_tokens": usage_totals["output_tokens"],
+                "total_tokens": usage_totals["total_tokens"],
+                "estimated_cost_usd": cost_estimate["estimated_cost_usd"],
+                "cost_pricing_models": cost_estimate["pricing_models"],
                 "prompt_version": str(metadata.get("prompt_version") or "unknown"),
                 "intake_schema_version": str(metadata.get("intake_schema_version") or "unknown"),
                 "normalizer_version": str(metadata.get("normalizer_version") or "unknown"),
@@ -426,6 +437,22 @@ def _audit_call_latency(call: Any) -> int:
         return max(0, int(call.get("latency_ms") or 0))
     except (TypeError, ValueError):
         return 0
+
+
+def _audit_usage_totals(calls: list[Any]) -> dict[str, int]:
+    totals = {"input_tokens": 0, "output_tokens": 0, "total_tokens": 0}
+    for call in calls:
+        if not isinstance(call, dict):
+            continue
+        usage = call.get("usage") if isinstance(call.get("usage"), dict) else {}
+        for key in totals:
+            try:
+                totals[key] += max(0, int(usage.get(key) or 0))
+            except (TypeError, ValueError):
+                pass
+    if totals["total_tokens"] == 0:
+        totals["total_tokens"] = totals["input_tokens"] + totals["output_tokens"]
+    return totals
 
 
 def save_reaction(reaction: Reaction, db_path: Path | None = None) -> None:

@@ -77,6 +77,8 @@ class EngineAuditV1Test(unittest.TestCase):
         self.assertIn("audit-test-model", body)
         self.assertIn("audit-prompt-v1", body)
         self.assertIn("37 ms", body)
+        self.assertIn("$0.0000", body)
+        self.assertIn("10", body)
         self.assertIn("Chosen:", body)
 
     def test_audit_routes_return_404_when_not_explicitly_enabled(self):
@@ -195,7 +197,7 @@ class EngineAuditV1Test(unittest.TestCase):
 
         self.assertIn("overflow-x: auto", table_wrap_block)
         self.assertIn("-webkit-overflow-scrolling: touch", table_wrap_block)
-        self.assertIn("min-width: 1120px", table_block)
+        self.assertIn("min-width: 1280px", table_block)
         self.assertIn("overflow-wrap: normal", cell_block)
         self.assertIn("word-break: normal", cell_block)
         self.assertIn("white-space: nowrap", header_block)

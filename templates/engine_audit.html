@@ -39,6 +39,10 @@
           <dd>
             input {{ audit.usage_totals.input_tokens }} · output {{ audit.usage_totals.output_tokens }} · total {{ audit.usage_totals.total_tokens }}
           </dd>
+          <dt>Estimated cost</dt>
+          <dd>
+            ${{ '%.4f'|format(audit.cost_estimate.estimated_cost_usd) }}{% if audit.cost_estimate.pricing_models %} · {{ audit.cost_estimate.pricing_models|join(', ') }} text tokens{% endif %}
+          </dd>
           <dt>Payload sizes</dt>
           <dd>
             prompt JSON {{ audit.metrics_totals.prompt_json_chars }} chars · output JSON {{ audit.metrics_totals.output_json_chars }} chars · raw response {{ audit.metrics_totals.raw_response_json_chars }} chars

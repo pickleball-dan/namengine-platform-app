@@ -32,7 +32,7 @@
           <thead>
             <tr>
               <th>Timestamp</th><th>Session</th><th>Round</th><th>Parent</th>
-              <th>Provider / model</th><th>Latency</th><th>Prompt</th><th>Names</th>
+              <th>Provider / model</th><th>Latency</th><th>Cost</th><th>Tokens</th><th>Prompt</th><th>Names</th>
               <th>Love</th><th>Maybe</th><th>No</th><th>Chosen</th>
             </tr>
           </thead>
@@ -45,6 +45,8 @@
                 <td>{{ session.parent_session_id or 'none' }}</td>
                 <td>{{ session.provider }}<br><small>{{ session.model }}</small></td>
                 <td>{{ session.total_latency_ms }} ms</td>
+                <td>${{ '%.6f'|format(session.estimated_cost_usd) }}<br><small>est. text</small></td>
+                <td>{{ session.total_tokens }}<br><small>in {{ session.input_tokens }} · out {{ session.output_tokens }}</small></td>
                 <td>{{ session.prompt_version }}</td>
                 <td>{{ session.names_returned }}</td>
                 <td>{{ session.love_count }}</td>
@@ -53,7 +55,7 @@
                 <td>{% if session.chosen_count %}Chosen: {{ session.chosen_name }}{% else %}Not chosen{% endif %}</td>
               </tr>
             {% else %}
-              <tr><td colspan="12">No {{ vertical.display_name }} sessions found.</td></tr>
+              <tr><td colspan="14">No {{ vertical.display_name }} sessions found.</td></tr>
             {% endfor %}
           </tbody>
         </table>
