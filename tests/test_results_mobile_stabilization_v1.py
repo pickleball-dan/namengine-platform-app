@@ -81,6 +81,8 @@ class ResultsMobileStabilizationTest(unittest.TestCase):
                 self.assertIn('data-reaction-value="no"', body)
                 self.assertNotIn('data-reaction-value="maybe"', body)
                 self.assertNotIn("images/reactions/maybe.jpg", body)
+                self.assertNotIn(">Love</span>", body)
+                self.assertNotIn(">No</span>", body)
                 if route.startswith("/baby"):
                     self.assertIn("Love it", body)
                     self.assertIn("Not for us", body)

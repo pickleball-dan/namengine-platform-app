@@ -151,11 +151,9 @@
           <div class="reaction-row" aria-label="React to {{ item.name }}" data-result-id="{{ item.id }}">
             <button type="button" class="{% if current_reaction == 'love' %}is-selected{% endif %}" data-reaction-value="love" data-reaction-label="{% if vertical.slug == 'baby' %}Love it{% else %}Love{% endif %}" data-result-name="{{ item.name }}" aria-label="{% if vertical.slug == 'baby' %}Love {{ item.name }}{% else %}Love {{ item.name }}{% endif %}" aria-pressed="{{ 'true' if current_reaction == 'love' else 'false' }}" title="{% if vertical.slug == 'baby' %}Love it{% else %}Love{% endif %}">
               <img class="reaction-icon" src="{{ url_for('static', filename='images/reactions/love.jpg') }}" alt="">
-              {% if vertical.slug != "baby" %}<span>Love</span>{% endif %}
             </button>
             <button type="button" class="{% if current_reaction == 'no' %}is-selected{% endif %}" data-reaction-value="no" data-reaction-label="{% if vertical.slug == 'baby' %}Not for us{% else %}No{% endif %}" data-result-name="{{ item.name }}" aria-label="{% if vertical.slug == 'baby' %}{{ item.name }} is not for us{% else %}No {{ item.name }}{% endif %}" aria-pressed="{{ 'true' if current_reaction == 'no' else 'false' }}" title="{% if vertical.slug == 'baby' %}Not for us{% else %}No{% endif %}">
               <img class="reaction-icon" src="{{ url_for('static', filename='images/reactions/no.jpg') }}" alt="">
-              {% if vertical.slug != "baby" %}<span>No</span>{% endif %}
             </button>
           </div>
           <p class="reaction-status" aria-live="polite"></p>
