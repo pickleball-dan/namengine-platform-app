@@ -60,6 +60,18 @@ def _apply_pet_legacy_aliases(inputs: dict[str, Any], source: Mapping[str, Any])
         if old_key not in inputs and inputs.get(new_key):
             inputs[old_key] = inputs[new_key]
 
+    if "avoid" not in inputs and source.get("partner_alignment"):
+        raw_value = source.get("partner_alignment", "")
+        inputs["avoid"] = raw_value.strip() if isinstance(raw_value, str) else raw_value
+
+    legacy_details = []
+    for key in ("pet_life_stage", "notes"):
+        value = source.get(key)
+        if value:
+            legacy_details.append(value.strip() if isinstance(value, str) else str(value))
+    if legacy_details and not inputs.get("pet_details"):
+        inputs["pet_details"] = "; ".join(legacy_details)
+
 
 def _apply_registered_intake_aliases(
     vertical_slug: str, inputs: dict[str, Any], source: Mapping[str, Any]

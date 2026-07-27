@@ -19,43 +19,53 @@
         <legend>About your pet</legend>
         <label class="field" for="pet_type">
           <span>Who's joining the family?<em>Required</em></span>
-          <select id="pet_type" name="pet_type" required data-other-select="pet_type_other">
-            <option value="">Choose one</option>
+          <div class="pet-choice-list" role="radiogroup" aria-label="Who's joining the family?" data-choice-card-list data-choice-target="pet_type">
             {% for choice in ["Dog", "Cat", "Horse", "Bird", "Rabbit", "Reptile", "Other"] %}
-              <option value="{{ choice }}">{{ choice }}</option>
+              <button class="pet-choice-card" type="button" role="radio" aria-checked="false" data-choice-value="{{ choice }}">
+                <span class="pet-choice-copy"><strong>{{ choice }}</strong></span>
+                <span class="pet-choice-mark" aria-hidden="true">✓</span>
+              </button>
             {% endfor %}
-          </select>
+          </div>
+          <input class="pet-native-control" id="pet_type" name="pet_type" required data-other-select="pet_type_other" tabindex="-1" aria-hidden="true">
           <input class="other-choice-input" id="pet_type_other" name="pet_type_other" data-other-input placeholder="Enter your own" hidden disabled>
         </label>
         <label class="field" for="pet_gender">
           <span>Gender<em>Optional</em></span>
-          <select id="pet_gender" name="pet_gender">
-            <option value="">Choose one</option>
+          <div class="pet-choice-list compact" role="radiogroup" aria-label="Gender" data-choice-card-list data-choice-target="pet_gender">
             {% for choice in ["Male", "Female", "Neutral"] %}
-              <option value="{{ choice }}">{{ choice }}</option>
+              <button class="pet-choice-card" type="button" role="radio" aria-checked="false" data-choice-value="{{ choice }}">
+                <span class="pet-choice-copy"><strong>{{ choice }}</strong></span>
+                <span class="pet-choice-mark" aria-hidden="true">✓</span>
+              </button>
             {% endfor %}
-          </select>
+          </div>
+          <input class="pet-native-control" id="pet_gender" name="pet_gender" tabindex="-1" aria-hidden="true">
         </label>
         <label class="field" for="pet_breed">
-          <span>Breed<em>Optional</em></span>
+          <span>Breed / mix<em>Optional</em></span>
           <input id="pet_breed" name="pet_breed" placeholder="Golden retriever, tabby, mixed breed...">
         </label>
         <label class="field" for="pet_color">
-          <span>Color<em>Optional</em></span>
-          <input id="pet_color" name="pet_color" placeholder="Honey, black and white, brindle...">
+          <span>Color / markings<em>Required</em></span>
+          <input id="pet_color" name="pet_color" required placeholder="Honey, black and white, brindle, gray tabby...">
+          <small>Required because we use this for the generated pet portrait.</small>
         </label>
         <label class="field" for="pet_life_stage">
-          <span>Young or mature?<em>Optional</em></span>
-          <select id="pet_life_stage" name="pet_life_stage">
-            <option value="">Choose one</option>
+          <span>Young or mature?<em>Required</em></span>
+          <div class="pet-choice-list compact" role="radiogroup" aria-label="Young or mature?" data-choice-card-list data-choice-target="pet_life_stage">
             {% for choice in ["Young", "Mature"] %}
-              <option value="{{ choice }}">{{ choice }}</option>
+              <button class="pet-choice-card" type="button" role="radio" aria-checked="false" data-choice-value="{{ choice }}">
+                <span class="pet-choice-copy"><strong>{{ choice }}</strong></span>
+                <span class="pet-choice-mark" aria-hidden="true">✓</span>
+              </button>
             {% endfor %}
-          </select>
+          </div>
+          <input class="pet-native-control" id="pet_life_stage" name="pet_life_stage" required tabindex="-1" aria-hidden="true">
         </label>
-        <label class="field" for="notes">
-          <span>Tell us about your pet<em>Optional</em></span>
-          <textarea id="notes" name="notes" placeholder="Personality, funny quirks, favorite themes, names to avoid..."></textarea>
+        <label class="field" for="pet_details">
+          <span>Any other details that should shape the name or portrait?<em>Optional</em></span>
+          <textarea id="pet_details" name="pet_details" placeholder="Size, markings, backstory, quirks, anything visually important..."></textarea>
         </label>
       </fieldset>
 
@@ -63,21 +73,27 @@
         <legend>Name shape</legend>
         <label class="field" for="style">
           <span>Core style<em>Required</em></span>
-          <select id="style" name="style" required>
-            <option value="">Choose one</option>
+          <div class="pet-choice-list" role="radiogroup" aria-label="Core style" data-choice-card-list data-choice-target="style">
             {% for choice in ["Modern", "Soft and romantic", "Strong and tailored", "Uncommon but usable", "Classic"] %}
-              <option value="{{ choice }}">{{ choice }}</option>
+              <button class="pet-choice-card" type="button" role="radio" aria-checked="false" data-choice-value="{{ choice }}">
+                <span class="pet-choice-copy"><strong>{{ choice }}</strong></span>
+                <span class="pet-choice-mark" aria-hidden="true">✓</span>
+              </button>
             {% endfor %}
-          </select>
+          </div>
+          <input class="pet-native-control" id="style" name="style" required tabindex="-1" aria-hidden="true">
         </label>
         <label class="field" for="vibe">
           <span>What personality should the name capture?<em>Required</em></span>
-          <select id="vibe" name="vibe" required>
-            <option value="">Choose one</option>
+          <div class="pet-choice-list" role="radiogroup" aria-label="What personality should the name capture?" data-choice-card-list data-choice-target="vibe">
             {% for choice in ["Playful", "Loyal", "Elegant", "Brave", "Curious", "Gentle", "Mischievous", "Regal", "Adventurous", "Quirky", "Sweet", "Tough"] %}
-              <option value="{{ choice }}">{{ choice }}</option>
+              <button class="pet-choice-card" type="button" role="radio" aria-checked="false" data-choice-value="{{ choice }}">
+                <span class="pet-choice-copy"><strong>{{ choice }}</strong></span>
+                <span class="pet-choice-mark" aria-hidden="true">✓</span>
+              </button>
             {% endfor %}
-          </select>
+          </div>
+          <input class="pet-native-control" id="vibe" name="vibe" required tabindex="-1" aria-hidden="true">
         </label>
         <label class="field" for="starting_letter">
           <span>Letter to begin the name<em>Optional</em></span>
@@ -85,12 +101,15 @@
         </label>
         <label class="field" for="length_preference">
           <span>Length preference<em>Optional</em></span>
-          <select id="length_preference" name="length_preference">
-            <option value="">Choose one</option>
+          <div class="pet-choice-list compact" role="radiogroup" aria-label="Length preference" data-choice-card-list data-choice-target="length_preference">
             {% for choice in ["Short and crisp", "Balanced 2 syllables", "Flowing 3 syllables", "Open to either"] %}
-              <option value="{{ choice }}">{{ choice }}</option>
+              <button class="pet-choice-card" type="button" role="radio" aria-checked="false" data-choice-value="{{ choice }}">
+                <span class="pet-choice-copy"><strong>{{ choice }}</strong></span>
+                <span class="pet-choice-mark" aria-hidden="true">✓</span>
+              </button>
             {% endfor %}
-          </select>
+          </div>
+          <input class="pet-native-control" id="length_preference" name="length_preference" tabindex="-1" aria-hidden="true">
         </label>
       </fieldset>
 
@@ -98,21 +117,27 @@
         <legend>Fit and guardrails</legend>
         <label class="field" for="pronunciation_importance">
           <span>How easy should it be to call?<em>Optional</em></span>
-          <select id="pronunciation_importance" name="pronunciation_importance">
-            <option value="">Choose one</option>
+          <div class="pet-choice-list compact" role="radiogroup" aria-label="How easy should it be to call?" data-choice-card-list data-choice-target="pronunciation_importance">
             {% for choice in ["Very important", "Helpful but not absolute", "Open to slight friction"] %}
-              <option value="{{ choice }}">{{ choice }}</option>
+              <button class="pet-choice-card" type="button" role="radio" aria-checked="false" data-choice-value="{{ choice }}">
+                <span class="pet-choice-copy"><strong>{{ choice }}</strong></span>
+                <span class="pet-choice-mark" aria-hidden="true">✓</span>
+              </button>
             {% endfor %}
-          </select>
+          </div>
+          <input class="pet-native-control" id="pronunciation_importance" name="pronunciation_importance" tabindex="-1" aria-hidden="true">
         </label>
         <label class="field" for="cultural_context">
           <span>Name inspiration<em>Optional</em></span>
-          <select id="cultural_context" name="cultural_context">
-            <option value="">No preference</option>
+          <div class="pet-choice-list" role="radiogroup" aria-label="Name inspiration" data-choice-card-list data-choice-target="cultural_context">
             {% for choice in ["Nature", "Mythology", "Human names", "Food & drink", "Literature", "Movies & TV", "Music", "Geography", "Vintage", "Pop culture"] %}
-              <option value="{{ choice }}">{{ choice }}</option>
+              <button class="pet-choice-card" type="button" role="radio" aria-checked="false" data-choice-value="{{ choice }}">
+                <span class="pet-choice-copy"><strong>{{ choice }}</strong></span>
+                <span class="pet-choice-mark" aria-hidden="true">✓</span>
+              </button>
             {% endfor %}
-          </select>
+          </div>
+          <input class="pet-native-control" id="cultural_context" name="cultural_context" tabindex="-1" aria-hidden="true">
         </label>
         <label class="field" for="avoid_feel">
           <span>What should the name avoid feeling like?<em>Optional</em></span>
@@ -130,4 +155,5 @@
   </section>
   {% include "progress_overlay.html" %}
   <script src="{{ url_for('static', filename='js/progress.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/pet-choice-cards.js') }}?v=20260727-pet-no-dropdowns-v1"></script>
 {% endblock %}

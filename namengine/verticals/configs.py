@@ -15,13 +15,6 @@ from namengine.verticals.baby_taxonomy import (
 )
 
 
-PET_DISCOVERY_STYLE_OPTIONS = (
-    "Classic favorites",
-    "Balanced mix",
-    "Unexpected finds",
-    "Completely original",
-)
-
 PET_TYPE_OPTIONS = ("Dog", "Cat", "Horse", "Bird", "Rabbit", "Reptile", "Other")
 PET_GENDER_OPTIONS = ("Male", "Female", "Neutral")
 PET_LIFE_STAGE_OPTIONS = ("Young", "Mature")
@@ -32,18 +25,11 @@ PET_STYLE_OPTIONS = (
     "Strong and tailored",
     "Uncommon but usable",
 )
-PET_DISTINCTIVENESS_OPTIONS = (
-    "Strongly timeless",
-    "Mostly timeless",
+PET_FAMILIARITY_SURPRISE_OPTIONS = (
+    "Familiar",
     "Balanced",
-    "Mostly distinctive",
-    "Strongly distinctive",
-)
-PET_FAMILIARITY_OPTIONS = (
-    "Very familiar and easy",
-    "Recognizable but not overused",
-    "A little less common",
-    "Memorable and rarer",
+    "Distinctive",
+    "Very original",
 )
 PET_CALLABILITY_OPTIONS = (
     "Very important",
@@ -209,6 +195,21 @@ PET = VerticalConfig(
             section="About your pet",
         ),
         Question(
+            "pet_color",
+            "Color / markings",
+            required=True,
+            placeholder="Honey, black and white, brindle, gray tabby...",
+            help_text="Required because we use this for the generated pet portrait.",
+            section="About your pet",
+        ),
+        Question(
+            "pet_life_stage",
+            "Young or mature?",
+            required=True,
+            choices=PET_LIFE_STAGE_OPTIONS,
+            section="About your pet",
+        ),
+        Question(
             "pet_gender",
             "Gender",
             choices=PET_GENDER_OPTIONS,
@@ -216,62 +217,16 @@ PET = VerticalConfig(
         ),
         Question(
             "pet_breed",
-            "Breed",
+            "Breed / mix",
             placeholder="Golden retriever, tabby, mixed breed...",
             section="About your pet",
         ),
         Question(
-            "pet_color",
-            "Color",
-            placeholder="Honey, black and white, brindle...",
-            section="About your pet",
-        ),
-        Question(
-            "pet_life_stage",
-            "Young or mature?",
-            choices=PET_LIFE_STAGE_OPTIONS,
-            section="About your pet",
-        ),
-        Question(
-            "notes",
-            "Tell us about your pet",
+            "pet_details",
+            "Any other details that should shape the name or portrait?",
             kind="textarea",
-            placeholder=(
-                "Personality, funny quirks, names to avoid, favorite themes..."
-            ),
+            placeholder="Size, markings, backstory, quirks, anything visually important...",
             section="About your pet",
-        ),
-        Question(
-            "discovery_style",
-            "How adventurous should we be?",
-            choices=PET_DISCOVERY_STYLE_OPTIONS,
-            help_text="Choose the lane for this first pass.",
-            section="Name style",
-        ),
-        Question(
-            "style",
-            "What overall style feels closest?",
-            required=True,
-            choices=PET_STYLE_OPTIONS,
-            section="Name style",
-        ),
-        Question(
-            "timeless_vs_distinctive",
-            "Would you lean more timeless or more distinctive?",
-            choices=PET_DISTINCTIVENESS_OPTIONS,
-            section="Name style",
-        ),
-        Question(
-            "familiarity_preference",
-            "How familiar should the name feel?",
-            choices=PET_FAMILIARITY_OPTIONS,
-            section="Name style",
-        ),
-        Question(
-            "pronunciation_importance",
-            "How easy should it be to call?",
-            choices=PET_CALLABILITY_OPTIONS,
-            section="Fit and feeling",
         ),
         Question(
             "vibe",
@@ -281,19 +236,35 @@ PET = VerticalConfig(
             section="Fit and feeling",
         ),
         Question(
+            "style",
+            "What overall style feels closest?",
+            required=True,
+            choices=PET_STYLE_OPTIONS,
+            section="Name style",
+        ),
+        Question(
+            "familiarity_preference",
+            "How familiar or surprising should the name feel?",
+            choices=PET_FAMILIARITY_SURPRISE_OPTIONS,
+            help_text="This replaces the separate adventurous, timeless, distinctive, and familiarity questions.",
+            section="Name style",
+        ),
+        Question(
             "cultural_context",
             "Name inspiration",
             choices=PET_INSPIRATION_OPTIONS,
             section="Fit and feeling",
         ),
         Question(
-            "partner_alignment",
-            "Anything you're torn between?",
-            kind="textarea",
-            placeholder=(
-                "Cute or serious, silly or elegant, human-name or pet-name, "
-                "everyone else's opinions..."
-            ),
+            "pronunciation_importance",
+            "How easy should it be to call?",
+            choices=PET_CALLABILITY_OPTIONS,
+            section="Fit and feeling",
+        ),
+        Question(
+            "avoid",
+            "Any names, words, or vibes to avoid?",
+            placeholder="Names, sounds, themes, associations, or anything that feels wrong...",
             section="Fit and feeling",
         ),
     ),
@@ -596,8 +567,8 @@ BUSINESS = VerticalConfig(
         "line": "rgba(22, 32, 51, 0.12)",
     },
     assets={
-        "logo": "images/business/namengine-business-logo.png",
-        "share_image": "images/business/namengine-business-share.png",
+        "logo": "images/namengine-biz.svg",
+        "share_image": "images/namengine-biz.svg",
     },
     visual=VerticalVisualConfig(
         audience=("founders", "operators", "small business owners"),

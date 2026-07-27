@@ -50,14 +50,20 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn('name="pet_breed"', body)
         self.assertIn('name="pet_color"', body)
+        self.assertIn('name="pet_details"', body)
+        self.assertIn("Size, markings, backstory", body)
+        self.assertIn('class="pet-choice-list"', body)
+        self.assertIn('data-choice-target="pet_type"', body)
+        self.assertIn('data-choice-value="Dog"', body)
+        self.assertIn('data-choice-target="pet_life_stage"', body)
+        self.assertIn('data-choice-value="Young"', body)
+        self.assertIn('data-choice-value="Mature"', body)
         self.assertIn('name="pet_life_stage"', body)
-        self.assertIn("Young", body)
-        self.assertIn("Mature", body)
+        self.assertIn("Young or mature?", body)
+        self.assertIn('class="pet-native-control"', body)
         self.assertIn('data-other-select="pet_type_other"', body)
         self.assertIn('name="pet_type_other"', body)
-        self.assertNotIn("Puppy", body)
-        self.assertNotIn("Adult", body)
-        self.assertNotIn("Senior", body)
+        self.assertNotIn('<select', body)
 
     def test_pet_intake_question_contract_is_locked_for_underlayment_migration(self):
         contract = [
@@ -78,19 +84,17 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
             contract,
             [
                 {"id": "pet_type", "label": "Who's joining the family?", "kind": "text", "required": True, "choices": ("Dog", "Cat", "Horse", "Bird", "Rabbit", "Reptile", "Other"), "placeholder": "", "help_text": "", "section": "About your pet"},
+                {"id": "pet_color", "label": "Color / markings", "kind": "text", "required": True, "choices": (), "placeholder": "Honey, black and white, brindle, gray tabby...", "help_text": "Required because we use this for the generated pet portrait.", "section": "About your pet"},
+                {"id": "pet_life_stage", "label": "Young or mature?", "kind": "text", "required": True, "choices": ("Young", "Mature"), "placeholder": "", "help_text": "", "section": "About your pet"},
                 {"id": "pet_gender", "label": "Gender", "kind": "text", "required": False, "choices": ("Male", "Female", "Neutral"), "placeholder": "", "help_text": "", "section": "About your pet"},
-                {"id": "pet_breed", "label": "Breed", "kind": "text", "required": False, "choices": (), "placeholder": "Golden retriever, tabby, mixed breed...", "help_text": "", "section": "About your pet"},
-                {"id": "pet_color", "label": "Color", "kind": "text", "required": False, "choices": (), "placeholder": "Honey, black and white, brindle...", "help_text": "", "section": "About your pet"},
-                {"id": "pet_life_stage", "label": "Young or mature?", "kind": "text", "required": False, "choices": ("Young", "Mature"), "placeholder": "", "help_text": "", "section": "About your pet"},
-                {"id": "notes", "label": "Tell us about your pet", "kind": "textarea", "required": False, "choices": (), "placeholder": "Personality, funny quirks, names to avoid, favorite themes...", "help_text": "", "section": "About your pet"},
-                {"id": "discovery_style", "label": "How adventurous should we be?", "kind": "text", "required": False, "choices": ("Classic favorites", "Balanced mix", "Unexpected finds", "Completely original"), "placeholder": "", "help_text": "Choose the lane for this first pass.", "section": "Name style"},
-                {"id": "style", "label": "What overall style feels closest?", "kind": "text", "required": True, "choices": ("Classic", "Modern", "Soft and romantic", "Strong and tailored", "Uncommon but usable"), "placeholder": "", "help_text": "", "section": "Name style"},
-                {"id": "timeless_vs_distinctive", "label": "Would you lean more timeless or more distinctive?", "kind": "text", "required": False, "choices": ("Strongly timeless", "Mostly timeless", "Balanced", "Mostly distinctive", "Strongly distinctive"), "placeholder": "", "help_text": "", "section": "Name style"},
-                {"id": "familiarity_preference", "label": "How familiar should the name feel?", "kind": "text", "required": False, "choices": ("Very familiar and easy", "Recognizable but not overused", "A little less common", "Memorable and rarer"), "placeholder": "", "help_text": "", "section": "Name style"},
-                {"id": "pronunciation_importance", "label": "How easy should it be to call?", "kind": "text", "required": False, "choices": ("Very important", "Helpful but not absolute", "Open to slight friction"), "placeholder": "", "help_text": "", "section": "Fit and feeling"},
+                {"id": "pet_breed", "label": "Breed / mix", "kind": "text", "required": False, "choices": (), "placeholder": "Golden retriever, tabby, mixed breed...", "help_text": "", "section": "About your pet"},
+                {"id": "pet_details", "label": "Any other details that should shape the name or portrait?", "kind": "textarea", "required": False, "choices": (), "placeholder": "Size, markings, backstory, quirks, anything visually important...", "help_text": "", "section": "About your pet"},
                 {"id": "vibe", "label": "What personality should the name capture?", "kind": "text", "required": True, "choices": ("Playful", "Loyal", "Elegant", "Brave", "Curious", "Gentle", "Mischievous", "Regal", "Adventurous", "Quirky", "Sweet", "Tough"), "placeholder": "", "help_text": "", "section": "Fit and feeling"},
+                {"id": "style", "label": "What overall style feels closest?", "kind": "text", "required": True, "choices": ("Classic", "Modern", "Soft and romantic", "Strong and tailored", "Uncommon but usable"), "placeholder": "", "help_text": "", "section": "Name style"},
+                {"id": "familiarity_preference", "label": "How familiar or surprising should the name feel?", "kind": "text", "required": False, "choices": ("Familiar", "Balanced", "Distinctive", "Very original"), "placeholder": "", "help_text": "This replaces the separate adventurous, timeless, distinctive, and familiarity questions.", "section": "Name style"},
                 {"id": "cultural_context", "label": "Name inspiration", "kind": "text", "required": False, "choices": ("Nature", "Mythology", "Human names", "Food & drink", "Literature", "Movies & TV", "Music", "Geography", "Vintage", "Pop culture"), "placeholder": "", "help_text": "", "section": "Fit and feeling"},
-                {"id": "partner_alignment", "label": "Anything you're torn between?", "kind": "textarea", "required": False, "choices": (), "placeholder": "Cute or serious, silly or elegant, human-name or pet-name, everyone else's opinions...", "help_text": "", "section": "Fit and feeling"},
+                {"id": "pronunciation_importance", "label": "How easy should it be to call?", "kind": "text", "required": False, "choices": ("Very important", "Helpful but not absolute", "Open to slight friction"), "placeholder": "", "help_text": "", "section": "Fit and feeling"},
+                {"id": "avoid", "label": "Any names, words, or vibes to avoid?", "kind": "text", "required": False, "choices": (), "placeholder": "Names, sounds, themes, associations, or anything that feels wrong...", "help_text": "", "section": "Fit and feeling"},
             ],
         )
 
@@ -111,10 +115,17 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
         self.assertIn("Letter to begin the name", body)
         self.assertIn('name="pet_breed"', body)
         self.assertIn('name="pet_color"', body)
-        self.assertIn('name="pet_life_stage"', body)
+        self.assertIn('name="pet_details"', body)
+        self.assertIn('class="pet-choice-list"', body)
+        self.assertIn('data-choice-target="pet_type"', body)
+        self.assertIn('data-choice-target="pet_life_stage"', body)
+        self.assertIn('data-choice-value="Young"', body)
+        self.assertIn('data-choice-value="Mature"', body)
         self.assertIn('data-other-select="pet_type_other"', body)
         self.assertIn('name="pet_type_other"', body)
+        self.assertIn('name="pet_life_stage"', body)
         self.assertIn("Young or mature?", body)
+        self.assertNotIn('<select', body)
         self.assertIn("Create original pet names", body)
 
         results = self.client.get(
@@ -256,7 +267,7 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
         self.assertEqual(chosen_snapshot["chosen"]["vertical"], "pet")
         self.assertEqual(
             chosen_snapshot["chosen"]["metadata"]["pet_portrait"]["details"],
-            {"breed": "Whippet", "color": "Blue gray", "life_stage": "Mature"},
+            {"breed": "Whippet", "color": "Blue gray", "details": "Mature"},
         )
         persisted_result = json.loads(get_session_snapshot(session_id)["results"][0]["result_json"])
         self.assertEqual(persisted_result["metadata"]["prompt_version"], "namengine-pet-quality-v1")

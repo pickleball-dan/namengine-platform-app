@@ -6658,9 +6658,20 @@ button {
 }
 
 :is(.vertical-pet, .vertical-business) .baby-welcome .vertical-page-logo {
-  width: min(190px, 54vw);
-  margin-bottom: 24px;
+  width: min(245px, 62vw);
+  max-height: 76px;
+  object-fit: contain;
+  object-position: left center;
+  margin-bottom: 22px;
   mix-blend-mode: multiply;
+}
+
+.vertical-baby .baby-welcome .vertical-page-logo {
+  width: min(245px, 62vw);
+  max-height: 76px;
+  object-fit: contain;
+  object-position: left center;
+  margin-bottom: 22px;
 }
 
 :is(.vertical-pet, .vertical-business) .baby-welcome h1 {
@@ -7169,7 +7180,7 @@ button {
   }
 
   :is(.vertical-pet, .vertical-business) .baby-welcome .vertical-page-logo {
-    width: min(160px, 50vw);
+    width: min(var(--brand-baby-welcome-tablet-width), 52vw);
     margin-bottom: 20px;
   }
 
@@ -9062,7 +9073,7 @@ button {
 }
 
 .naming-menu-wordmark-baby { color: #ff6b6b; }
-.naming-menu-wordmark-pets { color: #f2b544; }
+.naming-menu-wordmark-pets { color: #fcba76; }
 .naming-menu-wordmark-biz { color: #3fa6a0; }
 
 .naming-menu-row-baby .naming-menu-arrow { color: #cf6f80; }
@@ -9405,17 +9416,12 @@ button {
 }
 
 
-/* Pet logo placement: the approved Pet logo is the full NamEnginePets wordmark, not the bubble-only icon. */
-.vertical-pet .baby-welcome .vertical-page-logo,
+/* Pet logo placement: the approved Pet logo is the full NamEngine Pet wordmark with the soft peach paw/label, not legacy/bubble-only icons. */
 .vertical-pet :is(.results-heading, .compare-shell, .chosen-shell, .detail-shell, .feedback-shell, .original-intake-shell) > .vertical-page-logo {
   width: min(360px, 82vw);
   max-height: 96px;
   object-fit: contain;
   object-position: left center;
-}
-
-.vertical-pet .baby-welcome .vertical-page-logo {
-  margin-bottom: 22px;
 }
 
 .vertical-pet :is(.results-heading, .compare-shell, .chosen-shell, .detail-shell, .feedback-shell, .original-intake-shell) > .vertical-page-logo.small {
@@ -9424,16 +9430,172 @@ button {
 }
 
 @media (max-width: 640px) {
-  .vertical-pet .baby-welcome .vertical-page-logo {
-    width: min(300px, 84vw);
+  :is(.vertical-pet, .vertical-business) .baby-welcome .vertical-page-logo {
+    width: min(var(--brand-baby-welcome-tablet-width), 52vw);
     max-height: 72px;
   }
 }
 
 @media (max-width: 390px) {
-  .vertical-pet .baby-welcome .vertical-page-logo {
-    width: min(260px, 82vw);
+  :is(.vertical-pet, .vertical-business) .baby-welcome .vertical-page-logo {
+    width: min(var(--brand-baby-welcome-mobile-width), 52vw);
     max-height: 64px;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
+  }
+}
+
+
+/* Pet intake choice cards: Baby-style visible choices backed by hidden text inputs for form submission. */
+.vertical-pet .pet-choice-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.vertical-pet .pet-choice-list.compact {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.vertical-pet .pet-choice-card {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 60px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 15px 17px;
+  overflow: hidden;
+  color: var(--accent-deep);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 800;
+  text-align: left;
+  background:
+    linear-gradient(145deg, rgba(255, 253, 248, 0.98), rgba(250, 244, 235, 0.94)),
+    var(--surface);
+  border: 1px solid rgba(47, 148, 134, 0.24);
+  border-radius: 18px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.88),
+    0 12px 28px rgba(38, 54, 77, 0.07);
+  cursor: pointer;
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    color 180ms ease,
+    transform 180ms ease;
+}
+
+.vertical-pet .pet-choice-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 18% 0%, rgba(252, 186, 118, 0.22), transparent 42%);
+  opacity: 0.34;
+  transition: opacity 180ms ease;
+}
+
+.vertical-pet .pet-choice-card:is(:hover, :focus-visible) {
+  color: #172f42;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.99), rgba(248, 244, 235, 0.98)),
+    var(--surface);
+  border-color: rgba(47, 148, 134, 0.5);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    0 16px 34px rgba(38, 54, 77, 0.11);
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.vertical-pet .pet-choice-card:is(:hover, :focus-visible)::before {
+  opacity: 0.52;
+}
+
+.vertical-pet .pet-choice-card:focus-visible {
+  box-shadow:
+    0 0 0 3px rgba(47, 148, 134, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    0 16px 34px rgba(38, 54, 77, 0.11);
+}
+
+.vertical-pet .pet-choice-card.is-selected {
+  color: #122e3f;
+  background:
+    linear-gradient(145deg, rgba(231, 248, 242, 0.98), rgba(255, 246, 235, 0.96)),
+    var(--surface);
+  border-color: rgba(47, 148, 134, 0.78);
+  box-shadow:
+    0 0 0 2px rgba(47, 148, 134, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.94),
+    0 16px 34px rgba(47, 148, 134, 0.14);
+}
+
+.vertical-pet .pet-choice-card.is-selected::before {
+  opacity: 0.7;
+}
+
+.vertical-pet .pet-choice-copy {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+
+.vertical-pet .pet-choice-copy strong {
+  overflow-wrap: anywhere;
+}
+
+.vertical-pet .pet-choice-mark {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  place-items: center;
+  color: transparent;
+  font-size: 12px;
+  line-height: 1;
+  background: rgba(47, 148, 134, 0.08);
+  border: 1px solid rgba(47, 148, 134, 0.22);
+  border-radius: 50%;
+  opacity: 1;
+  transform: scale(0.94);
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.vertical-pet .pet-choice-card:is(:hover, :focus-visible) .pet-choice-mark {
+  border-color: rgba(47, 148, 134, 0.42);
+  transform: scale(0.98);
+}
+
+.vertical-pet .pet-choice-card.is-selected .pet-choice-mark {
+  color: #fff;
+  background: var(--accent);
+  border-color: var(--accent);
+  transform: scale(1);
+}
+
+.vertical-pet .pet-native-control {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+@media (max-width: 620px) {
+  .vertical-pet .pet-choice-list,
+  .vertical-pet .pet-choice-list.compact {
+    grid-template-columns: 1fr;
   }
 }

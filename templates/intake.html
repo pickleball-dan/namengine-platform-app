@@ -36,7 +36,7 @@
               <span class="pet-welcome-art pet-welcome-ball"></span>
             </div>
           {% endif %}
-          {% if page_logo and vertical.slug != "baby" %}
+          {% if page_logo %}
             <img class="vertical-page-logo" src="{{ url_for('static', filename=page_logo) }}" alt="NamEngine {{ vertical.display_name }} logo">
           {% endif %}
           <p class="eyebrow">{{ copy[0] }}</p>
@@ -300,14 +300,26 @@
                 <textarea id="{{ question.id }}" name="{{ question.id }}"{% if question.required %} required{% endif %} placeholder="{{ question.placeholder }}">{{ current_value }}</textarea>
               {% elif question.choices %}
                 {% set has_no_preference = "No preference" in question.choices %}
-                <select id="{{ question.id }}" name="{{ question.id }}"{% if question.required %} required{% endif %}{% if has_other_choice %} data-other-select="{{ question.id }}_other"{% endif %}>
-                  {% if question.required or not has_no_preference %}
-                    <option value="">Choose one</option>
-                  {% endif %}
-                  {% for choice in question.choices %}
-                    <option value="{{ choice }}"{% if current_value == choice or (not current_value and not question.required and choice == "No preference") or (choice == "Other" and other_value) %} selected{% endif %}>{{ choice }}</option>
-                  {% endfor %}
-                </select>
+                {% if vertical.slug == "pet" %}
+                  <div class="pet-choice-list" role="radiogroup" aria-label="{{ question.label }}" data-choice-card-list data-choice-target="{{ question.id }}">
+                    {% for choice in question.choices %}
+                      <button class="pet-choice-card{% if current_value == choice or (choice == 'Other' and other_value) %} is-selected{% endif %}" type="button" role="radio" aria-checked="{{ 'true' if current_value == choice or (choice == 'Other' and other_value) else 'false' }}" data-choice-value="{{ choice }}">
+                        <span class="pet-choice-copy"><strong>{{ choice }}</strong></span>
+                        <span class="pet-choice-mark" aria-hidden="true">✓</span>
+                      </button>
+                    {% endfor %}
+                  </div>
+                  <input class="pet-native-control" id="{{ question.id }}" name="{{ question.id }}" value="{{ 'Other' if has_other_choice and other_value else current_value }}"{% if question.required %} required{% endif %}{% if has_other_choice %} data-other-select="{{ question.id }}_other"{% endif %} tabindex="-1" aria-hidden="true">
+                {% else %}
+                  <select id="{{ question.id }}" name="{{ question.id }}"{% if question.required %} required{% endif %}{% if has_other_choice %} data-other-select="{{ question.id }}_other"{% endif %}>
+                    {% if question.required or not has_no_preference %}
+                      <option value="">Choose one</option>
+                    {% endif %}
+                    {% for choice in question.choices %}
+                      <option value="{{ choice }}"{% if current_value == choice or (not current_value and not question.required and choice == "No preference") or (choice == "Other" and other_value) %} selected{% endif %}>{{ choice }}</option>
+                    {% endfor %}
+                  </select>
+                {% endif %}
                 {% if has_other_choice %}
                   <input class="other-choice-input" id="{{ question.id }}_other" name="{{ question.id }}_other" data-other-input placeholder="Enter your own" value="{{ other_value }}"{% if not other_value and current_value != "Other" %} hidden disabled{% endif %}>
                 {% endif %}
@@ -364,6 +376,9 @@
   <script src="{{ url_for('static', filename='js/progress.js') }}"></script>
   {% if is_polished_flow %}
     <script src="{{ url_for('static', filename='js/baby-intake-polish.js') }}?v=20260720-baby-back-flow-v1"></script>
+  {% endif %}
+  {% if vertical.slug == "pet" %}
+    <script src="{{ url_for('static', filename='js/pet-choice-cards.js') }}?v=20260727-pet-no-dropdowns-v1"></script>
   {% endif %}
   {% if vertical.slug in ["pet", "baby", "business", "product"] %}
     <script src="{{ url_for('static', filename='js/taste-history.js') }}"></script>

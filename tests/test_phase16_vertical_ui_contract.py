@@ -221,7 +221,10 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
 
         self.assertEqual(logo_path.name, "namengine-pets.svg")
         self.assertIn("NamEngine", logo)
-        self.assertIn("Pets", logo)
+        self.assertIn("Pet", logo)
+        self.assertNotIn(">Pets<", logo)
+        self.assertIn("#FCBA76", logo)
+        self.assertNotIn("#F2B544", logo)
         self.assertIn(">n<", logo)
 
     def test_pet_pages_use_vertical_logo_and_theme(self):
@@ -251,7 +254,8 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         header = body.split("</header>", 1)[0]
         self.assertIn('alt="NamEngine"', header)
         welcome = body.split('<div class="baby-welcome">', 1)[1].split('<div class="hero-actions">', 1)[0]
-        self.assertNotIn("vertical-page-logo", welcome)
+        self.assertIn("vertical-page-logo", welcome)
+        self.assertIn("images/namengine-baby.svg", welcome)
         self.assertIn("baby-welcome", body)
         self.assertIn("Let’s discover your child’s name together.", body)
         self.assertIn("A child’s name is one of the few gifts that lasts a lifetime.", body)
@@ -263,8 +267,9 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("vertical-business", body)
-        self.assertIn("images/business/namengine-business-logo.png", body)
-        self.assertIn("images/business/namengine-business-share.png", body)
+        self.assertIn("images/namengine-biz.svg", body)
+        self.assertNotIn("images/business/namengine-business-logo.png", body)
+        self.assertNotIn("images/business/namengine-business-share.png", body)
         self.assertIn("Let’s find a name your business can grow into.", body)
         self.assertIn("Strategic AI guidance", body)
         self.assertIn("positioning, audience, and category fit", body)
@@ -377,6 +382,8 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         header = body.split("</header>", 1)[0]
         self.assertIn("images/namengine.svg", header)
         self.assertNotIn("images/namengine-baby.svg", header)
+        welcome = body.split('<div class="baby-welcome">', 1)[1].split('<div class="hero-actions">', 1)[0]
+        self.assertIn("images/namengine-baby.svg", welcome)
         self.assertNotIn("<span>NamEngine</span>", header)
 
     def test_business_graphics_follow_pet_asset_slots(self):
@@ -416,18 +423,17 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn("#0D2540", svg)
         self.assertIn("#FF6B6B", svg)
 
-    def test_business_logo_is_transparent_png(self):
+    def test_business_logo_is_approved_transparent_svg_wordmark(self):
         static_root = Path(self.app.static_folder)
         business_logo = static_root / VERTICALS["business"].assets["logo"]
+        svg = business_logo.read_text(encoding="utf-8")
 
-        width, height, color_type, corner_alpha = _png_rgba_size_and_corner_alpha(
-            business_logo
-        )
-
-        self.assertEqual(color_type, 6)
-        self.assertGreater(width, 500)
-        self.assertGreater(height, 450)
-        self.assertEqual(corner_alpha, [0, 0, 0, 0])
+        self.assertEqual(business_logo.name, "namengine-biz.svg")
+        self.assertIn('width="1500" height="240"', svg)
+        self.assertIn('fill="none"', svg)
+        self.assertIn("#0D2540", svg)
+        self.assertIn("#3FA6A0", svg)
+        self.assertIn(">Biz<", svg)
 
     def test_product_logo_is_transparent_png_with_product_mark(self):
         static_root = Path(self.app.static_folder)
@@ -454,40 +460,49 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn("#0D2540", svg)
         self.assertIn("#FF6B6B", svg)
 
-    def test_pet_intake_matches_first_edition_question_contract(self):
+    def test_pet_intake_matches_lean_portrait_question_contract(self):
         questions = {question.id: question for question in VERTICALS["pet"].intake_questions}
 
         self.assertEqual(
             list(questions),
             [
                 "pet_type",
-                "pet_gender",
-                "pet_breed",
                 "pet_color",
                 "pet_life_stage",
-                "notes",
-                "discovery_style",
-                "style",
-                "timeless_vs_distinctive",
-                "familiarity_preference",
-                "pronunciation_importance",
+                "pet_gender",
+                "pet_breed",
+                "pet_details",
                 "vibe",
+                "style",
+                "familiarity_preference",
                 "cultural_context",
-                "partner_alignment",
+                "pronunciation_importance",
+                "avoid",
             ],
         )
         self.assertIn("Dog", questions["pet_type"].choices)
-        self.assertIn("Young", questions["pet_life_stage"].choices)
-        self.assertIn("Mature", questions["pet_life_stage"].choices)
-        self.assertNotIn("Puppy", questions["pet_life_stage"].choices)
-        self.assertNotIn("Adult", questions["pet_life_stage"].choices)
-        self.assertNotIn("Senior", questions["pet_life_stage"].choices)
-        self.assertIn("Balanced mix", questions["discovery_style"].choices)
+        self.assertEqual(questions["pet_color"].label, "Color / markings")
+        self.assertTrue(questions["pet_color"].required)
+        self.assertIn("portrait", questions["pet_color"].help_text)
+        self.assertEqual(questions["pet_life_stage"].label, "Young or mature?")
+        self.assertTrue(questions["pet_life_stage"].required)
+        self.assertEqual(questions["pet_life_stage"].choices, ("Young", "Mature"))
+        self.assertEqual(questions["pet_breed"].label, "Breed / mix")
+        self.assertEqual(questions["pet_details"].kind, "textarea")
+        self.assertIn("Size", questions["pet_details"].placeholder)
+        self.assertFalse(questions["pet_details"].choices)
+        self.assertNotIn("notes", questions)
+        self.assertNotIn("discovery_style", questions)
+        self.assertNotIn("timeless_vs_distinctive", questions)
+        self.assertNotIn("partner_alignment", questions)
+        self.assertEqual(
+            questions["familiarity_preference"].choices,
+            ("Familiar", "Balanced", "Distinctive", "Very original"),
+        )
         self.assertIn("Very important", questions["pronunciation_importance"].choices)
         self.assertIn("Nature", questions["cultural_context"].choices)
-        self.assertEqual(questions["notes"].kind, "textarea")
-        self.assertEqual(questions["partner_alignment"].kind, "textarea")
         self.assertTrue(questions["pet_type"].required)
+        self.assertTrue(questions["pet_life_stage"].required)
         self.assertTrue(questions["style"].required)
         self.assertTrue(questions["vibe"].required)
         self.assertEqual(questions["pet_type"].section, "About your pet")
@@ -657,11 +672,16 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
             "premium",
         )
 
-    def test_pet_intake_other_dropdown_has_custom_entry_field(self):
+    def test_pet_intake_uses_choice_cards_with_custom_entry_field(self):
         response = self.client.get("/pet")
         body = response.get_data(as_text=True)
 
         self.assertEqual(response.status_code, 200)
+        self.assertIn('class="pet-choice-list"', body)
+        self.assertIn('data-choice-card-list', body)
+        self.assertIn('data-choice-target="pet_type"', body)
+        self.assertIn('data-choice-value="Dog"', body)
+        self.assertIn('class="pet-native-control"', body)
         self.assertIn('data-other-select="pet_type_other"', body)
         self.assertIn('id="pet_type_other"', body)
         self.assertIn('name="pet_type_other"', body)
@@ -672,7 +692,11 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         body = response.get_data(as_text=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn('<option value="Other" selected>Other</option>', body)
+        self.assertIn('data-choice-value="Other"', body)
+        self.assertIn('data-choice-value="Other">', body)
+        self.assertIn('class="pet-choice-card is-selected"', body)
+        self.assertIn('id="pet_type" name="pet_type" value="Other"', body)
+        self.assertNotIn('<select', body)
         self.assertIn('id="pet_type_other"', body)
         self.assertIn('value="Goat"', body)
         self.assertNotIn('id="pet_type_other" name="pet_type_other" data-other-input placeholder="Enter your own" value="Goat" hidden disabled', body)
@@ -709,7 +733,7 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn("Your direction", body)
         self.assertIn("selections", body)
         self.assertIn('class="brief-summary-item"', body)
-        self.assertIn("/pet?pet_type=Dog&amp;style=Classic&amp;vibe=Playful", body)
+        self.assertIn("/pet?pet_type=Dog&amp;vibe=Playful&amp;style=Classic&amp;avoid=cute&amp;edit=style", body)
         self.assertIn("edit=style", body)
         self.assertNotIn('class="refine-panel"', body)
 
@@ -718,7 +742,10 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
 
         self.assertEqual(edit_response.status_code, 200)
         self.assertIn('class="field is-required is-edit-target"', edit_body)
-        self.assertIn('<option value="Classic" selected>Classic</option>', edit_body)
+        self.assertIn('data-choice-target="style"', edit_body)
+        self.assertIn('data-choice-value="Classic"', edit_body)
+        self.assertIn('id="style" name="style" value="Classic"', edit_body)
+        self.assertNotIn('<select', edit_body)
 
     def test_intake_sections_have_visible_group_treatment(self):
         css_path = Path(self.app.static_folder) / "css" / "platform.css"
