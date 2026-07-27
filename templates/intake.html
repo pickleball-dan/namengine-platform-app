@@ -300,16 +300,17 @@
                 <textarea id="{{ question.id }}" name="{{ question.id }}"{% if question.required %} required{% endif %} placeholder="{{ question.placeholder }}">{{ current_value }}</textarea>
               {% elif question.choices %}
                 {% set has_no_preference = "No preference" in question.choices %}
-                {% if vertical.slug == "pet" %}
-                  <div class="pet-choice-list" role="radiogroup" aria-label="{{ question.label }}" data-choice-card-list data-choice-target="{{ question.id }}">
+                {% if vertical.slug in ["pet", "business"] %}
+                  {% set choice_prefix = "business" if vertical.slug == "business" else "pet" %}
+                  <div class="{{ choice_prefix }}-choice-list" role="radiogroup" aria-label="{{ question.label }}" data-choice-card-list data-choice-target="{{ question.id }}">
                     {% for choice in question.choices %}
-                      <button class="pet-choice-card{% if current_value == choice or (choice == 'Other' and other_value) %} is-selected{% endif %}" type="button" role="radio" aria-checked="{{ 'true' if current_value == choice or (choice == 'Other' and other_value) else 'false' }}" data-choice-value="{{ choice }}">
-                        <span class="pet-choice-copy"><strong>{{ choice }}</strong></span>
-                        <span class="pet-choice-mark" aria-hidden="true">✓</span>
+                      <button class="{{ choice_prefix }}-choice-card{% if current_value == choice or (choice == 'Other' and other_value) %} is-selected{% endif %}" type="button" role="radio" aria-checked="{{ 'true' if current_value == choice or (choice == 'Other' and other_value) else 'false' }}" data-choice-value="{{ choice }}">
+                        <span class="{{ choice_prefix }}-choice-copy"><strong>{{ choice }}</strong></span>
+                        <span class="{{ choice_prefix }}-choice-mark" aria-hidden="true">✓</span>
                       </button>
                     {% endfor %}
                   </div>
-                  <input class="pet-native-control" id="{{ question.id }}" name="{{ question.id }}" value="{{ 'Other' if has_other_choice and other_value else current_value }}"{% if question.required %} required{% endif %}{% if has_other_choice %} data-other-select="{{ question.id }}_other"{% endif %} tabindex="-1" aria-hidden="true">
+                  <input class="{{ choice_prefix }}-native-control" id="{{ question.id }}" name="{{ question.id }}" value="{{ 'Other' if has_other_choice and other_value else current_value }}"{% if question.required %} required{% endif %}{% if has_other_choice %} data-other-select="{{ question.id }}_other"{% endif %} tabindex="-1" aria-hidden="true">
                 {% else %}
                   <select id="{{ question.id }}" name="{{ question.id }}"{% if question.required %} required{% endif %}{% if has_other_choice %} data-other-select="{{ question.id }}_other"{% endif %}>
                     {% if question.required or not has_no_preference %}
@@ -377,8 +378,8 @@
   {% if is_polished_flow %}
     <script src="{{ url_for('static', filename='js/baby-intake-polish.js') }}?v=20260720-baby-back-flow-v1"></script>
   {% endif %}
-  {% if vertical.slug == "pet" %}
-    <script src="{{ url_for('static', filename='js/pet-choice-cards.js') }}?v=20260727-pet-no-dropdowns-v1"></script>
+  {% if vertical.slug in ["pet", "business"] %}
+    <script src="{{ url_for('static', filename='js/pet-choice-cards.js') }}?v=20260727-business-choice-cards-v1"></script>
   {% endif %}
   {% if vertical.slug in ["pet", "baby", "business", "product"] %}
     <script src="{{ url_for('static', filename='js/taste-history.js') }}"></script>

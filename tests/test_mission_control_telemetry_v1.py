@@ -59,6 +59,36 @@ class MissionControlTelemetryV1Test(unittest.TestCase):
             )
         save_session("baby-telemetry-session", "baby", brief, names)
 
+    def _seed_business_openai_session(self):
+        vertical = get_vertical("business")
+        brief = build_brief(
+            vertical,
+            {
+                "business_description": "Operations support for growing service businesses",
+                "industry": "Operations consulting",
+                "audience": "B2B buyers",
+                "style": "Clear and credible",
+            },
+        )
+        names = generate_names(vertical, brief, use_ai=False)[:2]
+        for name in names:
+            name.metadata.update(
+                {
+                    "provider": "openai",
+                    "model": "gpt-4.1-mini",
+                    "prompt_version": "namengine-business-quality-v1",
+                    "ai_calls": [
+                        {
+                            "stage": "business_candidate_generator_v1",
+                            "model": "gpt-4.1-mini",
+                            "latency_ms": 150,
+                            "usage": {"input_tokens": 120, "output_tokens": 30, "total_tokens": 150},
+                        }
+                    ],
+                }
+            )
+        save_session("business-telemetry-session", "business", brief, names)
+
     def test_usage_report_aggregates_spend_tokens_and_requests(self):
         self._seed_openai_session()
 
@@ -72,7 +102,50 @@ class MissionControlTelemetryV1Test(unittest.TestCase):
         self.assertEqual(report["summary"]["generated_name_count"], 2)
         self.assertAlmostEqual(report["summary"]["estimated_spend_usd"], 0.00024, places=6)
         self.assertEqual(report["requests_by_model"][0]["model"], "gpt-4.1-mini")
+        self.assertEqual(report["requests_by_vertical"][0]["vertical"], "baby")
         self.assertTrue(report["requests_by_day"])
+
+    def test_usage_report_filters_and_groups_by_vertical(self):
+        self._seed_openai_session()
+        self._seed_business_openai_session()
+
+        report = build_openai_usage_report(vertical="business")
+
+        self.assertEqual(report["summary"]["request_count"], 1)
+        self.assertEqual(report["summary"]["input_tokens"], 120)
+        self.assertEqual(report["summary"]["output_tokens"], 30)
+        self.assertEqual(report["requests_by_vertical"], [
+            {
+                "vertical": "business",
+                "request_count": 1,
+                "success_count": 1,
+                "failure_count": 0,
+                "success_rate": 100.0,
+                "input_tokens": 120,
+                "output_tokens": 30,
+                "total_tokens": 150,
+                "average_latency_ms": 150.0,
+                "maximum_latency_ms": 150,
+                "image_generation_count": 0,
+                "requests_missing_token_usage": 0,
+                "estimated_spend_usd": 0.000096,
+                "generated_name_count": 2,
+            }
+        ])
+
+    def test_endpoint_filters_by_vertical(self):
+        self._seed_openai_session()
+        self._seed_business_openai_session()
+
+        response = self.client.get(
+            "/api/internal/mission-control/openai-usage?vertical=business",
+            headers={"Authorization": "Bearer test-telemetry-token"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.get_json()
+        self.assertEqual(payload["summary"]["request_count"], 1)
+        self.assertEqual(payload["requests_by_vertical"][0]["vertical"], "business")
 
     def test_internal_endpoint_requires_bearer_token(self):
         self._seed_openai_session()

@@ -67,17 +67,14 @@ def build_pet_taste_thesis(brief: NamingBrief, weighting: dict[str, Any]) -> str
         [
             f"Pet: {_input(inputs, 'pet_type')}",
             f"Gender: {_input(inputs, 'pet_gender')}",
-            f"Breed: {_input(inputs, 'pet_breed')}",
-            f"Color: {_input(inputs, 'pet_color')}",
-            f"Life stage: {_input(inputs, 'pet_life_stage')}",
+            f"Breed/mix: {_input(inputs, 'pet_breed')}",
+            f"Color/markings: {_input(inputs, 'pet_color')}",
+            f"Pet details: {_input(inputs, 'pet_details')}",
             f"Style: {_input(inputs, 'style')}",
-            f"Discovery: {_input(inputs, 'discovery_style')}",
-            f"Distinctiveness: {_input(inputs, 'timeless_vs_distinctive')}",
-            f"Familiarity: {_input(inputs, 'familiarity_preference')}",
+            f"Familiar/surprising: {_input(inputs, 'familiarity_preference')}",
             f"Callability: {_input(inputs, 'pronunciation_importance')}",
             f"Personality: {_input(inputs, 'vibe')}",
             f"Inspiration: {_input(inputs, 'cultural_context')}",
-            f"Notes/tensions: {_input(inputs, 'partner_alignment')}",
             f"Feelings Scale: {feelings}",
             f"Avoidances/notes: {avoidances}",
         ]
@@ -90,8 +87,7 @@ def improve_pet_explanations(results: list[NameResult], brief: NamingBrief) -> N
     style = _direction(inputs, "style", "pet-ready").lower()
     personality = _direction(inputs, "vibe", "their personality").lower()
     callability = _direction(inputs, "pronunciation_importance", "everyday sound").lower()
-    portrait = _joined_values(inputs.get("pet_breed"), inputs.get("pet_color"))
-    life_stage = str(inputs.get("pet_life_stage") or "").strip().lower()
+    portrait = _joined_values(inputs.get("pet_breed"), inputs.get("pet_color"), inputs.get("pet_details"))
 
     for index, result in enumerate(results):
         original_reason = str(result.why_this_name or "").strip()
@@ -104,8 +100,6 @@ def improve_pet_explanations(results: list[NameResult], brief: NamingBrief) -> N
         details = [openings[index % len(openings)]]
         if portrait:
             details.append(f"It reflects the pet details you gave: {portrait}.")
-        if life_stage:
-            details.append(f"It is usable for a {life_stage} pet, not just a one-stage nickname.")
         if original_reason:
             details.append(original_reason)
         if brief.avoid:
@@ -194,7 +188,7 @@ def _text_alignment(requested: str, candidate_text: str) -> float:
 def _preference_alignment(result: NameResult, brief: NamingBrief) -> float:
     requested = " ".join(
         str(brief.inputs.get(key) or "").lower()
-        for key in ("timeless_vs_distinctive", "familiarity_preference")
+        for key in ("familiarity_preference", "timeless_vs_distinctive")
     )
     target = 0.62
     if any(word in requested for word in ("timeless", "familiar", "recognizable", "easy")):

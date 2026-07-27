@@ -5,19 +5,19 @@ Corrections in this package:
 - Removed the overlap that caused `NamEngine Pets` to read incorrectly.
 - Master logo heart is navy.
 - Baby heart/label is coral.
-- Pets heart/label is gold.
+- Pet paw/label is soft peach.
 - Biz heart/label is teal.
 
 Approved palette:
 - Navy: #0D2540
 - Baby coral: #FF6B6B
-- Pets gold: #F2B544
+- Pet peach: #FCBA76
 - Biz teal: #3FA6A0
 
 Primary files:
 - namengine.svg
 - namengine-baby.svg
-- namengine-pets.svg
+- namengine-pets.svg (singular Pet label)
 - namengine-biz.svg
 
 Supporting files:

@@ -788,7 +788,11 @@ def generate_fallback_names(
 
     result_count = 6 if round_number >= 3 else vertical.default_result_count
     pool = PET_NAME_POOL + PET_REFINED_POOL + PET_EXTRA_POOL
-    if brief.inputs.get("original_mode") == "true" or _brief_text(brief, "discovery_style") == "Completely original":
+    originality_signal = (
+        _brief_text(brief, "discovery_style")
+        or _brief_text(brief, "familiarity_preference")
+    )
+    if brief.inputs.get("original_mode") == "true" or originality_signal in {"Completely original", "Very original"}:
         pool = PET_ORIGINAL_POOL
     elif round_number == 2:
         pool = PET_REFINED_POOL + PET_EXTRA_POOL + PET_ORIGINAL_POOL
@@ -899,17 +903,19 @@ def _field_section_key(key: str, vertical: str) -> str:
             "pet_type": "about_your_pet",
             "species": "about_your_pet",
             "pet_gender": "about_your_pet",
-            "pet_breed": "about_your_pet",
             "pet_color": "about_your_pet",
+            "pet_breed": "about_your_pet",
+            "pet_details": "about_your_pet",
             "pet_life_stage": "about_your_pet",
             "notes": "about_your_pet",
-            "discovery_style": "name_style",
             "style": "name_style",
+            "discovery_style": "name_style",
             "timeless_vs_distinctive": "name_style",
             "familiarity_preference": "name_style",
             "pronunciation_importance": "fit_and_feeling",
             "vibe": "fit_and_feeling",
             "cultural_context": "fit_and_feeling",
+            "avoid": "fit_and_feeling",
             "partner_alignment": "fit_and_feeling",
         },
         "business": {
@@ -1533,6 +1539,8 @@ def _generate_business_fallback_names(
         )
 
     validated = validate_results(vertical, brief, results)[:result_count]
+    improve_quality_explanations(vertical.slug, validated, brief)
+    apply_quality_metadata(vertical.slug, validated, brief)
     return enrich_business_domain_info(validated)
 
 

@@ -274,7 +274,8 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn("Strategic AI guidance", body)
         self.assertIn("positioning, audience, and category fit", body)
         self.assertIn("launch practicality", body)
-        self.assertIn("--accent: #27476e", body)
+        self.assertIn("--accent: #3fa6a0", body)
+        self.assertIn("--accent-deep: #0d2540", body)
         self.assertIn("--accent-pet: #d9a441", body)
 
     def test_product_pages_use_visual_contract_copy(self):
@@ -700,6 +701,44 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn('id="pet_type_other"', body)
         self.assertIn('value="Goat"', body)
         self.assertNotIn('id="pet_type_other" name="pet_type_other" data-other-input placeholder="Enter your own" value="Goat" hidden disabled', body)
+
+    def test_business_intake_uses_choice_cards_without_dropdowns(self):
+        response = self.client.get("/business")
+        body = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('class="business-choice-list"', body)
+        self.assertIn('class="business-choice-card', body)
+        self.assertIn('class="business-native-control"', body)
+        self.assertIn('data-choice-card-list', body)
+        self.assertIn('data-choice-target="audience"', body)
+        self.assertIn('data-choice-target="style"', body)
+        self.assertIn('data-choice-target="stage"', body)
+        self.assertIn('data-choice-value="B2B buyers"', body)
+        self.assertIn('data-choice-value="Premium and refined"', body)
+        self.assertIn('id="audience" name="audience" value="" required', body)
+        self.assertIn('id="style" name="style" value="" required', body)
+        self.assertIn('data-other-select="audience_other"', body)
+        self.assertIn('id="audience_other"', body)
+        self.assertIn('pet-choice-cards.js?v=20260727-business-choice-cards-v1', body)
+        business_form = body.split('id="business-intake-form"', 1)[1].split('</form>', 1)[0]
+        self.assertNotIn('<select', business_form)
+
+    def test_business_intake_prefills_choice_card_values_for_editing(self):
+        response = self.client.get(
+            "/business?audience=Premium+clients&style=Premium+and+refined&stage=Launching+soon&edit=audience"
+        )
+        body = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('data-choice-target="audience"', body)
+        self.assertIn('data-choice-value="Premium clients"', body)
+        self.assertIn('class="business-choice-card is-selected"', body)
+        self.assertIn('id="audience" name="audience" value="Premium clients" required', body)
+        self.assertIn('id="style" name="style" value="Premium and refined" required', body)
+        self.assertIn('id="stage" name="stage" value="Launching soon"', body)
+        business_form = body.split('id="business-intake-form"', 1)[1].split('</form>', 1)[0]
+        self.assertNotIn('<select', business_form)
 
     def test_pet_intake_renders_as_three_decision_sections(self):
         response = self.client.get("/pet")

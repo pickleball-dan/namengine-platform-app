@@ -658,6 +658,7 @@ def create_app() -> Flask:
                 end=_parse_iso_datetime_arg(request.args.get("end")),
                 request_type=_optional_query_arg(request.args.get("request_type")),
                 model=_optional_query_arg(request.args.get("model")),
+                vertical=_optional_query_arg(request.args.get("vertical")),
                 success=_parse_bool_arg(request.args.get("success")),
             )
         except ValueError:

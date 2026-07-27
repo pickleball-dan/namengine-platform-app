@@ -19,6 +19,7 @@ def build_openai_usage_report(
     end: datetime | None = None,
     request_type: str | None = None,
     model: str | None = None,
+    vertical: str | None = None,
     success: bool | None = None,
     db_path: Path | None = None,
 ) -> dict[str, Any]:
@@ -33,6 +34,7 @@ def build_openai_usage_report(
         if _in_range(event["timestamp"], start, end)
         and (request_type is None or event["request_type"] == request_type)
         and (model is None or event["model"] == model)
+        and (vertical is None or event["vertical"] == vertical)
         and (success is None or event["success"] is success)
     ]
     successful = [event for event in filtered if event["success"]]
@@ -46,6 +48,7 @@ def build_openai_usage_report(
         "requests_by_day": _group_rows(successful, "date"),
         "requests_by_request_type": _group_rows(successful, "request_type"),
         "requests_by_model": _group_rows(successful, "model"),
+        "requests_by_vertical": _group_rows(successful, "vertical"),
         "failures_by_error_type": _failure_rows(failures),
         "slowest_request_categories": _slowest_rows(successful),
         "requests_with_unavailable_token_usage": _missing_usage_rows(successful),

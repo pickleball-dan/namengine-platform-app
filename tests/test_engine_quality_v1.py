@@ -8,6 +8,7 @@ from unittest.mock import patch
 from app import create_app
 from namengine.core import (
     BABY_PROMPT_VERSION,
+    BUSINESS_PROMPT_VERSION,
     PET_PROMPT_VERSION,
     QualityAdapter,
     build_brief,
@@ -23,6 +24,7 @@ from namengine.core.baby_quality_adapter import (
     BABY_QUALITY_SCORE_WEIGHTS,
     improve_baby_explanations,
 )
+from namengine.core.business_quality_adapter import BUSINESS_QUALITY_SCORE_WEIGHTS
 from namengine.core.pet_quality_adapter import PET_QUALITY_SCORE_WEIGHTS
 from namengine.core.prompt_versions import DEFAULT_PROMPT_VERSION, prompt_version_for
 from namengine.core.quality_framework import (
@@ -189,7 +191,6 @@ class EngineQualityV1Test(unittest.TestCase):
         self.assertEqual(
             results[0].metadata["ai_calls"][0]["prompt_version"],
             BABY_PROMPT_VERSION,
-    PET_PROMPT_VERSION,
         )
         save_session("baby-quality-prompt", "baby", brief, results)
         response = self.client.get("/dev/engine-audit/baby-quality-prompt")
@@ -475,13 +476,11 @@ class EngineQualityV1Test(unittest.TestCase):
                 "pet_type": "Dog",
                 "pet_breed": "Whippet",
                 "pet_color": "Blue gray",
-                "pet_life_stage": "Mature",
+                "pet_details": "Mature rescue; lean and quiet",
                 "style": "Modern",
                 "vibe": "Gentle",
                 "pronunciation_importance": "Very important",
-                "familiarity_preference": "A little less common",
-                "timeless_vs_distinctive": "Mostly distinctive",
-                "partner_alignment": "human-name but not too serious",
+                "familiarity_preference": "Distinctive",
                 "avoid": "Spot",
             },
         )
@@ -509,10 +508,66 @@ class EngineQualityV1Test(unittest.TestCase):
         self.assertIn("distinctiveness", result.metadata["quality_scores"])
         thesis = build_quality_taste_thesis("pet", brief, {})
         self.assertIn("Pet: Dog", thesis)
-        self.assertIn("Breed: Whippet", thesis)
-        self.assertIn("Life stage: Mature", thesis)
+        self.assertIn("Breed/mix: Whippet", thesis)
+        self.assertIn("Color/markings: Blue gray", thesis)
+        self.assertIn("Pet details: Mature rescue; lean and quiet", thesis)
+        self.assertIn("Familiar/surprising: Distinctive", thesis)
         self.assertIn("Callability: Very important", thesis)
-        self.assertIn("Notes/tensions: human-name but not too serious", thesis)
+
+    def test_business_is_a_registered_platform_adapter(self):
+        adapter = quality_adapter_for("business")
+
+        self.assertIsNotNone(adapter)
+        self.assertEqual(adapter.prompt_version, BUSINESS_PROMPT_VERSION)
+        self.assertEqual(prompt_version_for("business"), BUSINESS_PROMPT_VERSION)
+        self.assertEqual(adapter.score_weights, BUSINESS_QUALITY_SCORE_WEIGHTS)
+        self.assertEqual(adapter.model_score_keys, ("memorability", "category_fit", "launch_readiness"))
+
+    def test_business_quality_adapter_scores_launch_fit_dimensions(self):
+        vertical = get_vertical("business")
+        brief = build_brief(
+            vertical,
+            {
+                "business_description": "Fractional operations support for growing service businesses",
+                "industry": "Operations consulting",
+                "stage": "Launching soon",
+                "audience": "B2B buyers",
+                "style": "Clear and credible",
+                "name_shape": "Compound",
+                "timeless_vs_distinctive": "Mostly distinctive",
+                "domain_preference": "Open to modifiers",
+                "partner_alignment": "credible but not corporate",
+                "avoid": "Acme",
+            },
+        )
+        result = NameResult(
+            id="business-northmark",
+            name="Northmark",
+            slug="northmark",
+            pronunciation="NORTH-mark",
+            tagline="Credible, directional, and easy to launch.",
+            meaning="A business name with direction, category flexibility, and practical brand stretch.",
+            why_this_name="Northmark fits operations consulting through credible direction and memorable structure.",
+            fit_note="Best for a B2B service brand that needs trust and momentum.",
+            risks=["Run trademark, competitor, domain, and social checks before committing."],
+            tags=["brandable", "launch-ready", "business", "credible"],
+            scores={"memorability": 0.9, "category_fit": 0.84, "launch_readiness": 0.76},
+        )
+
+        score, reasons = score_quality_result("business", result, brief)
+
+        self.assertGreater(score, 0.75)
+        self.assertTrue(reasons)
+        self.assertEqual(result.metadata["quality_score_version"], "business-quality-score-v1")
+        self.assertEqual(set(result.metadata["quality_scores"]), set(BUSINESS_QUALITY_SCORE_WEIGHTS) | {"overall"})
+        self.assertIn("memorability", result.metadata["quality_scores"])
+        self.assertIn("category_fit", result.metadata["quality_scores"])
+        self.assertIn("launch_readiness", result.metadata["quality_scores"])
+        thesis = build_quality_taste_thesis("business", brief, {})
+        self.assertIn("Business: Fractional operations support", thesis)
+        self.assertIn("Industry/category: Operations consulting", thesis)
+        self.assertIn("Audience: B2B buyers", thesis)
+        self.assertIn("Domain/handle priority: Open to modifiers", thesis)
 
 
 if __name__ == "__main__":
