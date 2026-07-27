@@ -475,13 +475,11 @@ class EngineQualityV1Test(unittest.TestCase):
                 "pet_type": "Dog",
                 "pet_breed": "Whippet",
                 "pet_color": "Blue gray",
-                "pet_life_stage": "Mature",
+                "pet_details": "Mature rescue; lean and quiet",
                 "style": "Modern",
                 "vibe": "Gentle",
                 "pronunciation_importance": "Very important",
-                "familiarity_preference": "A little less common",
-                "timeless_vs_distinctive": "Mostly distinctive",
-                "partner_alignment": "human-name but not too serious",
+                "familiarity_preference": "Distinctive",
                 "avoid": "Spot",
             },
         )
@@ -509,10 +507,11 @@ class EngineQualityV1Test(unittest.TestCase):
         self.assertIn("distinctiveness", result.metadata["quality_scores"])
         thesis = build_quality_taste_thesis("pet", brief, {})
         self.assertIn("Pet: Dog", thesis)
-        self.assertIn("Breed: Whippet", thesis)
-        self.assertIn("Life stage: Mature", thesis)
+        self.assertIn("Breed/mix: Whippet", thesis)
+        self.assertIn("Color/markings: Blue gray", thesis)
+        self.assertIn("Pet details: Mature rescue; lean and quiet", thesis)
+        self.assertIn("Familiar/surprising: Distinctive", thesis)
         self.assertIn("Callability: Very important", thesis)
-        self.assertIn("Notes/tensions: human-name but not too serious", thesis)
 
 
 if __name__ == "__main__":

@@ -57,7 +57,7 @@ def portrait_details_from_brief(brief: dict[str, Any] | None) -> dict[str, str]:
     details = {
         "breed": _clean(inputs.get("pet_breed")),
         "color": _clean(inputs.get("pet_color")),
-        "life_stage": _clean(inputs.get("pet_life_stage")),
+        "details": _clean(inputs.get("pet_details")) or _clean(inputs.get("pet_life_stage")),
     }
     return {key: value for key, value in details.items() if value}
 
@@ -315,14 +315,15 @@ def build_keepsake_prompt(
     pet_type = _clean(inputs.get("pet_type")) or "pet"
     breed = details.get("breed") or pet_type
     color = details.get("color") or "natural"
-    life_stage = details.get("life_stage") or "adult"
+    extra_details = details.get("details") or ""
     personality = _clean(inputs.get("vibe")) or "warm"
     style = _clean(inputs.get("style")) or "timeless"
     name = _clean(chosen.get("name")) or _clean(result.get("name")) or "the pet"
+    detail_sentence = f" Additional visual details: {extra_details}." if extra_details else ""
 
     return (
         "Create a timeless framed studio portrait of a beloved pet. "
-        f"Subject: a {color} {life_stage.lower()} {breed} {pet_type.lower()} named {name}. "
+        f"Subject: a {color} {breed} {pet_type.lower()} named {name}.{detail_sentence} "
         f"Mood: {personality.lower()}, {style.lower()}, warm, dignified, emotionally inviting. "
         "Composition: centered head-and-shoulders portrait, natural expression, soft eyes, "
         "classic painted-photo look, subtle cream background, tasteful archival frame feeling, "
@@ -391,7 +392,7 @@ def _has_enough_detail(details: dict[str, str]) -> bool:
     return bool(
         details.get("breed")
         or details.get("color")
-        or details.get("life_stage")
+        or details.get("details")
         or details.get("gender")
         or details.get("style")
         or details.get("business_description")
