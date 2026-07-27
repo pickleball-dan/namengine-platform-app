@@ -1650,6 +1650,104 @@ button {
     linear-gradient(145deg, #f8f9fb, #e9edf2);
 }
 
+.business-brand-card {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  margin: 0;
+  padding: 18px;
+  color: #0d2540;
+  background:
+    radial-gradient(circle at 86% 16%, rgba(217, 164, 65, 0.18), transparent 28%),
+    linear-gradient(145deg, #ffffff 0%, #f5faf9 100%);
+  border: 1px solid rgba(63, 166, 160, 0.24);
+  border-radius: 16px;
+  box-shadow: 0 18px 36px rgba(13, 37, 64, 0.12);
+}
+
+.business-brand-card-mark {
+  display: grid;
+  width: 82px;
+  height: 82px;
+  color: #fff;
+  background: linear-gradient(145deg, #0d2540, #14385b);
+  border: 3px solid rgba(217, 164, 65, 0.72);
+  border-radius: 22px;
+  place-items: center;
+  box-shadow: 0 12px 24px rgba(13, 37, 64, 0.18);
+}
+
+.business-brand-card-mark span {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 46px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.business-brand-card-kicker {
+  margin: 0 0 2px;
+  color: #3f6f77;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.business-brand-card h2 {
+  margin: 0;
+  color: #0d2540;
+  font-size: clamp(34px, 7vw, 48px);
+  line-height: 0.95;
+  overflow-wrap: anywhere;
+}
+
+.business-brand-card-copy p:last-child {
+  margin: 8px 0 0;
+  color: #334155;
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+.business-brand-palette {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 0.7fr;
+  gap: 8px;
+  min-height: 18px;
+}
+
+.business-brand-swatch {
+  display: block;
+  border-radius: 999px;
+}
+
+.business-brand-swatch.navy { background: #0d2540; }
+.business-brand-swatch.teal { background: #3fa6a0; }
+.business-brand-swatch.gold { background: #d9a441; }
+
+.business-brand-checks {
+  display: grid;
+  gap: 8px;
+}
+
+.business-brand-checks span {
+  padding: 8px 10px;
+  color: #0d2540;
+  font-size: 12px;
+  font-weight: 850;
+  background: rgba(63, 166, 160, 0.1);
+  border: 1px solid rgba(63, 166, 160, 0.18);
+  border-radius: 999px;
+  overflow-wrap: anywhere;
+}
+
+.business-brand-card figcaption {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .baby-keepsake-frame {
   background: linear-gradient(145deg, #fffaf2 0%, #f5ead9 100%);
 }

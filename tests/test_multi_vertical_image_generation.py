@@ -99,7 +99,7 @@ class MultiVerticalImageGenerationTest(unittest.TestCase):
                 }[vertical.slug]
                 self.assertTrue((Path(self.tempdir.name) / dirname / image["filename"]).exists())
 
-    def test_business_image_renders_on_chosen_page_and_generated_route(self):
+    def test_business_chosen_page_uses_clear_brand_card_without_generated_image(self):
         snapshot = self._chosen(
             BUSINESS,
             {
@@ -110,26 +110,22 @@ class MultiVerticalImageGenerationTest(unittest.TestCase):
             },
             "Northwell",
         )
-        png = base64.b64encode(b"brand-image").decode("ascii")
-        with patch("namengine.core.pet_portrait.OpenAI") as client:
-            client.return_value.images.generate.return_value = {
-                "data": [{"b64_json": png}]
-            }
-            image = ensure_keepsake_for_chosen(
-                snapshot["chosen"],
-                {"name": "Northwell", "tagline": "A confident fit"},
-                snapshot["session"],
-            )
 
-        page = self.client.get(f"/chosen/{snapshot['chosen']['id']}")
-        asset = self.client.get(image["url"])
+        with patch("app.Thread") as thread:
+            page = self.client.get(f"/chosen/{snapshot['chosen']['id']}")
+
         body = page.get_data(as_text=True)
         self.assertEqual(page.status_code, 200)
-        self.assertIn("Brand direction board for Northwell", body)
-        self.assertIn(image["url"], body)
-        self.assertEqual(asset.status_code, 200)
-        self.assertEqual(asset.data, b"brand-image")
-        asset.close()
+        self.assertIn("business-brand-card", body)
+        self.assertIn("Clear brand card", body)
+        self.assertIn("Northwell", body)
+        self.assertIn("Premium clients", body)
+        self.assertIn("Clear and credible", body)
+        self.assertIn("business-brand-palette", body)
+        self.assertNotIn("Brand direction board for Northwell", body)
+        self.assertNotIn("/generated/business-images/", body)
+        self.assertNotIn("data-portrait-status-url", body)
+        thread.assert_not_called()
 
     def test_failure_is_sanitized_preserves_choice_and_exposes_retry(self):
         snapshot = self._chosen(

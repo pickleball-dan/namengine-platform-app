@@ -1208,7 +1208,7 @@ def _generate_names_for_route(
                 taste_profile=taste_profile,
                 previous_names=previous_names or [],
                 providers=[ModelProvider.OPENAI],
-                fallback_on_provider_error=True,
+                fallback_on_provider_error=vertical.slug != "business",
             )
             if not names:
                 raise AIGenerationError("generation returned no usable names")
@@ -1265,7 +1265,7 @@ def _audit_customer_intake(brief: NamingBrief) -> dict:
 
 
 def _ai_primary_verticals() -> set[str]:
-    raw_value = os.getenv("NAMENGINE_AI_PRIMARY_VERTICALS", "baby,pet")
+    raw_value = os.getenv("NAMENGINE_AI_PRIMARY_VERTICALS", "baby,pet,business")
     if raw_value.strip().lower() in {"", "none", "off", "false", "0"}:
         return set()
     if raw_value.strip().lower() in {"all", "*"}:
@@ -1346,7 +1346,7 @@ def _keepsake_preview(chosen_id: str):
     snapshot = get_chosen_snapshot(chosen_id)
     if snapshot is None or snapshot["result"] is None:
         return None
-    if snapshot["chosen"].get("vertical") not in {"pet", "baby", "business"}:
+    if snapshot["chosen"].get("vertical") not in {"pet", "baby"}:
         return None
 
     return keepsake_preview_for_chosen(snapshot["chosen"], snapshot["session"])
@@ -1356,7 +1356,7 @@ def _queue_keepsake_generation(chosen_id: str, *, force_retry: bool = False):
     snapshot = get_chosen_snapshot(chosen_id)
     if snapshot is None or snapshot["result"] is None:
         return None
-    if snapshot["chosen"].get("vertical") not in {"pet", "baby", "business"}:
+    if snapshot["chosen"].get("vertical") not in {"pet", "baby"}:
         return None
 
     result = to_plain_data(json_loads(snapshot["result"]["result_json"]))

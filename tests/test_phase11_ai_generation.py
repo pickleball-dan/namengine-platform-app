@@ -30,7 +30,7 @@ from namengine.core.ai_generation import (
     name_generation_response_format,
     taste_strategy_response_format,
 )
-from namengine.verticals import BABY, PET
+from namengine.verticals import BABY, BUSINESS, PET
 
 
 STRATEGY_RESPONSE = json.dumps(
@@ -411,6 +411,95 @@ class PhaseElevenAIGenerationTest(unittest.TestCase):
         self.assertIn("incomplete_reason", results[0].metadata["ai_calls"][2]["metrics"])
         self.assertEqual(fake_client.responses.calls[1]["input"][1]["content"].count("Warm, bright, easy-to-call"), 1)
         self.assertIn("Lumi", fake_client.responses.calls[2]["input"][1]["content"])
+
+    def test_business_generate_ai_names_uses_openai_three_pass_prompt_pipeline(self):
+        brief = build_brief(
+            BUSINESS,
+            {
+                "business_description": "Operations support for growing service businesses",
+                "industry": "Operations consulting",
+                "audience": "B2B buyers",
+                "style": "Clear and credible",
+            },
+        )
+        strategy_response = json.dumps(
+            {
+                "taste_thesis": "Clear, credible business names for B2B operators who want practical support.",
+                "priority_interpretation": "Clarity and category credibility matter more than playful distinctiveness.",
+                "hard_constraints": ["Avoid cute pet-like or baby-like names."],
+                "soft_preferences": ["Professional sound", "Operational confidence"],
+                "anti_patterns": ["Generic AI startup names", "Consumer lifestyle names"],
+                "naming_territories": [
+                    {
+                        "label": "operator-confidence",
+                        "description": "Names that signal support, structure, and dependable growth.",
+                        "example_style": "Northmark, Fieldstone",
+                        "risk": "Can feel too corporate if overdone.",
+                    }
+                ],
+                "candidate_rubric": [
+                    {
+                        "criterion": "business clarity",
+                        "weight": 0.4,
+                        "what_good_looks_like": "A founder can say it once and a B2B buyer understands the tone.",
+                    }
+                ],
+                "diversity_plan": "Balance clear compound names with one more ownable option.",
+            }
+        )
+        candidate_response = json.dumps(
+            {
+                "candidate_pool": [
+                    {
+                        "name": "Northmark",
+                        "pronunciation": "NORTH-mark",
+                        "territory": "operator-confidence",
+                        "rationale": "Signals direction, standards, and dependable growth support.",
+                        "strengths": ["credible", "clear", "professional"],
+                        "risks": ["Needs domain and trademark review."],
+                        "tags": ["business", "credible"],
+                        "scores": {"taste_fit": 0.93, "usability": 0.9, "distinctiveness": 0.82},
+                    }
+                ]
+            }
+        )
+        final_response = json.dumps(
+            {
+                "rejected_candidates": [],
+                "names": [
+                    {
+                        "name": "Northmark",
+                        "pronunciation": "NORTH-mark",
+                        "tagline": "A clear standard for growing operators.",
+                        "origin": "Compound business name",
+                        "meaning": "Suggests direction, standards, and practical support.",
+                        "why_this_name": "Northmark fits an operations-support business because it feels steady, credible, and easy for B2B buyers to remember.",
+                        "fit_note": "Best for founders who want a clear and credible business name rather than a playful consumer brand.",
+                        "risks": ["Requires domain, social handle, and trademark review before launch."],
+                        "tags": ["business", "credible", "operations"],
+                        "scores": {"memorability": 0.86, "category_fit": 0.91, "launch_readiness": 0.88},
+                    }
+                ],
+            }
+        )
+        fake_client = FakeClient(strategy_response, candidate_response, final_response)
+
+        with patch.dict(os.environ, {"OPENAI_API_KEY": "test-key"}):
+            results = generate_ai_names(BUSINESS, brief, round_number=1, client_factory=lambda: fake_client)
+
+        self.assertEqual(results[0].name, "Northmark")
+        self.assertEqual(results[0].metadata["source"], "openai")
+        self.assertEqual(results[0].metadata["engine_pipeline"], "three_pass_llm_v1")
+        self.assertEqual(results[0].metadata["prompt_version"], "namengine-business-quality-v1")
+        self.assertEqual(len(fake_client.responses.calls), 3)
+        self.assertEqual(fake_client.responses.calls[0]["model"], "gpt-4.1-mini")
+        self.assertEqual(fake_client.responses.calls[0]["input"][0]["role"], "system")
+        self.assertEqual(fake_client.responses.calls[1]["text"]["format"]["name"], CANDIDATE_POOL_SCHEMA_NAME)
+        self.assertEqual(fake_client.responses.calls[2]["text"]["format"]["name"], NAME_GENERATION_SCHEMA_NAME)
+        business_prompt = fake_client.responses.calls[1]["input"][1]["content"]
+        self.assertIn('"vertical": "business"', business_prompt)
+        self.assertIn('"llm_is_creative_source_not_local_pool": true', business_prompt)
+        self.assertIn("Operations support for growing service businesses", business_prompt)
 
     def test_generate_names_falls_back_without_api_key(self):
         brief = build_brief(PET, {"species": "Dog", "style": "Warm"})
