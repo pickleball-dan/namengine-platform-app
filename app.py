@@ -63,6 +63,7 @@ from namengine.core.storage import get_session_chain_snapshots
 from namengine.core.taste_evolution import build_taste_evolution
 from namengine.core.ai_generation import DEFAULT_MODEL
 from namengine.core.cost_estimates import estimate_ai_calls_cost_usd
+from namengine.core.domain_availability import enrich_business_domain_info
 from namengine.core.mission_control_telemetry import build_openai_usage_report
 from namengine.core.prompt_versions import prompt_version_for
 from namengine.core.schemas import NameResult, NamingBrief, ValidationResult, to_plain_data
@@ -1244,6 +1245,8 @@ def _generate_names_for_route(
                 name.metadata["llm_required"] = False
                 name.metadata["ai_primary_fallback"] = True
             name.metadata["ai_primary_requested"] = True
+        if vertical.slug == "business":
+            names = enrich_business_domain_info(names)
         return names
 
     return generate_names(

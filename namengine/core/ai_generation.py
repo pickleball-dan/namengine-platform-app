@@ -1218,11 +1218,11 @@ def _openai_timeout_seconds() -> float:
 
 
 def _openai_max_output_tokens() -> int:
-    raw_value = os.getenv("NAMENGINE_OPENAI_MAX_OUTPUT_TOKENS", "2600")
+    raw_value = os.getenv("NAMENGINE_OPENAI_MAX_OUTPUT_TOKENS", "5000")
     try:
         value = int(raw_value)
     except ValueError:
-        return 2600
+        return 5000
     return max(1000, value)
 
 
