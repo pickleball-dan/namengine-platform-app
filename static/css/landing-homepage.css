@@ -483,11 +483,13 @@ main {
 
 .landing-loop-example span {
   padding: 7px 10px;
-  color: #ffffff;
+  color: #1b2b20;
   font-size: 12px;
   font-weight: 950;
-  background: var(--landing-ink);
+  background: #b7f34a;
+  border: 1px solid rgba(98, 145, 24, 0.24);
   border-radius: 999px;
+  box-shadow: 0 8px 18px rgba(115, 174, 28, 0.18);
 }
 
 .landing-loop-example strong {
