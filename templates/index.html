@@ -3,7 +3,7 @@
 {% block title %}NamEngine — Understand what matters, then discover the name.{% endblock %}
 
 {% block head_extra %}
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/landing-homepage.css') }}?v=20260728-hero-demo-carousel-even-spacing-v1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/landing-homepage.css') }}?v=20260728-hero-demo-carousel-forward-loop-v1">
 {% endblock %}
 
 {% block content %}
@@ -21,8 +21,22 @@
   </div>
   <aside class="landing-demo-card" aria-label="NamEngine taste learning preview">
     <p class="landing-demo-eyebrow">Taste signal preview</p>
-    <div class="landing-demo-carousel" aria-label="Auto-scrolling Baby, Pet, and Business examples">
+    <div class="landing-demo-carousel" aria-label="Auto-scrolling Business, Baby, and Pet examples">
       <div class="landing-demo-track">
+        <section class="landing-demo-slide business" aria-label="Business name example">
+          <span class="landing-demo-vertical">Business</span>
+          <div class="landing-demo-name">Northmark</div>
+          <p class="landing-demo-sub">Clear · credible · ownable</p>
+          <div class="landing-reaction-row" aria-label="Business reaction options">
+            <span class="landing-reaction love">♥ Love</span>
+            <span class="landing-reaction no">No</span>
+          </div>
+          <div class="landing-learning-tags" aria-label="Business taste profile traits">
+            <span>Distinctive</span>
+            <span>Domain-ready</span>
+            <span>Trustworthy</span>
+          </div>
+        </section>
         <section class="landing-demo-slide baby" aria-label="Baby name example">
           <span class="landing-demo-vertical">Baby</span>
           <div class="landing-demo-name">Elowen</div>
@@ -51,7 +65,7 @@
             <span>Easy to call</span>
           </div>
         </section>
-        <section class="landing-demo-slide business" aria-label="Business name example">
+        <section class="landing-demo-slide business" aria-label="Business name example loop reset" aria-hidden="true">
           <span class="landing-demo-vertical">Business</span>
           <div class="landing-demo-name">Northmark</div>
           <p class="landing-demo-sub">Clear · credible · ownable</p>

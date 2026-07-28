@@ -246,9 +246,10 @@ main {
 }
 
 @keyframes landingDemoScroll {
-  0%, 26% { transform: translateX(0); }
-  33%, 59% { transform: translateX(-100%); }
-  66%, 92% { transform: translateX(-200%); }
+  0%, 28% { transform: translateX(0); }
+  33%, 61% { transform: translateX(-100%); }
+  66%, 94% { transform: translateX(-200%); }
+  99.999% { transform: translateX(-300%); }
   100% { transform: translateX(0); }
 }
 
