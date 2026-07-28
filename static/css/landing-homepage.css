@@ -178,7 +178,7 @@ main {
 .landing-demo-track {
   display: flex;
   width: 100%;
-  animation: landingDemoScroll 12s ease-in-out infinite;
+  animation: landingDemoScroll 6s ease-in-out infinite;
 }
 
 .landing-demo-slide {
