@@ -191,8 +191,12 @@ main {
 }
 
 .landing-reaction {
-  min-width: 82px;
+  display: inline-flex;
+  min-width: 92px;
+  justify-content: center;
+  align-items: center;
   padding: 10px 18px;
+  text-align: center;
   font-weight: 900;
   border: 1px solid var(--landing-line);
   border-radius: 999px;
@@ -485,8 +489,13 @@ main {
 }
 
 .landing-loop-example span {
+  display: inline-flex;
+  min-width: 72px;
+  justify-content: center;
+  align-items: center;
   padding: 7px 10px;
   color: #1b2b20;
+  text-align: center;
   font-size: 12px;
   font-weight: 950;
   background: #b7f34a;
