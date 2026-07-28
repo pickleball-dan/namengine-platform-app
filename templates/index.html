@@ -1,40 +1,167 @@
 {% extends "base.html" %}
 
-{% block title %}NamEngine{% endblock %}
+{% block title %}NamEngine — Understand what matters, then discover the name.{% endblock %}
+
+{% block head_extra %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/landing-homepage.css') }}?v=20260728-beta-landing-v1">
+{% endblock %}
 
 {% block content %}
-{% set home_card_logos = {
-  "baby": "images/namengine-baby.svg",
-  "pet": "images/namengine-pets.svg",
-  "business": "images/namengine-biz.svg"
-} %}
-{% set home_card_logo_colors = {
-  "baby": "#FF6B6B",
-  "pet": "#FCBA76",
-  "business": "#3FA6A0"
-} %}
-<section class="home-hero home-hero-flagship home-hero-clean">
-  <aside id="engine-options" class="home-visual-panel home-taste-panel" aria-label="How NamEngine adapts taste across naming experiences">
-    <div class="home-panel-heading">
-      <span>Inside the engine</span>
-      <strong class="home-panel-headline"><span>One thoughtful process,</span><span>tuned to what you're naming.</span></strong>
+<section class="landing-hero" aria-labelledby="landing-hero-title">
+  <div class="landing-atmosphere" aria-hidden="true"></div>
+  <div class="landing-hero-copy">
+    <img class="landing-hero-logo" src="{{ url_for('static', filename='images/namengine.svg') }}" alt="NamEngine">
+    <p class="landing-kicker"><span aria-hidden="true"></span>AI-powered naming, done differently</p>
+    <h1 id="landing-hero-title">Finding the right name should begin with understanding what matters to you.</h1>
+    <p class="landing-hero-sub">NamEngine does not hand you an endless list and a wall of filters. It learns your taste through conversation, then refines its suggestions until one actually feels right.</p>
+    <div class="landing-actions" aria-label="Start or learn about NamEngine">
+      <a class="landing-button landing-button-primary" href="#naming-experiences">Start naming</a>
+      <a class="landing-button landing-button-secondary" href="#how-it-works">See how it works</a>
     </div>
-    <div class="home-signal-stack">
-      {% for slug in ["baby", "pet", "business"] %}
-        {% set item = verticals[slug] %}
-        <a
-          class="home-signal-card"
-          href="{{ item.route_prefix }}"
-          style="--signal-accent: {{ home_card_logo_colors.get(slug, item.theme.get('accent', '#18212f')) }}; --signal-soft: {{ item.theme.get('accent_soft', 'rgba(24, 33, 47, 0.08)') }}; --signal-warm: {{ item.theme.get('accent_warm', '#f2b84b') }}; --signal-name-color: {{ home_card_logo_colors.get(slug, item.theme.get('accent', '#18212f')) }};"
-        >
-          <img class="home-signal-wordmark" src="{{ url_for('static', filename=home_card_logos.get(slug, item.assets.get('card_logo', item.assets.get('logo')))) }}" alt="NamEngine {{ item.display_name }}">
-          <span>
-            <small>{{ item.visual.hero_message }}</small>
-          </span>
-        </a>
-      {% endfor %}
+  </div>
+  <aside class="landing-demo-card" aria-label="NamEngine taste learning preview">
+    <p class="landing-demo-eyebrow">Taste signal preview</p>
+    <div class="landing-demo-name">Elowen</div>
+    <p class="landing-demo-sub">Nature-inspired · soft sound</p>
+    <div class="landing-reaction-row" aria-label="NamEngine reaction options">
+      <span class="landing-reaction love">Love</span>
+      <span class="landing-reaction no">No</span>
+    </div>
+    <div class="landing-learning-tags" aria-label="Taste profile traits">
+      <span>Nature-inspired</span>
+      <span>Soft sound</span>
+      <span>Uncommon</span>
     </div>
   </aside>
 </section>
 
+<section class="landing-section" id="naming-experiences" aria-labelledby="naming-experiences-title">
+  <div class="landing-section-head">
+    <p class="landing-eyebrow">Choose your naming experience</p>
+    <h2 id="naming-experiences-title">What are you naming?</h2>
+    <p>Every naming journey is different. NamEngine adapts its questions, taste, and pace to what you are bringing into the world.</p>
+  </div>
+
+  <div class="landing-vertical-grid">
+    <a class="landing-vertical-card baby" href="/baby" style="--card-accent: #ff6b6b; --card-soft: rgba(255,107,107,.12);">
+      <img src="{{ url_for('static', filename='images/namengine-baby.svg') }}" alt="NamEngine Baby">
+      <h3>Baby</h3>
+      <p>A name that carries meaning, sounds right out loud, and feels theirs for life.</p>
+      <span>Start naming <span aria-hidden="true">→</span></span>
+    </a>
+    <a class="landing-vertical-card pet" href="/pet" style="--card-accent: #fcba76; --card-soft: rgba(252,186,118,.18);">
+      <img src="{{ url_for('static', filename='images/namengine-pets.svg') }}" alt="NamEngine Pet">
+      <h3>Pet</h3>
+      <p>Playful, memorable names suited to the personality your new companion already has.</p>
+      <span>Start naming <span aria-hidden="true">→</span></span>
+    </a>
+    <a class="landing-vertical-card business" href="/business" style="--card-accent: #3fa6a0; --card-soft: rgba(63,166,160,.14);">
+      <img src="{{ url_for('static', filename='images/namengine-biz.svg') }}" alt="NamEngine Business">
+      <h3>Business</h3>
+      <p>A name your business can grow into — distinct, ownable, and ready for a domain.</p>
+      <span>Start naming <span aria-hidden="true">→</span></span>
+    </a>
+  </div>
+  <p class="landing-soon-note">More categories are on the way — Product, Book, and Game names.</p>
+</section>
+
+<section class="landing-section landing-flow-section" id="how-it-works" aria-labelledby="how-it-works-title">
+  <div class="landing-section-head">
+    <p class="landing-eyebrow">How NamEngine works</p>
+    <h2 id="how-it-works-title">Not a list. A conversation.</h2>
+  </div>
+  <div class="landing-flow">
+    <article>
+      <span class="landing-step-number">01</span>
+      <h3>Share what matters</h3>
+      <p>Tell NamEngine the feeling, style, and story you want your name to carry.</p>
+    </article>
+    <article>
+      <span class="landing-step-number">02</span>
+      <h3>Discover names</h3>
+      <p>Review a small, considered set of names — not a wall of thousands.</p>
+    </article>
+    <article>
+      <span class="landing-step-number">03</span>
+      <h3>Refine with Love or No</h3>
+      <p>Each response teaches NamEngine your taste and shapes the next suggestion.</p>
+    </article>
+  </div>
+</section>
+
+<section class="landing-section landing-compare-section" id="why-different" aria-labelledby="why-different-title">
+  <div class="landing-section-head">
+    <p class="landing-eyebrow">The difference</p>
+    <h2 id="why-different-title">Good naming is not a bigger list. It is a better signal.</h2>
+    <p>The problem is not that naming tools suggest too few names. The problem is that most of them make you sort through noise before they understand what you actually want.</p>
+  </div>
+  <div class="landing-compare landing-good-bad">
+    <div class="namengine good">
+      <span class="landing-compare-label">Good naming experience</span>
+      <h3>Understand first, then suggest.</h3>
+      <ul>
+        <li><strong>Fewer, better names:</strong> a focused set shaped by your context and taste.</li>
+        <li><strong>Guided discovery:</strong> NamEngine asks what matters before it starts recommending.</li>
+        <li><strong>Love / No feedback:</strong> every choice teaches the engine what to move toward or away from.</li>
+        <li><strong>Clear reasons:</strong> each name is shown with the feeling, fit, and logic behind it.</li>
+      </ul>
+    </div>
+    <div class="bad">
+      <span class="landing-compare-label">Bad naming experience</span>
+      <h3>List first, understanding later.</h3>
+      <ul>
+        <li><strong>Name dump:</strong> hundreds of options with no clear starting point.</li>
+        <li><strong>Guesswork:</strong> you are forced to judge names before the system understands your taste.</li>
+        <li><strong>Filter fatigue:</strong> sliders and categories ask you to solve the naming problem yourself.</li>
+        <li><strong>No reasoning:</strong> names appear without a clear explanation of why they fit.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="landing-section landing-loop-section" aria-labelledby="learning-loop-title">
+  <div class="landing-loop-panel">
+    <div>
+      <p class="landing-eyebrow">The learning loop</p>
+      <h2 id="learning-loop-title">Every reaction makes the next suggestion better.</h2>
+      <p>NamEngine is not generating at random and hoping something lands. Each Love or No response adjusts what it understands about your taste.</p>
+    </div>
+    <div class="landing-loop-example" aria-label="Example taste profile">
+      <span>Love</span>
+      <strong>Elowen</strong>
+      <span>No</span>
+      <strong>Brayxton</strong>
+      <p>Signal learned: softer sound, natural imagery, less trend-heavy.</p>
+    </div>
+  </div>
+</section>
+
+<section class="landing-section landing-matters" aria-labelledby="why-it-matters-title">
+  <h2 id="why-it-matters-title">A name is one of the few gifts that lasts a lifetime.</h2>
+  <p>NamEngine exists to help you make that decision with confidence — not by showing you everything, but by understanding what you actually need.</p>
+</section>
+
+<section class="landing-section landing-trust" id="trust" aria-labelledby="trust-title">
+  <div class="landing-section-head">
+    <p class="landing-eyebrow">Built on trust</p>
+    <h2 id="trust-title">Confidence goes both ways.</h2>
+  </div>
+  <div class="landing-trust-grid">
+    <article><h3>Privacy</h3><p>Your naming journey stays yours.</p></article>
+    <article><h3>AI transparency</h3><p>Clear about how suggestions are made.</p></article>
+    <article><h3>No selling of data</h3><p>Your information is never sold, ever.</p></article>
+    <article><h3>Thoughtful design</h3><p>Every detail earns its place on the page.</p></article>
+  </div>
+</section>
+
+<section class="landing-section landing-final" aria-labelledby="landing-final-title">
+  <p class="landing-eyebrow">Ready when you are</p>
+  <h2 id="landing-final-title">Ready to discover the right name?</h2>
+  <p>Choose what you are naming, and start the conversation.</p>
+  <div class="landing-final-actions">
+    <a href="/baby">Baby</a>
+    <a href="/pet">Pet</a>
+    <a href="/business">Business</a>
+  </div>
+</section>
 {% endblock %}
