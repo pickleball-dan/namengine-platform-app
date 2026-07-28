@@ -199,14 +199,17 @@ main {
 }
 
 .landing-reaction.love {
-  color: var(--landing-coral);
-  background: rgba(225, 66, 31, 0.1);
-  border-color: rgba(225, 66, 31, 0.22);
+  color: #ffffff;
+  background: #e1421f;
+  border-color: rgba(225, 66, 31, 0.32);
+  box-shadow: 0 8px 18px rgba(225, 66, 31, 0.18);
 }
 
 .landing-reaction.no {
-  color: var(--landing-muted);
-  background: #ffffff;
+  color: #1b2b20;
+  background: #b7f34a;
+  border-color: rgba(98, 145, 24, 0.24);
+  box-shadow: 0 8px 18px rgba(115, 174, 28, 0.16);
 }
 
 .landing-learning-tags {
@@ -490,6 +493,18 @@ main {
   border: 1px solid rgba(98, 145, 24, 0.24);
   border-radius: 999px;
   box-shadow: 0 8px 18px rgba(115, 174, 28, 0.18);
+}
+
+.landing-loop-example span.love {
+  color: #ffffff;
+  background: #e1421f;
+  border-color: rgba(225, 66, 31, 0.32);
+  box-shadow: 0 8px 18px rgba(225, 66, 31, 0.22);
+}
+
+.landing-loop-example span.no {
+  color: #1b2b20;
+  background: #b7f34a;
 }
 
 .landing-loop-example strong {
