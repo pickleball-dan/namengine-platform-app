@@ -156,7 +156,8 @@ main {
 .landing-demo-card {
   display: grid;
   justify-items: center;
-  padding: 32px 26px;
+  padding: 24px 0 26px;
+  overflow: hidden;
   text-align: center;
   background: rgba(255, 255, 255, 0.82);
   border: 1px solid rgba(27, 29, 42, 0.1);
@@ -166,7 +167,58 @@ main {
 }
 
 .landing-demo-eyebrow {
-  margin-bottom: 18px;
+  margin: 0 24px 16px;
+}
+
+.landing-demo-carousel {
+  width: 100%;
+  overflow: hidden;
+}
+
+.landing-demo-track {
+  display: flex;
+  width: 100%;
+  animation: landingDemoScroll 12s ease-in-out infinite;
+}
+
+.landing-demo-slide {
+  --demo-accent: var(--landing-teal);
+  --demo-soft: rgba(15, 143, 115, 0.1);
+  display: grid;
+  flex: 0 0 100%;
+  justify-items: center;
+  padding: 6px 26px 4px;
+  background:
+    radial-gradient(circle at 50% 0%, var(--demo-soft), transparent 58%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(255, 255, 255, 0.52));
+}
+
+.landing-demo-slide.baby {
+  --demo-accent: #ff6b6b;
+  --demo-soft: rgba(255, 107, 107, 0.16);
+}
+
+.landing-demo-slide.pet {
+  --demo-accent: #fcba76;
+  --demo-soft: rgba(252, 186, 118, 0.2);
+}
+
+.landing-demo-slide.business {
+  --demo-accent: #3fa6a0;
+  --demo-soft: rgba(63, 166, 160, 0.18);
+}
+
+.landing-demo-vertical {
+  margin-bottom: 14px;
+  padding: 7px 11px;
+  color: var(--demo-accent);
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: var(--demo-soft);
+  border: 1px solid color-mix(in srgb, var(--demo-accent) 26%, transparent);
+  border-radius: 999px;
 }
 
 .landing-demo-name {
@@ -183,6 +235,19 @@ main {
   color: var(--landing-muted);
   font-size: 14px;
   font-weight: 700;
+}
+
+@keyframes landingDemoScroll {
+  0%, 26% { transform: translateX(0); }
+  33%, 59% { transform: translateX(-100%); }
+  66%, 92% { transform: translateX(-200%); }
+  100% { transform: translateX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-demo-track {
+    animation: none;
+  }
 }
 
 .landing-reaction-row {
@@ -229,8 +294,8 @@ main {
   color: #26364d;
   font-size: 12px;
   font-weight: 900;
-  background: rgba(15, 143, 115, 0.1);
-  border: 1px solid rgba(15, 143, 115, 0.14);
+  background: var(--demo-soft, rgba(15, 143, 115, 0.1));
+  border: 1px solid color-mix(in srgb, var(--demo-accent, #0f8f73) 18%, transparent);
   border-radius: 999px;
 }
 
