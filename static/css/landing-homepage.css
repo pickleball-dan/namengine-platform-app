@@ -571,6 +571,43 @@ main {
 
 .landing-final-actions {
   justify-content: center;
+  gap: 12px;
+}
+
+.landing-final-actions a {
+  position: relative;
+  overflow: hidden;
+  min-width: 112px;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  box-shadow: 0 14px 30px rgba(24, 33, 47, 0.14);
+}
+
+.landing-final-actions a::before {
+  position: absolute;
+  inset: 0;
+  content: "";
+  opacity: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.28), transparent 58%);
+  transition: opacity 160ms ease;
+}
+
+.landing-final-actions a:hover::before,
+.landing-final-actions a:focus-visible::before {
+  opacity: 1;
+}
+
+.landing-final-actions a.baby {
+  background: linear-gradient(135deg, #ff6b6b, #e1421f);
+}
+
+.landing-final-actions a.pet {
+  color: #3d2505;
+  background: linear-gradient(135deg, #ffd48a, #fcba76);
+}
+
+.landing-final-actions a.business {
+  background: linear-gradient(135deg, #53c7bd, #3fa6a0);
 }
 
 @media (max-width: 860px) {
