@@ -72,11 +72,12 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.assertIn("trusted artificial intelligence technology providers", text)
         self.assertIn("privacy@nam-engine.com", text)
 
-    def test_footer_has_trust_links(self):
+    def test_footer_has_trust_links_and_pricing(self):
         response = self.app.get("/")
         text = response.get_data(as_text=True)
 
-        self.assertNotIn('/baby/beta', text)
+        self.assertIn('/#pricing', text)
+        self.assertIn('/baby/beta', text)
         self.assertIn('/privacy', text)
         self.assertIn('/terms', text)
         self.assertIn('/disclaimers', text)

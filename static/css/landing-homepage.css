@@ -402,6 +402,7 @@ main {
 }
 
 .landing-flow,
+.landing-pricing-grid,
 .landing-trust-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -409,6 +410,7 @@ main {
 }
 
 .landing-flow article,
+.landing-pricing-card,
 .landing-trust-grid article {
   padding: 24px;
   background: #ffffff;
@@ -426,6 +428,7 @@ main {
 }
 
 .landing-flow h3,
+.landing-pricing-card h3,
 .landing-trust-grid h3,
 .landing-compare h3 {
   margin: 0 0 10px;
@@ -434,12 +437,121 @@ main {
 }
 
 .landing-flow p,
+.landing-pricing-card p,
 .landing-trust-grid p,
 .landing-compare p {
   margin: 0;
   color: #607086;
   font-size: 15px;
   line-height: 1.58;
+}
+
+.landing-pricing-section {
+  padding-left: clamp(18px, 3vw, 34px);
+  padding-right: clamp(18px, 3vw, 34px);
+  padding-bottom: 10px;
+  scroll-margin-top: 96px;
+}
+
+.landing-pricing-card {
+  position: relative;
+  display: grid;
+  gap: 16px;
+  align-content: start;
+  min-height: 390px;
+  box-shadow: 0 18px 48px rgba(24, 33, 47, 0.06);
+}
+
+.landing-pricing-card.featured {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 107, 107, 0.1)),
+    #ffffff;
+  border-color: rgba(225, 66, 31, 0.24);
+  box-shadow: 0 24px 70px rgba(225, 66, 31, 0.12);
+}
+
+.landing-pricing-label {
+  justify-self: start;
+  padding: 7px 10px;
+  color: var(--landing-teal);
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: rgba(15, 143, 115, 0.1);
+  border: 1px solid rgba(15, 143, 115, 0.18);
+  border-radius: 999px;
+}
+
+.landing-pricing-card.featured .landing-pricing-label {
+  color: var(--landing-coral);
+  background: rgba(225, 66, 31, 0.1);
+  border-color: rgba(225, 66, 31, 0.18);
+}
+
+.landing-pricing-price {
+  color: var(--landing-ink);
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(42px, 5vw, 58px);
+  font-weight: 700;
+  line-height: 0.95;
+}
+
+.landing-pricing-card ul {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.landing-pricing-card li {
+  position: relative;
+  padding-left: 24px;
+  color: #566174;
+  font-size: 14px;
+  font-weight: 750;
+  line-height: 1.45;
+}
+
+.landing-pricing-card li::before {
+  position: absolute;
+  left: 0;
+  top: 0.2em;
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 950;
+  content: "✓";
+  background: var(--landing-teal);
+  border-radius: 999px;
+}
+
+.landing-pricing-card.featured li::before {
+  background: var(--landing-coral);
+}
+
+.landing-pricing-card a {
+  align-self: end;
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 11px 18px;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 950;
+  text-decoration: none;
+  background: var(--landing-ink);
+  border-radius: 999px;
+}
+
+.landing-pricing-card.featured a {
+  background: linear-gradient(135deg, #ff6b6b, #e1421f);
 }
 
 .landing-compare-section {
@@ -710,6 +822,7 @@ main {
   }
 
   .landing-vertical-grid,
+  .landing-pricing-grid,
   .landing-flow,
   .landing-compare,
   .landing-loop-panel,

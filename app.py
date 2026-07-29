@@ -473,7 +473,11 @@ def create_app() -> Flask:
 
     @app.get("/")
     def index():
-        return render_template("index.html", verticals=VERTICALS)
+        return render_template(
+            "index.html",
+            verticals=VERTICALS,
+            beta_price=os.getenv("NAMENGINE_BABY_BETA_PRICE", "$19").strip() or "$19",
+        )
 
     @app.get("/baby/beta")
     def baby_beta():
