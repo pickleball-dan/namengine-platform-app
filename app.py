@@ -12,7 +12,7 @@ from threading import Lock, Thread
 from hashlib import sha1
 from urllib.parse import urlencode
 
-from flask import Flask, abort, jsonify, redirect, render_template, request, send_from_directory, url_for
+from flask import Flask, abort, jsonify, make_response, redirect, render_template, request, send_from_directory, url_for
 
 try:
     from dotenv import load_dotenv
@@ -412,6 +412,17 @@ def beta_unlock_error(vertical) -> str:
     return f"Unlock the {vertical.display_name} founding beta to generate refined lists."
 
 
+def beta_return_cookie_name(vertical) -> str:
+    return f"namengine_beta_return_{vertical.slug}"
+
+
+def beta_return_session_for(vertical) -> str:
+    return (
+        request.args.get("return_session", "").strip()
+        or request.cookies.get(beta_return_cookie_name(vertical), "").strip()
+    )
+
+
 def _brief_from_snapshot(snapshot: dict) -> NamingBrief:
     return NamingBrief(**json_loads(snapshot["session"]["brief_json"]))
 
@@ -547,21 +558,55 @@ def create_app() -> Flask:
         if vertical_slug not in VERTICALS:
             abort(404)
         vertical = get_vertical(vertical_slug)
-        return_session = request.args.get("return_session", "").strip()
+        return_session = beta_return_session_for(vertical)
         paid = beta_unlocked_from_request()
+        stripe_payment_link = beta_payment_link_for(vertical)
+        beta_checkout_url = (
+            url_for("beta_checkout", vertical_slug=vertical.slug, return_session=return_session)
+            if stripe_payment_link
+            else ""
+        )
         beta_continue_url = (
             url_for("session_results", session_id=return_session, paid="1")
             if paid and return_session
             else url_for("intake", vertical_slug=vertical.slug, paid="1")
         )
-        return render_template(
-            "baby_beta.html",
-            vertical=vertical,
-            stripe_payment_link=beta_payment_link_for(vertical),
-            beta_price=beta_price_for(vertical),
-            paid=paid,
-            beta_continue_url=beta_continue_url,
+        response = make_response(
+            render_template(
+                "baby_beta.html",
+                vertical=vertical,
+                stripe_payment_link=stripe_payment_link,
+                beta_checkout_url=beta_checkout_url,
+                beta_price=beta_price_for(vertical),
+                paid=paid,
+                beta_return_session=return_session if paid else "",
+                beta_continue_url=beta_continue_url,
+            )
         )
+        if paid and return_session:
+            response.delete_cookie(beta_return_cookie_name(vertical))
+        return response
+
+    @app.get("/<vertical_slug>/beta/checkout")
+    def beta_checkout(vertical_slug: str):
+        if vertical_slug not in VERTICALS:
+            abort(404)
+        vertical = get_vertical(vertical_slug)
+        stripe_payment_link = beta_payment_link_for(vertical)
+        if not stripe_payment_link:
+            return redirect(url_for("beta_landing", vertical_slug=vertical.slug))
+        response = redirect(stripe_payment_link)
+        return_session = request.args.get("return_session", "").strip()
+        if return_session:
+            response.set_cookie(
+                beta_return_cookie_name(vertical),
+                return_session,
+                max_age=60 * 60,
+                httponly=True,
+                samesite="Lax",
+                secure=request.is_secure,
+            )
+        return response
 
     @app.get("/about")
     def about():

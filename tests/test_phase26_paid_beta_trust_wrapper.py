@@ -110,7 +110,8 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
                 os.environ["NAMENGINE_BABY_BETA_PAYMENT_LINK"] = previous
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn("https://buy.stripe.com/test_example", text)
+        self.assertIn('/baby/beta/checkout', text)
+        self.assertNotIn('href="https://buy.stripe.com/test_example"', text)
         self.assertIn("Try Baby Beta risk-free", text)
         self.assertIn("100% refund", text)
 
@@ -174,6 +175,25 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         text = response.get_data(as_text=True)
 
         self.assertEqual(response.status_code, 200)
+        self.assertIn('href="/results/session/baby-testsession?paid=1"', text)
+
+    def test_beta_checkout_preserves_return_session_for_stripe_round_trip(self):
+        previous = os.environ.get("NAMENGINE_BABY_BETA_PAYMENT_LINK")
+        os.environ["NAMENGINE_BABY_BETA_PAYMENT_LINK"] = "https://buy.stripe.com/test_example"
+        try:
+            checkout = self.app.get("/baby/beta/checkout?return_session=baby-testsession")
+            paid_return = self.app.get("/baby/beta?paid=1")
+            text = paid_return.get_data(as_text=True)
+        finally:
+            if previous is None:
+                os.environ.pop("NAMENGINE_BABY_BETA_PAYMENT_LINK", None)
+            else:
+                os.environ["NAMENGINE_BABY_BETA_PAYMENT_LINK"] = previous
+
+        self.assertEqual(checkout.status_code, 302)
+        self.assertEqual(checkout.headers["Location"], "https://buy.stripe.com/test_example")
+        self.assertIn("namengine_beta_return_baby=baby-testsession", checkout.headers["Set-Cookie"])
+        self.assertEqual(paid_return.status_code, 200)
         self.assertIn('href="/results/session/baby-testsession?paid=1"', text)
 
     def test_free_baby_results_lock_refinement_behind_beta(self):
@@ -262,7 +282,8 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
                 os.environ["NAMENGINE_PET_BETA_PRICE"] = previous_price
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn("https://buy.stripe.com/pet_test", text)
+        self.assertIn('/pet/beta/checkout', text)
+        self.assertNotIn('href="https://buy.stripe.com/pet_test"', text)
         self.assertIn("$7", text)
         self.assertIn("Try Pet Beta risk-free", text)
 

@@ -34,7 +34,7 @@
       {% else %}
         <a class="button-link" href="{{ vertical.route_prefix }}">Try the first round</a>
         {% if stripe_payment_link %}
-          <a class="button-link secondary-button" href="{{ stripe_payment_link }}">{{ beta_cta_label(vertical) }}</a>
+          <a class="button-link secondary-button" href="{{ beta_checkout_url }}">{{ beta_cta_label(vertical) }}</a>
         {% else %}
           <a class="button-link secondary-button" href="#founding-access">Request founding access</a>
         {% endif %}
@@ -91,7 +91,7 @@
     <a class="button-link" href="{{ beta_continue_url }}">Start {{ vertical.display_name }} name discovery</a>
   {% elif stripe_payment_link %}
     <p>Checkout is available now. You’ll get one-time founding beta access for deeper {{ vertical.display_name }} name discovery, with a 100% refund if you’re not satisfied.</p>
-    <a class="button-link" href="{{ stripe_payment_link }}">{{ beta_cta_label(vertical) }}</a>
+    <a class="button-link" href="{{ beta_checkout_url }}">{{ beta_cta_label(vertical) }}</a>
   {% else %}
     <p>Founding access is opening in a small batch first. Try the first round now, then use the invitation channel to request paid beta access.</p>
     <a class="button-link" href="{{ vertical.route_prefix }}">Try the first round</a>
