@@ -53,7 +53,7 @@ class PhaseFourteenProgressExperienceTest(unittest.TestCase):
         self.assertIn("novalidate", body)
 
     def test_results_page_has_trust_cue_and_refine_progress(self):
-        response = self.client.get("/pet/results?species=Dog&personality=Gentle&style=Warm")
+        response = self.client.get("/pet/results?species=Dog&personality=Gentle&style=Warm&paid=1")
 
         self.assertEqual(response.status_code, 200)
         body = response.get_data(as_text=True)
@@ -182,7 +182,7 @@ class PhaseFourteenProgressExperienceTest(unittest.TestCase):
         self.assertNotIn("baby-thinking-right-arm-wave", css)
 
     def test_baby_refinement_progress_keeps_baby_identity(self):
-        response = self.client.get("/baby/results?gender=Girl&style=Classic&sound=Soft")
+        response = self.client.get("/baby/results?gender=Girl&style=Classic&sound=Soft&paid=1")
 
         self.assertEqual(response.status_code, 200)
         body = response.get_data(as_text=True)

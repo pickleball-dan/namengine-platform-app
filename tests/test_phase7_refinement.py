@@ -14,6 +14,13 @@ from namengine.core import (
 from namengine.verticals import BABY, PET
 
 
+def _session_id_from_body(body: str) -> str:
+    marker = 'data-session-id="'
+    start = body.index(marker) + len(marker)
+    end = body.index('\"', start)
+    return body[start:end]
+
+
 class PhaseSevenRefinementTest(unittest.TestCase):
     def setUp(self):
         self.env_patch = patch.dict(os.environ, {"OPENAI_API_KEY": ""}, clear=False)
@@ -35,18 +42,16 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         self.env_patch.stop()
 
     def _seed_round_one(self):
-        query = b"species=Dog&personality=Gentle&style=Warm"
-        session_id = make_session_id("pet", query)
-        self.client.get(f"/pet/results?{query.decode('utf-8')}")
+        response = self.client.get("/pet/results?species=Dog&personality=Gentle&style=Warm")
+        session_id = _session_id_from_body(response.get_data(as_text=True))
         save_reaction(build_reaction(session_id, "pet-1", "love"))
         save_reaction(build_reaction(session_id, "pet-2", "no"))
         save_reaction(build_reaction(session_id, "pet-3", "maybe"))
         return session_id
 
     def _seed_baby_round_one(self):
-        query = b"gender=Girl&style=Classic&sound=Soft"
-        session_id = make_session_id("baby", query)
-        self.client.get(f"/baby/results?{query.decode('utf-8')}")
+        response = self.client.get("/baby/results?gender=Girl&style=Classic&sound=Soft")
+        session_id = _session_id_from_body(response.get_data(as_text=True))
         save_reaction(build_reaction(session_id, "baby-1", "love"))
         save_reaction(build_reaction(session_id, "baby-2", "maybe"))
         save_reaction(build_reaction(session_id, "baby-3", "no"))
@@ -82,7 +87,7 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         session_id = self._seed_round_one()
         response = self.client.post(
             "/refine",
-            data={"session_id": session_id, "instruction": "shorter"},
+            data={"session_id": session_id, "instruction": "shorter", "paid": "1"},
         )
 
         self.assertEqual(response.status_code, 200)
@@ -97,7 +102,7 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         session_id = self._seed_round_one()
         response = self.client.post(
             "/refine",
-            data={"session_id": session_id, "instruction": "shorter"},
+            data={"session_id": session_id, "instruction": "shorter", "paid": "1"},
             headers={"X-NamEngine-Progress": "1"},
         )
 
@@ -111,7 +116,7 @@ class PhaseSevenRefinementTest(unittest.TestCase):
 
     def test_results_page_has_bottom_generate_new_list_action(self):
         session_id = self._seed_round_one()
-        response = self.client.get("/pet/results?species=Dog&personality=Gentle&style=Warm")
+        response = self.client.get(f"/results/session/{session_id}?paid=1")
         body = response.get_data(as_text=True)
 
         self.assertEqual(response.status_code, 200)
@@ -122,12 +127,11 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         self.assertIn('action="/refine"', body)
         self.assertIn('data-min-reactions="3"', body)
         self.assertIn("Ready to generate the next list.", body)
+        self.assertIn('name="paid" value="1"', body)
         self.assertNotIn("data-refine-submit disabled", body)
 
     def test_results_page_disables_generate_new_list_until_three_reactions(self):
-        query = b"species=Dog&personality=Gentle&style=Warm"
-        session_id = make_session_id("pet", query)
-        response = self.client.get(f"/pet/results?{query.decode('utf-8')}")
+        response = self.client.get("/pet/results?species=Dog&personality=Gentle&style=Warm&paid=1")
         body = response.get_data(as_text=True)
 
         self.assertEqual(response.status_code, 200)
@@ -137,15 +141,14 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         self.assertIn("React to 3 more names before generating the next list.", body)
 
     def test_refine_route_requires_three_reactions(self):
-        query = b"species=Dog&personality=Gentle&style=Warm"
-        session_id = make_session_id("pet", query)
-        self.client.get(f"/pet/results?{query.decode('utf-8')}")
+        response = self.client.get("/pet/results?species=Dog&personality=Gentle&style=Warm&paid=1")
+        session_id = _session_id_from_body(response.get_data(as_text=True))
         save_reaction(build_reaction(session_id, "pet-1", "love"))
         save_reaction(build_reaction(session_id, "pet-2", "no"))
 
         response = self.client.post(
             "/refine",
-            data={"session_id": session_id, "instruction": "shorter"},
+            data={"session_id": session_id, "instruction": "shorter", "paid": "1"},
         )
         body = response.get_data(as_text=True)
 
@@ -153,6 +156,29 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         self.assertIn("React to 1 more name before generating the next list.", body)
         self.assertIn("Generate New List", body)
         self.assertNotIn("Round 2", body)
+
+    def test_free_pet_results_lock_refinement_behind_vertical_beta(self):
+        response = self.client.get("/pet/results?species=Dog&personality=Gentle&style=Warm")
+        body = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Try Pet Beta risk-free", body)
+        self.assertIn("Your first list is free", body)
+        self.assertIn("100% refund", body)
+        self.assertIn('/pet/beta?return_session=', body)
+        self.assertNotIn('action="/refine"', body)
+
+    def test_free_pet_refine_is_blocked_server_side(self):
+        session_id = self._seed_round_one()
+
+        response = self.client.post(
+            "/refine",
+            data={"session_id": session_id, "instruction": "shorter"},
+        )
+        body = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 402)
+        self.assertIn("Unlock the Pet founding beta", body)
 
     def test_round_three_returns_finalists(self):
         session_id = self._seed_round_one()

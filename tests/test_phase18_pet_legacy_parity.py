@@ -312,7 +312,7 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
 
         refined = self.client.post(
             "/refine",
-            data={"session_id": session_id, "instruction": "warmer but still easy to call"},
+            data={"session_id": session_id, "instruction": "warmer but still easy to call", "paid": "1"},
         )
         refined_body = refined.get_data(as_text=True)
         child_session_id = f"{session_id}-r2"

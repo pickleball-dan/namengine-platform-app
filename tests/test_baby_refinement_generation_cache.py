@@ -89,7 +89,7 @@ class BabyRefinementGenerationCacheTest(unittest.TestCase):
         ) as generate:
             response = self.client.post(
                 "/refine",
-                data={"session_id": parent_id, "instruction": "a little lighter"},
+                data={"session_id": parent_id, "instruction": "a little lighter", "paid": "1"},
                 headers={"X-NamEngine-Progress": "1"},
             )
 
@@ -100,7 +100,7 @@ class BabyRefinementGenerationCacheTest(unittest.TestCase):
             self.assertEqual(call["providers"], [platform_app.ModelProvider.OPENAI])
             self.assertTrue(call["fallback_on_provider_error"])
 
-            child_id = response.headers["Location"].rsplit("/", 1)[-1]
+            child_id = response.headers["Location"].rsplit("/", 1)[-1].split("?", 1)[0]
             snapshot = get_session_snapshot(child_id)
             saved_names = platform_app._names_from_snapshot(snapshot)
             saved_brief = platform_app._brief_from_snapshot(snapshot)
@@ -121,13 +121,13 @@ class BabyRefinementGenerationCacheTest(unittest.TestCase):
         ) as openai:
             response = self.client.post(
                 "/refine",
-                data={"session_id": parent_id, "instruction": "keep it classic"},
+                data={"session_id": parent_id, "instruction": "keep it classic", "paid": "1"},
                 headers={"X-NamEngine-Progress": "1"},
             )
 
             self.assertEqual(response.status_code, 302)
             self.assertEqual(openai.call_count, 1)
-            child_id = response.headers["Location"].rsplit("/", 1)[-1]
+            child_id = response.headers["Location"].rsplit("/", 1)[-1].split("?", 1)[0]
             snapshot = get_session_snapshot(child_id)
             saved_names = platform_app._names_from_snapshot(snapshot)
             saved_brief = platform_app._brief_from_snapshot(snapshot)

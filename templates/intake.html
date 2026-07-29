@@ -113,6 +113,7 @@
     </div>
 
     <form id="{{ vertical.slug }}-intake-form" class="intake-form{% if is_polished_flow %} baby-intake-form polished-intake-form{% endif %}{% if vertical.slug == 'baby' %} baby-conversation{% endif %}{% if vertical.slug == 'pet' %} pet-conversation{% endif %}" action="{% if feelings_scale_enabled(vertical) %}{{ vertical.route_prefix }}/feelings{% else %}{{ vertical.route_prefix }}/results{% endif %}" method="{% if feelings_scale_enabled(vertical) %}get{% else %}post{% endif %}"{% if not feelings_scale_enabled(vertical) %} data-progress-form{% endif %}{% if vertical.slug == 'baby' %} data-journey-vertical="baby"{% endif %}{% if vertical.slug == 'baby' and request.args.get('edit') %} data-edit-question="{{ request.args.get('edit') }}"{% endif %} novalidate>
+      {% if beta_unlocked %}<input type="hidden" name="paid" value="1">{% endif %}
       {% if vertical.slug == "baby" %}
         {% set gender_descriptions = {
           "Girl": "We’re expecting a baby girl.",
@@ -193,7 +194,7 @@
                 {% if has_other_choice %}
                   <div class="baby-other-choice" data-baby-other-wrap{% if not other_value and current_value != "Other" %} hidden{% endif %}>
                     <label for="{{ question.id }}_other">Tell us what you have in mind</label>
-                    <input id="{{ question.id }}_other" name="{{ question.id }}_other" data-other-input placeholder="Enter your own" value="{{ other_value }}"{% if not other_value and current_value != "Other" %} disabled{% endif %}>
+                    <input id="{{ question.id }}_other" name="{{ question.id }}_other" data-other-input maxlength="{{ other_choice_max_length }}" placeholder="Enter your own" value="{{ other_value }}"{% if not other_value and current_value != "Other" %} disabled{% endif %}>
                     <button type="button" class="baby-text-continue" data-baby-other-continue>Continue</button>
                   </div>
                 {% endif %}
@@ -203,9 +204,9 @@
                   </div>
                 {% endif %}
               {% elif question.kind == "textarea" %}
-                <textarea id="{{ question.id }}" name="{{ question.id }}"{% if question.required %} required{% endif %} placeholder="{{ question.placeholder }}" aria-labelledby="baby-question-{{ question.id }}">{{ current_value }}</textarea>
+                <textarea id="{{ question.id }}" name="{{ question.id }}" maxlength="{{ intake_field_max_length(question) }}"{% if question.required %} required{% endif %} placeholder="{{ question.placeholder }}" aria-labelledby="baby-question-{{ question.id }}">{{ current_value }}</textarea>
               {% else %}
-                <input id="{{ question.id }}" name="{{ question.id }}"{% if question.required %} required{% endif %} placeholder="{{ question.placeholder }}" value="{{ current_value }}" aria-labelledby="baby-question-{{ question.id }}">
+                <input id="{{ question.id }}" name="{{ question.id }}" maxlength="{{ intake_field_max_length(question) }}"{% if question.required %} required{% endif %} placeholder="{{ question.placeholder }}" value="{{ current_value }}" aria-labelledby="baby-question-{{ question.id }}">
               {% endif %}
 
               {% if not question.choices %}
@@ -297,7 +298,7 @@
                 <em>{% if question.required %}Required{% else %}Optional{% endif %}</em>
               </span>
               {% if question.kind == "textarea" %}
-                <textarea id="{{ question.id }}" name="{{ question.id }}"{% if question.required %} required{% endif %} placeholder="{{ question.placeholder }}">{{ current_value }}</textarea>
+                <textarea id="{{ question.id }}" name="{{ question.id }}" maxlength="{{ intake_field_max_length(question) }}"{% if question.required %} required{% endif %} placeholder="{{ question.placeholder }}">{{ current_value }}</textarea>
               {% elif question.choices %}
                 {% set has_no_preference = "No preference" in question.choices %}
                 {% if vertical.slug in ["pet", "business"] %}
@@ -322,10 +323,10 @@
                   </select>
                 {% endif %}
                 {% if has_other_choice %}
-                  <input class="other-choice-input" id="{{ question.id }}_other" name="{{ question.id }}_other" data-other-input placeholder="Enter your own" value="{{ other_value }}"{% if not other_value and current_value != "Other" %} hidden disabled{% endif %}>
+                  <input class="other-choice-input" id="{{ question.id }}_other" name="{{ question.id }}_other" data-other-input maxlength="{{ other_choice_max_length }}" placeholder="Enter your own" value="{{ other_value }}"{% if not other_value and current_value != "Other" %} hidden disabled{% endif %}>
                 {% endif %}
               {% else %}
-                <input id="{{ question.id }}" name="{{ question.id }}"{% if question.required %} required{% endif %} placeholder="{{ question.placeholder }}" value="{{ current_value }}">
+                <input id="{{ question.id }}" name="{{ question.id }}" maxlength="{{ intake_field_max_length(question) }}"{% if question.required %} required{% endif %} placeholder="{{ question.placeholder }}" value="{{ current_value }}">
               {% endif %}
               {% if question.help_text %}
                 <small>{{ question.help_text }}</small>

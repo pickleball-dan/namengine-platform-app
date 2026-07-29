@@ -93,7 +93,8 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.assertIn("What paid beta includes:", text)
         self.assertIn("beta-includes-list", text)
         self.assertIn("Try the first round", text)
-        self.assertTrue("Request founding access" in text or "Join paid beta" in text)
+        self.assertTrue("Request founding access" in text or "Try Baby Beta risk-free" in text)
+        self.assertIn("100% refund", text)
         self.assertNotIn("NAMENGINE_BABY_BETA_PAYMENT_LINK", text)
 
     def test_baby_beta_uses_payment_link_when_configured(self):
@@ -110,7 +111,8 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("https://buy.stripe.com/test_example", text)
-        self.assertIn("Join paid beta", text)
+        self.assertIn("Try Baby Beta risk-free", text)
+        self.assertIn("100% refund", text)
 
     def test_baby_beta_paid_success_state(self):
         previous = os.environ.get("NAMENGINE_BABY_BETA_PAYMENT_LINK")
@@ -129,7 +131,7 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.assertIn("You have unlocked deeper taste discovery", text)
         self.assertIn("Start Baby name discovery", text)
         self.assertNotIn("Start with a free first round", text)
-        self.assertNotIn("Join paid beta", text)
+        self.assertNotIn("Try Baby Beta risk-free", text)
         self.assertNotIn("https://buy.stripe.com/test_example", text)
 
     def test_baby_intake_surfaces_paid_beta_and_trust_copy(self):
@@ -154,9 +156,133 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         text = response.get_data(as_text=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn("Unlock paid beta depth", text)
+        self.assertIn("Try Baby Beta risk-free", text)
+        self.assertIn("100% refund", text)
         self.assertIn("NamEngine suggestions are exploratory", text)
         self.assertIn("/disclaimers", text)
+
+
+    def test_baby_paid_success_can_continue_with_paid_flag(self):
+        response = self.app.get("/baby/beta?paid=1")
+        text = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('href="/baby?paid=1"', text)
+
+    def test_baby_paid_success_can_return_to_existing_session(self):
+        response = self.app.get("/baby/beta?paid=1&return_session=baby-testsession")
+        text = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('href="/results/session/baby-testsession?paid=1"', text)
+
+    def test_free_baby_results_lock_refinement_behind_beta(self):
+        response = self.app.get(
+            "/baby/results",
+            query_string={
+                "gender": "Girl",
+                "style": "Classic",
+                "sound": "Soft",
+            },
+        )
+        text = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Try Baby Beta risk-free", text)
+        self.assertIn("Your first list is free", text)
+        self.assertIn("100% refund", text)
+        self.assertNotIn('action="/refine"', text)
+
+    def test_paid_baby_results_keep_refinement_form_unlocked(self):
+        response = self.app.get(
+            "/baby/results",
+            query_string={
+                "gender": "Girl",
+                "style": "Classic",
+                "sound": "Soft",
+                "paid": "1",
+            },
+        )
+        text = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('action="/refine"', text)
+        self.assertIn('name="paid" value="1"', text)
+        self.assertNotIn("Try Baby Beta risk-free", text)
+
+    def test_free_baby_refine_is_blocked_server_side(self):
+        session_response = self.app.get(
+            "/baby/results",
+            query_string={
+                "gender": "Girl",
+                "style": "Classic",
+                "sound": "Soft",
+            },
+        )
+        session_text = session_response.get_data(as_text=True)
+        marker = 'data-session-id="'
+        start = session_text.index(marker) + len(marker)
+        end = session_text.index('"', start)
+        session_id = session_text[start:end]
+
+        response = self.app.post("/refine", data={"session_id": session_id})
+        text = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 402)
+        self.assertIn("Unlock the Baby founding beta", text)
+
+    def test_pet_and_business_beta_pages_render_paid_offers(self):
+        for route, label in (("/pet/beta", "Pet"), ("/business/beta", "Business")):
+            with self.subTest(route=route):
+                response = self.app.get(route)
+                text = response.get_data(as_text=True)
+
+                self.assertEqual(response.status_code, 200)
+                self.assertIn(f"NamEngine {label}", text)
+                self.assertIn(f"try {label} Beta risk-free", text)
+                self.assertIn("100% refund", text)
+                self.assertIn("Separate vertical access", text)
+
+    def test_vertical_beta_uses_vertical_specific_payment_link_and_price(self):
+        previous_link = os.environ.get("NAMENGINE_PET_BETA_PAYMENT_LINK")
+        previous_price = os.environ.get("NAMENGINE_PET_BETA_PRICE")
+        os.environ["NAMENGINE_PET_BETA_PAYMENT_LINK"] = "https://buy.stripe.com/pet_test"
+        os.environ["NAMENGINE_PET_BETA_PRICE"] = "$7"
+        try:
+            response = self.app.get("/pet/beta")
+            text = response.get_data(as_text=True)
+        finally:
+            if previous_link is None:
+                os.environ.pop("NAMENGINE_PET_BETA_PAYMENT_LINK", None)
+            else:
+                os.environ["NAMENGINE_PET_BETA_PAYMENT_LINK"] = previous_link
+            if previous_price is None:
+                os.environ.pop("NAMENGINE_PET_BETA_PRICE", None)
+            else:
+                os.environ["NAMENGINE_PET_BETA_PRICE"] = previous_price
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("https://buy.stripe.com/pet_test", text)
+        self.assertIn("$7", text)
+        self.assertIn("Try Pet Beta risk-free", text)
+
+    def test_free_business_results_lock_refinement_behind_vertical_beta(self):
+        response = self.app.get(
+            "/business/results",
+            query_string={
+                "industry": "Consulting",
+                "style": "Modern",
+                "audience": "Founders",
+            },
+        )
+        text = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Try Business Beta risk-free", text)
+        self.assertIn("Your first list is free", text)
+        self.assertIn("100% refund", text)
+        self.assertIn('/business/beta?return_session=', text)
+        self.assertNotIn('action="/refine"', text)
 
 
 if __name__ == "__main__":

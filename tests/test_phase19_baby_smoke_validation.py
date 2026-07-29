@@ -84,6 +84,7 @@ class PhaseNineteenBabySmokeValidationTest(unittest.TestCase):
             data={
                 "session_id": session_id,
                 "instruction": "broaden the horizon but keep it soft",
+                "paid": "1",
             },
         )
         self.assertEqual(round_two_response.status_code, 200)
@@ -102,6 +103,7 @@ class PhaseNineteenBabySmokeValidationTest(unittest.TestCase):
             data={
                 "session_id": round_two_id,
                 "instruction": "finalists with no repeats",
+                "paid": "1",
             },
         )
         self.assertEqual(round_three_response.status_code, 200)

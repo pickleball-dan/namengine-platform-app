@@ -75,6 +75,23 @@ logger = logging.getLogger(__name__)
 _portrait_jobs: set[str] = set()
 _portrait_jobs_lock = Lock()
 MIN_REACTIONS_FOR_REFINEMENT = 3
+DEFAULT_TEXT_INPUT_MAX_LENGTH = 180
+DEFAULT_TEXTAREA_MAX_LENGTH = 750
+OTHER_CHOICE_MAX_LENGTH = 120
+REFINEMENT_INSTRUCTION_MAX_LENGTH = 200
+INTAKE_FIELD_MAX_LENGTHS = {
+    "avoid": 500,
+    "business_description": 1000,
+    "category": 140,
+    "family_context": 1000,
+    "industry": 140,
+    "notes": 1000,
+    "partner_alignment": 750,
+    "pet_breed": 140,
+    "pet_color": 120,
+    "pet_details": 750,
+    "product_description": 1000,
+}
 
 
 class NameGenerationUnavailable(RuntimeError):
@@ -108,6 +125,21 @@ def meaningful_card_text(value) -> str:
     ):
         return ""
     return text
+
+
+def intake_field_max_length(question) -> int:
+    """Return the visible character limit for open intake fields."""
+    if isinstance(question, dict):
+        field_id = str(question.get("id", ""))
+        kind = str(question.get("kind", ""))
+    else:
+        field_id = getattr(question, "id", "")
+        kind = getattr(question, "kind", "")
+    if field_id in INTAKE_FIELD_MAX_LENGTHS:
+        return INTAKE_FIELD_MAX_LENGTHS[field_id]
+    if kind == "textarea":
+        return DEFAULT_TEXTAREA_MAX_LENGTH
+    return DEFAULT_TEXT_INPUT_MAX_LENGTH
 
 
 def collapsed_result_meaning(result) -> str:
@@ -355,6 +387,31 @@ def _reaction_values(snapshot: dict | None) -> dict[str, str]:
     }
 
 
+def beta_unlocked_from_request() -> bool:
+    """Return whether this request is carrying the lightweight paid-beta unlock."""
+    return request.args.get("paid") == "1" or request.form.get("paid") == "1"
+
+
+def beta_payment_link_for(vertical) -> str:
+    """Return the vertical-specific Stripe Payment Link, if configured."""
+    key = f"NAMENGINE_{vertical.slug.upper()}_BETA_PAYMENT_LINK"
+    return os.getenv(key, "").strip()
+
+
+def beta_price_for(vertical) -> str:
+    """Return the vertical-specific beta price display."""
+    key = f"NAMENGINE_{vertical.slug.upper()}_BETA_PRICE"
+    return os.getenv(key, os.getenv("NAMENGINE_BABY_BETA_PRICE", "$19")).strip() or "$19"
+
+
+def beta_cta_label(vertical) -> str:
+    return f"Try {vertical.display_name} Beta risk-free"
+
+
+def beta_unlock_error(vertical) -> str:
+    return f"Unlock the {vertical.display_name} founding beta to generate refined lists."
+
+
 def _brief_from_snapshot(snapshot: dict) -> NamingBrief:
     return NamingBrief(**json_loads(snapshot["session"]["brief_json"]))
 
@@ -402,6 +459,7 @@ def _render_results_snapshot(
             parent_session_id=snapshot["session"]["parent_session_id"],
             original_mode=session_id.startswith("pet-original"),
             refinement_error=refinement_error,
+            beta_unlocked=beta_unlocked_from_request(),
         ),
         status,
     )
@@ -465,6 +523,11 @@ def create_app() -> Flask:
             "feeling_center_icon": feeling_center_icon,
             "meaningful_card_text": meaningful_card_text,
             "collapsed_result_meaning": collapsed_result_meaning,
+            "intake_field_max_length": intake_field_max_length,
+            "other_choice_max_length": OTHER_CHOICE_MAX_LENGTH,
+            "refinement_instruction_max_length": REFINEMENT_INSTRUCTION_MAX_LENGTH,
+            "beta_unlocked_from_request": beta_unlocked_from_request,
+            "beta_cta_label": beta_cta_label,
         }
 
     app.add_template_filter(brief_query_string, "brief_query_string")
@@ -479,14 +542,25 @@ def create_app() -> Flask:
             beta_price=os.getenv("NAMENGINE_BABY_BETA_PRICE", "$19").strip() or "$19",
         )
 
-    @app.get("/baby/beta")
-    def baby_beta():
+    @app.get("/<vertical_slug>/beta")
+    def beta_landing(vertical_slug: str):
+        if vertical_slug not in VERTICALS:
+            abort(404)
+        vertical = get_vertical(vertical_slug)
+        return_session = request.args.get("return_session", "").strip()
+        paid = beta_unlocked_from_request()
+        beta_continue_url = (
+            url_for("session_results", session_id=return_session, paid="1")
+            if paid and return_session
+            else url_for("intake", vertical_slug=vertical.slug, paid="1")
+        )
         return render_template(
             "baby_beta.html",
-            vertical=get_vertical("baby"),
-            stripe_payment_link=os.getenv("NAMENGINE_BABY_BETA_PAYMENT_LINK", "").strip(),
-            beta_price=os.getenv("NAMENGINE_BABY_BETA_PRICE", "$19").strip() or "$19",
-            paid=request.args.get("paid") == "1",
+            vertical=vertical,
+            stripe_payment_link=beta_payment_link_for(vertical),
+            beta_price=beta_price_for(vertical),
+            paid=paid,
+            beta_continue_url=beta_continue_url,
         )
 
     @app.get("/about")
@@ -515,7 +589,11 @@ def create_app() -> Flask:
             abort(404)
 
         vertical = get_vertical(vertical_slug)
-        return render_template("intake.html", vertical=vertical)
+        return render_template(
+            "intake.html",
+            vertical=vertical,
+            beta_unlocked=beta_unlocked_from_request(),
+        )
 
 
     @app.get("/<vertical_slug>/feelings")
@@ -537,6 +615,7 @@ def create_app() -> Flask:
             source=source,
             sections=feeling_section_titles(vertical),
             center_icon=feeling_center_icon(vertical, source),
+            beta_unlocked=beta_unlocked_from_request(),
         )
 
     @app.get("/pet/original")
@@ -582,6 +661,7 @@ def create_app() -> Flask:
             round_number=1,
             parent_session_id=None,
             original_mode=True,
+            beta_unlocked=beta_unlocked_from_request(),
         )
 
     def _create_results_session(vertical, source: dict[str, str]) -> str:
@@ -611,6 +691,8 @@ def create_app() -> Flask:
 
         vertical = get_vertical(vertical_slug)
         session_id = _create_results_session(vertical, request.form.to_dict(flat=True))
+        if beta_unlocked_from_request():
+            return redirect(url_for("session_results", session_id=session_id, paid="1"))
         return redirect(url_for("session_results", session_id=session_id))
 
     @app.get("/<vertical_slug>/results")
@@ -647,6 +729,7 @@ def create_app() -> Flask:
             round_number=1,
             parent_session_id=None,
             original_mode=False,
+            beta_unlocked=beta_unlocked_from_request(),
         )
 
     @app.get("/results/session/<session_id>")
@@ -718,7 +801,7 @@ def create_app() -> Flask:
     @app.post("/refine")
     def refine():
         session_id = str(request.form.get("session_id", ""))
-        instruction = str(request.form.get("instruction", ""))
+        instruction = str(request.form.get("instruction", ""))[:REFINEMENT_INSTRUCTION_MAX_LENGTH]
         if not session_id:
             abort(400)
 
@@ -727,6 +810,14 @@ def create_app() -> Flask:
             abort(404)
 
         reaction_counts = get_reaction_counts(session_id)
+        vertical = get_vertical(snapshot["session"]["vertical"])
+        if not beta_unlocked_from_request():
+            return _render_results_snapshot(
+                session_id,
+                status=402,
+                refinement_error=beta_unlock_error(vertical),
+            )
+
         if _reaction_total(reaction_counts) < MIN_REACTIONS_FOR_REFINEMENT:
             remaining = MIN_REACTIONS_FOR_REFINEMENT - _reaction_total(reaction_counts)
             noun = "name" if remaining == 1 else "names"
@@ -735,8 +826,6 @@ def create_app() -> Flask:
                 status=400,
                 refinement_error=f"React to {remaining} more {noun} before generating the next list.",
             )
-
-        vertical = get_vertical(snapshot["session"]["vertical"])
 
         try:
             child_session_id, brief, names = refine_session(
@@ -752,6 +841,8 @@ def create_app() -> Flask:
         round_number = int(child_snapshot["session"]["round_number"])
         taste_profile = _taste_profile_from_snapshot(child_snapshot)
         if request.headers.get("X-NamEngine-Progress") == "1":
+            if beta_unlocked_from_request():
+                return redirect(url_for("session_results", session_id=child_session_id, paid="1"))
             return redirect(url_for("session_results", session_id=child_session_id))
 
         return render_template(
@@ -767,6 +858,7 @@ def create_app() -> Flask:
             round_number=round_number,
             parent_session_id=session_id,
             original_mode=False,
+            beta_unlocked=beta_unlocked_from_request(),
         )
 
     @app.get("/compare/<session_id>")

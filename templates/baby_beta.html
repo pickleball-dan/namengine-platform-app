@@ -1,40 +1,40 @@
 {% extends "base.html" %}
 
-{% block title %}NamEngine Baby Founding Beta{% endblock %}
+{% block title %}NamEngine {{ vertical.display_name }} Founding Beta{% endblock %}
 
 {% block content %}
 {% if paid %}
 <section class="paid-success-panel" aria-label="Payment success">
   <p class="eyebrow">Payment received</p>
-  <h1>You’re in the NamEngine Baby founding beta.</h1>
-  <p>Start or continue your Baby name discovery below. Keep your Stripe receipt for your records while beta access is being tested.</p>
-  <a class="button-link" href="/baby">Start Baby name discovery</a>
+  <h1>You’re in the NamEngine {{ vertical.display_name }} founding beta.</h1>
+  <p>Start or continue your {{ vertical.display_name }} name discovery below. Keep your Stripe receipt for your records while beta access is being tested.</p>
+  <a class="button-link" href="{{ beta_continue_url }}">Start {{ vertical.display_name }} name discovery</a>
 </section>
 {% endif %}
 
 <section class="beta-hero">
   <div class="beta-hero-copy">
     <p class="eyebrow">Founding beta</p>
-    <h1>NamEngine Baby — find the name that feels right.</h1>
+    <h1>NamEngine {{ vertical.display_name }} — find the name that feels right.</h1>
     {% if paid %}
       <p>You have unlocked deeper taste discovery, fresh rounds, saved-name support, and a clearer final direction.</p>
     {% else %}
-      <p>Start with a free first round, then unlock deeper taste discovery, fresh rounds, saved-name support, and a clearer final direction.</p>
+      <p>Start with a free first round. If you want a smarter second pass, early testers can try {{ vertical.display_name }} Beta risk-free with a 100% refund if it doesn’t feel useful.</p>
     {% endif %}
     {% if not paid %}
       <div class="beta-price-card">
         <span>Founding beta</span>
         <strong>{{ beta_price }}</strong>
-        <small>One-time beta access while we validate the paid experience.</small>
+        <small>One-time beta access for this naming vertical. 100% refund if you’re not satisfied.</small>
       </div>
     {% endif %}
     <div class="hero-actions">
       {% if paid %}
-        <a class="button-link" href="/baby">Start Baby name discovery</a>
+        <a class="button-link" href="{{ beta_continue_url }}">Start {{ vertical.display_name }} name discovery</a>
       {% else %}
-        <a class="button-link" href="/baby">Try the first round</a>
+        <a class="button-link" href="{{ vertical.route_prefix }}">Try the first round</a>
         {% if stripe_payment_link %}
-          <a class="button-link secondary-button" href="{{ stripe_payment_link }}">Join paid beta</a>
+          <a class="button-link secondary-button" href="{{ stripe_payment_link }}">{{ beta_cta_label(vertical) }}</a>
         {% else %}
           <a class="button-link secondary-button" href="#founding-access">Request founding access</a>
         {% endif %}
@@ -46,7 +46,7 @@
     <ul class="beta-includes-list">
       <li><span aria-hidden="true">✦</span> Multiple guided name-discovery rounds</li>
       <li><span aria-hidden="true">✦</span> Save, compare, and share favorite-name tools</li>
-      <li><span aria-hidden="true">✦</span> Optional cultural / heritage direction</li>
+      <li><span aria-hidden="true">✦</span> Optional context and style direction</li>
       <li><span aria-hidden="true">✦</span> Plain-English fit notes and risks</li>
       <li><span aria-hidden="true">✦</span> Clear limitations and data-protection expectations</li>
     </ul>
@@ -56,15 +56,15 @@
 <section class="beta-grid" aria-label="Paid beta details">
   <article>
     <h2>Free first</h2>
-    <p>Use the Baby flow and get an initial taste-shaped list before paying. The goal is to feel whether NamEngine understands your lane.</p>
+    <p>Use the {{ vertical.display_name }} flow and get an initial taste-shaped list before paying. The goal is to feel whether NamEngine understands your lane.</p>
   </article>
   <article>
-    <h2>Paid depth</h2>
-    <p>The paid beta is for deeper rounds, sharper refinement, name confidence, and a clearer final decision path.</p>
+    <h2>Risk-free early access</h2>
+    <p>Try the deeper rounds and refinement tools as an early tester. If it doesn’t feel useful, ask for a 100% refund.</p>
   </article>
   <article>
-    <h2>Important limitations</h2>
-    <p>No name generator can guarantee family approval, cultural fit, official acceptance, availability, or future associations. NamEngine helps discovery; you make the decision.</p>
+    <h2>Separate vertical access</h2>
+    <p>Each naming vertical has its own beta access, so you can try Baby, Pet, Business, and future flows separately.</p>
   </article>
 </section>
 
@@ -85,16 +85,16 @@
 
 <section id="founding-access" class="beta-final-cta">
   <p class="eyebrow">Founding access</p>
-  <h2>Want to be one of the first paid beta users?</h2>
+  <h2>Want to be one of the first {{ vertical.display_name }} paid beta users?</h2>
   {% if paid %}
-    <p>Your test payment returned successfully. Continue into the Baby flow and start finding names you love.</p>
-    <a class="button-link" href="/baby">Start Baby name discovery</a>
+    <p>Your test payment returned successfully. Continue into the {{ vertical.display_name }} flow and start finding names you love.</p>
+    <a class="button-link" href="{{ beta_continue_url }}">Start {{ vertical.display_name }} name discovery</a>
   {% elif stripe_payment_link %}
-    <p>Checkout is available now. You’ll get one-time founding beta access for deeper Baby name discovery.</p>
-    <a class="button-link" href="{{ stripe_payment_link }}">Join paid beta</a>
+    <p>Checkout is available now. You’ll get one-time founding beta access for deeper {{ vertical.display_name }} name discovery, with a 100% refund if you’re not satisfied.</p>
+    <a class="button-link" href="{{ stripe_payment_link }}">{{ beta_cta_label(vertical) }}</a>
   {% else %}
     <p>Founding access is opening in a small batch first. Try the first round now, then use the invitation channel to request paid beta access.</p>
-    <a class="button-link" href="/baby">Try the first round</a>
+    <a class="button-link" href="{{ vertical.route_prefix }}">Try the first round</a>
   {% endif %}
 </section>
 {% endblock %}

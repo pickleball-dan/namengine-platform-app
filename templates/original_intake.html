@@ -28,7 +28,7 @@
             {% endfor %}
           </div>
           <input class="pet-native-control" id="pet_type" name="pet_type" required data-other-select="pet_type_other" tabindex="-1" aria-hidden="true">
-          <input class="other-choice-input" id="pet_type_other" name="pet_type_other" data-other-input placeholder="Enter your own" hidden disabled>
+          <input class="other-choice-input" id="pet_type_other" name="pet_type_other" data-other-input maxlength="{{ other_choice_max_length }}" placeholder="Enter your own" hidden disabled>
         </label>
         <label class="field" for="pet_gender">
           <span>Gender<em>Optional</em></span>
@@ -44,11 +44,11 @@
         </label>
         <label class="field" for="pet_breed">
           <span>Breed / mix<em>Optional</em></span>
-          <input id="pet_breed" name="pet_breed" placeholder="Golden retriever, tabby, mixed breed...">
+          <input id="pet_breed" name="pet_breed" maxlength="{{ intake_field_max_length({'id': 'pet_breed', 'kind': 'text'}) }}" placeholder="Golden retriever, tabby, mixed breed...">
         </label>
         <label class="field" for="pet_color">
           <span>Color / markings<em>Required</em></span>
-          <input id="pet_color" name="pet_color" required placeholder="Honey, black and white, brindle, gray tabby...">
+          <input id="pet_color" name="pet_color" maxlength="{{ intake_field_max_length({'id': 'pet_color', 'kind': 'text'}) }}" required placeholder="Honey, black and white, brindle, gray tabby...">
           <small>Required because we use this for the generated pet portrait.</small>
         </label>
         <label class="field" for="pet_life_stage">
@@ -65,7 +65,7 @@
         </label>
         <label class="field" for="pet_details">
           <span>Any other details that should shape the name or portrait?<em>Optional</em></span>
-          <textarea id="pet_details" name="pet_details" placeholder="Size, markings, backstory, quirks, anything visually important..."></textarea>
+          <textarea id="pet_details" name="pet_details" maxlength="{{ intake_field_max_length({'id': 'pet_details', 'kind': 'textarea'}) }}" placeholder="Size, markings, backstory, quirks, anything visually important..."></textarea>
         </label>
       </fieldset>
 
@@ -141,11 +141,11 @@
         </label>
         <label class="field" for="avoid_feel">
           <span>What should the name avoid feeling like?<em>Optional</em></span>
-          <input id="avoid_feel" name="avoid_feel" placeholder="Too trendy, fantasy-ish, overly soft, hard to say...">
+          <input id="avoid_feel" name="avoid_feel" maxlength="{{ intake_field_max_length({'id': 'avoid', 'kind': 'text'}) }}" placeholder="Too trendy, fantasy-ish, overly soft, hard to say...">
         </label>
         <label class="field" for="partner_alignment">
           <span>Anything you're torn between?<em>Optional</em></span>
-          <textarea id="partner_alignment" name="partner_alignment" placeholder="Cute or serious, silly or elegant, human-name or pet-name..."></textarea>
+          <textarea id="partner_alignment" name="partner_alignment" maxlength="{{ intake_field_max_length({'id': 'partner_alignment', 'kind': 'textarea'}) }}" placeholder="Cute or serious, silly or elegant, human-name or pet-name..."></textarea>
         </label>
       </fieldset>
 

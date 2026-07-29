@@ -164,7 +164,7 @@ class ResultsMobileStabilizationTest(unittest.TestCase):
 
         response = self.client.post(
             "/refine",
-            data={"session_id": session_id, "instruction": "shorter"},
+            data={"session_id": session_id, "instruction": "shorter", "paid": "1"},
         )
 
         self.assertEqual(response.status_code, 400)
@@ -196,8 +196,8 @@ class ResultsMobileStabilizationTest(unittest.TestCase):
         self.assertIn("main > .home-verticals > .home-vertical-grid", css[hotfix:])
         self.assertIn("grid-template-columns: minmax(0, 1fr);", css[hotfix:])
         self.assertIn("20260727-business-biz-tones-v1", body)
-        self.assertIn("home-visual-panel", body)
-        self.assertIn("home-taste-panel", body)
+        self.assertIn("landing-demo-card", body)
+        self.assertIn("landing-demo-carousel", body)
         self.assertNotIn("home-system-panel", body)
 
 
