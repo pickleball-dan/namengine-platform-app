@@ -32,6 +32,9 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.assertIn("July 20, 2026", text)
         self.assertIn("trusted AI service providers", text)
         self.assertIn("NamEngine does not sell personal information", text)
+        self.assertIn("checkout continuity cookie", text)
+        self.assertIn("namengine_beta_return_*", text)
+        self.assertIn("does not contain payment card information", text)
         self.assertIn("support@nam-engine.com", text)
         self.assertNotIn("replace with your preferred contact email", text)
 
@@ -70,6 +73,9 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.assertIn("July 20, 2026", text)
         self.assertIn("We never sell your personal information", text)
         self.assertIn("trusted artificial intelligence technology providers", text)
+        self.assertIn("checkout continuity cookie", text)
+        self.assertIn("namengine_beta_return_*", text)
+        self.assertIn("does not contain payment card information", text)
         self.assertIn("privacy@nam-engine.com", text)
 
     def test_footer_has_trust_links_and_pricing(self):
