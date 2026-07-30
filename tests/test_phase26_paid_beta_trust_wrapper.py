@@ -336,9 +336,9 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
                 self.assertIn("100% money-back guarantee", text)
                 self.assertNotIn("Separate vertical access", text)
 
-    def test_vertical_beta_uses_vertical_specific_payment_link_and_price(self):
+    def test_vertical_beta_uses_vertical_specific_payment_link_and_stripe_price_source(self):
         previous_link = os.environ.get("NAMENGINE_PET_BETA_PAYMENT_LINK")
-        previous_price = os.environ.get("NAMENGINE_PET_BETA_PRICE")
+        previous_env_price = os.environ.get("NAMENGINE_PET_BETA_PRICE")
         os.environ["NAMENGINE_PET_BETA_PAYMENT_LINK"] = "https://buy.stripe.com/pet_test"
         os.environ["NAMENGINE_PET_BETA_PRICE"] = "$7"
         try:
@@ -349,15 +349,16 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
                 os.environ.pop("NAMENGINE_PET_BETA_PAYMENT_LINK", None)
             else:
                 os.environ["NAMENGINE_PET_BETA_PAYMENT_LINK"] = previous_link
-            if previous_price is None:
+            if previous_env_price is None:
                 os.environ.pop("NAMENGINE_PET_BETA_PRICE", None)
             else:
-                os.environ["NAMENGINE_PET_BETA_PRICE"] = previous_price
+                os.environ["NAMENGINE_PET_BETA_PRICE"] = previous_env_price
 
         self.assertEqual(response.status_code, 200)
         self.assertIn('/pet/access/checkout', text)
         self.assertNotIn('href="https://buy.stripe.com/pet_test"', text)
-        self.assertIn("$7", text)
+        self.assertNotIn("$7", text)
+        self.assertIn("$9.99", text)
         self.assertIn("Unlock Pet Access", text)
 
     def test_free_business_results_lock_refinement_behind_vertical_beta(self):

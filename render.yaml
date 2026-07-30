@@ -28,9 +28,9 @@ services:
         value: /var/data
       - key: NAMENGINE_IMAGE_RETENTION_DAYS
         value: "30"
-      - key: NAMENGINE_BABY_BETA_PRICE
-        value: "$9.99"
       - key: NAMENGINE_BABY_BETA_PAYMENT_LINK
+        sync: false
+      - key: STRIPE_SECRET_KEY
         sync: false
       - key: OPENAI_API_KEY
         sync: false

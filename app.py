@@ -7,10 +7,13 @@ import os
 import re
 import time
 from datetime import datetime, timezone
+from base64 import b64encode
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
 from hmac import compare_digest, new as hmac_new
 from threading import Lock, Thread
 from hashlib import sha1
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlparse
 
 from flask import Flask, abort, jsonify, make_response, redirect, render_template, request, send_from_directory, url_for
 
@@ -469,17 +472,136 @@ def beta_payment_link_for(vertical) -> str:
     return os.getenv(key, "").strip()
 
 
-def _normalize_beta_price(price: str) -> str:
-    price = str(price or "").strip()
-    if not price or price in {"$19", "$19.00", "$19.99"}:
-        return "$9.99"
-    return price
+def _payment_link_id_from_value(value: str) -> str:
+    value = str(value or "").strip()
+    if value.startswith("plink_"):
+        return value
+    parsed_path = urlparse(value).path.strip("/")
+    for part in parsed_path.split("/"):
+        if part.startswith("plink_"):
+            return part
+    return ""
+
+
+def beta_payment_link_id_for(vertical) -> str:
+    """Return a configured Stripe Payment Link id, if available."""
+    slug = vertical.slug.upper()
+    for key in (
+        f"NAMENGINE_{slug}_STRIPE_PAYMENT_LINK_ID",
+        f"NAMENGINE_{slug}_BETA_PAYMENT_LINK_ID",
+        "NAMENGINE_STRIPE_PAYMENT_LINK_ID",
+    ):
+        value = _payment_link_id_from_value(os.getenv(key, ""))
+        if value:
+            return value
+    return _payment_link_id_from_value(beta_payment_link_for(vertical))
+
+
+def _stripe_secret_key() -> str:
+    return (
+        os.getenv("STRIPE_SECRET_KEY", "").strip()
+        or os.getenv("NAMENGINE_STRIPE_SECRET_KEY", "").strip()
+    )
+
+
+def _format_stripe_price(unit_amount: int | None, currency: str | None) -> str:
+    if unit_amount is None:
+        return ""
+    currency = str(currency or "usd").upper()
+    major = unit_amount / 100
+    if currency == "USD":
+        return f"${major:,.2f}"
+    return f"{major:,.2f} {currency}"
+
+
+_STRIPE_PRICE_CACHE: dict[str, tuple[float, str]] = {}
+_STRIPE_LINK_ID_CACHE: dict[str, tuple[float, str]] = {}
+_STRIPE_PRICE_CACHE_LOCK = Lock()
+_STRIPE_PRICE_CACHE_SECONDS = 15 * 60
+
+
+def _stripe_api_get(path: str, secret_key: str) -> dict:
+    auth = b64encode(f"{secret_key}:".encode("utf-8")).decode("ascii")
+    request = Request(
+        f"https://api.stripe.com/v1/{path.lstrip('/')}",
+        headers={"Authorization": f"Basic {auth}"},
+    )
+    with urlopen(request, timeout=8) as response:
+        return json_loads(response.read().decode("utf-8"))
+
+
+def _stripe_payment_link_id_from_url(payment_link_url: str, secret_key: str) -> str:
+    payment_link_url = str(payment_link_url or "").strip()
+    if not payment_link_url or not secret_key:
+        return ""
+
+    now = time.time()
+    with _STRIPE_PRICE_CACHE_LOCK:
+        cached = _STRIPE_LINK_ID_CACHE.get(payment_link_url)
+        if cached and now - cached[0] < _STRIPE_PRICE_CACHE_SECONDS:
+            return cached[1]
+
+    try:
+        payload = _stripe_api_get("payment_links?limit=100", secret_key)
+    except (HTTPError, URLError, TimeoutError, ValueError, OSError) as exc:
+        logger.warning("Could not list Stripe payment links: %s", exc.__class__.__name__)
+        return ""
+
+    data = payload.get("data") if isinstance(payload, dict) else None
+    if not isinstance(data, list):
+        return ""
+    for item in data:
+        if not isinstance(item, dict):
+            continue
+        if str(item.get("url") or "").strip() == payment_link_url:
+            payment_link_id = str(item.get("id") or "").strip()
+            if payment_link_id:
+                with _STRIPE_PRICE_CACHE_LOCK:
+                    _STRIPE_LINK_ID_CACHE[payment_link_url] = (now, payment_link_id)
+                return payment_link_id
+    return ""
+
+
+def _stripe_payment_link_price(payment_link_id: str, secret_key: str) -> str:
+    """Read the first active line-item price from Stripe for a Payment Link."""
+    payment_link_id = str(payment_link_id or "").strip()
+    if not payment_link_id or not secret_key:
+        return ""
+
+    now = time.time()
+    with _STRIPE_PRICE_CACHE_LOCK:
+        cached = _STRIPE_PRICE_CACHE.get(payment_link_id)
+        if cached and now - cached[0] < _STRIPE_PRICE_CACHE_SECONDS:
+            return cached[1]
+
+    try:
+        payload = _stripe_api_get(f"payment_links/{payment_link_id}/line_items?limit=1", secret_key)
+    except (HTTPError, URLError, TimeoutError, ValueError, OSError) as exc:
+        logger.warning("Could not load Stripe price for %s: %s", payment_link_id, exc.__class__.__name__)
+        return ""
+
+    data = payload.get("data") if isinstance(payload, dict) else None
+    item = data[0] if isinstance(data, list) and data else {}
+    price = item.get("price") if isinstance(item, dict) else {}
+    if not isinstance(price, dict):
+        return ""
+    display_price = _format_stripe_price(price.get("unit_amount"), price.get("currency"))
+    if display_price:
+        with _STRIPE_PRICE_CACHE_LOCK:
+            _STRIPE_PRICE_CACHE[payment_link_id] = (now, display_price)
+    return display_price
 
 
 def beta_price_for(vertical) -> str:
-    """Return the vertical-specific access price display."""
-    key = f"NAMENGINE_{vertical.slug.upper()}_BETA_PRICE"
-    return _normalize_beta_price(os.getenv(key, os.getenv("NAMENGINE_BABY_BETA_PRICE", "$9.99")))
+    """Return the Stripe-backed vertical access price display."""
+    secret_key = _stripe_secret_key()
+    payment_link_id = beta_payment_link_id_for(vertical)
+    if not payment_link_id:
+        payment_link_id = _stripe_payment_link_id_from_url(beta_payment_link_for(vertical), secret_key)
+    stripe_price = _stripe_payment_link_price(payment_link_id, secret_key)
+    if stripe_price:
+        return stripe_price
+    return "$9.99"
 
 
 def beta_cta_label(vertical) -> str:
@@ -628,7 +750,7 @@ def create_app() -> Flask:
         return render_template(
             "index.html",
             verticals=VERTICALS,
-            beta_price=_normalize_beta_price(os.getenv("NAMENGINE_BABY_BETA_PRICE", "$9.99")),
+            beta_price=beta_price_for(get_vertical("baby")),
         )
 
     @app.get("/<vertical_slug>/beta")
