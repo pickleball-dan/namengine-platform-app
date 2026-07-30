@@ -16,6 +16,8 @@ services:
         value: "5000"
       - key: NAMENGINE_TELEMETRY_TOKEN
         sync: false
+      - key: NAMENGINE_ACCESS_TOKEN_SECRET
+        sync: false
       - key: NAMENGINE_AI_PRIMARY_VERTICALS
         value: baby,pet,business
       - key: NAMENGINE_DB_PATH

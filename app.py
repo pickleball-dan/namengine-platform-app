@@ -6,6 +6,7 @@ import logging
 import os
 import re
 import time
+from secrets import token_urlsafe
 from datetime import datetime, timezone
 from base64 import b64encode
 from urllib.error import HTTPError, URLError
@@ -75,6 +76,7 @@ from namengine.verticals import VERTICALS, get_vertical
 
 
 logger = logging.getLogger(__name__)
+_LOCAL_BETA_ACCESS_SECRET = token_urlsafe(32)
 _portrait_jobs: set[str] = set()
 _portrait_jobs_lock = Lock()
 MIN_REACTIONS_FOR_REFINEMENT = 3
@@ -394,7 +396,7 @@ def _beta_access_secret() -> str:
     return (
         os.getenv("NAMENGINE_ACCESS_TOKEN_SECRET", "").strip()
         or os.getenv("NAMENGINE_TELEMETRY_TOKEN", "").strip()
-        or "namengine-local-access-token"
+        or _LOCAL_BETA_ACCESS_SECRET
     )
 
 
@@ -619,9 +621,7 @@ def _stripe_checkout_session_paid(session_id: str, vertical) -> bool:
         secret_key,
     )
     session_payment_link = str(payload.get("payment_link") or "").strip()
-    if payment_link_id:
-        return session_payment_link == payment_link_id
-    return bool(session_payment_link)
+    return bool(payment_link_id) and session_payment_link == payment_link_id
 
 
 def beta_stripe_checkout_session_id_from_request() -> str:
@@ -656,10 +656,13 @@ def beta_return_cookie_name(vertical) -> str:
 
 
 def beta_return_session_for(vertical) -> str:
-    return (
+    return_session = (
         request.args.get("return_session", "").strip()
         or request.cookies.get(beta_return_cookie_name(vertical), "").strip()
     )
+    if return_session and not return_session.startswith(f"{vertical.slug}-"):
+        return ""
+    return return_session
 
 
 def _brief_from_snapshot(snapshot: dict) -> NamingBrief:

@@ -2,12 +2,51 @@ import os
 import unittest
 from unittest.mock import patch
 
-from app import create_app
+import app as namengine_app
+from app import create_app, _beta_access_secret, _stripe_checkout_session_paid
+from namengine.verticals import get_vertical
 
 
 class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
     def setUp(self):
         self.app = create_app().test_client()
+
+    def test_access_secret_does_not_fall_back_to_public_constant(self):
+        previous_access = os.environ.pop("NAMENGINE_ACCESS_TOKEN_SECRET", None)
+        previous_telemetry = os.environ.pop("NAMENGINE_TELEMETRY_TOKEN", None)
+        try:
+            self.assertNotEqual(_beta_access_secret(), "namengine-local-access-token")
+        finally:
+            if previous_access is not None:
+                os.environ["NAMENGINE_ACCESS_TOKEN_SECRET"] = previous_access
+            if previous_telemetry is not None:
+                os.environ["NAMENGINE_TELEMETRY_TOKEN"] = previous_telemetry
+
+    def test_stripe_checkout_verification_fails_closed_without_matching_payment_link(self):
+        previous_secret = os.environ.get("STRIPE_SECRET_KEY")
+        previous_link = os.environ.pop("NAMENGINE_BABY_BETA_PAYMENT_LINK", None)
+        previous_link_id = os.environ.pop("NAMENGINE_BABY_STRIPE_PAYMENT_LINK_ID", None)
+        os.environ["STRIPE_SECRET_KEY"] = "sk_test_example"
+        try:
+            with patch.object(
+                namengine_app,
+                "_stripe_api_get",
+                return_value={
+                    "payment_status": "paid",
+                    "status": "complete",
+                    "payment_link": "plink_other",
+                },
+            ):
+                self.assertFalse(_stripe_checkout_session_paid("cs_test_paid", get_vertical("baby")))
+        finally:
+            if previous_secret is None:
+                os.environ.pop("STRIPE_SECRET_KEY", None)
+            else:
+                os.environ["STRIPE_SECRET_KEY"] = previous_secret
+            if previous_link is not None:
+                os.environ["NAMENGINE_BABY_BETA_PAYMENT_LINK"] = previous_link
+            if previous_link_id is not None:
+                os.environ["NAMENGINE_BABY_STRIPE_PAYMENT_LINK_ID"] = previous_link_id
 
     def test_public_legal_pages_render(self):
         pages = {
@@ -99,6 +138,8 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.assertIn("Paid access", text)
         self.assertIn("What paid access includes:", text)
         self.assertIn("beta-includes-list", text)
+        self.assertIn("Refined rounds shaped by your Love and No reactions", text)
+        self.assertNotIn("Save, compare, and share favorite-name tools", text)
         self.assertIn("$9.99", text)
         self.assertNotIn("$19", text)
         self.assertNotIn("Try the first round", text)
@@ -142,6 +183,24 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.assertIn("shaped by your first reactions", text)
         self.assertIn("Unlock Pet Access", text)
         self.assertIn('/pet/access/checkout?return_session=pet-testsession', text)
+
+    def test_cross_vertical_return_session_is_ignored_on_access_page(self):
+        previous = os.environ.get("NAMENGINE_BABY_BETA_PAYMENT_LINK")
+        os.environ["NAMENGINE_BABY_BETA_PAYMENT_LINK"] = "https://buy.stripe.com/baby_test"
+        try:
+            response = self.app.get("/baby/access?return_session=pet-testsession")
+            text = response.get_data(as_text=True)
+        finally:
+            if previous is None:
+                os.environ.pop("NAMENGINE_BABY_BETA_PAYMENT_LINK", None)
+            else:
+                os.environ["NAMENGINE_BABY_BETA_PAYMENT_LINK"] = previous
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn("pet-testsession", text)
+        self.assertNotIn("shaped by your first reactions", text)
+        self.assertIn("Start with a free first round", text)
+        self.assertIn('/baby/access/checkout', text)
 
     def test_naked_paid_query_does_not_unlock_access_page(self):
         response = self.app.get("/baby/access?paid=1")
@@ -405,6 +464,8 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
                 self.assertIn(f"NamEngine {label}", text)
                 self.assertIn("Paid access", text)
                 self.assertIn("What paid access includes:", text)
+                self.assertIn("Refined rounds shaped by your Love and No reactions", text)
+                self.assertNotIn("Save, compare, and share favorite-name tools", text)
                 self.assertIn("$9.99", text)
                 self.assertNotIn("$19", text)
                 self.assertNotIn("Try the first round", text)
