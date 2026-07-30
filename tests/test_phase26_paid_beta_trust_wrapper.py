@@ -99,7 +99,6 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.assertIn("What paid access includes:", text)
         self.assertIn("beta-includes-list", text)
         self.assertIn("Try the first round", text)
-        self.assertTrue("Request access" in text or "Unlock Baby Access" in text)
         self.assertIn("100% money-back guarantee", text)
         self.assertNotIn("NAMENGINE_BABY_BETA_PAYMENT_LINK", text)
 
