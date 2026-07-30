@@ -272,10 +272,10 @@
       </div>
       {% if not beta_unlocked %}
         <div class="bottom-refine-form beta-refine-lock" aria-label="{{ beta_cta_label(vertical) }}">
-          <p class="eyebrow">Founding beta</p>
+          <p class="eyebrow">Paid access</p>
           <h3>{% if vertical.slug == "baby" %}Want a smarter second list?{% else %}Want a sharper next list?{% endif %}</h3>
-          <p>Your first list is free. Early testers can try {{ vertical.display_name }} Beta risk-free: refined rounds shaped by your Love and No reactions, with a 100% refund if it doesn’t feel useful.</p>
-          <a class="button-link" href="/{{ vertical.slug }}/beta?return_session={{ session_id }}">{{ beta_cta_label(vertical) }}</a>
+          <p>Your first list is free. Unlock {{ vertical.display_name }} access for refined rounds shaped by your Love and No reactions, backed by a 100% money-back guarantee if NamEngine doesn’t feel useful.</p>
+          <a class="button-link" href="/{{ vertical.slug }}/access?return_session={{ session_id }}">{{ beta_cta_label(vertical) }}</a>
           {% if refinement_error %}
             <p class="refine-reaction-gate is-error" aria-live="polite">{{ refinement_error }}</p>
           {% endif %}

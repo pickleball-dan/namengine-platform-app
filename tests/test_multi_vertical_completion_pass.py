@@ -74,7 +74,7 @@ class MultiVerticalCompletionPassTest(unittest.TestCase):
         self.assertNotIn('href="/product"', home)
         self.assertNotIn('href="/character"', home)
         self.assertIn('href="/#pricing"', home)
-        self.assertIn('href="/baby/beta"', home)
+        self.assertIn('href="/baby/access"', home)
 
         flow_header = self.client.get("/pet").get_data(as_text=True).split("</header>", 1)[0]
         self.assertIn('href="/"', flow_header)
@@ -84,7 +84,7 @@ class MultiVerticalCompletionPassTest(unittest.TestCase):
 
         self.assertEqual(self.client.get("/product").status_code, 200)
         self.assertEqual(self.client.get("/character").status_code, 200)
-        self.assertEqual(self.client.get("/baby/beta").status_code, 200)
+        self.assertEqual(self.client.get("/baby/access").status_code, 200)
 
     def test_public_legal_routes_are_unchanged(self):
         for route in ("/privacy", "/terms", "/disclaimers", "/data-protection"):

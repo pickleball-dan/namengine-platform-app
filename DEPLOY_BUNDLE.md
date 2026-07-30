@@ -1,28 +1,28 @@
 # Deploy Bucket
 
-## Cross-vertical risk-free beta refinement gate bundle
+## Cross-vertical paid-access refinement gate bundle
 
 Status: ready for validation/push
 Branch: current working tree / next local-first release batch
 
 Included intent:
-- Generalize the existing Stripe Payment Link beta wrapper to every active naming vertical via `/<vertical>/beta`.
+- Generalize the existing Stripe Payment Link wrapper to every active naming vertical via `/<vertical>/access` while keeping legacy `/<vertical>/beta` routes as internal/backward-compatible aliases.
 - Keep the full first intake, first generated list, and Love/No reactions free for Baby, Pet, Business, and future verticals.
-- Replace the free second-list/refinement form with one centered risk-free beta unlock panel.
-- Remove the duplicate lower “Try Baby Beta risk-free” CTA from the secondary action row.
-- Offer early testers a clear 100% satisfaction refund if the vertical beta does not feel useful.
+- Replace the free second-list/refinement form with one centered paid-access unlock panel.
+- Remove the duplicate lower paid-access CTA from the secondary action row.
+- Offer a clear 100% money-back guarantee if NamEngine does not feel useful.
 - Block free `/refine` requests server-side with a 402 paywall response for each vertical.
-- Preserve the lightweight `paid=1` success-return state through beta success, intake, feelings, results, and refine.
-- Allow paid users to continue to an existing session when the beta success page receives `return_session`.
-- Use separate payment environment variables per vertical: `NAMENGINE_BABY_BETA_PAYMENT_LINK`, `NAMENGINE_PET_BETA_PAYMENT_LINK`, `NAMENGINE_BUSINESS_BETA_PAYMENT_LINK`, etc.
-- Use separate display-price environment variables per vertical: `NAMENGINE_BABY_BETA_PRICE`, `NAMENGINE_PET_BETA_PRICE`, `NAMENGINE_BUSINESS_BETA_PRICE`, etc.
+- Preserve the lightweight `paid=1` success-return state through access success, intake, feelings, results, and refine.
+- Allow paid users to continue to an existing session when the access success page receives `return_session`.
+- Use separate internal payment environment variables per vertical: `NAMENGINE_BABY_BETA_PAYMENT_LINK`, `NAMENGINE_PET_BETA_PAYMENT_LINK`, `NAMENGINE_BUSINESS_BETA_PAYMENT_LINK`, etc.
+- Use separate internal display-price environment variables per vertical: `NAMENGINE_BABY_BETA_PRICE`, `NAMENGINE_PET_BETA_PRICE`, `NAMENGINE_BUSINESS_BETA_PRICE`, etc.
 
 Expected customer-facing effect:
-- Free users can try the full first list, then see a single centered “Try {Vertical} Beta risk-free” unlock moment.
-- Each vertical has its own beta checkout route and payment link, so users can try Baby, Pet, and Business separately.
-- The unlock CTA reads as risk-free early access, backed by the 100% refund promise.
+- Free users can try the full first list, then see a single centered “Unlock {Vertical} Access” moment.
+- Each vertical has its own checkout route and payment link, so users can use Baby, Pet, and Business separately.
+- The unlock CTA reads as paid access, backed by the 100% money-back guarantee.
 - Paid/success-return users can generate refined lists once they have enough reactions.
-- Paid users do not see the risk-free CTA duplicated below Compare/Share.
+- Paid users do not see any beta/risk-free CTA duplicated below Compare/Share.
 
 Validation run:
 - `python -m py_compile app.py tests/test_phase26_paid_beta_trust_wrapper.py`

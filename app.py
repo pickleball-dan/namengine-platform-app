@@ -388,7 +388,7 @@ def _reaction_values(snapshot: dict | None) -> dict[str, str]:
 
 
 def beta_unlocked_from_request() -> bool:
-    """Return whether this request is carrying the lightweight paid-beta unlock."""
+    """Return whether this request is carrying the lightweight paid-access unlock."""
     return request.args.get("paid") == "1" or request.form.get("paid") == "1"
 
 
@@ -399,21 +399,21 @@ def beta_payment_link_for(vertical) -> str:
 
 
 def beta_price_for(vertical) -> str:
-    """Return the vertical-specific beta price display."""
+    """Return the vertical-specific access price display."""
     key = f"NAMENGINE_{vertical.slug.upper()}_BETA_PRICE"
     return os.getenv(key, os.getenv("NAMENGINE_BABY_BETA_PRICE", "$19")).strip() or "$19"
 
 
 def beta_cta_label(vertical) -> str:
-    return f"Try {vertical.display_name} Beta risk-free"
+    return f"Unlock {vertical.display_name} Access"
 
 
 def beta_unlock_error(vertical) -> str:
-    return f"Unlock the {vertical.display_name} founding beta to generate refined lists."
+    return f"Unlock {vertical.display_name} access to generate refined lists."
 
 
 def beta_return_cookie_name(vertical) -> str:
-    return f"namengine_beta_return_{vertical.slug}"
+    return f"namengine_access_return_{vertical.slug}"
 
 
 def beta_return_session_for(vertical) -> str:
@@ -554,6 +554,7 @@ def create_app() -> Flask:
         )
 
     @app.get("/<vertical_slug>/beta")
+    @app.get("/<vertical_slug>/access")
     def beta_landing(vertical_slug: str):
         if vertical_slug not in VERTICALS:
             abort(404)
@@ -588,6 +589,7 @@ def create_app() -> Flask:
         return response
 
     @app.get("/<vertical_slug>/beta/checkout")
+    @app.get("/<vertical_slug>/access/checkout")
     def beta_checkout(vertical_slug: str):
         if vertical_slug not in VERTICALS:
             abort(404)

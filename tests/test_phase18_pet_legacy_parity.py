@@ -384,7 +384,7 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
     def test_feedback_route_renders_and_accepts_submission(self):
         response = self.client.get("/feedback")
         self.assertEqual(response.status_code, 200)
-        self.assertIn("Beta feedback", response.get_data(as_text=True))
+        self.assertIn("Feedback", response.get_data(as_text=True))
 
         submitted = self.client.post("/feedback", data={"overall_rating": "Promising"})
         self.assertEqual(submitted.status_code, 200)

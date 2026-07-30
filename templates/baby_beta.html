@@ -1,31 +1,31 @@
 {% extends "base.html" %}
 
-{% block title %}NamEngine {{ vertical.display_name }} Founding Beta{% endblock %}
+{% block title %}NamEngine {{ vertical.display_name }} Access{% endblock %}
 
 {% block content %}
 {% if paid %}
 <section class="paid-success-panel" aria-label="Payment success">
   <p class="eyebrow">Payment received</p>
-  <h1>You’re in the NamEngine {{ vertical.display_name }} founding beta.</h1>
-  <p>Start or continue your {{ vertical.display_name }} name discovery below. Keep your Stripe receipt for your records while beta access is being tested.</p>
+  <h1>You’ve unlocked NamEngine {{ vertical.display_name }} access.</h1>
+  <p>Start or continue your {{ vertical.display_name }} name discovery below. Keep your Stripe receipt for your records.</p>
   <a class="button-link" href="{{ beta_continue_url }}">Start {{ vertical.display_name }} name discovery</a>
 </section>
 {% endif %}
 
 <section class="beta-hero">
   <div class="beta-hero-copy">
-    <p class="eyebrow">Founding beta</p>
+    <p class="eyebrow">Paid access</p>
     <h1>NamEngine {{ vertical.display_name }} — find the name that feels right.</h1>
     {% if paid %}
       <p>You have unlocked deeper taste discovery, fresh rounds, saved-name support, and a clearer final direction.</p>
     {% else %}
-      <p>Start with a free first round. If you want a smarter second pass, early testers can try {{ vertical.display_name }} Beta risk-free with a 100% refund if it doesn’t feel useful.</p>
+      <p>Start with a free first round. Unlock deeper {{ vertical.display_name }} discovery when you want refined rounds shaped by your taste.</p>
     {% endif %}
     {% if not paid %}
       <div class="beta-price-card">
-        <span>Founding beta</span>
+        <span>Paid access</span>
         <strong>{{ beta_price }}</strong>
-        <small>One-time beta access for this naming vertical. 100% refund if you’re not satisfied.</small>
+        <small>One-time access for this naming vertical, backed by a 100% money-back guarantee if NamEngine doesn’t feel useful.</small>
       </div>
     {% endif %}
     <div class="hero-actions">
@@ -35,14 +35,12 @@
         <a class="button-link" href="{{ vertical.route_prefix }}">Try the first round</a>
         {% if stripe_payment_link %}
           <a class="button-link secondary-button" href="{{ beta_checkout_url }}">{{ beta_cta_label(vertical) }}</a>
-        {% else %}
-          <a class="button-link secondary-button" href="#founding-access">Request founding access</a>
         {% endif %}
       {% endif %}
     </div>
   </div>
-  <aside class="beta-trust-card" aria-label="Beta trust summary">
-    <h2>What paid beta includes:</h2>
+  <aside class="beta-trust-card" aria-label="Access summary">
+    <h2>What paid access includes:</h2>
     <ul class="beta-includes-list">
       <li><span aria-hidden="true">✦</span> Multiple guided name-discovery rounds</li>
       <li><span aria-hidden="true">✦</span> Save, compare, and share favorite-name tools</li>
@@ -51,21 +49,6 @@
       <li><span aria-hidden="true">✦</span> Clear limitations and data-protection expectations</li>
     </ul>
   </aside>
-</section>
-
-<section class="beta-grid" aria-label="Paid beta details">
-  <article>
-    <h2>Free first</h2>
-    <p>Use the {{ vertical.display_name }} flow and get an initial taste-shaped list before paying. The goal is to feel whether NamEngine understands your lane.</p>
-  </article>
-  <article>
-    <h2>Risk-free early access</h2>
-    <p>Try the deeper rounds and refinement tools as an early tester. If it doesn’t feel useful, ask for a 100% refund.</p>
-  </article>
-  <article>
-    <h2>Separate vertical access</h2>
-    <p>Each naming vertical has its own beta access, so you can try Baby, Pet, Business, and future flows separately.</p>
-  </article>
 </section>
 
 <section class="trust-strip beta-trust-strip" aria-label="Trust and data protection">
@@ -78,23 +61,8 @@
     <span>Do not submit medical, financial, legal, or government-identifying information.</span>
   </div>
   <div>
-    <strong>Beta transparency</strong>
+    <strong>AI transparency</strong>
     <span>AI suggestions are exploratory and need your own judgment.</span>
   </div>
-</section>
-
-<section id="founding-access" class="beta-final-cta">
-  <p class="eyebrow">Founding access</p>
-  <h2>Want to be one of the first {{ vertical.display_name }} paid beta users?</h2>
-  {% if paid %}
-    <p>Your test payment returned successfully. Continue into the {{ vertical.display_name }} flow and start finding names you love.</p>
-    <a class="button-link" href="{{ beta_continue_url }}">Start {{ vertical.display_name }} name discovery</a>
-  {% elif stripe_payment_link %}
-    <p>Checkout is available now. You’ll get one-time founding beta access for deeper {{ vertical.display_name }} name discovery, with a 100% refund if you’re not satisfied.</p>
-    <a class="button-link" href="{{ beta_checkout_url }}">{{ beta_cta_label(vertical) }}</a>
-  {% else %}
-    <p>Founding access is opening in a small batch first. Try the first round now, then use the invitation channel to request paid beta access.</p>
-    <a class="button-link" href="{{ vertical.route_prefix }}">Try the first round</a>
-  {% endif %}
 </section>
 {% endblock %}

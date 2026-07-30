@@ -162,10 +162,10 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         body = response.get_data(as_text=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn("Try Pet Beta risk-free", body)
+        self.assertIn("Unlock Pet Access", body)
         self.assertIn("Your first list is free", body)
-        self.assertIn("100% refund", body)
-        self.assertIn('/pet/beta?return_session=', body)
+        self.assertIn("100% money-back guarantee", body)
+        self.assertIn('/pet/access?return_session=', body)
         self.assertNotIn('action="/refine"', body)
 
     def test_free_pet_refine_is_blocked_server_side(self):
@@ -178,7 +178,7 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         body = response.get_data(as_text=True)
 
         self.assertEqual(response.status_code, 402)
-        self.assertIn("Unlock the Pet founding beta", body)
+        self.assertIn("Unlock Pet access", body)
 
     def test_round_three_returns_finalists(self):
         session_id = self._seed_round_one()
