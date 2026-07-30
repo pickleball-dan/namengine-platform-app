@@ -471,7 +471,7 @@ def beta_payment_link_for(vertical) -> str:
 
 def _normalize_beta_price(price: str) -> str:
     price = str(price or "").strip()
-    if not price or price == "$19":
+    if not price or price in {"$19", "$19.00", "$19.99"}:
         return "$9.99"
     return price
 
