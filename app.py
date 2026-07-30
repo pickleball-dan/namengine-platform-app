@@ -7,7 +7,7 @@ import os
 import re
 import time
 from datetime import datetime, timezone
-from hmac import compare_digest
+from hmac import compare_digest, new as hmac_new
 from threading import Lock, Thread
 from hashlib import sha1
 from urllib.parse import urlencode
@@ -387,9 +387,80 @@ def _reaction_values(snapshot: dict | None) -> dict[str, str]:
     }
 
 
-def beta_unlocked_from_request() -> bool:
-    """Return whether this request is carrying the lightweight paid-access unlock."""
-    return request.args.get("paid") == "1" or request.form.get("paid") == "1"
+def _beta_access_secret() -> str:
+    return (
+        os.getenv("NAMENGINE_ACCESS_TOKEN_SECRET", "").strip()
+        or os.getenv("NAMENGINE_TELEMETRY_TOKEN", "").strip()
+        or "namengine-local-access-token"
+    )
+
+
+def _signed_beta_access_token(vertical, return_session: str = "") -> str:
+    issued_at = str(int(time.time()))
+    payload = f"{vertical.slug}:{return_session}:{issued_at}"
+    signature = hmac_new(
+        _beta_access_secret().encode("utf-8"),
+        payload.encode("utf-8"),
+        sha1,
+    ).hexdigest()
+    return f"{return_session}:{issued_at}:{signature}"
+
+
+def _valid_beta_access_token(vertical, token: str, *, max_age_seconds: int) -> bool:
+    try:
+        return_session, issued_at, signature = str(token or "").rsplit(":", 2)
+        issued_at_int = int(issued_at)
+    except (TypeError, ValueError):
+        return False
+    if issued_at_int <= 0 or int(time.time()) - issued_at_int > max_age_seconds:
+        return False
+    payload = f"{vertical.slug}:{return_session}:{issued_at}"
+    expected = hmac_new(
+        _beta_access_secret().encode("utf-8"),
+        payload.encode("utf-8"),
+        sha1,
+    ).hexdigest()
+    return compare_digest(signature, expected)
+
+
+def beta_pending_cookie_name(vertical) -> str:
+    return f"namengine_access_checkout_{vertical.slug}"
+
+
+def beta_unlock_cookie_name(vertical) -> str:
+    return f"namengine_access_unlocked_{vertical.slug}"
+
+
+def _vertical_from_request():
+    requested_slug = request.path.strip("/").split("/", 1)[0]
+    if requested_slug in VERTICALS:
+        return get_vertical(requested_slug)
+    route_session_id = (request.view_args or {}).get("session_id", "")
+    session_id = str(
+        route_session_id
+        or request.form.get("session_id", "")
+        or request.args.get("session_id", "")
+    )
+    for slug in VERTICALS:
+        if session_id.startswith(f"{slug}-"):
+            return get_vertical(slug)
+    return None
+
+
+def beta_unlocked_from_request(vertical=None) -> bool:
+    """Return whether this request has a server-issued paid-access unlock."""
+    vertical = vertical or _vertical_from_request()
+    if vertical is None:
+        return False
+    access_token = request.cookies.get(beta_unlock_cookie_name(vertical), "")
+    if _valid_beta_access_token(vertical, access_token, max_age_seconds=60 * 60 * 24 * 30):
+        return True
+    pending_token = request.cookies.get(beta_pending_cookie_name(vertical), "")
+    return request.args.get("paid") == "1" and _valid_beta_access_token(
+        vertical,
+        pending_token,
+        max_age_seconds=60 * 60 * 6,
+    )
 
 
 def beta_payment_link_for(vertical) -> str:
@@ -470,7 +541,7 @@ def _render_results_snapshot(
             parent_session_id=snapshot["session"]["parent_session_id"],
             original_mode=session_id.startswith("pet-original"),
             refinement_error=refinement_error,
-            beta_unlocked=beta_unlocked_from_request(),
+            beta_unlocked=beta_unlocked_from_request(vertical),
         ),
         status,
     )
@@ -560,7 +631,7 @@ def create_app() -> Flask:
             abort(404)
         vertical = get_vertical(vertical_slug)
         return_session = beta_return_session_for(vertical)
-        paid = beta_unlocked_from_request()
+        paid = beta_unlocked_from_request(vertical)
         stripe_payment_link = beta_payment_link_for(vertical)
         beta_checkout_url = (
             url_for("beta_checkout", vertical_slug=vertical.slug, return_session=return_session)
@@ -568,9 +639,9 @@ def create_app() -> Flask:
             else ""
         )
         beta_continue_url = (
-            url_for("session_results", session_id=return_session, paid="1")
+            url_for("session_results", session_id=return_session)
             if paid and return_session
-            else url_for("intake", vertical_slug=vertical.slug, paid="1")
+            else url_for("intake", vertical_slug=vertical.slug)
         )
         response = make_response(
             render_template(
@@ -584,6 +655,16 @@ def create_app() -> Flask:
                 beta_continue_url=beta_continue_url,
             )
         )
+        if paid:
+            response.set_cookie(
+                beta_unlock_cookie_name(vertical),
+                _signed_beta_access_token(vertical),
+                max_age=60 * 60 * 24 * 30,
+                httponly=True,
+                samesite="Lax",
+                secure=request.is_secure,
+            )
+            response.delete_cookie(beta_pending_cookie_name(vertical))
         if paid and return_session:
             response.delete_cookie(beta_return_cookie_name(vertical))
         return response
@@ -599,6 +680,14 @@ def create_app() -> Flask:
             return redirect(url_for("beta_landing", vertical_slug=vertical.slug))
         response = redirect(stripe_payment_link)
         return_session = request.args.get("return_session", "").strip()
+        response.set_cookie(
+            beta_pending_cookie_name(vertical),
+            _signed_beta_access_token(vertical, return_session),
+            max_age=60 * 60 * 6,
+            httponly=True,
+            samesite="Lax",
+            secure=request.is_secure,
+        )
         if return_session:
             response.set_cookie(
                 beta_return_cookie_name(vertical),
@@ -639,7 +728,7 @@ def create_app() -> Flask:
         return render_template(
             "intake.html",
             vertical=vertical,
-            beta_unlocked=beta_unlocked_from_request(),
+            beta_unlocked=beta_unlocked_from_request(vertical),
         )
 
 
@@ -662,7 +751,7 @@ def create_app() -> Flask:
             source=source,
             sections=feeling_section_titles(vertical),
             center_icon=feeling_center_icon(vertical, source),
-            beta_unlocked=beta_unlocked_from_request(),
+            beta_unlocked=beta_unlocked_from_request(vertical),
         )
 
     @app.get("/pet/original")
@@ -708,7 +797,7 @@ def create_app() -> Flask:
             round_number=1,
             parent_session_id=None,
             original_mode=True,
-            beta_unlocked=beta_unlocked_from_request(),
+            beta_unlocked=beta_unlocked_from_request(vertical),
         )
 
     def _create_results_session(vertical, source: dict[str, str]) -> str:
@@ -738,8 +827,6 @@ def create_app() -> Flask:
 
         vertical = get_vertical(vertical_slug)
         session_id = _create_results_session(vertical, request.form.to_dict(flat=True))
-        if beta_unlocked_from_request():
-            return redirect(url_for("session_results", session_id=session_id, paid="1"))
         return redirect(url_for("session_results", session_id=session_id))
 
     @app.get("/<vertical_slug>/results")
@@ -776,7 +863,7 @@ def create_app() -> Flask:
             round_number=1,
             parent_session_id=None,
             original_mode=False,
-            beta_unlocked=beta_unlocked_from_request(),
+            beta_unlocked=beta_unlocked_from_request(vertical),
         )
 
     @app.get("/results/session/<session_id>")
@@ -858,7 +945,7 @@ def create_app() -> Flask:
 
         reaction_counts = get_reaction_counts(session_id)
         vertical = get_vertical(snapshot["session"]["vertical"])
-        if not beta_unlocked_from_request():
+        if not beta_unlocked_from_request(vertical):
             return _render_results_snapshot(
                 session_id,
                 status=402,
@@ -888,8 +975,6 @@ def create_app() -> Flask:
         round_number = int(child_snapshot["session"]["round_number"])
         taste_profile = _taste_profile_from_snapshot(child_snapshot)
         if request.headers.get("X-NamEngine-Progress") == "1":
-            if beta_unlocked_from_request():
-                return redirect(url_for("session_results", session_id=child_session_id, paid="1"))
             return redirect(url_for("session_results", session_id=child_session_id))
 
         return render_template(
@@ -905,7 +990,7 @@ def create_app() -> Flask:
             round_number=round_number,
             parent_session_id=session_id,
             original_mode=False,
-            beta_unlocked=beta_unlocked_from_request(),
+            beta_unlocked=beta_unlocked_from_request(vertical),
         )
 
     @app.get("/compare/<session_id>")

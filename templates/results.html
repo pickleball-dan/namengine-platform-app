@@ -290,7 +290,6 @@
           data-reaction-total="{{ reaction_total }}"
         >
           <input type="hidden" name="session_id" value="{{ session_id }}">
-          {% if beta_unlocked %}<input type="hidden" name="paid" value="1">{% endif %}
           <label for="bottom-instruction">Optional direction</label>
           <input id="bottom-instruction" name="instruction" maxlength="{{ refinement_instruction_max_length }}" placeholder="Shorter, softer, bolder, less cute...">
           <button type="submit" data-refine-submit {% if reaction_total < min_reactions_for_refinement %}disabled{% endif %}>

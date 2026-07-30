@@ -113,7 +113,6 @@
     </div>
 
     <form id="{{ vertical.slug }}-intake-form" class="intake-form{% if is_polished_flow %} baby-intake-form polished-intake-form{% endif %}{% if vertical.slug == 'baby' %} baby-conversation{% endif %}{% if vertical.slug == 'pet' %} pet-conversation{% endif %}" action="{% if feelings_scale_enabled(vertical) %}{{ vertical.route_prefix }}/feelings{% else %}{{ vertical.route_prefix }}/results{% endif %}" method="{% if feelings_scale_enabled(vertical) %}get{% else %}post{% endif %}"{% if not feelings_scale_enabled(vertical) %} data-progress-form{% endif %}{% if vertical.slug == 'baby' %} data-journey-vertical="baby"{% endif %}{% if vertical.slug == 'baby' and request.args.get('edit') %} data-edit-question="{{ request.args.get('edit') }}"{% endif %} novalidate>
-      {% if beta_unlocked %}<input type="hidden" name="paid" value="1">{% endif %}
       {% if vertical.slug == "baby" %}
         {% set gender_descriptions = {
           "Girl": "We’re expecting a baby girl.",

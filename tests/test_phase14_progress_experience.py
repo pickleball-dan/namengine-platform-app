@@ -24,6 +24,19 @@ class PhaseFourteenProgressExperienceTest(unittest.TestCase):
             os.environ["NAMENGINE_DB_PATH"] = self.previous_db_path
         self.tempdir.cleanup()
 
+    def _unlock_access(self, vertical_slug):
+        env_key = f"NAMENGINE_{vertical_slug.upper()}_BETA_PAYMENT_LINK"
+        previous = os.environ.get(env_key)
+        os.environ[env_key] = "https://buy.stripe.com/test_example"
+        try:
+            self.client.get(f"/{vertical_slug}/access/checkout")
+            self.client.get(f"/{vertical_slug}/access?paid=1")
+        finally:
+            if previous is None:
+                os.environ.pop(env_key, None)
+            else:
+                os.environ[env_key] = previous
+
     def test_intake_page_has_progress_experience(self):
         response = self.client.get("/pet")
 
@@ -53,7 +66,8 @@ class PhaseFourteenProgressExperienceTest(unittest.TestCase):
         self.assertIn("novalidate", body)
 
     def test_results_page_has_trust_cue_and_refine_progress(self):
-        response = self.client.get("/pet/results?species=Dog&personality=Gentle&style=Warm&paid=1")
+        self._unlock_access("pet")
+        response = self.client.get("/pet/results?species=Dog&personality=Gentle&style=Warm")
 
         self.assertEqual(response.status_code, 200)
         body = response.get_data(as_text=True)
@@ -182,7 +196,8 @@ class PhaseFourteenProgressExperienceTest(unittest.TestCase):
         self.assertNotIn("baby-thinking-right-arm-wave", css)
 
     def test_baby_refinement_progress_keeps_baby_identity(self):
-        response = self.client.get("/baby/results?gender=Girl&style=Classic&sound=Soft&paid=1")
+        self._unlock_access("baby")
+        response = self.client.get("/baby/results?gender=Girl&style=Classic&sound=Soft")
 
         self.assertEqual(response.status_code, 200)
         body = response.get_data(as_text=True)

@@ -57,6 +57,19 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         save_reaction(build_reaction(session_id, "baby-3", "no"))
         return session_id
 
+    def _unlock_access(self, vertical_slug="pet"):
+        env_key = f"NAMENGINE_{vertical_slug.upper()}_BETA_PAYMENT_LINK"
+        previous = os.environ.get(env_key)
+        os.environ[env_key] = "https://buy.stripe.com/test_example"
+        try:
+            self.client.get(f"/{vertical_slug}/access/checkout")
+            self.client.get(f"/{vertical_slug}/access?paid=1")
+        finally:
+            if previous is None:
+                os.environ.pop(env_key, None)
+            else:
+                os.environ[env_key] = previous
+
     def test_reaction_effect_summary_is_short_and_directional(self):
         session_id = self._seed_round_one()
         snapshot = get_session_snapshot(session_id)
@@ -85,9 +98,10 @@ class PhaseSevenRefinementTest(unittest.TestCase):
 
     def test_refine_route_renders_round_two(self):
         session_id = self._seed_round_one()
+        self._unlock_access("pet")
         response = self.client.post(
             "/refine",
-            data={"session_id": session_id, "instruction": "shorter", "paid": "1"},
+            data={"session_id": session_id, "instruction": "shorter"},
         )
 
         self.assertEqual(response.status_code, 200)
@@ -100,9 +114,10 @@ class PhaseSevenRefinementTest(unittest.TestCase):
 
     def test_progress_refine_redirects_to_saved_results_page(self):
         session_id = self._seed_round_one()
+        self._unlock_access("pet")
         response = self.client.post(
             "/refine",
-            data={"session_id": session_id, "instruction": "shorter", "paid": "1"},
+            data={"session_id": session_id, "instruction": "shorter"},
             headers={"X-NamEngine-Progress": "1"},
         )
 
@@ -116,7 +131,8 @@ class PhaseSevenRefinementTest(unittest.TestCase):
 
     def test_results_page_has_bottom_generate_new_list_action(self):
         session_id = self._seed_round_one()
-        response = self.client.get(f"/results/session/{session_id}?paid=1")
+        self._unlock_access("pet")
+        response = self.client.get(f"/results/session/{session_id}")
         body = response.get_data(as_text=True)
 
         self.assertEqual(response.status_code, 200)
@@ -127,11 +143,12 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         self.assertIn('action="/refine"', body)
         self.assertIn('data-min-reactions="3"', body)
         self.assertIn("Ready to generate the next list.", body)
-        self.assertIn('name="paid" value="1"', body)
+        self.assertNotIn('name="paid" value="1"', body)
         self.assertNotIn("data-refine-submit disabled", body)
 
     def test_results_page_disables_generate_new_list_until_three_reactions(self):
-        response = self.client.get("/pet/results?species=Dog&personality=Gentle&style=Warm&paid=1")
+        self._unlock_access("pet")
+        response = self.client.get("/pet/results?species=Dog&personality=Gentle&style=Warm")
         body = response.get_data(as_text=True)
 
         self.assertEqual(response.status_code, 200)
@@ -141,14 +158,15 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         self.assertIn("React to 3 more names before generating the next list.", body)
 
     def test_refine_route_requires_three_reactions(self):
-        response = self.client.get("/pet/results?species=Dog&personality=Gentle&style=Warm&paid=1")
+        self._unlock_access("pet")
+        response = self.client.get("/pet/results?species=Dog&personality=Gentle&style=Warm")
         session_id = _session_id_from_body(response.get_data(as_text=True))
         save_reaction(build_reaction(session_id, "pet-1", "love"))
         save_reaction(build_reaction(session_id, "pet-2", "no"))
 
         response = self.client.post(
             "/refine",
-            data={"session_id": session_id, "instruction": "shorter", "paid": "1"},
+            data={"session_id": session_id, "instruction": "shorter"},
         )
         body = response.get_data(as_text=True)
 

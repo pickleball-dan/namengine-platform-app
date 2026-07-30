@@ -6,7 +6,6 @@
   {% if vertical.slug == "baby" %}
   <section class="baby-final-step">
     <form class="baby-final-form baby-conversation baby-final-conversation" action="{{ vertical.route_prefix }}/results" method="post" data-progress-form data-baby-final-form>
-      {% if beta_unlocked %}<input type="hidden" name="paid" value="1">{% endif %}
       {% for key, value in source.items() %}
         {% if value not in ("", none) and not key.startswith("taste_strength_") %}
           <input type="hidden" name="{{ key }}" value="{{ value }}">
@@ -83,7 +82,6 @@
     </div>
 
     <form class="feelings-form" action="{{ vertical.route_prefix }}/results" method="post" data-progress-form>
-      {% if vertical.slug == "baby" and beta_unlocked %}<input type="hidden" name="paid" value="1">{% endif %}
       {% for key, value in source.items() %}
         {% if value not in ("", none) and not key.startswith("taste_strength_") %}
           <input type="hidden" name="{{ key }}" value="{{ value }}">
