@@ -1,4 +1,5 @@
 import os
+from unittest.mock import patch
 
 
 def unlock_beta_access(client, vertical_slug="baby"):
@@ -10,7 +11,8 @@ def unlock_beta_access(client, vertical_slug="baby"):
         checkout = client.get(f"/{vertical_slug}/access/checkout")
         if checkout.status_code not in {302, 303}:
             raise AssertionError(f"checkout did not redirect: {checkout.status_code}")
-        paid_return = client.get(f"/{vertical_slug}/access?paid=1")
+        with patch("app._stripe_checkout_session_paid", return_value=True):
+            paid_return = client.get(f"/{vertical_slug}/access?checkout_session_id=cs_test_paid")
         if paid_return.status_code != 200:
             raise AssertionError(f"paid return did not render: {paid_return.status_code}")
     finally:

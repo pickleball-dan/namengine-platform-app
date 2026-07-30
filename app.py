@@ -451,19 +451,26 @@ def _vertical_from_request():
 
 
 def beta_unlocked_from_request(vertical=None) -> bool:
-    """Return whether this request has a server-issued paid-access unlock."""
+    """Return whether this request has a long-lived server-issued paid-access unlock."""
     vertical = vertical or _vertical_from_request()
     if vertical is None:
         return False
     access_token = request.cookies.get(beta_unlock_cookie_name(vertical), "")
-    if _valid_beta_access_token(vertical, access_token, max_age_seconds=60 * 60 * 24 * 30):
-        return True
-    pending_token = request.cookies.get(beta_pending_cookie_name(vertical), "")
-    return request.args.get("paid") == "1" and _valid_beta_access_token(
+    return _valid_beta_access_token(vertical, access_token, max_age_seconds=60 * 60 * 24 * 30)
+
+
+def beta_pending_checkout_from_request(vertical=None) -> bool:
+    """Return whether this request is returning from a verified Stripe checkout."""
+    vertical = vertical or _vertical_from_request()
+    if vertical is None:
+        return False
+    if not _valid_beta_access_token(
         vertical,
-        pending_token,
+        request.cookies.get(beta_pending_cookie_name(vertical), ""),
         max_age_seconds=60 * 60 * 6,
-    )
+    ):
+        return False
+    return _stripe_checkout_session_paid(beta_stripe_checkout_session_id_from_request(), vertical)
 
 
 def beta_payment_link_for(vertical) -> str:
@@ -590,6 +597,38 @@ def _stripe_payment_link_price(payment_link_id: str, secret_key: str) -> str:
         with _STRIPE_PRICE_CACHE_LOCK:
             _STRIPE_PRICE_CACHE[payment_link_id] = (now, display_price)
     return display_price
+
+
+def _stripe_checkout_session_paid(session_id: str, vertical) -> bool:
+    """Verify a Stripe Checkout Session before granting paid access."""
+    session_id = str(session_id or "").strip()
+    secret_key = _stripe_secret_key()
+    if not session_id or not secret_key:
+        return False
+    try:
+        payload = _stripe_api_get(f"checkout/sessions/{session_id}", secret_key)
+    except (HTTPError, URLError, TimeoutError, ValueError, OSError) as exc:
+        logger.warning("Could not verify Stripe checkout session %s: %s", session_id, exc.__class__.__name__)
+        return False
+    if not isinstance(payload, dict):
+        return False
+    if payload.get("payment_status") != "paid" or payload.get("status") != "complete":
+        return False
+    payment_link_id = beta_payment_link_id_for(vertical) or _stripe_payment_link_id_from_url(
+        beta_payment_link_for(vertical),
+        secret_key,
+    )
+    session_payment_link = str(payload.get("payment_link") or "").strip()
+    if payment_link_id:
+        return session_payment_link == payment_link_id
+    return bool(session_payment_link)
+
+
+def beta_stripe_checkout_session_id_from_request() -> str:
+    return (
+        request.args.get("checkout_session_id", "").strip()
+        or request.args.get("session_id", "").strip()
+    )
 
 
 def beta_price_for(vertical) -> str:
@@ -761,6 +800,7 @@ def create_app() -> Flask:
         vertical = get_vertical(vertical_slug)
         return_session = beta_return_session_for(vertical)
         paid = beta_unlocked_from_request(vertical)
+        checkout_return = beta_pending_checkout_from_request(vertical)
         stripe_payment_link = beta_payment_link_for(vertical)
         beta_checkout_url = (
             url_for("beta_checkout", vertical_slug=vertical.slug, return_session=return_session)
@@ -769,7 +809,7 @@ def create_app() -> Flask:
         )
         beta_continue_url = (
             url_for("session_results", session_id=return_session)
-            if paid and return_session
+            if (paid or checkout_return) and return_session
             else url_for("intake", vertical_slug=vertical.slug)
         )
         response = make_response(
@@ -779,13 +819,13 @@ def create_app() -> Flask:
                 stripe_payment_link=stripe_payment_link,
                 beta_checkout_url=beta_checkout_url,
                 beta_price=beta_price_for(vertical),
-                paid=paid,
+                paid=paid or checkout_return,
                 beta_return_session=return_session if paid else "",
                 beta_has_prior_round=bool(return_session),
                 beta_continue_url=beta_continue_url,
             )
         )
-        if paid:
+        if checkout_return:
             response.set_cookie(
                 beta_unlock_cookie_name(vertical),
                 _signed_beta_access_token(vertical),
@@ -795,7 +835,7 @@ def create_app() -> Flask:
                 secure=request.is_secure,
             )
             response.delete_cookie(beta_pending_cookie_name(vertical))
-        if paid and return_session:
+        if checkout_return and return_session:
             response.delete_cookie(beta_return_cookie_name(vertical))
         return response
 

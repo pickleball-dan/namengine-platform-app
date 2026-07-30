@@ -63,7 +63,8 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         os.environ[env_key] = "https://buy.stripe.com/test_example"
         try:
             self.client.get(f"/{vertical_slug}/access/checkout")
-            self.client.get(f"/{vertical_slug}/access?paid=1")
+            with patch("app._stripe_checkout_session_paid", return_value=True):
+                self.client.get(f"/{vertical_slug}/access?checkout_session_id=cs_test_paid")
         finally:
             if previous is None:
                 os.environ.pop(env_key, None)

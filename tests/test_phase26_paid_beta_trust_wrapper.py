@@ -1,5 +1,6 @@
 import os
 import unittest
+from unittest.mock import patch
 
 from app import create_app
 
@@ -153,12 +154,32 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.assertNotIn("$19", text)
         self.assertNotIn("Try the first round", text)
 
-    def test_baby_beta_paid_success_state_requires_checkout_cookie(self):
+    def test_checkout_start_plus_manual_paid_query_does_not_unlock_access_page(self):
         previous = os.environ.get("NAMENGINE_BABY_BETA_PAYMENT_LINK")
         os.environ["NAMENGINE_BABY_BETA_PAYMENT_LINK"] = "https://buy.stripe.com/test_example"
         try:
             checkout = self.app.get("/baby/access/checkout")
             response = self.app.get("/baby/access?paid=1")
+            text = response.get_data(as_text=True)
+        finally:
+            if previous is None:
+                os.environ.pop("NAMENGINE_BABY_BETA_PAYMENT_LINK", None)
+            else:
+                os.environ["NAMENGINE_BABY_BETA_PAYMENT_LINK"] = previous
+
+        self.assertEqual(checkout.status_code, 302)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn("Payment received", text)
+        self.assertIn("Start with a free first round", text)
+        self.assertIn("Unlock Baby Access", text)
+
+    def test_baby_beta_paid_success_state_requires_verified_checkout(self):
+        previous = os.environ.get("NAMENGINE_BABY_BETA_PAYMENT_LINK")
+        os.environ["NAMENGINE_BABY_BETA_PAYMENT_LINK"] = "https://buy.stripe.com/test_example"
+        try:
+            checkout = self.app.get("/baby/access/checkout")
+            with patch("app._stripe_checkout_session_paid", return_value=True):
+                response = self.app.get("/baby/access?checkout_session_id=cs_test_paid")
             text = response.get_data(as_text=True)
         finally:
             if previous is None:
@@ -208,7 +229,8 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         os.environ["NAMENGINE_BABY_BETA_PAYMENT_LINK"] = "https://buy.stripe.com/test_example"
         try:
             self.app.get("/baby/access/checkout")
-            response = self.app.get("/baby/access?paid=1")
+            with patch("app._stripe_checkout_session_paid", return_value=True):
+                response = self.app.get("/baby/access?checkout_session_id=cs_test_paid")
             text = response.get_data(as_text=True)
         finally:
             if previous is None:
@@ -225,7 +247,8 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         os.environ["NAMENGINE_BABY_BETA_PAYMENT_LINK"] = "https://buy.stripe.com/test_example"
         try:
             self.app.get("/baby/access/checkout?return_session=baby-testsession")
-            response = self.app.get("/baby/access?paid=1")
+            with patch("app._stripe_checkout_session_paid", return_value=True):
+                response = self.app.get("/baby/access?checkout_session_id=cs_test_paid")
             text = response.get_data(as_text=True)
         finally:
             if previous is None:
@@ -242,7 +265,8 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         os.environ["NAMENGINE_BABY_BETA_PAYMENT_LINK"] = "https://buy.stripe.com/test_example"
         try:
             checkout = self.app.get("/baby/access/checkout?return_session=baby-testsession")
-            paid_return = self.app.get("/baby/access?paid=1")
+            with patch("app._stripe_checkout_session_paid", return_value=True):
+                paid_return = self.app.get("/baby/access?checkout_session_id=cs_test_paid")
             text = paid_return.get_data(as_text=True)
         finally:
             if previous is None:
@@ -298,7 +322,8 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         os.environ["NAMENGINE_BABY_BETA_PAYMENT_LINK"] = "https://buy.stripe.com/test_example"
         try:
             self.app.get("/baby/access/checkout")
-            self.app.get("/baby/access?paid=1")
+            with patch("app._stripe_checkout_session_paid", return_value=True):
+                self.app.get("/baby/access?checkout_session_id=cs_test_paid")
             response = self.app.get(
                 "/baby/results",
                 query_string={
@@ -339,6 +364,36 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 402)
         self.assertIn("Unlock Baby access", text)
+
+    def test_pending_checkout_cookie_alone_does_not_unlock_back_button_refine(self):
+        previous = os.environ.get("NAMENGINE_PET_BETA_PAYMENT_LINK")
+        os.environ["NAMENGINE_PET_BETA_PAYMENT_LINK"] = "https://buy.stripe.com/pet_test"
+        try:
+            session_response = self.app.get(
+                "/pet/results",
+                query_string={
+                    "pet_type": "Dog",
+                    "style": "Friendly",
+                    "personality": "Playful",
+                },
+            )
+            session_text = session_response.get_data(as_text=True)
+            marker = 'data-session-id="'
+            start = session_text.index(marker) + len(marker)
+            end = session_text.index('"', start)
+            session_id = session_text[start:end]
+            self.app.get(f"/pet/access/checkout?return_session={session_id}")
+            response = self.app.post("/refine", data={"session_id": session_id, "instruction": "warmer"})
+            text = response.get_data(as_text=True)
+        finally:
+            if previous is None:
+                os.environ.pop("NAMENGINE_PET_BETA_PAYMENT_LINK", None)
+            else:
+                os.environ["NAMENGINE_PET_BETA_PAYMENT_LINK"] = previous
+
+        self.assertEqual(response.status_code, 402)
+        self.assertIn("Unlock Pet access", text)
+        self.assertNotIn('action="/refine"', text)
 
     def test_pet_and_business_beta_pages_render_paid_offers(self):
         for route, label in (("/pet/access", "Pet"), ("/business/access", "Business")):
