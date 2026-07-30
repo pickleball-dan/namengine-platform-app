@@ -469,10 +469,17 @@ def beta_payment_link_for(vertical) -> str:
     return os.getenv(key, "").strip()
 
 
+def _normalize_beta_price(price: str) -> str:
+    price = str(price or "").strip()
+    if not price or price == "$19":
+        return "$9.99"
+    return price
+
+
 def beta_price_for(vertical) -> str:
     """Return the vertical-specific access price display."""
     key = f"NAMENGINE_{vertical.slug.upper()}_BETA_PRICE"
-    return os.getenv(key, os.getenv("NAMENGINE_BABY_BETA_PRICE", "$19")).strip() or "$19"
+    return _normalize_beta_price(os.getenv(key, os.getenv("NAMENGINE_BABY_BETA_PRICE", "$9.99")))
 
 
 def beta_cta_label(vertical) -> str:
@@ -621,7 +628,7 @@ def create_app() -> Flask:
         return render_template(
             "index.html",
             verticals=VERTICALS,
-            beta_price=os.getenv("NAMENGINE_BABY_BETA_PRICE", "$19").strip() or "$19",
+            beta_price=_normalize_beta_price(os.getenv("NAMENGINE_BABY_BETA_PRICE", "$9.99")),
         )
 
     @app.get("/<vertical_slug>/beta")

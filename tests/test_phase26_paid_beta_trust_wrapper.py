@@ -98,7 +98,9 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.assertIn("Paid access", text)
         self.assertIn("What paid access includes:", text)
         self.assertIn("beta-includes-list", text)
-        self.assertIn("Try the first round", text)
+        self.assertIn("$9.99", text)
+        self.assertNotIn("$19", text)
+        self.assertNotIn("Try the first round", text)
         self.assertIn("100% money-back guarantee", text)
         self.assertNotIn("NAMENGINE_BABY_BETA_PAYMENT_LINK", text)
 
@@ -127,7 +129,9 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotIn("Payment received", text)
         self.assertIn("Start with a free first round", text)
-        self.assertIn("Try the first round", text)
+        self.assertIn("$9.99", text)
+        self.assertNotIn("$19", text)
+        self.assertNotIn("Try the first round", text)
 
     def test_baby_beta_paid_success_state_requires_checkout_cookie(self):
         previous = os.environ.get("NAMENGINE_BABY_BETA_PAYMENT_LINK")
@@ -326,7 +330,9 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
                 self.assertIn(f"NamEngine {label}", text)
                 self.assertIn("Paid access", text)
                 self.assertIn("What paid access includes:", text)
-                self.assertIn("Try the first round", text)
+                self.assertIn("$9.99", text)
+                self.assertNotIn("$19", text)
+                self.assertNotIn("Try the first round", text)
                 self.assertIn("100% money-back guarantee", text)
                 self.assertNotIn("Separate vertical access", text)
 
