@@ -781,6 +781,7 @@ def create_app() -> Flask:
                 beta_price=beta_price_for(vertical),
                 paid=paid,
                 beta_return_session=return_session if paid else "",
+                beta_has_prior_round=bool(return_session),
                 beta_continue_url=beta_continue_url,
             )
         )

@@ -122,6 +122,26 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.assertIn("Unlock Baby Access", text)
         self.assertIn("100% money-back guarantee", text)
 
+    def test_returning_results_access_page_removes_first_round_prompt(self):
+        previous = os.environ.get("NAMENGINE_PET_BETA_PAYMENT_LINK")
+        os.environ["NAMENGINE_PET_BETA_PAYMENT_LINK"] = "https://buy.stripe.com/pet_test"
+        try:
+            response = self.app.get("/pet/access?return_session=pet-testsession")
+            text = response.get_data(as_text=True)
+        finally:
+            if previous is None:
+                os.environ.pop("NAMENGINE_PET_BETA_PAYMENT_LINK", None)
+            else:
+                os.environ["NAMENGINE_PET_BETA_PAYMENT_LINK"] = previous
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn("Try the first round", text)
+        self.assertNotIn("Try first round", text)
+        self.assertNotIn("Start with a free first round", text)
+        self.assertIn("shaped by your first reactions", text)
+        self.assertIn("Unlock Pet Access", text)
+        self.assertIn('/pet/access/checkout?return_session=pet-testsession', text)
+
     def test_naked_paid_query_does_not_unlock_access_page(self):
         response = self.app.get("/baby/access?paid=1")
         text = response.get_data(as_text=True)

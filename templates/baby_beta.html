@@ -18,6 +18,8 @@
     <h1>NamEngine {{ vertical.display_name }} — find the name that feels right.</h1>
     {% if paid %}
       <p>You have unlocked deeper taste discovery, fresh rounds, saved-name support, and a clearer final direction.</p>
+    {% elif beta_has_prior_round %}
+      <p>Unlock deeper {{ vertical.display_name }} discovery with refined rounds shaped by your first reactions.</p>
     {% else %}
       <p>Start with a free first round. Unlock deeper {{ vertical.display_name }} discovery when you want refined rounds shaped by your taste.</p>
     {% endif %}
