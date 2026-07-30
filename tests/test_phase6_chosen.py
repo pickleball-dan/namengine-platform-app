@@ -198,7 +198,7 @@ class PhaseSixChosenNameTest(unittest.TestCase):
         details = snapshot["chosen"]["metadata"]["pet_portrait"]["details"]
         self.assertEqual(details["breed"], "Golden Retriever")
         self.assertEqual(details["color"], "Honey")
-        self.assertEqual(details["life_stage"], "Young")
+        self.assertEqual(details["details"], "Young")
 
     def test_chosen_portrait_status_reports_runtime_without_secret(self):
         query = (
@@ -308,7 +308,8 @@ class PhaseSixChosenNameTest(unittest.TestCase):
 
         self.assertEqual(details["breed"], "Whippet")
         self.assertIn("timeless framed studio portrait", prompt)
-        self.assertIn("Blue gray mature Whippet dog named Clover", prompt)
+        self.assertIn("Subject: a Blue gray Whippet dog named Clover", prompt)
+        self.assertIn("Additional visual details: Mature", prompt)
         self.assertIn("Do not include words", prompt)
 
     def test_baby_chosen_page_uses_keepsake_details_when_present(self):

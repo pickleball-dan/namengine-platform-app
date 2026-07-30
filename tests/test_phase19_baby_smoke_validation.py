@@ -4,6 +4,7 @@ import tempfile
 import unittest
 from urllib.parse import urlencode
 
+from access_helpers import unlock_beta_access
 from app import create_app, make_session_id
 from namengine.core import (
     build_brief,
@@ -79,12 +80,12 @@ class PhaseNineteenBabySmokeValidationTest(unittest.TestCase):
         )
 
         self._react_to_first_three(session_id)
+        unlock_beta_access(self.client, "baby")
         round_two_response = self.client.post(
             "/refine",
             data={
                 "session_id": session_id,
                 "instruction": "broaden the horizon but keep it soft",
-                "paid": "1",
             },
         )
         self.assertEqual(round_two_response.status_code, 200)
@@ -103,7 +104,6 @@ class PhaseNineteenBabySmokeValidationTest(unittest.TestCase):
             data={
                 "session_id": round_two_id,
                 "instruction": "finalists with no repeats",
-                "paid": "1",
             },
         )
         self.assertEqual(round_three_response.status_code, 200)

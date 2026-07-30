@@ -4,6 +4,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from access_helpers import unlock_beta_access
 from app import create_app, make_session_id
 from namengine.core import build_brief, get_chosen_snapshot, get_session_snapshot
 from namengine.verticals import PET
@@ -310,9 +311,10 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
         self.assertNotIn("baby-decision-section", compare_body)
         self.assertNotIn("Baby blanket", compare_body)
 
+        unlock_beta_access(self.client, "pet")
         refined = self.client.post(
             "/refine",
-            data={"session_id": session_id, "instruction": "warmer but still easy to call", "paid": "1"},
+            data={"session_id": session_id, "instruction": "warmer but still easy to call"},
         )
         refined_body = refined.get_data(as_text=True)
         child_session_id = f"{session_id}-r2"

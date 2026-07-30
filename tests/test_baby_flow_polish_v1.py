@@ -41,7 +41,7 @@ class BabyFlowPolishV1Test(unittest.TestCase):
         self.assertIn('id="baby-intake-form"', body)
         self.assertIn('action="/baby/feelings"', body)
         welcome = body.split('<div class="baby-welcome">', 1)[1].split('<div class="hero-actions">', 1)[0]
-        self.assertNotIn("vertical-page-logo", welcome)
+        self.assertIn("vertical-page-logo", welcome)
 
     def test_baby_intake_keeps_questions_and_trust_contract(self):
         response = self.client.get("/baby")

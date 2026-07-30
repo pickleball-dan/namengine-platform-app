@@ -215,7 +215,7 @@ class PhaseElevenAIGenerationTest(unittest.TestCase):
         )
 
         self.assertEqual(prompt["engine_stage"], "taste_interpreter_v1")
-        self.assertEqual(prompt["brief"]["inputs"]["notes"], "gentle rescue, not too cute")
+        self.assertEqual(prompt["brief"]["inputs"]["pet_details"], "gentle rescue, not too cute")
         self.assertTrue(prompt["interpretation_rules"]["user_written_text_is_first_class_signal"])
         self.assertTrue(prompt["interpretation_rules"]["feelings_scale_changes_strategy_not_just_order"])
         self.assertIn("candidate_rubric", prompt["output_contract"]["required_fields"])

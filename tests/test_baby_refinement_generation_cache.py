@@ -6,6 +6,7 @@ from unittest.mock import patch
 
 import app as platform_app
 import namengine.core.model_router as model_router
+from access_helpers import unlock_beta_access
 from app import create_app
 from namengine.core.ai_generation import AIGenerationError
 from namengine.core.briefs import build_brief
@@ -84,12 +85,13 @@ class BabyRefinementGenerationCacheTest(unittest.TestCase):
         parent_id = self._seed_round_one()
         generated = _ai_names("two")
 
+        unlock_beta_access(self.client, "baby")
         with patch.object(platform_app, "is_ai_generation_configured", return_value=True), patch.object(
             platform_app, "generate_with_router", return_value=generated
         ) as generate:
             response = self.client.post(
                 "/refine",
-                data={"session_id": parent_id, "instruction": "a little lighter", "paid": "1"},
+                data={"session_id": parent_id, "instruction": "a little lighter"},
                 headers={"X-NamEngine-Progress": "1"},
             )
 
@@ -116,12 +118,13 @@ class BabyRefinementGenerationCacheTest(unittest.TestCase):
     def test_refinement_timeout_uses_one_deterministic_fallback_and_get_reuses_it(self):
         parent_id = self._seed_round_one()
 
+        unlock_beta_access(self.client, "baby")
         with patch.object(platform_app, "is_ai_generation_configured", return_value=True), patch.object(
             model_router, "_openai_provider", side_effect=AIGenerationError("request timed out")
         ) as openai:
             response = self.client.post(
                 "/refine",
-                data={"session_id": parent_id, "instruction": "keep it classic", "paid": "1"},
+                data={"session_id": parent_id, "instruction": "keep it classic"},
                 headers={"X-NamEngine-Progress": "1"},
             )
 

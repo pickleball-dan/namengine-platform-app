@@ -3,6 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from access_helpers import unlock_beta_access
 from app import collapsed_result_meaning, create_app
 from namengine.core import (
     build_reaction,
@@ -162,9 +163,10 @@ class ResultsMobileStabilizationTest(unittest.TestCase):
     def test_empty_reactions_return_a_helpful_refinement_gate(self):
         session_id = self._seed_results()
 
+        unlock_beta_access(self.client, "pet")
         response = self.client.post(
             "/refine",
-            data={"session_id": session_id, "instruction": "shorter", "paid": "1"},
+            data={"session_id": session_id, "instruction": "shorter"},
         )
 
         self.assertEqual(response.status_code, 400)
