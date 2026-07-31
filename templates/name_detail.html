@@ -3,10 +3,12 @@
 {% macro baby_reactions(location) %}
   <div class="reaction-row baby-detail-reactions" data-result-id="{{ result.id }}" data-reaction-location="{{ location }}" aria-label="How does {{ result.name }} feel?">
     <button type="button" class="{% if decision_support.current_reaction == 'love' %}is-selected{% endif %}" data-reaction-value="love" data-reaction-label="Love this name" data-result-name="{{ result.name }}" aria-pressed="{{ 'true' if decision_support.current_reaction == 'love' else 'false' }}">
-      Love this name
+      <img class="reaction-icon" src="{{ url_for('static', filename='images/reactions/love.jpg') }}" alt="">
+      <span class="baby-detail-reaction-label">Love this name</span>
     </button>
     <button type="button" class="{% if decision_support.current_reaction == 'no' %}is-selected{% endif %}" data-reaction-value="no" data-reaction-label="Not for us" data-result-name="{{ result.name }}" aria-pressed="{{ 'true' if decision_support.current_reaction == 'no' else 'false' }}">
-      Not for us
+      <img class="reaction-icon" src="{{ url_for('static', filename='images/reactions/no.jpg') }}" alt="">
+      <span class="baby-detail-reaction-label">Not for us</span>
     </button>
   </div>
   <p class="reaction-status" aria-live="polite"></p>

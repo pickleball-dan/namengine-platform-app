@@ -36,8 +36,13 @@
   <body {% if vertical is defined %}class="vertical-{{ vertical.slug }}" style="{{ vertical_theme_style(vertical) }}"{% endif %}>
     <header class="site-header site-header-reference" data-site-shell>
       <div class="site-header-inner">
-        <a class="brand" href="/" aria-label="NamEngine home">
-          <img class="brand-logo brand-logo-wordmark" src="{{ url_for('static', filename='images/namengine.svg') }}" alt="NamEngine">
+        <a class="brand" href="/" aria-label="{% if vertical is defined %}NamEngine {{ vertical.display_name }} home{% else %}NamEngine home{% endif %}">
+          {% if vertical is defined %}
+            {% set shell_logo = vertical.assets.get('header_logo', vertical.assets.get('logo', 'images/namengine.svg')) %}
+            <img class="brand-logo brand-logo-wordmark" src="{{ url_for('static', filename=shell_logo) }}" alt="NamEngine {{ vertical.display_name }}">
+          {% else %}
+            <img class="brand-logo brand-logo-wordmark" src="{{ url_for('static', filename='images/namengine.svg') }}" alt="NamEngine">
+          {% endif %}
         </a>
         {% if not focused_access_return|default(false) %}<nav class="site-nav site-nav-reference" aria-label="Primary navigation">
           <div class="naming-menu" data-naming-menu>
@@ -104,8 +109,13 @@
     <footer class="site-footer site-footer-reference">
       <div class="site-footer-inner">
         <div class="footer-brand-block">
-          <img class="footer-brand-logo" src="{{ url_for('static', filename='images/namengine.svg') }}" alt="NamEngine">
-          <p>Helping people discover names they'll love for a lifetime.</p>
+          {% if vertical is defined %}
+            {% set footer_logo = vertical.assets.get('footer_logo', vertical.assets.get('logo', 'images/namengine.svg')) %}
+            <img class="footer-brand-logo" src="{{ url_for('static', filename=footer_logo) }}" alt="NamEngine {{ vertical.display_name }}">
+          {% else %}
+            <img class="footer-brand-logo" src="{{ url_for('static', filename='images/namengine.svg') }}" alt="NamEngine">
+          {% endif %}
+          <p>{% if vertical is defined %}Helping people discover {{ vertical.display_name|lower }} names they'll love.{% else %}Helping people discover names they'll love for a lifetime.{% endif %}</p>
           <div class="footer-socials" aria-label="Social links shown in reference design">
             <span aria-hidden="true">◎</span>
             <span aria-hidden="true">f</span>

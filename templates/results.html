@@ -296,7 +296,7 @@
         <div class="bottom-refine-form beta-refine-lock" aria-label="{{ beta_cta_label(vertical) }}">
           <p class="eyebrow">Paid access</p>
           <h3>{% if vertical.slug == "baby" %}Want a smarter second list?{% else %}Want a sharper next list?{% endif %}</h3>
-          <p>Your first list is free to view. Unlock {{ vertical.display_name }} access to react, explore details, compare, choose, share, and generate refined rounds, backed by a 100% money-back guarantee if NamEngine doesn’t feel useful.</p>
+          <p>Your first list is free to view. Unlock {{ vertical.display_name }} access for Full Reports, Love / No reactions, refined follow-up rounds, side-by-side comparison, final-choice support, shareable name views, saved taste signals, and plain-English risks and fit notes — backed by a 100% money-back guarantee if NamEngine doesn’t feel useful.</p>
           <a class="button-link" href="/{{ vertical.slug }}/access?return_session={{ session_id }}">{{ beta_cta_label(vertical) }}</a>
           {% if refinement_error %}
             <p class="refine-reaction-gate is-error" aria-live="polite">{{ refinement_error }}</p>
