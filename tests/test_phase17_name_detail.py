@@ -47,7 +47,8 @@ class PhaseSeventeenNameDetailTest(unittest.TestCase):
         self.assertIn("Choose Milo", body)
         self.assertIn("Compare favorites", body)
         self.assertIn("Back to results", body)
-        self.assertIn("Adjust direction", body)
+        self.assertNotIn("Adjust direction", body)
+        self.assertNotIn('/pet?', body)
 
     def test_name_detail_rejects_wrong_vertical(self):
         query = b"pet_type=Dog&style=Classic&vibe=Playful"

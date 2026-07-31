@@ -50,7 +50,6 @@
       </form>
       <a class="button-link" href="/compare/{{ session.id }}">Compare favorites</a>
       <a class="button-link secondary-button" href="/results/session/{{ session.id }}">Back to results</a>
-      <a class="button-link secondary-button" href="/{{ vertical.slug }}?{{ session.brief_json|brief_query_string }}">Adjust direction</a>
     </div>{% endif %}
 
     {% set domain_info = result.metadata.get("domain_info") if result.metadata else None %}
@@ -168,7 +167,6 @@
           </form>
           <a class="button-link" href="/compare/{{ session.id }}">Compare favorites</a>
           <a class="button-link secondary-button" href="/results/session/{{ session.id }}">Return to results</a>
-          <a class="button-link secondary-button" href="/{{ vertical.slug }}?{{ session.brief_json|brief_query_string }}">Adjust direction</a>
         </div>
       </section>
     {% else %}

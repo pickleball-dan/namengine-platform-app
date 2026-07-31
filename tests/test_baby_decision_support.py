@@ -159,6 +159,9 @@ class BabyDecisionSupportTest(unittest.TestCase):
             "Next decision",
         ):
             self.assertIn(text, body)
+        self.assertIn("Return to results", body)
+        self.assertNotIn("Adjust direction", body)
+        self.assertNotIn('/baby?', body)
         self.assertNotIn("quality_score", body)
         self.assertNotIn("gpt-", body)
 
