@@ -428,6 +428,17 @@ def _valid_beta_access_token(vertical, token: str, *, max_age_seconds: int) -> b
     return compare_digest(signature, expected)
 
 
+BETA_PAYMENT_LINK_DEFAULTS = {
+    "business": "https://buy.stripe.com/test_aFa3cvchXg1E5CS2Yqds401",
+    "pet": "https://buy.stripe.com/test_6oU5kD0zf4iW8P41Umds402",
+    "baby": "https://buy.stripe.com/test_4gM5kDchX5n0aXc9mOds403",
+}
+
+BETA_PAYMENT_LINK_REMAP = {
+    "https://buy.stripe.com/test_bJe5kDfu99Dg1mCdD4ds400": BETA_PAYMENT_LINK_DEFAULTS["baby"],
+}
+
+
 def beta_pending_cookie_name(vertical) -> str:
     return f"namengine_access_checkout_{vertical.slug}"
 
@@ -476,9 +487,11 @@ def beta_pending_checkout_from_request(vertical=None) -> bool:
 
 
 def beta_payment_link_for(vertical) -> str:
-    """Return the vertical-specific Stripe Payment Link, if configured."""
+    """Return the canonical vertical-specific Stripe Payment Link."""
     key = f"NAMENGINE_{vertical.slug.upper()}_BETA_PAYMENT_LINK"
-    return os.getenv(key, "").strip()
+    configured_link = os.getenv(key, "").strip()
+    payment_link = configured_link or BETA_PAYMENT_LINK_DEFAULTS.get(vertical.slug, "")
+    return BETA_PAYMENT_LINK_REMAP.get(payment_link, payment_link)
 
 
 def _payment_link_id_from_value(value: str) -> str:

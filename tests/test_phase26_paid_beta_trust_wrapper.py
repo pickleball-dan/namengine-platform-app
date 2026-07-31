@@ -164,6 +164,45 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.assertIn("Unlock Baby Access", text)
         self.assertIn("100% money-back guarantee", text)
 
+    def test_beta_checkout_uses_current_vertical_stripe_payment_links(self):
+        previous = {
+            key: os.environ.pop(key, None)
+            for key in (
+                "NAMENGINE_BUSINESS_BETA_PAYMENT_LINK",
+                "NAMENGINE_PET_BETA_PAYMENT_LINK",
+                "NAMENGINE_BABY_BETA_PAYMENT_LINK",
+            )
+        }
+        try:
+            expected_locations = {
+                "/business/access/checkout": "https://buy.stripe.com/test_aFa3cvchXg1E5CS2Yqds401",
+                "/pet/access/checkout": "https://buy.stripe.com/test_6oU5kD0zf4iW8P41Umds402",
+                "/baby/access/checkout": "https://buy.stripe.com/test_4gM5kDchX5n0aXc9mOds403",
+            }
+            for path, expected in expected_locations.items():
+                with self.subTest(path=path):
+                    checkout = self.app.get(path)
+                    self.assertEqual(checkout.status_code, 302)
+                    self.assertEqual(checkout.headers["Location"], expected)
+        finally:
+            for key, value in previous.items():
+                if value is not None:
+                    os.environ[key] = value
+
+    def test_legacy_baby_stripe_payment_link_remaps_to_current_baby_link(self):
+        previous = os.environ.get("NAMENGINE_BABY_BETA_PAYMENT_LINK")
+        os.environ["NAMENGINE_BABY_BETA_PAYMENT_LINK"] = "https://buy.stripe.com/test_bJe5kDfu99Dg1mCdD4ds400"
+        try:
+            checkout = self.app.get("/baby/access/checkout")
+        finally:
+            if previous is None:
+                os.environ.pop("NAMENGINE_BABY_BETA_PAYMENT_LINK", None)
+            else:
+                os.environ["NAMENGINE_BABY_BETA_PAYMENT_LINK"] = previous
+
+        self.assertEqual(checkout.status_code, 302)
+        self.assertEqual(checkout.headers["Location"], "https://buy.stripe.com/test_4gM5kDchX5n0aXc9mOds403")
+
     def test_returning_results_access_page_removes_first_round_prompt(self):
         previous = os.environ.get("NAMENGINE_PET_BETA_PAYMENT_LINK")
         os.environ["NAMENGINE_PET_BETA_PAYMENT_LINK"] = "https://buy.stripe.com/pet_test"
