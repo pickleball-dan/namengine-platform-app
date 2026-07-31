@@ -354,23 +354,22 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.assertIn('href="/baby"', text)
         self.assertNotIn("?paid=1", text)
 
-    def test_baby_paid_success_can_return_to_existing_session_without_paid_query(self):
+    def test_baby_paid_success_redirects_to_existing_session_without_paid_query(self):
         previous = os.environ.get("NAMENGINE_BABY_BETA_PAYMENT_LINK")
         os.environ["NAMENGINE_BABY_BETA_PAYMENT_LINK"] = "https://buy.stripe.com/test_example"
         try:
             self.app.get("/baby/access/checkout?return_session=baby-testsession")
             with patch("app._stripe_checkout_session_paid", return_value=True):
                 response = self.app.get("/baby/access?checkout_session_id=cs_test_paid")
-            text = response.get_data(as_text=True)
         finally:
             if previous is None:
                 os.environ.pop("NAMENGINE_BABY_BETA_PAYMENT_LINK", None)
             else:
                 os.environ["NAMENGINE_BABY_BETA_PAYMENT_LINK"] = previous
 
-        self.assertEqual(response.status_code, 200)
-        self.assertIn('href="/results/session/baby-testsession"', text)
-        self.assertNotIn("?paid=1", text)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.headers["Location"], "/results/session/baby-testsession")
+        self.assertNotIn("?paid=1", response.headers["Location"])
 
     def test_beta_checkout_preserves_return_session_for_stripe_round_trip(self):
         previous = os.environ.get("NAMENGINE_BABY_BETA_PAYMENT_LINK")
@@ -379,7 +378,6 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
             checkout = self.app.get("/baby/access/checkout?return_session=baby-testsession")
             with patch("app._stripe_checkout_session_paid", return_value=True):
                 paid_return = self.app.get("/baby/access?checkout_session_id=cs_test_paid")
-            text = paid_return.get_data(as_text=True)
         finally:
             if previous is None:
                 os.environ.pop("NAMENGINE_BABY_BETA_PAYMENT_LINK", None)
@@ -391,9 +389,9 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.assertEqual(checkout.headers["Location"], "https://buy.stripe.com/test_example")
         self.assertIn("namengine_access_checkout_baby=", checkout_cookies)
         self.assertIn("namengine_access_return_baby=baby-testsession", checkout_cookies)
-        self.assertEqual(paid_return.status_code, 200)
-        self.assertIn('href="/results/session/baby-testsession"', text)
-        self.assertNotIn("?paid=1", text)
+        self.assertEqual(paid_return.status_code, 302)
+        self.assertEqual(paid_return.headers["Location"], "/results/session/baby-testsession")
+        self.assertNotIn("?paid=1", paid_return.headers["Location"])
 
     def test_free_baby_results_lock_refinement_behind_beta(self):
         response = self.app.get(

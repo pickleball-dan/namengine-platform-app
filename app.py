@@ -847,19 +847,22 @@ def create_app() -> Flask:
             if (paid or checkout_return) and return_session
             else url_for("intake", vertical_slug=vertical.slug)
         )
-        response = make_response(
-            render_template(
-                "baby_beta.html",
-                vertical=vertical,
-                stripe_payment_link=stripe_payment_link,
-                beta_checkout_url=beta_checkout_url,
-                beta_price=beta_price_for(vertical),
-                paid=paid or checkout_return,
-                beta_return_session=return_session if paid else "",
-                beta_has_prior_round=bool(return_session),
-                beta_continue_url=beta_continue_url,
+        if checkout_return and return_session:
+            response = redirect(url_for("session_results", session_id=return_session))
+        else:
+            response = make_response(
+                render_template(
+                    "baby_beta.html",
+                    vertical=vertical,
+                    stripe_payment_link=stripe_payment_link,
+                    beta_checkout_url=beta_checkout_url,
+                    beta_price=beta_price_for(vertical),
+                    paid=paid or checkout_return,
+                    beta_return_session=return_session if paid else "",
+                    beta_has_prior_round=bool(return_session),
+                    beta_continue_url=beta_continue_url,
+                )
             )
-        )
         if checkout_return:
             response.set_cookie(
                 beta_unlock_cookie_name(vertical),
