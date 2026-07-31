@@ -32,6 +32,16 @@ services:
         value: "30"
       - key: NAMENGINE_BABY_BETA_PAYMENT_LINK
         sync: false
+      - key: NAMENGINE_PET_BETA_PAYMENT_LINK
+        sync: false
+      - key: NAMENGINE_BUSINESS_BETA_PAYMENT_LINK
+        sync: false
+      - key: NAMENGINE_BABY_STRIPE_PRICE_ID
+        sync: false
+      - key: NAMENGINE_PET_STRIPE_PRICE_ID
+        sync: false
+      - key: NAMENGINE_BUSINESS_STRIPE_PRICE_ID
+        sync: false
       - key: STRIPE_SECRET_KEY
         sync: false
       - key: OPENAI_API_KEY

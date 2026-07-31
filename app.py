@@ -977,6 +977,7 @@ def create_app() -> Flask:
                     beta_return_session=return_session if paid else "",
                     beta_has_prior_round=bool(return_session),
                     beta_continue_url=beta_continue_url,
+                    focused_access_return=bool(return_session) and not (paid or checkout_return),
                 )
             )
         if checkout_return:

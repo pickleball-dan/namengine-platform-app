@@ -39,7 +39,7 @@
         <a class="brand" href="/" aria-label="NamEngine home">
           <img class="brand-logo brand-logo-wordmark" src="{{ url_for('static', filename='images/namengine.svg') }}" alt="NamEngine">
         </a>
-        <nav class="site-nav site-nav-reference" aria-label="Primary navigation">
+        {% if not focused_access_return|default(false) %}<nav class="site-nav site-nav-reference" aria-label="Primary navigation">
           <div class="naming-menu" data-naming-menu>
             <button class="naming-menu-trigger" type="button" aria-expanded="false" aria-controls="naming-menu-panel" data-naming-menu-trigger>
               <span>What are you naming?</span>
@@ -93,7 +93,7 @@
           <a class="site-nav-link" href="/about">About</a>
           <a class="site-nav-link" href="/#pricing">Pricing</a>
           <a class="site-nav-signin" href="#" aria-disabled="true">Sign In</a>
-        </nav>
+        </nav>{% endif %}
       </div>
     </header>
 
@@ -113,7 +113,7 @@
             <span aria-hidden="true">p</span>
           </div>
         </div>
-        <nav class="footer-column" aria-label="Naming experiences">
+        {% if not focused_access_return|default(false) %}<nav class="footer-column" aria-label="Naming experiences">
           <h2>Naming Experiences</h2>
           <a href="/baby">Baby</a>
           <a href="/pet">Pet</a>
@@ -122,7 +122,7 @@
           <span aria-disabled="true">Product</span>
           <span aria-disabled="true">Book</span>
           <span aria-disabled="true">Game</span>
-        </nav>
+        </nav>{% endif %}
         <nav class="footer-column" aria-label="Company links">
           <h2>Company</h2>
           <a href="/about">About</a>

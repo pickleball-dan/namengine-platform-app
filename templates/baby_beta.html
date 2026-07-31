@@ -7,8 +7,8 @@
 <section class="paid-success-panel" aria-label="Payment success">
   <p class="eyebrow">Payment received</p>
   <h1>You’ve unlocked NamEngine {{ vertical.display_name }} access.</h1>
-  <p>Start or continue your {{ vertical.display_name }} name discovery below. Keep your Stripe receipt for your records.</p>
-  <a class="button-link" href="{{ beta_continue_url }}">Start {{ vertical.display_name }} name discovery</a>
+  <p>{% if beta_has_prior_round %}Return to your unlocked {{ vertical.display_name|lower }} report below. Keep your Stripe receipt for your records.{% else %}Start your {{ vertical.display_name|lower }} name discovery below. Keep your Stripe receipt for your records.{% endif %}</p>
+  <a class="button-link" href="{{ beta_continue_url }}">{% if beta_has_prior_round %}Return to Full Report{% else %}Start {{ vertical.display_name }} name discovery{% endif %}</a>
 </section>
 {% endif %}
 
@@ -19,7 +19,7 @@
     {% if paid %}
       <p>You have unlocked deeper taste discovery, fresh rounds, saved-name support, and a clearer final direction.</p>
     {% elif beta_has_prior_round %}
-      <p>Unlock {{ vertical.display_name }} Access to react, explore details, compare, choose, share, and generate refined rounds shaped by your first list.</p>
+      <p>Unlock {{ vertical.display_name }} Access to return to this report, explore every detail, react, compare, choose, share, and generate refined rounds shaped by your first list.</p>
     {% else %}
       <p>Generate your first preview list, then unlock {{ vertical.display_name }} Access when you are ready to explore details, react, compare, choose, share, and refine.</p>
     {% endif %}
@@ -32,7 +32,7 @@
     {% endif %}
     <div class="hero-actions">
       {% if paid %}
-        <a class="button-link" href="{{ beta_continue_url }}">Start {{ vertical.display_name }} name discovery</a>
+        <a class="button-link" href="{{ beta_continue_url }}">{% if beta_has_prior_round %}Return to Full Report{% else %}Start {{ vertical.display_name }} name discovery{% endif %}</a>
       {% elif stripe_payment_link %}
         <a class="button-link" href="{{ beta_checkout_url }}">{{ beta_cta_label(vertical) }}</a>
       {% endif %}

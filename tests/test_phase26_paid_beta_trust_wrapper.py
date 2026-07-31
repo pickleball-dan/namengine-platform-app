@@ -233,7 +233,9 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.assertNotIn("Try the first round", text)
         self.assertNotIn("Try first round", text)
         self.assertNotIn("Start with a free first round", text)
-        self.assertIn("shaped by your first list", text)
+        self.assertIn("return to this report", text)
+        self.assertNotIn("Generate your first preview list", text)
+        self.assertNotIn("Naming Experiences", text)
         self.assertIn("Unlock Pet Access", text)
         self.assertIn('/pet/access/checkout?return_session=pet-testsession', text)
 
@@ -307,6 +309,24 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.assertNotIn("Start with a free first round", text)
         self.assertNotIn("Unlock Baby Access", text)
         self.assertNotIn("https://buy.stripe.com/test_example", text)
+
+    def test_paid_return_session_success_page_points_back_to_full_report(self):
+        previous = os.environ.get("NAMENGINE_BABY_BETA_PAYMENT_LINK")
+        os.environ["NAMENGINE_BABY_BETA_PAYMENT_LINK"] = "https://buy.stripe.com/test_example"
+        try:
+            self.app.get("/baby/access/checkout?return_session=baby-testsession")
+            with patch("app._stripe_checkout_session_paid", return_value=True):
+                response = self.app.get("/baby/access?checkout_session_id=cs_test_paid&return_session=baby-testsession")
+            text = response.get_data(as_text=True)
+        finally:
+            if previous is None:
+                os.environ.pop("NAMENGINE_BABY_BETA_PAYMENT_LINK", None)
+            else:
+                os.environ["NAMENGINE_BABY_BETA_PAYMENT_LINK"] = previous
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.headers["Location"], "/results/session/baby-testsession")
+        self.assertNotIn("Start Baby name discovery", text)
 
     def test_baby_intake_surfaces_paid_beta_and_trust_copy(self):
         response = self.app.get("/baby")
