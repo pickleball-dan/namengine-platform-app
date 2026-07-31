@@ -189,19 +189,32 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
                 if value is not None:
                     os.environ[key] = value
 
-    def test_legacy_baby_stripe_payment_link_remaps_to_current_baby_link(self):
-        previous = os.environ.get("NAMENGINE_BABY_BETA_PAYMENT_LINK")
-        os.environ["NAMENGINE_BABY_BETA_PAYMENT_LINK"] = "https://buy.stripe.com/test_bJe5kDfu99Dg1mCdD4ds400"
+    def test_legacy_baby_stripe_payment_link_remaps_to_current_vertical_link(self):
+        keys = {
+            "business": "NAMENGINE_BUSINESS_BETA_PAYMENT_LINK",
+            "pet": "NAMENGINE_PET_BETA_PAYMENT_LINK",
+            "baby": "NAMENGINE_BABY_BETA_PAYMENT_LINK",
+        }
+        expected_locations = {
+            "business": "https://buy.stripe.com/test_aFa3cvchXg1E5CS2Yqds401",
+            "pet": "https://buy.stripe.com/test_6oU5kD0zf4iW8P41Umds402",
+            "baby": "https://buy.stripe.com/test_4gM5kDchX5n0aXc9mOds403",
+        }
+        previous = {key: os.environ.get(key) for key in keys.values()}
         try:
-            checkout = self.app.get("/baby/access/checkout")
+            for key in keys.values():
+                os.environ[key] = "https://buy.stripe.com/test_bJe5kDfu99Dg1mCdD4ds400"
+            for slug, expected in expected_locations.items():
+                with self.subTest(slug=slug):
+                    checkout = self.app.get(f"/{slug}/access/checkout")
+                    self.assertEqual(checkout.status_code, 302)
+                    self.assertEqual(checkout.headers["Location"], expected)
         finally:
-            if previous is None:
-                os.environ.pop("NAMENGINE_BABY_BETA_PAYMENT_LINK", None)
-            else:
-                os.environ["NAMENGINE_BABY_BETA_PAYMENT_LINK"] = previous
-
-        self.assertEqual(checkout.status_code, 302)
-        self.assertEqual(checkout.headers["Location"], "https://buy.stripe.com/test_4gM5kDchX5n0aXc9mOds403")
+            for key, value in previous.items():
+                if value is None:
+                    os.environ.pop(key, None)
+                else:
+                    os.environ[key] = value
 
     def test_returning_results_access_page_removes_first_round_prompt(self):
         previous = os.environ.get("NAMENGINE_PET_BETA_PAYMENT_LINK")

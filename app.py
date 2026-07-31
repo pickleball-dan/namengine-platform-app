@@ -434,9 +434,7 @@ BETA_PAYMENT_LINK_DEFAULTS = {
     "baby": "https://buy.stripe.com/test_4gM5kDchX5n0aXc9mOds403",
 }
 
-BETA_PAYMENT_LINK_REMAP = {
-    "https://buy.stripe.com/test_bJe5kDfu99Dg1mCdD4ds400": BETA_PAYMENT_LINK_DEFAULTS["baby"],
-}
+LEGACY_BABY_PAYMENT_LINK = "https://buy.stripe.com/test_bJe5kDfu99Dg1mCdD4ds400"
 
 
 def beta_pending_cookie_name(vertical) -> str:
@@ -490,8 +488,11 @@ def beta_payment_link_for(vertical) -> str:
     """Return the canonical vertical-specific Stripe Payment Link."""
     key = f"NAMENGINE_{vertical.slug.upper()}_BETA_PAYMENT_LINK"
     configured_link = os.getenv(key, "").strip()
-    payment_link = configured_link or BETA_PAYMENT_LINK_DEFAULTS.get(vertical.slug, "")
-    return BETA_PAYMENT_LINK_REMAP.get(payment_link, payment_link)
+    default_link = BETA_PAYMENT_LINK_DEFAULTS.get(vertical.slug, "")
+    payment_link = configured_link or default_link
+    if payment_link == LEGACY_BABY_PAYMENT_LINK:
+        return default_link
+    return payment_link
 
 
 def _payment_link_id_from_value(value: str) -> str:
