@@ -14,7 +14,7 @@ from urllib.request import Request, urlopen
 from hmac import compare_digest, new as hmac_new
 from threading import Lock, Thread
 from hashlib import sha1
-from urllib.parse import urlencode, urlparse
+from urllib.parse import urlencode, urlparse, urljoin
 
 from flask import Flask, abort, jsonify, make_response, redirect, render_template, request, send_from_directory, url_for
 
@@ -548,15 +548,34 @@ def _format_stripe_price(unit_amount: int | None, currency: str | None) -> str:
 
 _STRIPE_PRICE_CACHE: dict[str, tuple[float, str]] = {}
 _STRIPE_LINK_ID_CACHE: dict[str, tuple[float, str]] = {}
+_STRIPE_PRICE_ID_CACHE: dict[str, tuple[float, str]] = {}
 _STRIPE_PRICE_CACHE_LOCK = Lock()
 _STRIPE_PRICE_CACHE_SECONDS = 15 * 60
 
 
-def _stripe_api_get(path: str, secret_key: str) -> dict:
+def _stripe_auth_header(secret_key: str) -> str:
     auth = b64encode(f"{secret_key}:".encode("utf-8")).decode("ascii")
+    return f"Basic {auth}"
+
+
+def _stripe_api_get(path: str, secret_key: str) -> dict:
     request = Request(
         f"https://api.stripe.com/v1/{path.lstrip('/')}",
-        headers={"Authorization": f"Basic {auth}"},
+        headers={"Authorization": _stripe_auth_header(secret_key)},
+    )
+    with urlopen(request, timeout=8) as response:
+        return json_loads(response.read().decode("utf-8"))
+
+
+def _stripe_api_post(path: str, secret_key: str, data: dict[str, str]) -> dict:
+    encoded = urlencode(data).encode("utf-8")
+    request = Request(
+        f"https://api.stripe.com/v1/{path.lstrip('/')}",
+        data=encoded,
+        headers={
+            "Authorization": _stripe_auth_header(secret_key),
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
     )
     with urlopen(request, timeout=8) as response:
         return json_loads(response.read().decode("utf-8"))
@@ -624,6 +643,97 @@ def _stripe_payment_link_price(payment_link_id: str, secret_key: str) -> str:
     return display_price
 
 
+def _stripe_price_id_from_payment_link(payment_link_id: str, secret_key: str) -> str:
+    """Read the first active line-item price id from a Stripe Payment Link."""
+    payment_link_id = str(payment_link_id or "").strip()
+    if not payment_link_id or not secret_key:
+        return ""
+
+    now = time.time()
+    with _STRIPE_PRICE_CACHE_LOCK:
+        cached = _STRIPE_PRICE_ID_CACHE.get(payment_link_id)
+        if cached and now - cached[0] < _STRIPE_PRICE_CACHE_SECONDS:
+            return cached[1]
+
+    try:
+        payload = _stripe_api_get(f"payment_links/{payment_link_id}/line_items?limit=1", secret_key)
+    except (HTTPError, URLError, TimeoutError, ValueError, OSError) as exc:
+        logger.warning("Could not load Stripe price id for %s: %s", payment_link_id, exc.__class__.__name__)
+        return ""
+
+    data = payload.get("data") if isinstance(payload, dict) else None
+    item = data[0] if isinstance(data, list) and data else {}
+    price = item.get("price") if isinstance(item, dict) else {}
+    price_id = str(price.get("id") or "").strip() if isinstance(price, dict) else ""
+    if price_id:
+        with _STRIPE_PRICE_CACHE_LOCK:
+            _STRIPE_PRICE_ID_CACHE[payment_link_id] = (now, price_id)
+    return price_id
+
+
+def beta_stripe_price_id_for(vertical) -> str:
+    slug = vertical.slug.upper()
+    for key in (
+        f"NAMENGINE_{slug}_STRIPE_PRICE_ID",
+        f"NAMENGINE_{slug}_BETA_PRICE_ID",
+        "NAMENGINE_STRIPE_PRICE_ID",
+    ):
+        value = os.getenv(key, "").strip()
+        if value.startswith("price_"):
+            return value
+    secret_key = _stripe_secret_key()
+    payment_link_id = beta_payment_link_id_for(vertical)
+    if not payment_link_id:
+        payment_link_id = _stripe_payment_link_id_from_url(beta_payment_link_for(vertical), secret_key)
+    return _stripe_price_id_from_payment_link(payment_link_id, secret_key)
+
+
+def _absolute_url(path: str) -> str:
+    return urljoin(request.url_root, path.lstrip("/"))
+
+
+def _stripe_checkout_success_url(vertical, return_session: str) -> str:
+    query = "checkout_session_id={CHECKOUT_SESSION_ID}"
+    if return_session:
+        query = f"{query}&{urlencode({'return_session': return_session})}"
+    return _absolute_url(f"{url_for('beta_landing', vertical_slug=vertical.slug)}?{query}")
+
+
+def _stripe_checkout_cancel_url(vertical, return_session: str) -> str:
+    access_path = url_for("beta_landing", vertical_slug=vertical.slug)
+    if return_session:
+        access_path = f"{access_path}?{urlencode({'return_session': return_session})}"
+    return _absolute_url(access_path)
+
+
+def _create_stripe_checkout_session(vertical, return_session: str) -> str:
+    """Create a Stripe Checkout Session with an app-controlled success URL."""
+    secret_key = _stripe_secret_key()
+    price_id = beta_stripe_price_id_for(vertical)
+    if not secret_key or not price_id:
+        return ""
+    data = {
+        "mode": "payment",
+        "line_items[0][price]": price_id,
+        "line_items[0][quantity]": "1",
+        "success_url": _stripe_checkout_success_url(vertical, return_session),
+        "cancel_url": _stripe_checkout_cancel_url(vertical, return_session),
+        "client_reference_id": return_session or vertical.slug,
+        "metadata[namengine_vertical]": vertical.slug,
+        "metadata[namengine_access]": "1",
+        "metadata[namengine_return_session]": return_session,
+    }
+    try:
+        payload = _stripe_api_post("checkout/sessions", secret_key, data)
+    except (HTTPError, URLError, TimeoutError, ValueError, OSError) as exc:
+        logger.warning("Could not create Stripe checkout session for %s: %s", vertical.slug, exc.__class__.__name__)
+        return ""
+    if not isinstance(payload, dict):
+        return ""
+    checkout_url = str(payload.get("url") or "").strip()
+    return checkout_url if checkout_url.startswith("https://") else ""
+
+
 def _stripe_checkout_session_paid(session_id: str, vertical) -> bool:
     """Verify a Stripe Checkout Session before granting paid access."""
     session_id = str(session_id or "").strip()
@@ -639,6 +749,12 @@ def _stripe_checkout_session_paid(session_id: str, vertical) -> bool:
         return False
     if payload.get("payment_status") != "paid" or payload.get("status") != "complete":
         return False
+    metadata = payload.get("metadata") if isinstance(payload.get("metadata"), dict) else {}
+    if (
+        metadata.get("namengine_access") == "1"
+        and metadata.get("namengine_vertical") == vertical.slug
+    ):
+        return True
     payment_link_id = beta_payment_link_id_for(vertical) or _stripe_payment_link_id_from_url(
         beta_payment_link_for(vertical),
         secret_key,
@@ -847,7 +963,7 @@ def create_app() -> Flask:
             if (paid or checkout_return) and return_session
             else url_for("intake", vertical_slug=vertical.slug)
         )
-        if checkout_return and return_session:
+        if (paid or checkout_return) and return_session:
             response = redirect(url_for("session_results", session_id=return_session))
         else:
             response = make_response(
@@ -873,7 +989,7 @@ def create_app() -> Flask:
                 secure=request.is_secure,
             )
             response.delete_cookie(beta_pending_cookie_name(vertical))
-        if checkout_return and return_session:
+        if (paid or checkout_return) and return_session:
             response.delete_cookie(beta_return_cookie_name(vertical))
         return response
 
@@ -883,11 +999,14 @@ def create_app() -> Flask:
         if vertical_slug not in VERTICALS:
             abort(404)
         vertical = get_vertical(vertical_slug)
+        return_session = request.args.get("return_session", "").strip()
+        if return_session and not return_session.startswith(f"{vertical.slug}-"):
+            return_session = ""
         stripe_payment_link = beta_payment_link_for(vertical)
         if not stripe_payment_link:
             return redirect(url_for("beta_landing", vertical_slug=vertical.slug))
-        response = redirect(stripe_payment_link)
-        return_session = request.args.get("return_session", "").strip()
+        checkout_url = _create_stripe_checkout_session(vertical, return_session) or stripe_payment_link
+        response = redirect(checkout_url)
         response.set_cookie(
             beta_pending_cookie_name(vertical),
             _signed_beta_access_token(vertical, return_session),

@@ -393,6 +393,83 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.assertEqual(paid_return.headers["Location"], "/results/session/baby-testsession")
         self.assertNotIn("?paid=1", paid_return.headers["Location"])
 
+    def test_beta_checkout_creates_stripe_session_with_return_session_success_url(self):
+        previous_secret = os.environ.get("STRIPE_SECRET_KEY")
+        previous_link = os.environ.get("NAMENGINE_BABY_BETA_PAYMENT_LINK")
+        previous_link_id = os.environ.get("NAMENGINE_BABY_STRIPE_PAYMENT_LINK_ID")
+        previous_price_id = os.environ.get("NAMENGINE_BABY_STRIPE_PRICE_ID")
+        os.environ["STRIPE_SECRET_KEY"] = "sk_test_example"
+        os.environ["NAMENGINE_BABY_BETA_PAYMENT_LINK"] = "https://buy.stripe.com/test_example"
+        os.environ["NAMENGINE_BABY_STRIPE_PAYMENT_LINK_ID"] = "plink_baby"
+        os.environ["NAMENGINE_BABY_STRIPE_PRICE_ID"] = "price_baby"
+        posted = {}
+        try:
+            def fake_post(path, secret_key, data):
+                posted["path"] = path
+                posted["secret_key"] = secret_key
+                posted["data"] = data
+                return {"url": "https://checkout.stripe.com/c/session_test"}
+
+            with patch.object(namengine_app, "_stripe_api_post", side_effect=fake_post):
+                checkout = self.app.get(
+                    "/baby/access/checkout?return_session=baby-testsession",
+                    base_url="https://nam-engine.com",
+                )
+        finally:
+            for key, value in {
+                "STRIPE_SECRET_KEY": previous_secret,
+                "NAMENGINE_BABY_BETA_PAYMENT_LINK": previous_link,
+                "NAMENGINE_BABY_STRIPE_PAYMENT_LINK_ID": previous_link_id,
+                "NAMENGINE_BABY_STRIPE_PRICE_ID": previous_price_id,
+            }.items():
+                if value is None:
+                    os.environ.pop(key, None)
+                else:
+                    os.environ[key] = value
+
+        self.assertEqual(checkout.status_code, 302)
+        self.assertEqual(checkout.headers["Location"], "https://checkout.stripe.com/c/session_test")
+        self.assertEqual(posted["path"], "checkout/sessions")
+        self.assertEqual(posted["secret_key"], "sk_test_example")
+        self.assertEqual(posted["data"]["line_items[0][price]"], "price_baby")
+        self.assertEqual(
+            posted["data"]["success_url"],
+            "https://nam-engine.com/baby/access?checkout_session_id={CHECKOUT_SESSION_ID}&return_session=baby-testsession",
+        )
+        self.assertEqual(
+            posted["data"]["cancel_url"],
+            "https://nam-engine.com/baby/access?return_session=baby-testsession",
+        )
+        self.assertEqual(posted["data"]["metadata[namengine_vertical]"], "baby")
+        self.assertEqual(posted["data"]["metadata[namengine_return_session]"], "baby-testsession")
+        checkout_cookies = "\n".join(checkout.headers.getlist("Set-Cookie"))
+        self.assertIn("namengine_access_checkout_baby=", checkout_cookies)
+        self.assertIn("namengine_access_return_baby=baby-testsession", checkout_cookies)
+
+    def test_stripe_checkout_verification_accepts_app_created_session_metadata(self):
+        previous_secret = os.environ.get("STRIPE_SECRET_KEY")
+        os.environ["STRIPE_SECRET_KEY"] = "sk_test_example"
+        try:
+            with patch.object(
+                namengine_app,
+                "_stripe_api_get",
+                return_value={
+                    "payment_status": "paid",
+                    "status": "complete",
+                    "payment_link": None,
+                    "metadata": {
+                        "namengine_access": "1",
+                        "namengine_vertical": "baby",
+                    },
+                },
+            ):
+                self.assertTrue(_stripe_checkout_session_paid("cs_test_paid", get_vertical("baby")))
+        finally:
+            if previous_secret is None:
+                os.environ.pop("STRIPE_SECRET_KEY", None)
+            else:
+                os.environ["STRIPE_SECRET_KEY"] = previous_secret
+
     def test_free_baby_results_lock_refinement_behind_beta(self):
         response = self.app.get(
             "/baby/results",
