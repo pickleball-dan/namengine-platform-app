@@ -252,8 +252,8 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
             with self.subTest(route=response.request.path):
                 self.assertIn(name, body)
                 if response.request.path != f"/chosen/{chosen_id}":
-                    self.assertIn("dog", body.lower())
                     self.assertIn("Whippet", body)
+                    self.assertIn("Mature", body)
                 self.assertIn("pet", body.lower())
                 self.assertIn("Blue gray", body)
                 self.assertNotIn("quality_score_version", body)
