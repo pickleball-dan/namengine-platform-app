@@ -7932,8 +7932,8 @@ body.vertical-business {
 
 .vertical-baby :is(.results-heading, .compare-shell, .chosen-shell, .detail-shell) > .vertical-page-logo,
 .vertical-baby .detail-hero .vertical-page-logo {
-  width: min(100%, 245px);
-  max-height: 76px;
+  width: min(420px, 84vw);
+  max-height: 116px;
   object-fit: contain;
   object-position: left center;
 }
@@ -9107,7 +9107,8 @@ body.vertical-business {
 
   .vertical-baby :is(.results-heading, .detail-hero, .compare-shell, .chosen-shell) > .vertical-page-logo,
   .vertical-baby .detail-hero .vertical-page-logo {
-    width: min(68vw, 230px);
+    width: min(78vw, 340px);
+    max-height: 98px;
   }
 
   .vertical-baby .results-heading h1 { font-size: clamp(46px, 14vw, 58px); }
