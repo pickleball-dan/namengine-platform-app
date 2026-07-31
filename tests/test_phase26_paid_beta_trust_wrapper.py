@@ -233,7 +233,7 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.assertNotIn("Try the first round", text)
         self.assertNotIn("Try first round", text)
         self.assertNotIn("Start with a free first round", text)
-        self.assertIn("shaped by your first reactions", text)
+        self.assertIn("shaped by your first list", text)
         self.assertIn("Unlock Pet Access", text)
         self.assertIn('/pet/access/checkout?return_session=pet-testsession', text)
 
@@ -252,7 +252,7 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotIn("pet-testsession", text)
         self.assertNotIn("shaped by your first reactions", text)
-        self.assertIn("Start with a free first round", text)
+        self.assertIn("Generate your first preview list", text)
         self.assertIn('/baby/access/checkout', text)
 
     def test_naked_paid_query_does_not_unlock_access_page(self):
@@ -261,7 +261,7 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertNotIn("Payment received", text)
-        self.assertIn("Start with a free first round", text)
+        self.assertIn("Generate your first preview list", text)
         self.assertIn("$9.99", text)
         self.assertNotIn("$19", text)
         self.assertNotIn("Try the first round", text)
@@ -282,7 +282,7 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.assertEqual(checkout.status_code, 302)
         self.assertEqual(response.status_code, 200)
         self.assertNotIn("Payment received", text)
-        self.assertIn("Start with a free first round", text)
+        self.assertIn("Generate your first preview list", text)
         self.assertIn("Unlock Baby Access", text)
 
     def test_baby_beta_paid_success_state_requires_verified_checkout(self):

@@ -3,7 +3,7 @@
 {% block title %}NamEngine — Understand what matters, then discover the name.{% endblock %}
 
 {% block head_extra %}
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/landing-homepage.css') }}?v=20260730-access-copy-v1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/landing-homepage.css') }}?v=20260731-homepage-pricing-link-contract-v1">
 {% endblock %}
 
 {% block content %}
@@ -117,29 +117,18 @@
 <section class="landing-section landing-pricing-section" id="pricing" aria-labelledby="pricing-title">
   <div class="landing-section-head">
     <p class="landing-eyebrow">Pricing</p>
-    <h2 id="pricing-title">Start free. Go deeper when the name matters.</h2>
-    <p>NamEngine has a simple path: try the first round, then unlock deeper guided discovery when you are ready. Paid access is separate for each naming vertical, so you can use Baby, Pet, and Business independently.</p>
+    <h2 id="pricing-title">Unlock the list when the name matters.</h2>
+    <p>Start by generating a first preview list. NamEngine Access unlocks the tools that help you work with that list — details, reactions, compare, choose, share, and refined follow-up rounds. Access is separate for each naming vertical, so you can use Baby, Pet, and Business independently.</p>
   </div>
-  <div class="landing-pricing-grid" aria-label="NamEngine pricing options">
-    <article class="landing-pricing-card">
-      <span class="landing-pricing-label">Free first round</span>
-      <strong class="landing-pricing-price">$0</strong>
-      <p>Use Baby, Pet, or Business to see whether NamEngine understands your naming lane.</p>
-      <ul>
-        <li>Guided intake</li>
-        <li>Initial taste-shaped names</li>
-        <li>Love / No learning loop</li>
-      </ul>
-      <a href="#naming-experiences">Start naming</a>
-    </article>
-    <article class="landing-pricing-card featured">
+  <div class="landing-pricing-grid landing-pricing-grid-paid-only" aria-label="NamEngine paid access options">
+    <article class="landing-pricing-card featured landing-pricing-card-paid-only">
       <span class="landing-pricing-label">Paid access</span>
       <strong class="landing-pricing-price">{{ beta_price }}</strong>
-      <p>One-time access per naming vertical, with deeper refinement rounds when the name matters.</p>
+      <p>One-time access per naming vertical, unlocked after your first preview list when you are ready to go deeper.</p>
       <ul>
-        <li>Separate Baby, Pet, and Business access</li>
-        <li>Multiple guided discovery rounds</li>
-        <li>Refinement rounds shaped by your reactions</li>
+        <li>Explore every name in detail</li>
+        <li>React, compare, choose, and share</li>
+        <li>Generate refined rounds shaped by your reactions</li>
         <li>100% money-back guarantee if NamEngine doesn’t feel useful</li>
       </ul>
       <a href="/baby/access">Unlock Baby Access</a>
@@ -167,8 +156,8 @@
     </article>
     <article>
       <span class="landing-step-number">03</span>
-      <h3>Refine with Love or No</h3>
-      <p>Each response teaches NamEngine your taste and shapes the next suggestion.</p>
+      <h3>Unlock and refine</h3>
+      <p>When you are ready, NamEngine Access lets you react, compare, choose, share, and shape the next suggestion.</p>
     </article>
   </div>
 </section>

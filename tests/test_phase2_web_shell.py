@@ -1,6 +1,33 @@
 import unittest
+from html.parser import HTMLParser
 
 from app import create_app
+
+
+class AnchorParser(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.anchors = []
+        self._current = None
+
+    def handle_starttag(self, tag, attrs):
+        if tag == "a":
+            attrs_dict = dict(attrs)
+            self._current = {
+                "href": attrs_dict.get("href", ""),
+                "class": attrs_dict.get("class", ""),
+                "text": "",
+            }
+
+    def handle_data(self, data):
+        if self._current is not None:
+            self._current["text"] += data
+
+    def handle_endtag(self, tag):
+        if tag == "a" and self._current is not None:
+            self._current["text"] = " ".join(self._current["text"].split())
+            self.anchors.append(self._current)
+            self._current = None
 
 
 class PhaseTwoWebShellTest(unittest.TestCase):
@@ -19,6 +46,10 @@ class PhaseTwoWebShellTest(unittest.TestCase):
         self.assertIn("What are you naming?", body)
         self.assertIn("Love", body)
         self.assertIn("No", body)
+        self.assertIn("Unlock the list when the name matters.", body)
+        self.assertNotIn("Free first round", body)
+        self.assertNotIn("$0", body)
+        self.assertNotIn("Love / No learning loop", body)
         self.assertNotIn("Maybe", body)
         self.assertNotIn("Like", body)
         self.assertNotIn("Find the name that feels right.", body)
@@ -28,6 +59,29 @@ class PhaseTwoWebShellTest(unittest.TestCase):
         self.assertIn('href="/business"', body)
         self.assertNotIn('href="/character"', body)
         self.assertNotIn('href="/product"', body)
+
+    def test_home_vertical_start_links_use_canonical_intake_routes(self):
+        response = self.client.get("/")
+
+        self.assertEqual(response.status_code, 200)
+        parser = AnchorParser()
+        parser.feed(response.get_data(as_text=True))
+        anchors_by_text = {}
+        anchors_by_class = {}
+        for anchor in parser.anchors:
+            anchors_by_text.setdefault(anchor["text"], set()).add(anchor["href"])
+            if anchor["class"]:
+                anchors_by_class.setdefault(anchor["class"], set()).add(anchor["href"])
+
+        self.assertEqual(anchors_by_text["Baby"], {"/baby"})
+        self.assertEqual(anchors_by_text["Pet"], {"/pet"})
+        self.assertEqual(anchors_by_text["Business"], {"/business"})
+        self.assertEqual(anchors_by_class["landing-vertical-card baby"], {"/baby"})
+        self.assertEqual(anchors_by_class["landing-vertical-card pet"], {"/pet"})
+        self.assertEqual(anchors_by_class["landing-vertical-card business"], {"/business"})
+        self.assertEqual(anchors_by_text["Unlock Baby Access"], {"/baby/access"})
+        self.assertEqual(anchors_by_text["Unlock Pet Access"], {"/pet/access"})
+        self.assertEqual(anchors_by_text["Unlock Business Access"], {"/business/access"})
 
     def test_pet_intake_renders_from_vertical_config(self):
         response = self.client.get("/pet")
