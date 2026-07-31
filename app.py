@@ -662,7 +662,15 @@ def beta_cta_label(vertical) -> str:
 
 
 def beta_unlock_error(vertical) -> str:
-    return f"Unlock {vertical.display_name} access to generate refined lists."
+    return f"Unlock {vertical.display_name} access to explore, react, compare, choose, share, and generate refined lists."
+
+
+def _access_required_response(vertical, session_id: str, *, wants_json: bool = False):
+    access_url = url_for("beta_landing", vertical_slug=vertical.slug, return_session=session_id)
+    message = beta_unlock_error(vertical)
+    if wants_json:
+        return jsonify({"error": "access_required", "message": message, "access_url": access_url}), 402
+    return redirect(access_url)
 
 
 def beta_return_cookie_name(vertical) -> str:
@@ -1081,6 +1089,12 @@ def create_app() -> Flask:
         result_id = str(payload.get("result_id", ""))
         value = str(payload.get("value", ""))
 
+        snapshot = get_session_snapshot(session_id) if session_id else None
+        if snapshot is not None:
+            vertical = get_vertical(snapshot["session"]["vertical"])
+            if not beta_unlocked_from_request(vertical):
+                return _access_required_response(vertical, session_id, wants_json=True)
+
         try:
             reaction = build_public_reaction(
                 session_id=session_id,
@@ -1110,6 +1124,13 @@ def create_app() -> Flask:
         result_id = str(request.form.get("result_id", ""))
         if not session_id or not result_id:
             abort(400)
+
+        snapshot = get_session_snapshot(session_id)
+        if snapshot is None:
+            abort(404)
+        vertical = get_vertical(snapshot["session"]["vertical"])
+        if not beta_unlocked_from_request(vertical):
+            return _access_required_response(vertical, session_id)
 
         try:
             chosen = save_chosen_name(session_id, result_id)
@@ -1187,6 +1208,9 @@ def create_app() -> Flask:
             abort(404)
 
         vertical = get_vertical(snapshot["session"]["vertical"])
+        if not beta_unlocked_from_request(vertical):
+            return _access_required_response(vertical, session_id)
+
         items = build_compare_items(session_id)
         taste_profile = _taste_profile_from_snapshot(snapshot)
         return render_template(
@@ -1209,6 +1233,9 @@ def create_app() -> Flask:
             ), 410
 
         vertical = get_vertical(snapshot["session"]["vertical"])
+        if not beta_unlocked_from_request(vertical):
+            return _access_required_response(vertical, session_id)
+
         names = [json_loads(row["result_json"]) for row in snapshot["results"]]
         brief = json_loads(snapshot["session"]["brief_json"])
         taste_profile = _taste_profile_from_snapshot(snapshot)
@@ -1314,6 +1341,8 @@ def create_app() -> Flask:
         vertical = get_vertical(detail["session"]["vertical"])
         if vertical.slug != vertical_slug:
             abort(404)
+        if not beta_unlocked_from_request(vertical):
+            return _access_required_response(vertical, session_id)
 
         decision_support = (
             build_baby_decision_support(

@@ -3,7 +3,8 @@ import unittest
 from unittest.mock import patch
 
 import app as namengine_app
-from app import create_app, _beta_access_secret, _stripe_checkout_session_paid
+from app import create_app, _beta_access_secret, _stripe_checkout_session_paid, make_session_id
+from namengine.core import get_session_snapshot
 from namengine.verticals import get_vertical
 
 
@@ -475,6 +476,31 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 402)
         self.assertIn("Unlock Baby access", text)
+
+    def test_free_post_results_actions_redirect_to_access(self):
+        query = b"gender=Girl&style=Classic&sound=Soft"
+        session_id = make_session_id("baby", query)
+        self.app.get(f"/baby/results?{query.decode('utf-8')}")
+        result_id = namengine_app.json_loads(get_session_snapshot(session_id)["results"][0]["result_json"])["id"]
+
+        routes = (
+            ("detail", self.app.get(f"/baby/name/{session_id}/{result_id}")),
+            ("compare", self.app.get(f"/compare/{session_id}")),
+            ("share", self.app.get(f"/share/{session_id}")),
+            (
+                "choose",
+                self.app.post(
+                    "/choose",
+                    data={"session_id": session_id, "result_id": result_id},
+                    follow_redirects=False,
+                ),
+            ),
+        )
+
+        for label, response in routes:
+            with self.subTest(label=label):
+                self.assertEqual(response.status_code, 302)
+                self.assertIn(f"/baby/access?return_session={session_id}", response.headers["Location"])
 
     def test_pending_checkout_cookie_alone_does_not_unlock_back_button_refine(self):
         previous = os.environ.get("NAMENGINE_PET_BETA_PAYMENT_LINK")

@@ -230,6 +230,7 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
         first = json.loads(snapshot["results"][0]["result_json"])
         result_id = first["id"]
         name = first["name"]
+        unlock_beta_access(self.client, "pet")
 
         detail = self.client.get(f"/pet/name/{session_id}/{result_id}")
         share = self.client.get(f"/share/{session_id}")
@@ -286,6 +287,7 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
         self.client.get(f"/pet/results?{query.decode('utf-8')}")
         parent_snapshot = get_session_snapshot(session_id)
         parent_results = [json.loads(row["result_json"]) for row in parent_snapshot["results"]]
+        unlock_beta_access(self.client, "pet")
 
         for result, value in zip(parent_results[:3], ("love", "love", "no")):
             response = self.client.post(
@@ -311,7 +313,6 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
         self.assertNotIn("baby-decision-section", compare_body)
         self.assertNotIn("Baby blanket", compare_body)
 
-        unlock_beta_access(self.client, "pet")
         refined = self.client.post(
             "/refine",
             data={"session_id": session_id, "instruction": "warmer but still easy to call"},
@@ -350,6 +351,7 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
         query = b"pet_type=Dog&style=Classic&vibe=Playful"
         session_id = make_session_id("pet", query)
         self.client.get(f"/pet/results?{query.decode('utf-8')}")
+        unlock_beta_access(self.client, "pet")
 
         response = self.client.get(f"/share/{session_id}")
         body = response.get_data(as_text=True)
@@ -366,6 +368,7 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
         )
         session_id = make_session_id("pet-original", query)
         self.client.get(f"/pet/original/results?{query.decode('utf-8')}")
+        unlock_beta_access(self.client, "pet")
 
         response = self.client.get(f"/share/{session_id}")
         body = response.get_data(as_text=True)

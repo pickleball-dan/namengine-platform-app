@@ -3,6 +3,7 @@ import tempfile
 import unittest
 
 from app import create_app, make_session_id
+from access_helpers import unlock_beta_access
 from namengine.core import (
     build_compare_items,
     build_reaction,
@@ -67,6 +68,7 @@ class PhaseEightCompareTest(unittest.TestCase):
 
     def test_compare_route_renders_decision_page(self):
         _, round_two_id = self._seed_chain()
+        unlock_beta_access(self.client, "pet")
         response = self.client.get(f"/compare/{round_two_id}")
 
         self.assertEqual(response.status_code, 200)
@@ -98,7 +100,19 @@ class PhaseEightCompareTest(unittest.TestCase):
         response = self.client.get(f"/pet/results?{query.decode('utf-8')}")
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn(f"/compare/{session_id}", response.get_data(as_text=True))
+        body = response.get_data(as_text=True)
+        self.assertIn(f"/pet/access?return_session={session_id}", body)
+        self.assertIn("data-premium-action", body)
+
+    def test_free_compare_route_requires_paid_access(self):
+        query = b"species=Dog&personality=Gentle&style=Warm"
+        session_id = make_session_id("pet", query)
+        self.client.get(f"/pet/results?{query.decode('utf-8')}")
+
+        response = self.client.get(f"/compare/{session_id}")
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(f"/pet/access?return_session={session_id}", response.headers["Location"])
 
     def test_compare_route_rejects_missing_session(self):
         response = self.client.get("/compare/missing")

@@ -3,6 +3,7 @@ import unittest
 from app import create_app, make_session_id
 from namengine.core import ReactionError, build_reaction
 from namengine.core.schemas import ReactionValue
+from access_helpers import unlock_beta_access
 
 
 class PhaseFourReactionTest(unittest.TestCase):
@@ -26,6 +27,7 @@ class PhaseFourReactionTest(unittest.TestCase):
         query = b"species=Dog&personality=Gentle&style=Warm"
         session_id = make_session_id("pet", query)
         self.client.get(f"/pet/results?{query.decode('utf-8')}")
+        unlock_beta_access(self.client, "pet")
         for result_id, value in (("pet-1", "love"), ("pet-2", "no")):
             response = self.client.post(
                 "/api/react",
@@ -38,6 +40,7 @@ class PhaseFourReactionTest(unittest.TestCase):
         query = b"species=Dog&personality=Gentle&style=Warm"
         session_id = make_session_id("pet", query)
         self.client.get(f"/pet/results?{query.decode('utf-8')}")
+        unlock_beta_access(self.client, "pet")
 
         response = self.client.post(
             "/api/react",
@@ -46,6 +49,21 @@ class PhaseFourReactionTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 400)
         self.assertIn("love, no", response.get_json()["error"])
+
+    def test_react_api_requires_paid_access_after_first_list(self):
+        query = b"species=Dog&personality=Gentle&style=Warm"
+        session_id = make_session_id("pet", query)
+        self.client.get(f"/pet/results?{query.decode('utf-8')}")
+
+        response = self.client.post(
+            "/api/react",
+            json={"session_id": session_id, "result_id": "pet-1", "value": "love"},
+        )
+
+        self.assertEqual(response.status_code, 402)
+        payload = response.get_json()
+        self.assertEqual(payload["error"], "access_required")
+        self.assertIn("/pet/access", payload["access_url"])
 
     def test_legacy_builder_still_reads_maybe(self):
         reaction = build_reaction("legacy-session", "pet-1", "maybe")

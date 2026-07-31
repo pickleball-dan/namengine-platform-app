@@ -5,6 +5,7 @@ import unittest
 from dataclasses import asdict
 
 from app import create_app
+from access_helpers import unlock_beta_access
 from namengine.core import (
     build_reaction,
     build_taste_profile,
@@ -123,6 +124,7 @@ class BabyDecisionSupportTest(unittest.TestCase):
 
     def test_first_round_without_reactions_hides_learning_and_comparisons(self):
         self.save_baby("baby-first-round", [rich_result("baby-1", "Eleanor", ["Classic"])], gender="Girl", style="Classic")
+        unlock_beta_access(self.client, "baby")
         body = self.client.get("/baby/name/baby-first-round/baby-1").get_data(as_text=True)
         self.assertIn("Why this made your list", body)
         self.assertNotIn("Compared with names you liked", body)
@@ -146,6 +148,7 @@ class BabyDecisionSupportTest(unittest.TestCase):
         save_reaction(build_reaction("baby-reacted", "baby-3", "love"))
         save_reaction(build_reaction("baby-reacted", "baby-4", "no"))
         build_taste_profile("baby-reacted")
+        unlock_beta_access(self.client, "baby")
 
         body = self.client.get("/baby/name/baby-reacted/baby-1").get_data(as_text=True)
         for text in (
@@ -180,6 +183,7 @@ class BabyDecisionSupportTest(unittest.TestCase):
             tags=["Classic"],
         )
         self.save_baby("baby-sparse", [sparse], gender="Girl", style="Modern")
+        unlock_beta_access(self.client, "baby")
         body = self.client.get("/baby/name/baby-sparse/baby-1").get_data(as_text=True)
         self.assertEqual(self.client.get("/baby/name/baby-sparse/baby-1").status_code, 200)
         self.assertNotIn("Why this made your list", body)
@@ -198,6 +202,7 @@ class BabyDecisionSupportTest(unittest.TestCase):
             style="Classic",
             family_context="Supplied surname context",
         )
+        unlock_beta_access(self.client, "baby")
         body = self.client.get("/baby/name/baby-family-fit/baby-1").get_data(as_text=True)
         self.assertIn("Family fit", body)
         self.assertIn('aria-label="How does Eleanor feel?"', body)
@@ -212,6 +217,7 @@ class BabyDecisionSupportTest(unittest.TestCase):
 
     def test_baby_maybe_reaction_is_rejected_while_pet_contract_is_unchanged(self):
         self.save_baby("baby-maybe", [rich_result("baby-1", "Eleanor", ["Classic"])])
+        unlock_beta_access(self.client, "baby")
         response = self.client.post(
             "/api/react",
             json={"session_id": "baby-maybe", "result_id": "baby-1", "value": "maybe"},
@@ -222,6 +228,7 @@ class BabyDecisionSupportTest(unittest.TestCase):
 
         pet = NameResult(id="pet-1", name="Milo", slug="milo")
         save_session("pet-no-maybe", "pet", NamingBrief(vertical="pet", inputs={"species": "Dog"}), [pet])
+        unlock_beta_access(self.client, "pet")
         rejected = self.client.post(
             "/api/react",
             json={"session_id": "pet-no-maybe", "result_id": "pet-1", "value": "maybe"},

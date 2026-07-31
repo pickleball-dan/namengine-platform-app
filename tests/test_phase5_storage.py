@@ -3,6 +3,7 @@ import tempfile
 import unittest
 
 from app import create_app, make_session_id
+from access_helpers import unlock_beta_access
 from namengine.core import (
     build_brief,
     build_reaction,
@@ -68,6 +69,7 @@ class PhaseFiveStorageTest(unittest.TestCase):
         query = b"species=Dog&personality=Gentle&style=Warm"
         session_id = make_session_id("pet", query)
         self.client.get(f"/pet/results?{query.decode('utf-8')}")
+        unlock_beta_access(self.client, "pet")
         response = self.client.post(
             "/api/react",
             json={
