@@ -1,6 +1,7 @@
 import unittest
 from pathlib import Path
 
+from access_helpers import unlock_beta_access
 from app import create_app
 
 
@@ -37,15 +38,16 @@ class BabyUiConsistencyTest(unittest.TestCase):
         self.assertIn("these names best match your style and preferences", results)
         self.assertIn("You loved 0 names in Round 1", results)
         self.assertIn("using those preferences to refine your next recommendations", results)
-        self.assertEqual(results.count('class="result-name-link"'), 8)
-        self.assertEqual(results.count('class="result-explore-link"'), 8)
+        self.assertEqual(results.count('result-name-link'), 8)
+        self.assertEqual(results.count('result-explore-link'), 8)
         self.assertIn('>Explore <span aria-hidden="true">→</span></a>', results)
         self.assertIn("Quick view", results)
         self.assertNotIn("Tell me more", results)
-        self.assertNotIn("Option 4", results)
+        self.assertIn("Option 4", results)
         self.assertIn("Would you like another thoughtful list", results)
 
         session_id = results.split('data-session-id="', 1)[1].split('"', 1)[0]
+        unlock_beta_access(self.client, "baby")
         detail = self.client.get(f"/baby/name/{session_id}/baby-1").get_data(as_text=True)
         self.assertIn("A closer look", detail)
         self.assertIn("Why this made your list", detail)

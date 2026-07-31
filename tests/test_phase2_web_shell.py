@@ -79,9 +79,9 @@ class PhaseTwoWebShellTest(unittest.TestCase):
         self.assertEqual(anchors_by_class["landing-vertical-card baby"], {"/baby"})
         self.assertEqual(anchors_by_class["landing-vertical-card pet"], {"/pet"})
         self.assertEqual(anchors_by_class["landing-vertical-card business"], {"/business"})
-        self.assertEqual(anchors_by_text["Unlock Baby Access"], {"/baby/access"})
-        self.assertEqual(anchors_by_text["Unlock Pet Access"], {"/pet/access"})
-        self.assertEqual(anchors_by_text["Unlock Business Access"], {"/business/access"})
+        self.assertNotIn("Unlock Baby Access", anchors_by_text)
+        self.assertNotIn("Unlock Pet Access", anchors_by_text)
+        self.assertNotIn("Unlock Business Access", anchors_by_text)
 
     def test_pet_intake_renders_from_vertical_config(self):
         response = self.client.get("/pet")

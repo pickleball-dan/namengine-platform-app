@@ -471,11 +471,21 @@ main {
 }
 
 .landing-pricing-card.featured {
+  overflow: hidden;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 107, 107, 0.1)),
-    #ffffff;
-  border-color: rgba(225, 66, 31, 0.24);
-  box-shadow: 0 24px 70px rgba(225, 66, 31, 0.12);
+    radial-gradient(circle at 88% 0%, rgba(185, 134, 11, 0.18), transparent 36%),
+    radial-gradient(circle at 4% 8%, rgba(15, 143, 115, 0.13), transparent 42%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(251, 248, 241, 0.94));
+  border-color: rgba(27, 29, 42, 0.14);
+  box-shadow: 0 24px 70px rgba(24, 33, 47, 0.11);
+}
+
+.landing-pricing-card.featured::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 5px;
+  content: "";
+  background: linear-gradient(90deg, var(--landing-teal), var(--landing-gold), #d8b055);
 }
 
 .landing-pricing-label {
@@ -492,9 +502,9 @@ main {
 }
 
 .landing-pricing-card.featured .landing-pricing-label {
-  color: var(--landing-coral);
-  background: rgba(225, 66, 31, 0.1);
-  border-color: rgba(225, 66, 31, 0.18);
+  color: var(--landing-ink);
+  background: rgba(185, 134, 11, 0.11);
+  border-color: rgba(185, 134, 11, 0.22);
 }
 
 .landing-pricing-price {
@@ -539,7 +549,7 @@ main {
 }
 
 .landing-pricing-card.featured li::before {
-  background: var(--landing-coral);
+  background: linear-gradient(135deg, var(--landing-teal), var(--landing-gold));
 }
 
 .landing-pricing-card a {
@@ -559,7 +569,13 @@ main {
 }
 
 .landing-pricing-card.featured a {
-  background: linear-gradient(135deg, #ff6b6b, #e1421f);
+  background: linear-gradient(135deg, var(--landing-ink), #26364d);
+  box-shadow: 0 12px 28px rgba(24, 33, 47, 0.14);
+}
+
+.landing-pricing-card.featured a:is(:hover, :focus-visible) {
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--landing-teal), #0b6654);
 }
 
 .landing-compare-section {

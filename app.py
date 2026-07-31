@@ -132,6 +132,15 @@ def meaningful_card_text(value) -> str:
     return text
 
 
+def compact_card_text(value, max_length: int = 72) -> str:
+    """Return a short first-run card snippet without changing the underlying detail text."""
+    text = meaningful_card_text(value)
+    if not text or len(text) <= max_length:
+        return text
+    clipped = text[: max_length + 1].rsplit(" ", 1)[0].strip(" ,;:-")
+    return f"{clipped}…" if clipped else text[:max_length].rstrip() + "…"
+
+
 def intake_field_max_length(question) -> int:
     """Return the visible character limit for open intake fields."""
     if isinstance(question, dict):
@@ -797,6 +806,7 @@ def create_app() -> Flask:
             "section_strength_field": section_strength_field,
             "feeling_center_icon": feeling_center_icon,
             "meaningful_card_text": meaningful_card_text,
+            "compact_card_text": compact_card_text,
             "collapsed_result_meaning": collapsed_result_meaning,
             "intake_field_max_length": intake_field_max_length,
             "other_choice_max_length": OTHER_CHOICE_MAX_LENGTH,

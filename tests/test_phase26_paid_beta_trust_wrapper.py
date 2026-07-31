@@ -124,7 +124,7 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         text = response.get_data(as_text=True)
 
         self.assertIn('/#pricing', text)
-        self.assertIn('/baby/access', text)
+        self.assertNotIn('/baby/access', text)
         self.assertIn('/privacy', text)
         self.assertIn('/terms', text)
         self.assertIn('/disclaimers', text)
@@ -136,7 +136,7 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("NamEngine Baby", text)
-        self.assertIn("Paid access", text)
+        self.assertIn("NamEngine Access", text)
         self.assertIn("What paid access includes:", text)
         self.assertIn("beta-includes-list", text)
         self.assertIn("Refined rounds shaped by your Love and No reactions", text)
@@ -540,7 +540,7 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
 
                 self.assertEqual(response.status_code, 200)
                 self.assertIn(f"NamEngine {label}", text)
-                self.assertIn("Paid access", text)
+                self.assertIn("NamEngine Access", text)
                 self.assertIn("What paid access includes:", text)
                 self.assertIn("Refined rounds shaped by your Love and No reactions", text)
                 self.assertNotIn("Save, compare, and share favorite-name tools", text)

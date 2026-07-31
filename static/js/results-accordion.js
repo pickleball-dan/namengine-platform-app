@@ -13,8 +13,7 @@
     card.classList.toggle("is-expanded", expanded);
     if (toggle) toggle.setAttribute("aria-expanded", String(expanded));
     if (label) {
-      const isBaby = document.body.classList.contains("vertical-baby");
-      label.textContent = expanded ? (isBaby ? "Close quick view" : "Hide details") : (isBaby ? "Quick view" : "View details");
+      label.textContent = expanded ? "Close quick view" : "Quick view";
     }
   }
 
