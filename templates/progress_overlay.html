@@ -26,7 +26,7 @@
       <p class="eyebrow" data-progress-eyebrow>Finding names for this identity</p>
       <h2 data-progress-current>Finding names that feel right</h2>
       <p class="progress-note" data-progress-note>A few quick checks before the list appears.</p>
-      <ol class="progress-steps{% if vertical is defined and vertical.slug == 'pet' %} pet-progress-steps{% endif %}"{% if vertical is defined and vertical.slug == 'pet' %} hidden{% endif %}>
+      <ol class="progress-steps{% if vertical is defined and vertical.slug == 'pet' %} pet-progress-steps{% endif %}"{% if vertical is defined and vertical.slug in ['pet', 'business'] %} hidden{% endif %}>
         <li data-progress-step data-progress-headline="Reading the details">Reading the details</li>
         <li data-progress-step data-progress-headline="Finding names for this identity">Finding names for this identity</li>
         <li data-progress-step data-progress-headline="Matching the feel">Matching the feel</li>

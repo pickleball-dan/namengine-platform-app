@@ -2756,6 +2756,10 @@ button {
   border-radius: 8px;
 }
 
+.progress-steps[hidden] {
+  display: none;
+}
+
 .progress-steps li {
   position: relative;
   display: none;
