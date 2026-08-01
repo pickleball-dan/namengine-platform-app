@@ -91,3 +91,28 @@ Not included:
 - artifacts/
 - .env or secret files
 - route/function/class renames for shared saved-name pages
+
+## Full Report underline/focus polish
+
+Status: validated locally / included in next push
+Branch: current working tree / next local-first release batch
+
+Included intent:
+- Restore the visual underline/line treatment beneath the `Full Report` action on result cards.
+- Keep the current `Full Report →` CTA copy and locked-card behavior intact.
+- Preserve the shared Baby/Pet/Business result-card contract; this should be CSS polish only unless inspection proves otherwise.
+- Ensure hover/focus states remain accessible and obvious on mobile and desktop.
+
+Expected customer-facing effect:
+- `Full Report` looks intentionally tappable/clickable again instead of visually flattened.
+- Locked first-run cards keep the premium access path without reintroducing `Quick view` for locked users.
+
+Validation to run before push:
+- Inspect `static/css/platform.css` around `.result-explore-link` and recent card-layout overrides.
+- `python -m pytest tests/test_results_mobile_stabilization_v1.py tests/test_baby_ui_consistency.py -q`
+- `git diff --check`
+- Mobile + desktop screenshots for Baby/Pet/Business locked result cards.
+
+Not included:
+- Copy changes away from `Full Report →`.
+- Reopening locked `Quick view` behavior.

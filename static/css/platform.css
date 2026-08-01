@@ -10341,6 +10341,18 @@ body.vertical-business {
 .vertical-baby .result-explore-link {
   width: 100%;
   justify-content: space-between;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 6px;
+}
+
+.result-explore-link:is(:hover, :focus-visible),
+.result-card > .result-explore-link:is(:hover, :focus-visible),
+.vertical-baby .result-card > .result-explore-link:is(:hover, :focus-visible),
+.vertical-baby .result-explore-link:is(:hover, :focus-visible) {
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
 }
 
 @media (max-width: 600px) {

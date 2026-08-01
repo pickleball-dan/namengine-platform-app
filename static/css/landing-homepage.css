@@ -107,6 +107,11 @@ main {
   line-height: 0.98;
 }
 
+.landing-hero h1 em {
+  display: block;
+  font-style: italic;
+}
+
 .landing-hero-sub {
   max-width: 610px;
   margin: 24px 0 0;
