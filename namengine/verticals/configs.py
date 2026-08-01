@@ -293,7 +293,7 @@ PET = VerticalConfig(
     },
     assets={
         "logo": "images/namengine-pets.svg",
-        "share_image": "images/namengine-pets.svg",
+        "share_image": "images/pet/namengine-pet-card-share-v3.jpg",
     },
     visual=VerticalVisualConfig(
         audience=("pet parents", "families choosing an everyday call name"),
@@ -568,7 +568,7 @@ BUSINESS = VerticalConfig(
     },
     assets={
         "logo": "images/namengine-biz.svg",
-        "share_image": "images/namengine-biz.svg",
+        "share_image": "images/business/namengine-business-share.png",
     },
     visual=VerticalVisualConfig(
         audience=("founders", "operators", "small business owners"),
