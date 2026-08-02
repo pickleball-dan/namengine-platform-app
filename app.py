@@ -24,6 +24,13 @@ except ImportError:  # pragma: no cover - Render uses real env vars; local dev m
     load_dotenv = None
 
 from namengine import CONTRACT_VERSION
+from namengine.core.intake_limits import (
+    OTHER_CHOICE_MAX_LENGTH,
+    REFINEMENT_INSTRUCTION_MAX_LENGTH,
+    clip_intake_value,
+    clip_text,
+    intake_field_max_length,
+)
 from namengine.core import (
     AIGenerationError,
     ReactionError,
@@ -80,23 +87,6 @@ _LOCAL_BETA_ACCESS_SECRET = token_urlsafe(32)
 _portrait_jobs: set[str] = set()
 _portrait_jobs_lock = Lock()
 MIN_REACTIONS_FOR_REFINEMENT = 3
-DEFAULT_TEXT_INPUT_MAX_LENGTH = 180
-DEFAULT_TEXTAREA_MAX_LENGTH = 750
-OTHER_CHOICE_MAX_LENGTH = 120
-REFINEMENT_INSTRUCTION_MAX_LENGTH = 200
-INTAKE_FIELD_MAX_LENGTHS = {
-    "avoid": 500,
-    "business_description": 1000,
-    "category": 140,
-    "family_context": 1000,
-    "industry": 140,
-    "notes": 1000,
-    "partner_alignment": 750,
-    "pet_breed": 140,
-    "pet_color": 120,
-    "pet_details": 750,
-    "product_description": 1000,
-}
 
 
 class NameGenerationUnavailable(RuntimeError):
@@ -147,21 +137,6 @@ def compact_card_text(value, max_length: int = 72) -> str:
         return text
     clipped = text[: max_length + 1].rsplit(" ", 1)[0].strip(" ,;:-")
     return f"{clipped}…" if clipped else text[:max_length].rstrip() + "…"
-
-
-def intake_field_max_length(question) -> int:
-    """Return the visible character limit for open intake fields."""
-    if isinstance(question, dict):
-        field_id = str(question.get("id", ""))
-        kind = str(question.get("kind", ""))
-    else:
-        field_id = getattr(question, "id", "")
-        kind = getattr(question, "kind", "")
-    if field_id in INTAKE_FIELD_MAX_LENGTHS:
-        return INTAKE_FIELD_MAX_LENGTHS[field_id]
-    if kind == "textarea":
-        return DEFAULT_TEXTAREA_MAX_LENGTH
-    return DEFAULT_TEXT_INPUT_MAX_LENGTH
 
 
 def collapsed_result_meaning(result) -> str:
@@ -391,10 +366,30 @@ def _normalize_other_inputs(source) -> dict[str, str]:
         if not str(key).endswith("_other"):
             continue
         base_key = str(key)[: -len("_other")]
-        other_value = str(value or "").strip()
+        other_value = clip_text(value or "", OTHER_CHOICE_MAX_LENGTH)
         if other_value and normalized.get(base_key) == "Other":
             normalized[base_key] = other_value
     return normalized
+
+
+def _sanitize_intake_source(vertical, source) -> dict[str, str]:
+    """Keep only bounded intake values before caching, redirects, or AI prompts."""
+    normalized = _normalize_other_inputs(source)
+    sanitized: dict[str, str] = {}
+    pet_legacy_aliases = {"species": "pet_type", "personality": "vibe"} if vertical.slug == "pet" else {}
+    for question in vertical.intake_questions:
+        raw_value = normalized.get(question.id, "")
+        if raw_value in ("", None):
+            legacy_key = next((old_key for old_key, new_key in pet_legacy_aliases.items() if new_key == question.id), "")
+            raw_value = normalized.get(legacy_key, "") if legacy_key else ""
+        value = clip_intake_value(question, raw_value)
+        if value not in ("", None):
+            sanitized[question.id] = value
+    for key, value in normalized.items():
+        key_text = str(key)
+        if key_text.startswith("taste_strength_"):
+            sanitized[key_text] = clip_text(value, 8)
+    return sanitized
 
 
 def _reaction_total(reaction_counts: dict[str, int]) -> int:
@@ -1110,10 +1105,10 @@ def create_app() -> Flask:
 
         vertical = get_vertical(vertical_slug)
         if not feelings_scale_enabled(vertical):
-            query = _query_string_from_mapping(_normalize_other_inputs(request.args.to_dict(flat=True)))
+            query = _query_string_from_mapping(_sanitize_intake_source(vertical, request.args.to_dict(flat=True)))
             return redirect(f"{vertical.route_prefix}/results?{query}")
 
-        source = _normalize_other_inputs(request.args.to_dict(flat=True))
+        source = _sanitize_intake_source(vertical, request.args.to_dict(flat=True))
         brief = build_brief(vertical, source)
         return render_template(
             "feelings_scale.html",
@@ -1132,13 +1127,14 @@ def create_app() -> Flask:
 
     @app.post("/pet/original/results")
     def pet_original_submit():
-        query = _query_string_from_mapping(_normalize_other_inputs(request.form))
+        vertical = get_vertical("pet")
+        query = _query_string_from_mapping(_sanitize_intake_source(vertical, request.form))
         return redirect(f"{url_for('pet_original_results')}?{query}")
 
     @app.get("/pet/original/results")
     def pet_original_results():
         vertical = get_vertical("pet")
-        source_for_id = _normalize_other_inputs(request.args.to_dict(flat=True))
+        source_for_id = _sanitize_intake_source(vertical, request.args.to_dict(flat=True))
         source = dict(source_for_id)
         source["discovery_style"] = source.get("discovery_style") or "Completely original"
         source["original_mode"] = "true"
@@ -1175,7 +1171,7 @@ def create_app() -> Flask:
         return _remember_free_generation(response, vertical, session_id)
 
     def _create_results_session(vertical, source: dict[str, str]) -> str:
-        source = _normalize_other_inputs(source)
+        source = _sanitize_intake_source(vertical, source)
         brief = build_brief(vertical, source)
         apply_taste_strength_inputs(brief, source)
 
@@ -1217,7 +1213,7 @@ def create_app() -> Flask:
             abort(404)
 
         vertical = get_vertical(vertical_slug)
-        source = _normalize_other_inputs(request.args.to_dict(flat=True))
+        source = _sanitize_intake_source(vertical, request.args.to_dict(flat=True))
         brief = build_brief(vertical, source)
         apply_taste_strength_inputs(brief, source)
 

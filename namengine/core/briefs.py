@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any
 
+from namengine.core.intake_limits import clip_intake_value, clip_text, intake_field_max_length
 from namengine.core.schemas import NamingBrief, VerticalConfig
 
 
@@ -17,14 +18,14 @@ def build_brief(vertical: VerticalConfig, source: Mapping[str, Any]) -> NamingBr
 
     for question in vertical.intake_questions:
         raw_value = source.get(question.id, "")
-        value = raw_value.strip() if isinstance(raw_value, str) else raw_value
+        value = clip_intake_value(question, raw_value)
         if value:
             inputs[question.id] = value
 
     if vertical.slug == "pet":
-        _apply_pet_legacy_aliases(inputs, source)
+        _apply_pet_legacy_aliases(vertical, inputs, source)
 
-    _apply_registered_intake_aliases(vertical.slug, inputs, source)
+    _apply_registered_intake_aliases(vertical, inputs, source)
 
     avoid_source = inputs.get("avoid", source.get("avoid", ""))
     avoid = _split_terms(str(avoid_source)) if avoid_source else []
@@ -48,7 +49,19 @@ def build_brief(vertical: VerticalConfig, source: Mapping[str, Any]) -> NamingBr
     return brief
 
 
-def _apply_pet_legacy_aliases(inputs: dict[str, Any], source: Mapping[str, Any]) -> None:
+def _question_limit_by_id(vertical: VerticalConfig, field_id: str) -> int | None:
+    for question in vertical.intake_questions:
+        if question.id == field_id:
+            return intake_field_max_length(question)
+    return None
+
+
+def _clip_vertical_field(vertical: VerticalConfig, field_id: str, value: Any) -> Any:
+    limit = _question_limit_by_id(vertical, field_id)
+    return clip_text(value, limit) if limit is not None else clip_text(value, 180)
+
+
+def _apply_pet_legacy_aliases(vertical: VerticalConfig, inputs: dict[str, Any], source: Mapping[str, Any]) -> None:
     aliases = {
         "species": "pet_type",
         "personality": "vibe",
@@ -56,13 +69,13 @@ def _apply_pet_legacy_aliases(inputs: dict[str, Any], source: Mapping[str, Any])
     for old_key, new_key in aliases.items():
         if new_key not in inputs and source.get(old_key):
             raw_value = source.get(old_key, "")
-            inputs[new_key] = raw_value.strip() if isinstance(raw_value, str) else raw_value
+            inputs[new_key] = _clip_vertical_field(vertical, new_key, raw_value)
         if old_key not in inputs and inputs.get(new_key):
             inputs[old_key] = inputs[new_key]
 
     if "avoid" not in inputs and source.get("partner_alignment"):
         raw_value = source.get("partner_alignment", "")
-        inputs["avoid"] = raw_value.strip() if isinstance(raw_value, str) else raw_value
+        inputs["avoid"] = _clip_vertical_field(vertical, "avoid", raw_value)
 
     legacy_details = []
     for key in ("pet_life_stage", "notes"):
@@ -70,17 +83,17 @@ def _apply_pet_legacy_aliases(inputs: dict[str, Any], source: Mapping[str, Any])
         if value:
             legacy_details.append(value.strip() if isinstance(value, str) else str(value))
     if legacy_details and not inputs.get("pet_details"):
-        inputs["pet_details"] = "; ".join(legacy_details)
+        inputs["pet_details"] = _clip_vertical_field(vertical, "pet_details", "; ".join(legacy_details))
 
 
 def _apply_registered_intake_aliases(
-    vertical_slug: str, inputs: dict[str, Any], source: Mapping[str, Any]
+    vertical: VerticalConfig, inputs: dict[str, Any], source: Mapping[str, Any]
 ) -> None:
     """Map unambiguous registered aliases without changing canonical fields."""
     try:
         from namengine.core.intake import resolve_intake_schema
 
-        schema = resolve_intake_schema(vertical_slug)
+        schema = resolve_intake_schema(vertical.slug)
     except (ImportError, ValueError):
         return
     for definition in schema.fields:
@@ -93,4 +106,4 @@ def _apply_registered_intake_aliases(
         ]
         if len(supplied) == 1:
             raw_value = source[supplied[0]]
-            inputs[definition.name] = raw_value.strip() if isinstance(raw_value, str) else raw_value
+            inputs[definition.name] = _clip_vertical_field(vertical, definition.name, raw_value)
