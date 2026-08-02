@@ -48,6 +48,7 @@ def build_openai_usage_report(
         "requests_by_day": _group_rows(successful, "date"),
         "requests_by_request_type": _group_rows(successful, "request_type"),
         "requests_by_model": _group_rows(successful, "model"),
+        "requests_by_session": _session_rows(successful),
         "requests_by_vertical": _group_rows(successful, "vertical"),
         "failures_by_error_type": _failure_rows(failures),
         "slowest_request_categories": _slowest_rows(successful),
@@ -183,6 +184,31 @@ def _failure_rows(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
         {"error_type": error_type, "failure_count": count}
         for error_type, count in sorted(grouped.items(), key=lambda item: item[1], reverse=True)
     ]
+
+
+def _session_rows(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for event in events:
+        session_id = str(event.get("session_id") or "unknown")
+        grouped[session_id].append(event)
+
+    rows: list[dict[str, Any]] = []
+    for session_id, items in grouped.items():
+        latest_timestamp = max(event["timestamp"] for event in items)
+        verticals = sorted({str(event.get("vertical") or "unknown") for event in items})
+        models = sorted({str(event.get("model") or "unknown") for event in items})
+        request_types = sorted({str(event.get("request_type") or "generation") for event in items})
+        rows.append(
+            {
+                "session_id": session_id,
+                "date": latest_timestamp.date().isoformat(),
+                "vertical": verticals[0] if len(verticals) == 1 else "mixed",
+                "model": models[0] if len(models) == 1 else "mixed",
+                "request_types": request_types,
+                **_metric_row(items),
+            }
+        )
+    return sorted(rows, key=lambda row: (row["date"], row["estimated_spend_usd"]), reverse=True)
 
 
 def _slowest_rows(events: list[dict[str, Any]]) -> list[dict[str, Any]]:

@@ -1,5 +1,28 @@
 # Deploy Bucket
 
+## Mission Control per-session OpenAI cost feed
+
+Status: validated locally / included in next release batch
+Branch: current working tree / next local-first release batch
+
+Included intent:
+- Add session-level OpenAI usage/cost rows to the NamEngine Mission Control telemetry API.
+- Expose `requests_by_session` alongside the existing model, request-type, vertical, and day groupings.
+- Include session id, date, vertical, model, request types, request count, token totals, latency, generated-name count, missing-token count, and estimated spend per session.
+- Keep existing summary/model/request-type payload fields backward-compatible for the current Operations dashboard.
+
+Expected Mission Control effect:
+- The Operations OpenAI usage dashboard now has backend data available to render per-session costs below or beside the existing aggregate tables.
+- The current screenshot’s “estimated cost by model” and “usage by request type” totals can be drilled down by session once the dashboard frontend consumes `requests_by_session`.
+
+Validation run:
+- `python -m pytest tests/test_mission_control_telemetry_v1.py tests/test_phase26_paid_beta_trust_wrapper.py -q`
+- `git diff --check`
+
+Not included:
+- Frontend Operations dashboard rendering changes if that dashboard source lives outside this repository.
+- Authentication or token changes for the internal telemetry endpoint.
+
 ## Cross-vertical paid-access refinement gate bundle
 
 Status: ready for validation/push

@@ -102,6 +102,16 @@ class MissionControlTelemetryV1Test(unittest.TestCase):
         self.assertEqual(report["summary"]["generated_name_count"], 2)
         self.assertAlmostEqual(report["summary"]["estimated_spend_usd"], 0.00024, places=6)
         self.assertEqual(report["requests_by_model"][0]["model"], "gpt-4.1-mini")
+        self.assertEqual(report["requests_by_session"][0]["session_id"], "baby-telemetry-session")
+        self.assertEqual(report["requests_by_session"][0]["request_count"], 2)
+        self.assertEqual(report["requests_by_session"][0]["input_tokens"], 300)
+        self.assertEqual(report["requests_by_session"][0]["output_tokens"], 75)
+        self.assertEqual(report["requests_by_session"][0]["total_tokens"], 375)
+        self.assertAlmostEqual(
+            report["requests_by_session"][0]["estimated_spend_usd"],
+            0.00024,
+            places=6,
+        )
         self.assertEqual(report["requests_by_vertical"][0]["vertical"], "baby")
         self.assertTrue(report["requests_by_day"])
 
@@ -146,6 +156,7 @@ class MissionControlTelemetryV1Test(unittest.TestCase):
         payload = response.get_json()
         self.assertEqual(payload["summary"]["request_count"], 1)
         self.assertEqual(payload["requests_by_vertical"][0]["vertical"], "business")
+        self.assertEqual(payload["requests_by_session"][0]["session_id"], "business-telemetry-session")
 
     def test_internal_endpoint_requires_bearer_token(self):
         self._seed_openai_session()
