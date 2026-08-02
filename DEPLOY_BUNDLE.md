@@ -33,7 +33,8 @@ Branch: current working tree / next local-first release batch
 Included intent:
 - Add session-level OpenAI usage/cost rows to the NamEngine Mission Control telemetry API.
 - Expose `requests_by_session` alongside the existing model, request-type, vertical, and day groupings.
-- Include session id, date, vertical, model, request types, request count, token totals, latency, generated-name count, missing-token count, and estimated spend per session.
+- Include session id, date, vertical, model, request count, token totals, latency, generated-name count, missing-token count, and estimated spend per session.
+- Remove the repeated request-type list from per-session rows so Mission Control does not show a noisy all-same column.
 - Keep existing summary/model/request-type payload fields backward-compatible for the current Operations dashboard.
 
 Expected Mission Control effect:
@@ -60,6 +61,8 @@ Included intent:
 - Remove the duplicate lower paid-access CTA from the secondary action row.
 - Offer a clear 100% money-back guarantee if NamEngine does not feel useful.
 - Block free `/refine` requests server-side with a 402 paywall response for each vertical.
+- Block free visitors from changing intake/direction to generate a second first-round list in the same vertical/browser session.
+- Remove free-result edit links and Feelings Scale adjustment links that could steer users back into regeneration controls.
 - Preserve the lightweight `paid=1` success-return state through access success, intake, feelings, results, and refine.
 - Allow paid users to continue to an existing session when the access success page receives `return_session`.
 - Use separate internal payment environment variables per vertical: `NAMENGINE_BABY_BETA_PAYMENT_LINK`, `NAMENGINE_PET_BETA_PAYMENT_LINK`, `NAMENGINE_BUSINESS_BETA_PAYMENT_LINK`, etc.
@@ -73,9 +76,9 @@ Expected customer-facing effect:
 - Paid users do not see any beta/risk-free CTA duplicated below Compare/Share.
 
 Validation run:
-- `python -m py_compile app.py tests/test_phase26_paid_beta_trust_wrapper.py`
-- `python -m pytest tests/test_phase7_refinement.py tests/test_phase18_pet_legacy_parity.py tests/test_phase19_baby_smoke_validation.py tests/test_baby_refinement_generation_cache.py tests/test_results_mobile_stabilization_v1.py tests/test_phase26_paid_beta_trust_wrapper.py tests/test_phase14_progress_experience.py -q`
-- `git diff --check`
+- `python -m py_compile app.py`
+- `python -m pytest tests/test_phase7_refinement.py tests/test_phase26_paid_beta_trust_wrapper.py tests/test_results_mobile_stabilization_v1.py -q`
+- `git diff --check -- app.py templates/results.html tests/test_phase26_paid_beta_trust_wrapper.py`
 
 Not included:
 - Full Stripe SDK Checkout Session creation.

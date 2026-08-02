@@ -103,6 +103,14 @@ class NameGenerationUnavailable(RuntimeError):
     """Raised when the production naming engine cannot return honest LLM results."""
 
 
+class FreeGenerationAccessRequired(RuntimeError):
+    """Raised when a free visitor tries to generate another first-round list."""
+
+    def __init__(self, session_id: str):
+        super().__init__(session_id)
+        self.session_id = session_id
+
+
 _UNHELPFUL_CARD_VALUES = {
     "unknown",
     "not available",
@@ -454,6 +462,10 @@ def beta_unlock_cookie_name(vertical) -> str:
     return f"namengine_access_unlocked_{vertical.slug}"
 
 
+def free_generation_cookie_name(vertical) -> str:
+    return f"namengine_first_free_session_{vertical.slug}"
+
+
 def _vertical_from_request():
     requested_slug = request.path.strip("/").split("/", 1)[0]
     if requested_slug in VERTICALS:
@@ -798,6 +810,34 @@ def _access_required_response(vertical, session_id: str, *, wants_json: bool = F
     return redirect(access_url)
 
 
+def _free_generation_access_required_response(vertical, session_id: str):
+    return _access_required_response(vertical, session_id)
+
+
+def _free_generation_blocked(vertical, session_id: str, *, needs_generation: bool) -> bool:
+    """Allow one free generated list per vertical/browser, then require paid access for new lists."""
+    if not needs_generation or beta_unlocked_from_request(vertical):
+        return False
+    first_free_session_id = request.cookies.get(free_generation_cookie_name(vertical), "")
+    return bool(first_free_session_id and first_free_session_id != session_id)
+
+
+def _remember_free_generation(response, vertical, session_id: str):
+    if beta_unlocked_from_request(vertical):
+        return response
+    if request.cookies.get(free_generation_cookie_name(vertical)):
+        return response
+    response.set_cookie(
+        free_generation_cookie_name(vertical),
+        session_id,
+        max_age=60 * 60 * 24 * 30,
+        httponly=True,
+        samesite="Lax",
+        secure=request.is_secure,
+    )
+    return response
+
+
 def beta_return_cookie_name(vertical) -> str:
     return f"namengine_access_return_{vertical.slug}"
 
@@ -830,6 +870,8 @@ def _render_results_snapshot(
     names = _names_from_snapshot(snapshot)
     brief = _brief_from_snapshot(snapshot)
     if not _cached_names_match_current_rules(vertical, brief, names):
+        if _free_generation_blocked(vertical, session_id, needs_generation=True):
+            return _free_generation_access_required_response(vertical, session_id)
         names = _generate_names_for_route(vertical, brief)
         save_session(
             session_id,
@@ -842,7 +884,7 @@ def _render_results_snapshot(
         )
         snapshot = get_session_snapshot(session_id) or snapshot
     reaction_counts = get_reaction_counts(session_id)
-    return (
+    response = make_response(
         render_template(
             "results.html",
             vertical=vertical,
@@ -863,6 +905,7 @@ def _render_results_snapshot(
         ),
         status,
     )
+    return _remember_free_generation(response, vertical, session_id)
 
 
 def save_feedback_submission(source) -> None:
@@ -1109,10 +1152,12 @@ def create_app() -> Flask:
         if snapshot and snapshot["results"]:
             names = _names_from_snapshot(snapshot)
         else:
+            if _free_generation_blocked(vertical, session_id, needs_generation=True):
+                return _free_generation_access_required_response(vertical, session_id)
             names = _generate_names_for_route(vertical, brief)
             save_session(session_id, vertical.slug, brief, names)
         taste_profile_row = get_taste_profile(session_id)
-        return render_template(
+        response = make_response(render_template(
             "results.html",
             vertical=vertical,
             brief=brief,
@@ -1126,7 +1171,8 @@ def create_app() -> Flask:
             parent_session_id=None,
             original_mode=True,
             beta_unlocked=beta_unlocked_from_request(vertical),
-        )
+        ))
+        return _remember_free_generation(response, vertical, session_id)
 
     def _create_results_session(vertical, source: dict[str, str]) -> str:
         source = _normalize_other_inputs(source)
@@ -1141,9 +1187,13 @@ def create_app() -> Flask:
         if snapshot and snapshot["results"]:
             names = _names_from_snapshot(snapshot)
             if not _cached_names_match_current_rules(vertical, brief, names):
+                if _free_generation_blocked(vertical, session_id, needs_generation=True):
+                    raise FreeGenerationAccessRequired(session_id)
                 names = _generate_names_for_route(vertical, brief)
                 save_session(session_id, vertical.slug, brief, names)
         else:
+            if _free_generation_blocked(vertical, session_id, needs_generation=True):
+                raise FreeGenerationAccessRequired(session_id)
             names = _generate_names_for_route(vertical, brief)
             save_session(session_id, vertical.slug, brief, names)
         return session_id
@@ -1154,8 +1204,12 @@ def create_app() -> Flask:
             abort(404)
 
         vertical = get_vertical(vertical_slug)
-        session_id = _create_results_session(vertical, request.form.to_dict(flat=True))
-        return redirect(url_for("session_results", session_id=session_id))
+        try:
+            session_id = _create_results_session(vertical, request.form.to_dict(flat=True))
+        except FreeGenerationAccessRequired as exc:
+            return _free_generation_access_required_response(vertical, exc.session_id)
+        response = redirect(url_for("session_results", session_id=session_id))
+        return _remember_free_generation(response, vertical, session_id)
 
     @app.get("/<vertical_slug>/results")
     def results(vertical_slug: str):
@@ -1172,13 +1226,17 @@ def create_app() -> Flask:
         if snapshot and snapshot["results"]:
             names = _names_from_snapshot(snapshot)
             if not _cached_names_match_current_rules(vertical, brief, names):
+                if _free_generation_blocked(vertical, session_id, needs_generation=True):
+                    return _free_generation_access_required_response(vertical, session_id)
                 names = _generate_names_for_route(vertical, brief)
                 save_session(session_id, vertical.slug, brief, names)
         else:
+            if _free_generation_blocked(vertical, session_id, needs_generation=True):
+                return _free_generation_access_required_response(vertical, session_id)
             names = _generate_names_for_route(vertical, brief)
             save_session(session_id, vertical.slug, brief, names)
         taste_profile_row = get_taste_profile(session_id)
-        return render_template(
+        response = make_response(render_template(
             "results.html",
             vertical=vertical,
             brief=brief,
@@ -1192,7 +1250,8 @@ def create_app() -> Flask:
             parent_session_id=None,
             original_mode=False,
             beta_unlocked=beta_unlocked_from_request(vertical),
-        )
+        ))
+        return _remember_free_generation(response, vertical, session_id)
 
     @app.get("/results/session/<session_id>")
     def session_results(session_id: str):

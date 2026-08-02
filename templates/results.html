@@ -98,13 +98,20 @@
       <div class="direction-disclosure-body" aria-label="Selected intake fields">
         <dl>
           {% for item in display_brief_items(vertical, brief) %}
-            <a class="brief-summary-item" href="{{ item.edit_url }}" aria-label="Edit {{ item.label }}">
-              <dt>{{ item.label }}</dt>
-              <dd>{{ item.value }}</dd>
-            </a>
+            {% if beta_unlocked %}
+              <a class="brief-summary-item" href="{{ item.edit_url }}" aria-label="Edit {{ item.label }}">
+                <dt>{{ item.label }}</dt>
+                <dd>{{ item.value }}</dd>
+              </a>
+            {% else %}
+              <div class="brief-summary-item" aria-label="{{ item.label }}">
+                <dt>{{ item.label }}</dt>
+                <dd>{{ item.value }}</dd>
+              </div>
+            {% endif %}
           {% endfor %}
         </dl>
-        {% if feelings_scale_enabled(vertical) %}
+        {% if feelings_scale_enabled(vertical) and beta_unlocked %}
           <p>
             <a class="button-link secondary-button" href="{{ vertical.route_prefix }}/feelings" data-adjust-feelings>Adjust Feelings Scale</a>
           </p>

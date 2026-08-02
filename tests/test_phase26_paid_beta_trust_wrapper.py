@@ -579,6 +579,36 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.assertEqual(response.status_code, 402)
         self.assertIn("Unlock Baby access", text)
 
+    def test_free_user_cannot_generate_second_first_round_list_by_changing_intake(self):
+        first_query = b"gender=Girl&style=Classic&sound=Soft"
+        second_query = b"gender=Boy&style=Modern&sound=Bold"
+        first_session_id = make_session_id("baby", first_query)
+        second_session_id = make_session_id("baby", second_query)
+
+        first = self.app.get(f"/baby/results?{first_query.decode('utf-8')}")
+        second = self.app.get(f"/baby/results?{second_query.decode('utf-8')}", follow_redirects=False)
+
+        self.assertEqual(first.status_code, 200)
+        self.assertIsNotNone(get_session_snapshot(first_session_id))
+        self.assertEqual(second.status_code, 302)
+        self.assertIn(f"/baby/access?return_session={second_session_id}", second.headers["Location"])
+        self.assertIsNone(get_session_snapshot(second_session_id))
+
+    def test_free_results_do_not_link_back_to_intake_regeneration_controls(self):
+        response = self.app.get(
+            "/baby/results",
+            query_string={
+                "gender": "Girl",
+                "style": "Classic",
+                "sound": "Soft",
+            },
+        )
+        text = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('aria-label="Edit Gender"', text)
+        self.assertNotIn('data-adjust-feelings', text)
+
     def test_free_post_results_actions_redirect_to_access(self):
         query = b"gender=Girl&style=Classic&sound=Soft"
         session_id = make_session_id("baby", query)
