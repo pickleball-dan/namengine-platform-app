@@ -1,5 +1,30 @@
 # Deploy Bucket
 
+## Vertical header Home link polish
+
+Status: validated locally / included in next release batch
+Branch: current working tree / next local-first release batch
+
+Included intent:
+- Replace the top-left vertical header logo link on Baby, Pet, and Business pages with plain `Home` text.
+- Keep the link destination as `/`, since it returns users to the main NamEngine home page.
+- Preserve the main/homepage NamEngine logo in the header.
+- Reduce confusion from vertical logos acting like a main-home navigation control.
+
+Expected customer-facing effect:
+- Vertical pages clearly show `Home` in the top-left when the click target goes to the main NamEngine home page.
+- Baby, Pet, and Business headers behave consistently.
+
+Validation run:
+- `python -m compileall app.py namengine templates`
+- Playwright local screenshot/text check on fresh Flask server: Baby/Pet/Business header brand text returned `Home`.
+- Screenshots saved under `qa-artifacts/home-link-screenshots/`.
+
+Not included:
+- Footer logo changes.
+- Main homepage header logo changes.
+- Navigation destination changes away from `/`.
+
 ## Mission Control per-session OpenAI cost feed
 
 Status: validated locally / included in next release batch

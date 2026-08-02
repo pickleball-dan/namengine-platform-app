@@ -5516,7 +5516,7 @@ button {
 .vertical-baby .baby-intake-form .field-heading {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 10px;
 }
 
@@ -5864,6 +5864,9 @@ button {
 }
 
 .vertical-baby .baby-question-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   margin: 0 0 12px;
   color: #8c7080;
   font-size: 11px;
@@ -5872,11 +5875,30 @@ button {
   text-transform: uppercase;
 }
 
+.vertical-baby .baby-question-status,
+:is(.vertical-pet, .vertical-business) .baby-question-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
+  padding: 3px 7px;
+  color: #6f5868;
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  background: rgba(240, 184, 200, 0.18);
+  border: 1px solid rgba(178, 95, 112, 0.12);
+  border-radius: 999px;
+}
+
+:is(.vertical-pet, .vertical-business) .baby-question-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .vertical-baby .baby-question-heading {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 18px;
+  position: relative;
+  display: block;
 }
 
 .vertical-baby .baby-question-heading h2,
@@ -5889,6 +5911,16 @@ button {
   font-weight: 600;
   line-height: 1.02;
   letter-spacing: -0.025em;
+}
+
+.vertical-baby .baby-question-heading h2 {
+  max-width: calc(100% - 94px);
+}
+
+.vertical-baby .baby-question-heading .baby-question-status {
+  position: absolute;
+  top: 0.25em;
+  right: 0;
 }
 
 .vertical-baby .baby-optional-note {
@@ -5939,16 +5971,16 @@ button {
 
 .vertical-baby .baby-choice:is(:hover, :focus-visible) {
   color: #222d45;
-  background: #fff;
-  border-color: #9daccc;
-  box-shadow: 0 9px 24px rgba(41, 52, 79, 0.08);
+  background: #e7edf8;
+  border-color: #7387b3;
+  box-shadow: 0 9px 24px rgba(41, 52, 79, 0.12);
   transform: translateY(-1px);
 }
 
 .vertical-baby .baby-choice.is-selected {
   color: #26334e;
-  background: #f4f6fb;
-  border-color: #7186b2;
+  background: #dfe7f5;
+  border-color: #536b9c;
 }
 
 .vertical-baby .baby-choice-mark {
@@ -6689,22 +6721,22 @@ button {
 
 .vertical-baby .baby-conversation .baby-choice:not(.baby-choice-illustrated):is(:hover, :focus-visible) {
   color: var(--baby-navy);
-  background: linear-gradient(135deg, #fff, rgba(255, 244, 238, 0.9));
-  border-color: color-mix(in srgb, var(--baby-coral) 40%, white);
-  box-shadow: 0 13px 30px rgba(48, 43, 58, 0.09), 0 0 0 1px rgba(255, 107, 87, 0.05);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--baby-coral) 17%, white), color-mix(in srgb, var(--baby-coral) 42%, white));
+  border-color: color-mix(in srgb, var(--baby-coral) 76%, white);
+  box-shadow: 0 13px 30px rgba(48, 43, 58, 0.12), 0 0 0 1px rgba(255, 107, 87, 0.12);
   transform: translateY(-2px);
 }
 
 .vertical-baby .baby-conversation .baby-choice:not(.baby-choice-illustrated):focus-visible {
-  outline: 3px solid color-mix(in srgb, var(--baby-coral) 30%, white);
+  outline: 3px solid color-mix(in srgb, var(--baby-coral) 40%, white);
   outline-offset: 3px;
 }
 
 .vertical-baby .baby-conversation .baby-choice:not(.baby-choice-illustrated).is-selected {
   color: var(--baby-navy);
-  background: linear-gradient(135deg, #fff, rgba(255, 238, 231, 0.94));
-  border-color: color-mix(in srgb, var(--baby-coral) 72%, white);
-  box-shadow: 0 0 0 3px rgba(255, 107, 87, 0.1), 0 12px 28px rgba(48, 43, 58, 0.075);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--baby-coral) 20%, white), color-mix(in srgb, var(--baby-coral) 50%, white));
+  border-color: color-mix(in srgb, var(--baby-coral) 92%, white);
+  box-shadow: 0 0 0 3px rgba(255, 107, 87, 0.16), 0 12px 28px rgba(48, 43, 58, 0.095);
 }
 
 .vertical-baby .baby-conversation .baby-choice-copy {
@@ -6787,21 +6819,21 @@ button {
 
 .vertical-baby .baby-conversation .baby-choice-illustrated:is(:hover, :focus-visible) {
   color: var(--baby-navy);
-  background: linear-gradient(135deg, #fff, var(--card-surface));
-  border-color: color-mix(in srgb, var(--card-accent) 62%, white);
-  box-shadow: 0 16px 34px color-mix(in srgb, var(--card-accent) 13%, transparent);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--card-accent) 18%, white), color-mix(in srgb, var(--card-accent) 48%, white));
+  border-color: color-mix(in srgb, var(--card-accent) 82%, white);
+  box-shadow: 0 16px 34px color-mix(in srgb, var(--card-accent) 20%, transparent);
   transform: translateY(-2px);
 }
 
 .vertical-baby .baby-conversation .baby-choice-illustrated:focus-visible {
-  outline: 3px solid color-mix(in srgb, var(--card-accent) 40%, white);
+  outline: 3px solid color-mix(in srgb, var(--card-accent) 48%, white);
   outline-offset: 3px;
 }
 
 .vertical-baby .baby-conversation .baby-choice-illustrated.is-selected {
-  background: linear-gradient(135deg, #fff, var(--card-surface));
+  background: linear-gradient(135deg, color-mix(in srgb, var(--card-accent) 22%, white), color-mix(in srgb, var(--card-accent) 54%, white));
   border-color: var(--card-accent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--card-accent) 15%, transparent), 0 15px 32px rgba(58, 43, 55, 0.07);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--card-accent) 22%, transparent), 0 15px 32px rgba(58, 43, 55, 0.09);
 }
 
 .vertical-baby .baby-choice-art {
@@ -7309,7 +7341,7 @@ button {
 :is(.vertical-pet, .vertical-business) .field-heading {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 10px;
 }
 
@@ -10085,18 +10117,18 @@ body.vertical-business {
 .vertical-pet .pet-choice-card:is(:hover, :focus-visible) {
   color: #172f42;
   background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.99), rgba(248, 244, 235, 0.98)),
+    linear-gradient(145deg, rgba(206, 239, 226, 0.99), rgba(229, 204, 164, 0.98)),
     var(--surface);
-  border-color: rgba(47, 148, 134, 0.5);
+  border-color: rgba(47, 148, 134, 0.78);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.95),
-    0 16px 34px rgba(38, 54, 77, 0.11);
+    0 16px 34px rgba(38, 54, 77, 0.14);
   outline: none;
   transform: translateY(-1px);
 }
 
 .vertical-pet .pet-choice-card:is(:hover, :focus-visible)::before {
-  opacity: 0.52;
+  opacity: 0.68;
 }
 
 .vertical-pet .pet-choice-card:focus-visible {
@@ -10109,17 +10141,17 @@ body.vertical-business {
 .vertical-pet .pet-choice-card.is-selected {
   color: #122e3f;
   background:
-    linear-gradient(145deg, rgba(231, 248, 242, 0.98), rgba(255, 246, 235, 0.96)),
+    linear-gradient(145deg, rgba(178, 226, 208, 0.98), rgba(235, 208, 167, 0.96)),
     var(--surface);
-  border-color: rgba(47, 148, 134, 0.78);
+  border-color: rgba(47, 148, 134, 0.96);
   box-shadow:
-    0 0 0 2px rgba(47, 148, 134, 0.12),
+    0 0 0 2px rgba(47, 148, 134, 0.18),
     inset 0 1px 0 rgba(255, 255, 255, 0.94),
-    0 16px 34px rgba(47, 148, 134, 0.14);
+    0 16px 34px rgba(47, 148, 134, 0.18);
 }
 
 .vertical-pet .pet-choice-card.is-selected::before {
-  opacity: 0.7;
+  opacity: 0.86;
 }
 
 .vertical-pet .pet-choice-copy {
@@ -10229,18 +10261,18 @@ body.vertical-business {
 .vertical-business .business-choice-card:is(:hover, :focus-visible) {
   color: #0d2540;
   background:
-    linear-gradient(145deg, rgba(255, 255, 255, 1), rgba(236, 249, 247, 0.98)),
+    linear-gradient(145deg, rgba(202, 236, 232, 1), rgba(175, 220, 215, 0.98)),
     var(--surface);
-  border-color: rgba(63, 166, 160, 0.5);
+  border-color: rgba(63, 166, 160, 0.78);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.96),
-    0 16px 34px rgba(13, 37, 64, 0.11);
+    0 16px 34px rgba(13, 37, 64, 0.14);
   outline: none;
   transform: translateY(-1px);
 }
 
 .vertical-business .business-choice-card:is(:hover, :focus-visible)::before {
-  opacity: 0.52;
+  opacity: 0.68;
 }
 
 .vertical-business .business-choice-card:focus-visible {
@@ -10253,17 +10285,17 @@ body.vertical-business {
 .vertical-business .business-choice-card.is-selected {
   color: #0d2540;
   background:
-    linear-gradient(145deg, rgba(227, 248, 245, 0.98), rgba(255, 250, 240, 0.94)),
+    linear-gradient(145deg, rgba(169, 220, 214, 0.98), rgba(229, 211, 178, 0.94)),
     var(--surface);
-  border-color: rgba(63, 166, 160, 0.76);
+  border-color: rgba(63, 166, 160, 0.96);
   box-shadow:
-    0 0 0 2px rgba(63, 166, 160, 0.12),
+    0 0 0 2px rgba(63, 166, 160, 0.18),
     inset 0 1px 0 rgba(255, 255, 255, 0.94),
-    0 16px 34px rgba(63, 166, 160, 0.13);
+    0 16px 34px rgba(63, 166, 160, 0.17);
 }
 
 .vertical-business .business-choice-card.is-selected::before {
-  opacity: 0.68;
+  opacity: 0.84;
 }
 
 .vertical-business .business-choice-copy {

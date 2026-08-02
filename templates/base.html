@@ -39,10 +39,9 @@
   <body {% if vertical is defined %}class="vertical-{{ vertical.slug }}" style="{{ vertical_theme_style(vertical) }}"{% endif %}>
     <header class="site-header site-header-reference" data-site-shell>
       <div class="site-header-inner">
-        <a class="brand" href="/" aria-label="{% if vertical is defined %}NamEngine {{ vertical.display_name }} home{% else %}NamEngine home{% endif %}">
+        <a class="brand{% if vertical is defined %} brand-home-link{% endif %}" href="/" aria-label="{% if vertical is defined %}Home{% else %}NamEngine home{% endif %}">
           {% if vertical is defined %}
-            {% set shell_logo = vertical.assets.get('header_logo', vertical.assets.get('logo', 'images/namengine.svg')) %}
-            <img class="brand-logo brand-logo-wordmark" src="{{ url_for('static', filename=shell_logo) }}" alt="NamEngine {{ vertical.display_name }}">
+            <span class="brand-home-text">Home</span>
           {% else %}
             <img class="brand-logo brand-logo-wordmark" src="{{ url_for('static', filename='images/namengine.svg') }}" alt="NamEngine">
           {% endif %}

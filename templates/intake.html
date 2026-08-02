@@ -159,12 +159,14 @@
             {% set has_other_choice = "Other" in question.choices %}
             {% set other_value = current_value if has_other_choice and current_value and current_value not in question.choices else request.args.get(question.id ~ "_other", "") %}
             <section class="baby-question{% if question.id == 'gender' %} baby-question-gender{% endif %}" data-baby-question data-question-id="{{ question.id }}" data-question-kind="{% if question.choices %}choice{% else %}{{ question.kind }}{% endif %}" data-question-section="{{ question.section }}" data-required="{{ 'true' if question.required else 'false' }}" hidden>
-              <p class="baby-question-kicker">{{ question.section }} <span class="baby-kicker-heart" aria-hidden="true"></span></p>
+              <p class="baby-question-kicker">
+                {{ question.section }} <span class="baby-kicker-heart" aria-hidden="true"></span>
+              </p>
               <div class="baby-question-heading">
                 <h2 id="baby-question-{{ question.id }}">{{ question.label }}</h2>
+                <span class="baby-question-status">{{ "Required" if question.required else "Optional" }}</span>
               </div>
               {% if question.id == "gender" %}<p class="baby-question-lede">This helps us find names that feel just right.</p>{% endif %}
-              {% if not question.required %}<p class="baby-optional-note">Optional · Personalizes results</p>{% endif %}
               {% if not question.required %}<p class="baby-optional-help">Answering helps us shape more personal names.</p>{% endif %}
               {% if question.help_text %}<p class="baby-question-help">{{ question.help_text }}</p>{% endif %}
 
