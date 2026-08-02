@@ -197,12 +197,14 @@ def _session_rows(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
         latest_timestamp = max(event["timestamp"] for event in items)
         verticals = sorted({str(event.get("vertical") or "unknown") for event in items})
         models = sorted({str(event.get("model") or "unknown") for event in items})
+        request_types = sorted({str(event.get("request_type") or "generation") for event in items})
         rows.append(
             {
                 "session_id": session_id,
                 "date": latest_timestamp.date().isoformat(),
                 "vertical": verticals[0] if len(verticals) == 1 else "mixed",
                 "model": models[0] if len(models) == 1 else "mixed",
+                "request_types": request_types,
                 **_metric_row(items),
             }
         )
