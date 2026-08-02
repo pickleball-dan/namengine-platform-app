@@ -15,10 +15,15 @@
       {% else %}
         <span class="progress-orbit progress-orbit-one"></span>
         <span class="progress-orbit progress-orbit-two"></span>
+        <span class="progress-signal-ring progress-signal-ring-one"></span>
+        <span class="progress-signal-ring progress-signal-ring-two"></span>
         <span class="progress-node progress-node-center"></span>
         <span class="progress-node progress-node-one"></span>
         <span class="progress-node progress-node-two"></span>
         <span class="progress-node progress-node-three"></span>
+        <span class="progress-node progress-node-four"></span>
+        <span class="progress-node progress-node-five"></span>
+        <span class="progress-node progress-node-six"></span>
         <span class="progress-visual-label">{% if vertical is defined and vertical.slug == "baby" %}Family fit{% else %}Identity fit{% endif %}</span>
       {% endif %}
     </div>
@@ -26,7 +31,7 @@
       <p class="eyebrow" data-progress-eyebrow>Finding names for this identity</p>
       <h2 data-progress-current>Finding names that feel right</h2>
       <p class="progress-note" data-progress-note>A few quick checks before the list appears.</p>
-      <ol class="progress-steps{% if vertical is defined and vertical.slug == 'pet' %} pet-progress-steps{% endif %}"{% if vertical is defined and vertical.slug in ['pet', 'business'] %} hidden{% endif %}>
+      <ol class="progress-steps{% if vertical is defined and vertical.slug == 'pet' %} pet-progress-steps{% endif %}" hidden>
         <li data-progress-step data-progress-headline="Reading the details">Reading the details</li>
         <li data-progress-step data-progress-headline="Finding names for this identity">Finding names for this identity</li>
         <li data-progress-step data-progress-headline="Matching the feel">Matching the feel</li>

@@ -2515,20 +2515,48 @@ button {
   filter: blur(1px);
 }
 
+.progress-visual::after {
+  position: absolute;
+  inset: 42px;
+  z-index: 1;
+  content: "";
+  border: 1px solid rgba(47, 148, 134, 0.22);
+  border-radius: 999px;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .progress-orbit,
-.progress-node {
+.progress-node,
+.progress-signal-ring {
   position: absolute;
   border-radius: 999px;
 }
 
 .progress-orbit {
   inset: 20px;
-  border: 1px solid rgba(47, 148, 134, 0.34);
+  border: 1px solid rgba(47, 148, 134, 0.24);
 }
 
 .progress-orbit-two {
   inset: 56px;
-  border-color: rgba(252, 186, 118, 0.46);
+  border-color: rgba(252, 186, 118, 0.34);
+}
+
+.progress-signal-ring {
+  z-index: 1;
+  border: 1px solid rgba(47, 148, 134, 0.18);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.progress-signal-ring-one {
+  inset: 52px;
+}
+
+.progress-signal-ring-two {
+  inset: 34px;
+  border-color: rgba(252, 186, 118, 0.22);
 }
 
 .progress-node {
@@ -2541,13 +2569,21 @@ button {
 .progress-node-center {
   top: 50%;
   left: 50%;
-  z-index: 2;
-  width: 78px;
-  height: 78px;
+  z-index: 3;
+  width: 82px;
+  height: 82px;
   background: linear-gradient(135deg, var(--accent), #236f67);
   border: 3px solid #ffffff;
-  box-shadow: 0 0 0 16px rgba(47, 148, 134, 0.16), 0 16px 34px rgba(24, 33, 47, 0.2);
+  box-shadow:
+    0 0 0 14px rgba(47, 148, 134, 0.15),
+    0 0 0 24px rgba(47, 148, 134, 0.08),
+    0 16px 34px rgba(24, 33, 47, 0.2);
   transform: translate(-50%, -50%);
+}
+
+.progress-visual.is-pulsing::after,
+.progress-visual.is-searching::after {
+  animation: progress-signal-ripple 3.4s ease-out infinite;
 }
 
 .progress-visual.is-pulsing .progress-node-center {
@@ -2555,41 +2591,88 @@ button {
 }
 
 .progress-visual.is-searching .progress-orbit-one {
-  animation: progress-orbit-spin 9s linear infinite;
+  animation: progress-orbit-breathe 7.6s ease-in-out infinite;
 }
 
 .progress-visual.is-searching .progress-orbit-two {
-  animation: progress-orbit-spin 6.5s linear infinite reverse;
+  animation: progress-orbit-breathe 7.6s ease-in-out infinite reverse;
+}
+
+.progress-visual.is-searching .progress-signal-ring-one {
+  animation: progress-signal-ripple 3.4s ease-out infinite 0.15s;
+}
+
+.progress-visual.is-searching .progress-signal-ring-two {
+  animation: progress-signal-ripple 3.4s ease-out infinite 0.55s;
 }
 
 .progress-visual.is-searching .progress-node-one {
-  animation: progress-node-drift-one 4.8s ease-in-out infinite;
+  animation: progress-signal-converge-one 4.6s cubic-bezier(0.42, 0, 0.22, 1.22) infinite;
 }
 
 .progress-visual.is-searching .progress-node-two {
-  animation: progress-node-drift-two 5.4s ease-in-out infinite;
+  animation: progress-signal-converge-two 4.6s cubic-bezier(0.42, 0, 0.22, 1.22) infinite 0.18s;
 }
 
 .progress-visual.is-searching .progress-node-three {
-  animation: progress-node-drift-three 5.9s ease-in-out infinite;
+  animation: progress-signal-converge-three 4.6s cubic-bezier(0.42, 0, 0.22, 1.22) infinite 0.36s;
+}
+
+.progress-visual.is-searching .progress-node-four {
+  animation: progress-signal-converge-four 4.6s cubic-bezier(0.42, 0, 0.22, 1.22) infinite 0.54s;
+}
+
+.progress-visual.is-searching .progress-node-five {
+  animation: progress-signal-converge-five 4.6s cubic-bezier(0.42, 0, 0.22, 1.22) infinite 0.72s;
+}
+
+.progress-visual.is-searching .progress-node-six {
+  animation: progress-signal-converge-six 4.6s cubic-bezier(0.42, 0, 0.22, 1.22) infinite 0.9s;
 }
 
 .progress-node-one {
-  top: 26px;
+  top: 24px;
   left: 50%;
   transform: translateX(-50%);
 }
 
 .progress-node-two {
-  right: 32px;
-  bottom: 56px;
+  right: 30px;
+  bottom: 58px;
 }
 
 .progress-node-three {
   bottom: 36px;
-  left: 44px;
+  left: 42px;
   background: var(--accent-deep);
   box-shadow: 0 0 0 5px rgba(38, 54, 77, 0.12);
+}
+
+.progress-node-four {
+  top: 72px;
+  left: 28px;
+  width: 12px;
+  height: 12px;
+  background: #f3a7b5;
+  box-shadow: 0 0 0 5px rgba(243, 167, 181, 0.2);
+}
+
+.progress-node-five {
+  top: 52px;
+  right: 44px;
+  width: 12px;
+  height: 12px;
+  background: #69b7ac;
+  box-shadow: 0 0 0 5px rgba(105, 183, 172, 0.2);
+}
+
+.progress-node-six {
+  right: 24px;
+  top: 106px;
+  width: 13px;
+  height: 13px;
+  background: #e8bf6a;
+  box-shadow: 0 0 0 5px rgba(232, 191, 106, 0.2);
 }
 
 .progress-visual-label {
@@ -2816,31 +2899,75 @@ button {
   }
 }
 
-@keyframes progress-node-drift-one {
+@keyframes progress-orbit-breathe {
   0%, 100% {
-    transform: translateX(-50%) translateY(0) scale(1);
+    opacity: 0.72;
+    transform: scale(1);
   }
-  50% {
-    transform: translateX(-50%) translateY(10px) scale(1.12);
+  48% {
+    opacity: 0.32;
+    transform: scale(0.94);
+  }
+  68% {
+    opacity: 0.78;
+    transform: scale(1.035);
   }
 }
 
-@keyframes progress-node-drift-two {
-  0%, 100% {
-    transform: translate(0, 0) scale(1);
+@keyframes progress-signal-ripple {
+  0%, 42% {
+    opacity: 0;
+    transform: scale(0.58);
   }
   50% {
-    transform: translate(-12px, -8px) scale(1.08);
+    opacity: 0.58;
+  }
+  82%, 100% {
+    opacity: 0;
+    transform: scale(1.28);
   }
 }
 
-@keyframes progress-node-drift-three {
-  0%, 100% {
-    transform: translate(0, 0) scale(1);
-  }
-  50% {
-    transform: translate(12px, -10px) scale(1.1);
-  }
+@keyframes progress-signal-converge-one {
+  0%, 100% { transform: translateX(-50%) translateY(0) scale(1); }
+  42% { transform: translateX(-50%) translateY(64px) scale(0.78); }
+  55% { transform: translateX(-50%) translateY(52px) scale(1.12); }
+  68% { transform: translateX(-50%) translateY(0) scale(1); }
+}
+
+@keyframes progress-signal-converge-two {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  42% { transform: translate(-52px, -35px) scale(0.78); }
+  55% { transform: translate(-42px, -28px) scale(1.12); }
+  68% { transform: translate(0, 0) scale(1); }
+}
+
+@keyframes progress-signal-converge-three {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  42% { transform: translate(50px, -56px) scale(0.78); }
+  55% { transform: translate(40px, -45px) scale(1.12); }
+  68% { transform: translate(0, 0) scale(1); }
+}
+
+@keyframes progress-signal-converge-four {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  42% { transform: translate(58px, 36px) scale(0.78); }
+  55% { transform: translate(47px, 29px) scale(1.12); }
+  68% { transform: translate(0, 0) scale(1); }
+}
+
+@keyframes progress-signal-converge-five {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  42% { transform: translate(-40px, 55px) scale(0.78); }
+  55% { transform: translate(-32px, 44px) scale(1.12); }
+  68% { transform: translate(0, 0) scale(1); }
+}
+
+@keyframes progress-signal-converge-six {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  42% { transform: translate(-55px, 1px) scale(0.78); }
+  55% { transform: translate(-44px, 1px) scale(1.12); }
+  68% { transform: translate(0, 0) scale(1); }
 }
 
 @keyframes pet-progress-companion-pulse {

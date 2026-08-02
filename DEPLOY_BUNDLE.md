@@ -92,9 +92,34 @@ Not included:
 - .env or secret files
 - route/function/class renames for shared saved-name pages
 
-## Full Report underline/focus polish
+## Signal Convergence progress graphic
 
 Status: validated locally / included in next push
+Branch: current working tree / next local-first release batch
+
+Included intent:
+- Replace the generic non-pet progress orbit graphic with a Signal Convergence treatment.
+- Show six outer signal orbs converging into the center, pulsing/rippling, then bouncing back out.
+- Remove the visible bottom progress-step/bulleted line from the overlay while preserving existing hidden progress behavior.
+- Keep Pet's separate Sound check visual untouched.
+
+Expected customer-facing effect:
+- The progress moment reads as scattered taste signals coming together into a stronger fit.
+- The overlay feels more premium and less like a static stock graphic.
+- The panel stays clean without an extra bottom status/bullet line.
+
+Validation run:
+- `python -m pytest tests/test_phase14_progress_experience.py -q`
+- `git diff --check`
+- Local screenshot regenerated at `audit_outputs/20260801-signal-convergence/signal-convergence-progress-panel.png`
+
+Not included:
+- Pet Sound check visual redesign.
+- Generated screenshot/temp audit artifacts.
+
+## Full Report underline/focus polish
+
+Status: pushed in `c632843` / already on main
 Branch: current working tree / next local-first release batch
 
 Included intent:
