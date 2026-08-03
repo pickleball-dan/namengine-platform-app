@@ -201,6 +201,7 @@ def _session_rows(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
         rows.append(
             {
                 "session_id": session_id,
+                "timestamp": latest_timestamp.isoformat(),
                 "date": latest_timestamp.date().isoformat(),
                 "vertical": verticals[0] if len(verticals) == 1 else "mixed",
                 "model": models[0] if len(models) == 1 else "mixed",

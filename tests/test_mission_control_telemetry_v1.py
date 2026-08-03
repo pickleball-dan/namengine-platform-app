@@ -103,6 +103,7 @@ class MissionControlTelemetryV1Test(unittest.TestCase):
         self.assertAlmostEqual(report["summary"]["estimated_spend_usd"], 0.00024, places=6)
         self.assertEqual(report["requests_by_model"][0]["model"], "gpt-4.1-mini")
         self.assertEqual(report["requests_by_session"][0]["session_id"], "baby-telemetry-session")
+        self.assertIn("timestamp", report["requests_by_session"][0])
         self.assertEqual(report["requests_by_session"][0]["request_count"], 2)
         self.assertEqual(report["requests_by_session"][0]["input_tokens"], 300)
         self.assertEqual(report["requests_by_session"][0]["output_tokens"], 75)
