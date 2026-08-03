@@ -9,12 +9,8 @@
 
   function setExpanded(card, expanded) {
     const toggle = card.querySelector("[data-result-card-toggle]");
-    const label = card.querySelector("[data-result-card-toggle-label]");
     card.classList.toggle("is-expanded", expanded);
     if (toggle) toggle.setAttribute("aria-expanded", String(expanded));
-    if (label) {
-      label.textContent = expanded ? "Close quick view" : "Quick view";
-    }
   }
 
   shell.addEventListener("click", (event) => {

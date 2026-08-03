@@ -41,7 +41,7 @@ class BabyUiConsistencyTest(unittest.TestCase):
         self.assertEqual(results.count('result-name-link'), 8)
         self.assertEqual(results.count('result-explore-link'), 8)
         self.assertIn('>Explore <span aria-hidden="true">→</span></a>', results)
-        self.assertIn("Quick view", results)
+        self.assertNotIn("Quick view", results)
         self.assertNotIn("Tell me more", results)
         self.assertIn("Option 4", results)
         self.assertIn("Would you like another thoughtful list", results)

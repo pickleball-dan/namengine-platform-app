@@ -127,11 +127,9 @@ class ResultsMobileStabilizationTest(unittest.TestCase):
         body = self.client.get(f"/results/session/{session_id}").get_data(as_text=True)
 
         self.assertEqual(body.count("data-result-card>"), 2)
-        self.assertEqual(body.count(" data-result-card-toggle\n"), 2)
-        self.assertIn('aria-expanded="false"', body)
-        self.assertIn('aria-controls="result-details-1"', body)
+        self.assertEqual(body.count(" data-result-card-toggle\n"), 0)
+        self.assertNotIn("Quick view", body)
         self.assertIn('id="result-details-1"', body)
-        self.assertIn("Quick view", body)
         self.assertIn("Why this feels like them", body)
         self.assertIn("Best fit", body)
         self.assertIn("Worth noting", body)
@@ -159,7 +157,12 @@ class ResultsMobileStabilizationTest(unittest.TestCase):
                 self.assertGreaterEqual(card_count, 4)
                 self.assertEqual(body.count("result-name-link"), card_count)
                 self.assertEqual(body.count("result-explore-link"), card_count)
-                self.assertEqual(body.count(">Full Report <"), card_count)
+                expected_cta = {
+                    "baby": "View meaning",
+                    "pet": "Meet this name",
+                    "business": "View brand analysis",
+                }[vertical]
+                self.assertEqual(body.count(f">{expected_cta} <"), card_count)
                 self.assertNotIn(">Explore <", body)
                 self.assertEqual(body.count(" data-result-card-toggle\n"), 0)
                 self.assertNotIn(">Quick view<", body)
@@ -189,10 +192,15 @@ class ResultsMobileStabilizationTest(unittest.TestCase):
                 card_count = body.count('<article class="result-card" data-result-card>')
 
                 self.assertGreaterEqual(card_count, 4)
-                self.assertEqual(body.count(" data-result-card-toggle\n"), card_count)
-                self.assertEqual(body.count(">Quick view<"), card_count)
+                self.assertEqual(body.count(" data-result-card-toggle\n"), 0)
+                self.assertEqual(body.count(">Quick view<"), 0)
                 self.assertEqual(body.count("result-explore-link"), card_count)
-                self.assertEqual(body.count(">Full Report <"), card_count)
+                expected_cta = {
+                    "baby": "View meaning",
+                    "pet": "Meet this name",
+                    "business": "View brand analysis",
+                }[vertical]
+                self.assertEqual(body.count(f">{expected_cta} <"), card_count)
                 self.assertIn("It matches a warm, affectionate direction.", body)
 
     def test_compact_card_text_shortens_long_visible_snippets(self):

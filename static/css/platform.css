@@ -10520,3 +10520,463 @@ body.vertical-business {
     display: flex;
   }
 }
+
+/* Mobile results hierarchy pass: make every vertical scan like one product. */
+@media (max-width: 600px) {
+  /* Suppress all Unlock visual indicators inside result cards — modal handles access gating */
+  .result-card .premium-locked-action::after {
+    display: none;
+    content: none;
+  }
+
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .results-grid {
+    gap: 18px;
+  }
+
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-card {
+    position: relative;
+    gap: 14px;
+    padding: 20px 18px 18px;
+    overflow: hidden;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.92)),
+      var(--card);
+    border: 1px solid color-mix(in srgb, var(--accent) 13%, #e7edf5);
+    border-radius: 24px;
+    box-shadow: 0 18px 44px rgba(24, 33, 47, 0.09);
+  }
+
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-card::before {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 5px;
+    background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 42%, white));
+    content: "";
+  }
+
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-card-main {
+    gap: 10px;
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-index {
+    display: inline-flex;
+    width: fit-content;
+    min-height: 26px;
+    align-items: center;
+    margin: 0;
+    padding: 5px 9px;
+    color: color-mix(in srgb, var(--accent-deep) 78%, #64748b);
+    font-size: 11px;
+    line-height: 1;
+    letter-spacing: 0.075em;
+    text-transform: uppercase;
+    background: color-mix(in srgb, var(--accent-soft) 72%, white);
+    border-radius: 999px;
+  }
+
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-card h2 {
+    max-width: 100%;
+    color: var(--accent-deep);
+    font-size: clamp(42px, 14vw, 58px);
+    line-height: 0.94;
+    letter-spacing: -0.045em;
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-card-meaning,
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-card .tagline {
+    display: -webkit-box;
+    margin-top: 0;
+    overflow: hidden;
+    color: #36445a;
+    line-height: 1.45;
+    -webkit-box-orient: vertical;
+  }
+
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-card-meaning {
+    font-size: 14px;
+    -webkit-line-clamp: 2;
+  }
+
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-card .tagline {
+    font-size: 15px;
+    font-weight: 650;
+    -webkit-line-clamp: 2;
+  }
+
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-tags {
+    gap: 7px;
+    min-height: 0;
+    margin-top: 0;
+  }
+
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-tags span {
+    min-height: 28px;
+    padding: 6px 9px;
+    color: color-mix(in srgb, var(--accent-deep) 84%, #475569);
+    background: color-mix(in srgb, var(--accent-soft) 64%, white);
+    border: 1px solid color-mix(in srgb, var(--accent) 18%, #dfe7f0);
+  }
+
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-card > .reaction-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    padding: 3px;
+    background: #f6f8fb;
+    border: 1px solid #e4eaf2;
+    border-radius: 16px;
+  }
+
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-card .reaction-row button,
+  .vertical-baby .result-card .reaction-row button {
+    min-height: 48px;
+    padding: 7px 10px;
+    gap: 7px;
+    color: #334155;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 13px;
+    box-shadow: none;
+  }
+
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-card .reaction-row button.is-selected {
+    background: #ffffff;
+    border-color: color-mix(in srgb, var(--accent) 22%, #dfe7f0);
+    box-shadow: 0 8px 20px rgba(24, 33, 47, 0.08);
+  }
+
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-card .reaction-icon,
+  .vertical-baby .result-card .reaction-icon {
+    width: 26px;
+    height: 26px;
+  }
+
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-card .reaction-row button span {
+    display: inline;
+    color: inherit;
+    font-size: 13px;
+    font-weight: 850;
+  }
+
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-card > .result-explore-link,
+  .vertical-baby .result-card > .result-explore-link {
+    min-height: 52px;
+    padding: 12px 14px;
+    color: #ffffff;
+    font-size: 15px;
+    background: linear-gradient(135deg, var(--accent-deep), color-mix(in srgb, var(--accent-deep) 84%, var(--accent)));
+    border: 0;
+    border-radius: 16px;
+    box-shadow: 0 14px 28px color-mix(in srgb, var(--accent-deep) 18%, transparent);
+  }
+
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-card > .result-explore-link span,
+  .vertical-baby .result-card > .result-explore-link span {
+    color: currentColor;
+  }
+
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-card-toggle,
+  .vertical-baby .result-card-toggle {
+    min-height: 44px;
+    padding: 10px 12px;
+    color: var(--accent-deep);
+    font-size: 13px;
+    background: transparent;
+    border: 1px solid #e4eaf2;
+    border-radius: 14px;
+  }
+}
+
+/* Mobile results premium pass v2: spacing, shadow, typography, reactions */
+@media (max-width: 600px) {
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-card {
+    gap: 20px;
+    padding: 28px 22px 22px;
+    background: #ffffff;
+    border: none;
+    border-radius: 28px;
+    box-shadow:
+      0 2px 4px rgba(24, 33, 47, 0.04),
+      0 8px 24px rgba(24, 33, 47, 0.08),
+      0 24px 48px rgba(24, 33, 47, 0.06);
+  }
+
+  /* Remove accent strip — looks like a loading bar */
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-card::before {
+    display: none;
+    content: none;
+  }
+
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-card-main {
+    gap: 12px;
+  }
+
+  /* Badge: plain small-caps label, no pill */
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-index {
+    padding: 0;
+    color: #8898aa;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: none;
+    border-radius: 0;
+    min-height: 0;
+  }
+
+  /* Name: more editorial, looser tracking */
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-card h2 {
+    font-size: clamp(38px, 12vw, 52px);
+    line-height: 0.96;
+    letter-spacing: -0.03em;
+    font-weight: 800;
+  }
+
+  /* Meaning: subtler */
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-card-meaning {
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 400;
+  }
+
+  /* Tagline: readable, confident */
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-card .tagline {
+    color: #334155;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  /* Tags: softer fill, no visible border */
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-tags {
+    gap: 6px;
+    margin-top: 4px;
+  }
+
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-tags span {
+    min-height: 0;
+    padding: 5px 11px;
+    color: #475569;
+    font-size: 12px;
+    font-weight: 600;
+    background: #f1f5f9;
+    border: none;
+    border-radius: 999px;
+  }
+
+  /* Reaction row: no slab container, just two clean icon buttons */
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-card > .reaction-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    padding: 0;
+    background: none;
+    border: none;
+    border-radius: 0;
+  }
+
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-card .reaction-row button,
+  .vertical-baby .result-card .reaction-row button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 72px;
+    padding: 10px;
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 16px;
+    box-shadow: none;
+    transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+  }
+
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-card .reaction-row button.is-selected {
+    background: #ffffff;
+    border-color: #94a3b8;
+    box-shadow: 0 4px 12px rgba(24, 33, 47, 0.1);
+  }
+
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-card .reaction-icon,
+  .vertical-baby .result-card .reaction-icon {
+    width: 52px;
+    height: 52px;
+  }
+
+  /* CTA: cleaner, less chunky */
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-card > .result-explore-link,
+  .vertical-baby .result-card > .result-explore-link {
+    min-height: 50px;
+    padding: 13px 18px;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 650;
+    letter-spacing: 0.01em;
+    background: var(--accent-deep);
+    border: none;
+    border-radius: 14px;
+    box-shadow: 0 4px 16px rgba(24, 33, 47, 0.18);
+  }
+
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-card > .result-explore-link span,
+  .vertical-baby .result-card > .result-explore-link span {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  /* Quick view: clearly secondary, ghost */
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-card-toggle,
+  .vertical-baby .result-card-toggle {
+    min-height: 40px;
+    padding: 8px 12px;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 600;
+    background: transparent;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+  }
+}
+
+/* ── Vertical identity on mobile result cards ───────────────────────────── */
+@media (max-width: 600px) {
+
+  /* BABY — warm, intimate, cream/coral */
+  .vertical-baby .result-card {
+    background: #fffdfb;
+    box-shadow:
+      0 2px 4px rgba(16, 43, 84, 0.04),
+      0 8px 24px rgba(16, 43, 84, 0.07),
+      0 24px 48px rgba(16, 43, 84, 0.05);
+  }
+
+  .vertical-baby .result-index {
+    color: #c07a6d;
+  }
+
+  .vertical-baby .result-card h2 {
+    color: #102b54;
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .vertical-baby .result-card .tagline {
+    color: #53627a;
+  }
+
+  .vertical-baby .result-card .result-tags span {
+    color: #a0523f;
+    background: rgba(255, 107, 87, 0.07);
+  }
+
+  .vertical-baby .result-card > .reaction-row button {
+    background: rgba(255, 107, 87, 0.04);
+    border-color: rgba(255, 107, 87, 0.18);
+  }
+
+  .vertical-baby .result-card > .reaction-row button.is-selected {
+    background: #fff7f5;
+    border-color: rgba(255, 107, 87, 0.5);
+    box-shadow: 0 4px 12px rgba(255, 107, 87, 0.12);
+  }
+
+  .vertical-baby .result-card > .result-explore-link,
+  .vertical-baby .result-card > .result-explore-link {
+    background: #9a6c10;
+    box-shadow: 0 4px 16px rgba(154, 108, 16, 0.30);
+  }
+
+  /* PET — playful, warm, amber */
+  .vertical-pet .result-card {
+    background: #fffef9;
+    box-shadow:
+      0 2px 4px rgba(180, 120, 20, 0.04),
+      0 8px 24px rgba(24, 33, 47, 0.07),
+      0 24px 48px rgba(24, 33, 47, 0.05);
+  }
+
+  .vertical-pet .result-index {
+    color: #b07e2a;
+  }
+
+  .vertical-pet .result-card h2 {
+    color: #1a2035;
+    font-weight: 850;
+    letter-spacing: -0.025em;
+  }
+
+  .vertical-pet .result-card .tagline {
+    color: #3d3d2e;
+  }
+
+  .vertical-pet .result-card .result-tags span {
+    color: #7a5c1e;
+    background: rgba(242, 184, 75, 0.12);
+  }
+
+  .vertical-pet .result-card > .reaction-row button {
+    background: rgba(242, 184, 75, 0.06);
+    border-color: rgba(242, 184, 75, 0.28);
+  }
+
+  .vertical-pet .result-card > .reaction-row button.is-selected {
+    background: #fffbe8;
+    border-color: rgba(242, 184, 75, 0.7);
+    box-shadow: 0 4px 12px rgba(242, 184, 75, 0.18);
+  }
+
+  .vertical-pet .result-card > .result-explore-link {
+    background: #2f9486;
+    box-shadow: 0 4px 16px rgba(47, 148, 134, 0.30);
+  }
+
+  /* BUSINESS — strategic, clean, cool slate */
+  .vertical-business .result-card {
+    background: #fafbfc;
+    box-shadow:
+      0 2px 4px rgba(15, 23, 42, 0.05),
+      0 8px 24px rgba(15, 23, 42, 0.09),
+      0 24px 48px rgba(15, 23, 42, 0.06);
+  }
+
+  .vertical-business .result-index {
+    color: #64748b;
+  }
+
+  .vertical-business .result-card h2 {
+    color: #0f172a;
+    font-size: clamp(26px, 8.5vw, 38px);
+    font-weight: 750;
+    letter-spacing: -0.025em;
+    line-height: 1.08;
+    word-break: break-word;
+  }
+
+  .vertical-business .result-card .tagline {
+    color: #334155;
+    font-weight: 500;
+  }
+
+  .vertical-business .result-card .result-tags span {
+    color: #334155;
+    background: #f1f5f9;
+  }
+
+  .vertical-business .result-card > .reaction-row button {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+  }
+
+  .vertical-business .result-card > .reaction-row button.is-selected {
+    background: #ffffff;
+    border-color: #64748b;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1);
+  }
+
+  .vertical-business .result-card > .result-explore-link {
+    background: #29344f;
+    box-shadow: 0 4px 16px rgba(41, 52, 79, 0.30);
+  }
+}

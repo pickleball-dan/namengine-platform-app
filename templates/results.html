@@ -18,6 +18,13 @@
     "product": "Your favorites reveal the product direction with the strongest shelf fit.",
     "character": "Your favorites reveal the story direction with the strongest world fit."
   } %}
+  {% set result_cta_labels = {
+    "baby": "View meaning",
+    "pet": "Meet this name",
+    "business": "View brand analysis",
+    "product": "View product analysis",
+    "character": "View story fit"
+  } %}
   {% if vertical.slug == "pet" %}
     {% set pet_type = brief.inputs.get("pet_type") or brief.inputs.get("species") or "pet" %}
     {% set pet_vibe = brief.inputs.get("vibe") or brief.inputs.get("personality") or "their personality" %}
@@ -184,18 +191,8 @@
             </button>
           </div>
           <p class="reaction-status" aria-live="polite"></p>
-          {% if launch_results %}<a class="result-explore-link{% if not beta_unlocked %} premium-locked-action{% endif %}" href="{{ detail_url if beta_unlocked else '/%s/access?return_session=%s'|format(vertical.slug, session_id) }}" aria-label="Full report for {{ item.name }}{% if not beta_unlocked %} with NamEngine Access{% endif %}"{% if not beta_unlocked %} data-premium-action{% endif %}>Full Report <span aria-hidden="true">→</span></a>{% endif %}
-          {% if beta_unlocked %}
-            <button
-              class="result-card-toggle"
-              type="button"
-              aria-expanded="false"
-              aria-controls="result-details-{{ loop.index }}"
-              data-result-card-toggle
-            >
-              <span data-result-card-toggle-label>{% if launch_results %}Quick view{% else %}View details{% endif %}</span>
-            </button>
-          {% endif %}
+          {% if launch_results %}<a class="result-explore-link{% if not beta_unlocked %} premium-locked-action{% endif %}" href="{{ detail_url if beta_unlocked else '/%s/access?return_session=%s'|format(vertical.slug, session_id) }}" aria-label="Full report for {{ item.name }}{% if not beta_unlocked %} with NamEngine Access{% endif %}"{% if not beta_unlocked %} data-premium-action{% endif %}>{{ result_cta_labels.get(vertical.slug, "View full report") }} <span aria-hidden="true">→</span></a>{% endif %}
+
 
           <div class="result-card-details" id="result-details-{{ loop.index }}" data-result-card-details>
             {% set domain_info = item.metadata.get("domain_info") if item.metadata else None %}
