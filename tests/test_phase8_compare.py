@@ -2,7 +2,7 @@ import os
 import tempfile
 import unittest
 
-from app import create_app, make_session_id
+from app import _query_string_from_mapping, _sanitize_intake_source, create_app, make_session_id
 from access_helpers import unlock_beta_access
 from namengine.core import (
     build_compare_items,
@@ -24,6 +24,12 @@ class PhaseEightCompareTest(unittest.TestCase):
         self.app.testing = True
         self.client = self.app.test_client()
 
+    def _pet_session_id_for_query(self, query: bytes) -> str:
+        source = dict(pair.split("=", 1) for pair in query.decode("utf-8").split("&"))
+        source = {key: value.replace("+", " ") for key, value in source.items()}
+        sanitized = _sanitize_intake_source(PET, source)
+        return make_session_id("pet", _query_string_from_mapping(sanitized).encode("utf-8"))
+
     def tearDown(self):
         if self.previous_db_path is None:
             os.environ.pop("NAMENGINE_DB_PATH", None)
@@ -33,7 +39,7 @@ class PhaseEightCompareTest(unittest.TestCase):
 
     def _seed_chain(self):
         query = b"species=Dog&personality=Gentle&style=Warm"
-        session_id = make_session_id("pet", query)
+        session_id = self._pet_session_id_for_query(query)
         self.client.get(f"/pet/results?{query.decode('utf-8')}")
         save_reaction(build_reaction(session_id, "pet-1", "love"))
         save_reaction(build_reaction(session_id, "pet-2", "no"))
@@ -54,7 +60,7 @@ class PhaseEightCompareTest(unittest.TestCase):
 
     def test_compare_does_not_expose_historical_maybe_as_backup(self):
         query = b"species=Cat&personality=Quiet&style=Soft"
-        session_id = make_session_id("pet", query)
+        session_id = self._pet_session_id_for_query(query)
         self.client.get(f"/pet/results?{query.decode('utf-8')}")
         save_reaction(build_reaction(session_id, "pet-3", "maybe"))
         save_reaction(build_reaction(session_id, "pet-4", "maybe"))
@@ -96,7 +102,7 @@ class PhaseEightCompareTest(unittest.TestCase):
 
     def test_results_page_links_to_compare(self):
         query = b"species=Dog&personality=Gentle&style=Warm"
-        session_id = make_session_id("pet", query)
+        session_id = self._pet_session_id_for_query(query)
         response = self.client.get(f"/pet/results?{query.decode('utf-8')}")
 
         self.assertEqual(response.status_code, 200)
@@ -106,7 +112,7 @@ class PhaseEightCompareTest(unittest.TestCase):
 
     def test_free_compare_route_requires_paid_access(self):
         query = b"species=Dog&personality=Gentle&style=Warm"
-        session_id = make_session_id("pet", query)
+        session_id = self._pet_session_id_for_query(query)
         self.client.get(f"/pet/results?{query.decode('utf-8')}")
 
         response = self.client.get(f"/compare/{session_id}")

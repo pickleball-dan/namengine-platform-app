@@ -7,7 +7,7 @@ import os
 import re
 import time
 from secrets import token_urlsafe
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from base64 import b64encode
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
@@ -71,6 +71,12 @@ from namengine.core import (
 from namengine.core.name_facts import build_name_fact_card
 from namengine.core.baby_decision_support import build_baby_decision_support
 from namengine.core.storage import get_session_chain_snapshots
+from namengine.core.storage import (
+    get_beta_usage,
+    save_beta_email_capture,
+    save_beta_usage_email,
+    save_beta_usage_free_session,
+)
 from namengine.core.taste_evolution import build_taste_evolution
 from namengine.core.ai_generation import DEFAULT_MODEL
 from namengine.core.cost_estimates import estimate_ai_calls_cost_usd
@@ -87,6 +93,10 @@ _LOCAL_BETA_ACCESS_SECRET = token_urlsafe(32)
 _portrait_jobs: set[str] = set()
 _portrait_jobs_lock = Lock()
 MIN_REACTIONS_FOR_REFINEMENT = 3
+BETA_VISITOR_COOKIE_NAME = "namengine_beta_visitor_id"
+BETA_FREE_ACCESS_HOURS_DEFAULT = 24
+BETA_EMAIL_MAX_LENGTH = 254
+BETA_EMAIL_PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 
 class NameGenerationUnavailable(RuntimeError):
@@ -461,6 +471,66 @@ def free_generation_cookie_name(vertical) -> str:
     return f"namengine_first_free_session_{vertical.slug}"
 
 
+def beta_visitor_cookie_name() -> str:
+    return BETA_VISITOR_COOKIE_NAME
+
+
+def _beta_free_access_hours() -> int:
+    try:
+        return max(1, min(int(os.getenv("NAMENGINE_BETA_FREE_ACCESS_HOURS", BETA_FREE_ACCESS_HOURS_DEFAULT)), 24 * 30))
+    except (TypeError, ValueError):
+        return BETA_FREE_ACCESS_HOURS_DEFAULT
+
+
+def _utcnow() -> datetime:
+    return datetime.now(timezone.utc)
+
+
+def _isoformat(dt: datetime) -> str:
+    return dt.astimezone(timezone.utc).isoformat()
+
+
+def _parse_iso_datetime(value: str | None) -> datetime | None:
+    if not value:
+        return None
+    try:
+        parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
+
+
+def _beta_visitor_id(create: bool = False) -> str:
+    visitor_id = request.cookies.get(beta_visitor_cookie_name(), "").strip()
+    if visitor_id:
+        return visitor_id[:96]
+    return token_urlsafe(24) if create else ""
+
+
+def _attach_beta_visitor_cookie(response, visitor_id: str):
+    if visitor_id and request.cookies.get(beta_visitor_cookie_name()) != visitor_id:
+        response.set_cookie(
+            beta_visitor_cookie_name(),
+            visitor_id,
+            max_age=60 * 60 * 24 * 180,
+            httponly=True,
+            samesite="Lax",
+            secure=request.is_secure,
+        )
+    return response
+
+
+def _email_capture_value() -> str:
+    email = " ".join(str(request.form.get("email", "")).strip().split())
+    return email[:BETA_EMAIL_MAX_LENGTH]
+
+
+def _valid_email_capture(email: str) -> bool:
+    return bool(email and len(email) <= BETA_EMAIL_MAX_LENGTH and BETA_EMAIL_PATTERN.match(email))
+
+
 def _vertical_from_request():
     requested_slug = request.path.strip("/").split("/", 1)[0]
     if requested_slug in VERTICALS:
@@ -809,17 +879,65 @@ def _free_generation_access_required_response(vertical, session_id: str):
     return _access_required_response(vertical, session_id)
 
 
+def _beta_usage_expired(usage: dict | None) -> bool:
+    if not usage:
+        return False
+    expires_at = _parse_iso_datetime(str(usage.get("free_access_expires_at") or ""))
+    return expires_at is not None and expires_at <= _utcnow()
+
+
+def _free_session_access_blocked(vertical, session_id: str) -> bool:
+    """Return whether a free visitor can no longer view this cached free session."""
+    if beta_unlocked_from_request(vertical):
+        return False
+
+    visitor_id = _beta_visitor_id(create=False)
+    legacy_cookie_session_id = request.cookies.get(free_generation_cookie_name(vertical), "")
+
+    if visitor_id:
+        usage = get_beta_usage(visitor_id, vertical.slug)
+        if usage:
+            if str(usage.get("free_session_id") or "") != session_id:
+                return True
+            return _beta_usage_expired(usage)
+
+    # Old pre-ledger browsers may already carry the first-free cookie. Do not
+    # silently grandfather those into a fresh free-view window; require access.
+    if legacy_cookie_session_id:
+        return True
+
+    return False
+
+
 def _free_generation_blocked(vertical, session_id: str, *, needs_generation: bool) -> bool:
     """Allow one free generated list per vertical/browser, then require paid access for new lists."""
     if not needs_generation or beta_unlocked_from_request(vertical):
         return False
+
+    visitor_id = _beta_visitor_id(create=False)
+    if visitor_id:
+        usage = get_beta_usage(visitor_id, vertical.slug)
+        if usage:
+            return str(usage.get("free_session_id") or "") != session_id or _beta_usage_expired(usage)
+
     first_free_session_id = request.cookies.get(free_generation_cookie_name(vertical), "")
-    return bool(first_free_session_id and first_free_session_id != session_id)
+    return bool(first_free_session_id)
 
 
 def _remember_free_generation(response, vertical, session_id: str):
     if beta_unlocked_from_request(vertical):
         return response
+    visitor_id = _beta_visitor_id(create=True)
+    now = _utcnow()
+    expires_at = now + timedelta(hours=_beta_free_access_hours())
+    save_beta_usage_free_session(
+        visitor_id=visitor_id,
+        vertical=vertical.slug,
+        session_id=session_id,
+        first_free_at=_isoformat(now),
+        free_access_expires_at=_isoformat(expires_at),
+    )
+    _attach_beta_visitor_cookie(response, visitor_id)
     if request.cookies.get(free_generation_cookie_name(vertical)):
         return response
     response.set_cookie(
@@ -862,6 +980,9 @@ def _render_results_snapshot(
         abort(404)
 
     vertical = get_vertical(snapshot["session"]["vertical"])
+    if status == 200 and _free_session_access_blocked(vertical, session_id):
+        return _free_generation_access_required_response(vertical, session_id)
+
     names = _names_from_snapshot(snapshot)
     brief = _brief_from_snapshot(snapshot)
     if not _cached_names_match_current_rules(vertical, brief, names):
@@ -987,10 +1108,12 @@ def create_app() -> Flask:
         if vertical_slug not in VERTICALS:
             abort(404)
         vertical = get_vertical(vertical_slug)
+        visitor_id = _beta_visitor_id(create=True)
         return_session = beta_return_session_for(vertical)
         paid = beta_unlocked_from_request(vertical)
         checkout_return = beta_pending_checkout_from_request(vertical)
         stripe_payment_link = beta_payment_link_for(vertical)
+        beta_usage = get_beta_usage(visitor_id, vertical.slug) if visitor_id else None
         beta_checkout_url = (
             url_for("beta_checkout", vertical_slug=vertical.slug, return_session=return_session)
             if stripe_payment_link
@@ -1016,8 +1139,13 @@ def create_app() -> Flask:
                     beta_has_prior_round=bool(return_session),
                     beta_continue_url=beta_continue_url,
                     focused_access_return=bool(return_session) and not (paid or checkout_return),
+                    beta_usage=beta_usage,
+                    beta_email_captured=bool((beta_usage or {}).get("email")),
+                    beta_email_capture_url=url_for("beta_email_capture", vertical_slug=vertical.slug),
+                    beta_email_return_session=return_session,
                 )
             )
+        _attach_beta_visitor_cookie(response, visitor_id)
         if checkout_return:
             response.set_cookie(
                 beta_unlock_cookie_name(vertical),
@@ -1031,6 +1159,49 @@ def create_app() -> Flask:
         if (paid or checkout_return) and return_session:
             response.delete_cookie(beta_return_cookie_name(vertical))
         return response
+
+    @app.post("/<vertical_slug>/access/email")
+    def beta_email_capture(vertical_slug: str):
+        if vertical_slug not in VERTICALS:
+            abort(404)
+        vertical = get_vertical(vertical_slug)
+        visitor_id = _beta_visitor_id(create=True)
+        return_session = str(request.form.get("return_session", "")).strip() or beta_return_session_for(vertical)
+        if return_session and not return_session.startswith(f"{vertical.slug}-"):
+            return_session = ""
+        email = _email_capture_value()
+        if not _valid_email_capture(email):
+            response = make_response(
+                render_template(
+                    "baby_beta.html",
+                    vertical=vertical,
+                    stripe_payment_link=beta_payment_link_for(vertical),
+                    beta_checkout_url=url_for("beta_checkout", vertical_slug=vertical.slug, return_session=return_session),
+                    beta_price=beta_price_for(vertical),
+                    paid=False,
+                    beta_return_session="",
+                    beta_has_prior_round=bool(return_session),
+                    beta_continue_url=url_for("intake", vertical_slug=vertical.slug),
+                    focused_access_return=bool(return_session),
+                    beta_usage=get_beta_usage(visitor_id, vertical.slug) if visitor_id else None,
+                    beta_email_captured=False,
+                    beta_email_capture_url=url_for("beta_email_capture", vertical_slug=vertical.slug),
+                    beta_email_return_session=return_session,
+                    beta_email_error="Enter a valid email address.",
+                ),
+                400,
+            )
+            return _attach_beta_visitor_cookie(response, visitor_id)
+
+        save_beta_email_capture(
+            visitor_id=visitor_id,
+            vertical=vertical.slug,
+            email=email,
+            return_session=return_session,
+        )
+        save_beta_usage_email(visitor_id=visitor_id, vertical=vertical.slug, email=email)
+        response = redirect(url_for("beta_landing", vertical_slug=vertical.slug, return_session=return_session, email_saved="1"))
+        return _attach_beta_visitor_cookie(response, visitor_id)
 
     @app.get("/<vertical_slug>/beta/checkout")
     @app.get("/<vertical_slug>/access/checkout")
@@ -1220,6 +1391,8 @@ def create_app() -> Flask:
         session_id = make_session_id(vertical.slug, _query_string_from_mapping(source).encode("utf-8"))
         snapshot = get_session_snapshot(session_id)
         if snapshot and snapshot["results"]:
+            if _free_session_access_blocked(vertical, session_id):
+                return _free_generation_access_required_response(vertical, session_id)
             names = _names_from_snapshot(snapshot)
             if not _cached_names_match_current_rules(vertical, brief, names):
                 if _free_generation_blocked(vertical, session_id, needs_generation=True):
@@ -1566,12 +1739,17 @@ def create_app() -> Flask:
         if snapshot is None or snapshot["result"] is None:
             abort(404)
 
+        vertical = get_vertical(snapshot["chosen"]["vertical"])
+        session_id = str((snapshot.get("session") or {}).get("id") or snapshot["chosen"].get("session_id") or "")
+        if not beta_unlocked_from_request(vertical):
+            return _access_required_response(vertical, session_id)
+
         result = to_plain_data(json_loads(snapshot["result"]["result_json"]))
         _queue_keepsake_generation(chosen_id)
         portrait = _keepsake_preview(chosen_id)
         return render_template(
             "chosen.html",
-            vertical=get_vertical(snapshot["chosen"]["vertical"]),
+            vertical=vertical,
             chosen=snapshot["chosen"],
             result=result,
             name_fact_card=build_name_fact_card(str(snapshot["chosen"]["vertical"]), result),

@@ -2,7 +2,9 @@ import os
 import tempfile
 import unittest
 
-from app import create_app, make_session_id
+from app import _query_string_from_mapping, _sanitize_intake_source, create_app, make_session_id
+from access_helpers import unlock_beta_access
+from namengine.verticals import PET
 
 
 class PhaseSeventeenNameDetailTest(unittest.TestCase):
@@ -17,6 +19,12 @@ class PhaseSeventeenNameDetailTest(unittest.TestCase):
         self.app.testing = True
         self.client = self.app.test_client()
 
+    def _pet_session_id_for_query(self, query: bytes) -> str:
+        source = dict(pair.split("=", 1) for pair in query.decode("utf-8").split("&"))
+        source = {key: value.replace("+", " ") for key, value in source.items()}
+        sanitized = _sanitize_intake_source(PET, source)
+        return make_session_id("pet", _query_string_from_mapping(sanitized).encode("utf-8"))
+
     def tearDown(self):
         if self.previous_db_path is None:
             os.environ.pop("NAMENGINE_DB_PATH", None)
@@ -30,8 +38,9 @@ class PhaseSeventeenNameDetailTest(unittest.TestCase):
 
     def test_name_detail_route_restores_legacy_detail_path(self):
         query = b"pet_type=Dog&style=Classic&vibe=Playful"
-        session_id = make_session_id("pet", query)
+        session_id = self._pet_session_id_for_query(query)
         self.client.get(f"/pet/results?{query.decode('utf-8')}")
+        unlock_beta_access(self.client, "pet")
 
         response = self.client.get(f"/pet/name/{session_id}/pet-1")
         body = response.get_data(as_text=True)
@@ -52,7 +61,7 @@ class PhaseSeventeenNameDetailTest(unittest.TestCase):
 
     def test_name_detail_rejects_wrong_vertical(self):
         query = b"pet_type=Dog&style=Classic&vibe=Playful"
-        session_id = make_session_id("pet", query)
+        session_id = self._pet_session_id_for_query(query)
         self.client.get(f"/pet/results?{query.decode('utf-8')}")
 
         response = self.client.get(f"/baby/name/{session_id}/pet-1")
@@ -61,7 +70,7 @@ class PhaseSeventeenNameDetailTest(unittest.TestCase):
 
     def test_name_detail_rejects_missing_result(self):
         query = b"pet_type=Dog&style=Classic&vibe=Playful"
-        session_id = make_session_id("pet", query)
+        session_id = self._pet_session_id_for_query(query)
         self.client.get(f"/pet/results?{query.decode('utf-8')}")
 
         response = self.client.get(f"/pet/name/{session_id}/missing")

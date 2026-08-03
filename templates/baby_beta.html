@@ -37,6 +37,25 @@
         <a class="button-link" href="{{ beta_checkout_url }}">{{ beta_cta_label(vertical) }}</a>
       {% endif %}
     </div>
+    {% if not paid %}
+      <form class="beta-email-capture" action="{{ beta_email_capture_url }}" method="post">
+        <h2>Want beta updates?</h2>
+        <p>Optional: leave your email if you’d like product updates or help continuing this session.</p>
+        {% if beta_email_captured or request.args.get('email_saved') == '1' %}
+          <p class="form-note success">Thanks — your email is saved for beta follow-up.</p>
+        {% elif beta_email_error %}
+          <p class="form-note error">{{ beta_email_error }}</p>
+        {% endif %}
+        {% if beta_email_return_session %}
+          <input type="hidden" name="return_session" value="{{ beta_email_return_session }}">
+        {% endif %}
+        <label for="beta-email-{{ vertical.slug }}">Email address <span>(optional)</span></label>
+        <div class="beta-email-capture-row">
+          <input id="beta-email-{{ vertical.slug }}" type="email" name="email" maxlength="254" autocomplete="email" placeholder="you@example.com">
+          <button type="submit">Keep me posted</button>
+        </div>
+      </form>
+    {% endif %}
   </div>
   <aside class="beta-trust-card" aria-label="Access summary">
     <h2>What paid access includes:</h2>

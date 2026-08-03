@@ -150,17 +150,157 @@ def initialize_database(db_path: Path | None = None) -> None:
                 safe_error_message TEXT NOT NULL
             );
 
+            CREATE TABLE IF NOT EXISTS beta_usage (
+                visitor_id TEXT NOT NULL,
+                vertical TEXT NOT NULL,
+                free_session_id TEXT NOT NULL,
+                free_generation_count INTEGER NOT NULL DEFAULT 1,
+                first_free_at TEXT NOT NULL,
+                free_access_expires_at TEXT NOT NULL,
+                last_seen_at TEXT NOT NULL,
+                email TEXT,
+                email_captured_at TEXT,
+                PRIMARY KEY (visitor_id, vertical)
+            );
+
+            CREATE TABLE IF NOT EXISTS beta_email_captures (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                visitor_id TEXT NOT NULL,
+                vertical TEXT NOT NULL,
+                email TEXT NOT NULL,
+                return_session TEXT,
+                created_at TEXT NOT NULL
+            );
+
             CREATE INDEX IF NOT EXISTS idx_failed_generation_audits_vertical_created
             ON failed_generation_audits(vertical, created_at DESC);
 
             CREATE INDEX IF NOT EXISTS idx_sessions_vertical_created
             ON sessions(vertical, created_at DESC);
+
+            CREATE INDEX IF NOT EXISTS idx_beta_usage_session
+            ON beta_usage(free_session_id);
+
+            CREATE INDEX IF NOT EXISTS idx_beta_email_captures_email_created
+            ON beta_email_captures(email, created_at DESC);
             """
         )
         _ensure_column(connection, "sessions", "round_number", "INTEGER NOT NULL DEFAULT 1")
         _ensure_column(connection, "sessions", "parent_session_id", "TEXT")
         _ensure_column(connection, "sessions", "refinement_prompt", "TEXT")
         connection.commit()
+
+
+def get_beta_usage(
+    visitor_id: str,
+    vertical: str,
+    db_path: Path | None = None,
+) -> dict[str, Any] | None:
+    initialize_database(db_path)
+    with closing(connect(db_path)) as connection:
+        row = connection.execute(
+            """
+            SELECT *
+            FROM beta_usage
+            WHERE visitor_id = ? AND vertical = ?
+            """,
+            (visitor_id, vertical),
+        ).fetchone()
+    return dict(row) if row else None
+
+
+def save_beta_usage_free_session(
+    *,
+    visitor_id: str,
+    vertical: str,
+    session_id: str,
+    first_free_at: str,
+    free_access_expires_at: str,
+    db_path: Path | None = None,
+) -> dict[str, Any]:
+    initialize_database(db_path)
+    now = utc_now_iso()
+    with closing(connect(db_path)) as connection:
+        connection.execute(
+            """
+            INSERT INTO beta_usage
+                (visitor_id, vertical, free_session_id, free_generation_count,
+                 first_free_at, free_access_expires_at, last_seen_at)
+            VALUES (?, ?, ?, 1, ?, ?, ?)
+            ON CONFLICT(visitor_id, vertical) DO UPDATE SET
+                free_session_id = excluded.free_session_id,
+                free_generation_count = CASE
+                    WHEN beta_usage.free_session_id = excluded.free_session_id
+                    THEN beta_usage.free_generation_count
+                    ELSE beta_usage.free_generation_count + 1
+                END,
+                first_free_at = CASE
+                    WHEN beta_usage.free_session_id = excluded.free_session_id
+                    THEN beta_usage.first_free_at
+                    ELSE excluded.first_free_at
+                END,
+                free_access_expires_at = CASE
+                    WHEN beta_usage.free_session_id = excluded.free_session_id
+                    THEN beta_usage.free_access_expires_at
+                    ELSE excluded.free_access_expires_at
+                END,
+                last_seen_at = excluded.last_seen_at
+            """,
+            (
+                visitor_id,
+                vertical,
+                session_id,
+                first_free_at,
+                free_access_expires_at,
+                now,
+            ),
+        )
+        connection.commit()
+    return get_beta_usage(visitor_id, vertical, db_path) or {}
+
+
+def save_beta_usage_email(
+    *,
+    visitor_id: str,
+    vertical: str,
+    email: str,
+    db_path: Path | None = None,
+) -> None:
+    initialize_database(db_path)
+    now = utc_now_iso()
+    with closing(connect(db_path)) as connection:
+        connection.execute(
+            """
+            UPDATE beta_usage
+            SET email = ?, email_captured_at = ?, last_seen_at = ?
+            WHERE visitor_id = ? AND vertical = ?
+            """,
+            (email, now, now, visitor_id, vertical),
+        )
+        connection.commit()
+
+
+def save_beta_email_capture(
+    *,
+    visitor_id: str,
+    vertical: str,
+    email: str,
+    return_session: str = "",
+    db_path: Path | None = None,
+) -> int:
+    initialize_database(db_path)
+    now = utc_now_iso()
+    with closing(connect(db_path)) as connection:
+        cursor = connection.execute(
+            """
+            INSERT INTO beta_email_captures
+                (visitor_id, vertical, email, return_session, created_at)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (visitor_id, vertical, email, return_session, now),
+        )
+        connection.commit()
+        return int(cursor.lastrowid)
 
 
 def _ensure_column(

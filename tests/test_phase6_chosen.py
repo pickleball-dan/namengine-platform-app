@@ -3,7 +3,8 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from app import create_app, make_session_id
+from app import _query_string_from_mapping, _sanitize_intake_source, create_app, make_session_id
+from access_helpers import unlock_beta_access
 from namengine.core import (
     build_brief,
     build_baby_keepsake_prompt,
@@ -29,12 +30,20 @@ class PhaseSixChosenNameTest(unittest.TestCase):
         self.previous_db_path = os.environ.get("NAMENGINE_DB_PATH")
         self.previous_disable_pet_images = os.environ.get("NAMENGINE_DISABLE_PET_IMAGES")
         self.previous_disable_baby_images = os.environ.get("NAMENGINE_DISABLE_BABY_IMAGES")
+        self.previous_ai_verticals = os.environ.get("NAMENGINE_AI_PRIMARY_VERTICALS")
         os.environ["NAMENGINE_DB_PATH"] = self.db_path
         os.environ["NAMENGINE_DISABLE_PET_IMAGES"] = "1"
         os.environ["NAMENGINE_DISABLE_BABY_IMAGES"] = "1"
+        os.environ["NAMENGINE_AI_PRIMARY_VERTICALS"] = "none"
         self.app = create_app()
         self.app.testing = True
         self.client = self.app.test_client()
+
+    def _session_id_for_query(self, vertical, query: bytes, *, session_vertical: str | None = None) -> str:
+        source = dict(pair.split("=", 1) for pair in query.decode("utf-8").split("&"))
+        source = {key: value.replace("+", " ") for key, value in source.items()}
+        sanitized = _sanitize_intake_source(vertical, source)
+        return make_session_id(session_vertical or vertical.slug, _query_string_from_mapping(sanitized).encode("utf-8"))
 
     def tearDown(self):
         if self.previous_db_path is None:
@@ -49,6 +58,10 @@ class PhaseSixChosenNameTest(unittest.TestCase):
             os.environ.pop("NAMENGINE_DISABLE_BABY_IMAGES", None)
         else:
             os.environ["NAMENGINE_DISABLE_BABY_IMAGES"] = self.previous_disable_baby_images
+        if self.previous_ai_verticals is None:
+            os.environ.pop("NAMENGINE_AI_PRIMARY_VERTICALS", None)
+        else:
+            os.environ["NAMENGINE_AI_PRIMARY_VERTICALS"] = self.previous_ai_verticals
         self.tempdir.cleanup()
 
     def test_save_chosen_name_persists_choice(self):
@@ -66,8 +79,9 @@ class PhaseSixChosenNameTest(unittest.TestCase):
 
     def test_choose_route_redirects_to_chosen_page(self):
         query = b"species=Dog&personality=Gentle&style=Warm"
-        session_id = make_session_id("pet", query)
+        session_id = self._session_id_for_query(PET, query)
         self.client.get(f"/pet/results?{query.decode('utf-8')}")
+        unlock_beta_access(self.client, "pet")
 
         response = self.client.post(
             "/choose",
@@ -83,8 +97,9 @@ class PhaseSixChosenNameTest(unittest.TestCase):
             b"pet_type=Dog&pet_breed=Golden+Retriever&pet_color=Honey"
             b"&pet_life_stage=Young&style=Classic&vibe=Gentle"
         )
-        session_id = make_session_id("pet", query)
+        session_id = self._session_id_for_query(PET, query)
         self.client.get(f"/pet/results?{query.decode('utf-8')}")
+        unlock_beta_access(self.client, "pet")
 
         with patch.dict(
             os.environ,
@@ -105,7 +120,7 @@ class PhaseSixChosenNameTest(unittest.TestCase):
 
     def test_revisiting_same_results_url_does_not_change_selected_name(self):
         query = b"pet_type=Dog&pet_breed=Mixed&pet_color=Brown&pet_life_stage=Young"
-        session_id = make_session_id("pet", query)
+        session_id = self._session_id_for_query(PET, query)
         first_names = [
             NameResult(id="pet-1", name="Briella", slug="briella"),
             NameResult(id="pet-2", name="Bree", slug="bree"),
@@ -118,6 +133,7 @@ class PhaseSixChosenNameTest(unittest.TestCase):
         with patch("app.generate_names", side_effect=[first_names, regenerated_names]) as mocked:
             first_response = self.client.get(f"/pet/results?{query.decode('utf-8')}")
             second_response = self.client.get(f"/pet/results?{query.decode('utf-8')}")
+            unlock_beta_access(self.client, "pet")
             choose_response = self.client.post(
                 "/choose",
                 data={"session_id": session_id, "result_id": "pet-1"},
@@ -137,8 +153,9 @@ class PhaseSixChosenNameTest(unittest.TestCase):
 
     def test_chosen_page_renders_single_name(self):
         query = b"species=Dog&personality=Gentle&style=Warm"
-        session_id = make_session_id("pet", query)
+        session_id = self._session_id_for_query(PET, query)
         self.client.get(f"/pet/results?{query.decode('utf-8')}")
+        unlock_beta_access(self.client, "pet")
         response = self.client.post(
             "/choose",
             data={"session_id": session_id, "result_id": "pet-1"},
@@ -173,8 +190,9 @@ class PhaseSixChosenNameTest(unittest.TestCase):
             b"pet_type=Dog&pet_breed=Golden+Retriever&pet_color=Honey"
             b"&pet_life_stage=Young&style=Classic&vibe=Gentle"
         )
-        session_id = make_session_id("pet", query)
+        session_id = self._session_id_for_query(PET, query)
         self.client.get(f"/pet/results?{query.decode('utf-8')}")
+        unlock_beta_access(self.client, "pet")
         response = self.client.post(
             "/choose",
             data={"session_id": session_id, "result_id": "pet-1"},
@@ -205,8 +223,9 @@ class PhaseSixChosenNameTest(unittest.TestCase):
             b"pet_type=Dog&pet_breed=Golden+Retriever&pet_color=Honey"
             b"&pet_life_stage=Young&style=Classic&vibe=Gentle"
         )
-        session_id = make_session_id("pet", query)
+        session_id = self._session_id_for_query(PET, query)
         self.client.get(f"/pet/results?{query.decode('utf-8')}")
+        unlock_beta_access(self.client, "pet")
         self.client.post(
             "/choose",
             data={"session_id": session_id, "result_id": "pet-1"},
@@ -229,8 +248,9 @@ class PhaseSixChosenNameTest(unittest.TestCase):
             b"pet_type=Dog&pet_breed=Golden+Retriever&pet_color=Honey"
             b"&pet_life_stage=Young&style=Classic&vibe=Gentle"
         )
-        session_id = make_session_id("pet", query)
+        session_id = self._session_id_for_query(PET, query)
         self.client.get(f"/pet/results?{query.decode('utf-8')}")
+        unlock_beta_access(self.client, "pet")
         self.client.post(
             "/choose",
             data={"session_id": session_id, "result_id": "pet-1"},
@@ -271,7 +291,8 @@ class PhaseSixChosenNameTest(unittest.TestCase):
         )
         response = self.client.get(f"/pet/original/results?{query.decode('utf-8')}")
         body = response.get_data(as_text=True)
-        session_id = make_session_id("pet-original", query)
+        session_id = self._session_id_for_query(PET, query, session_vertical="pet-original")
+        unlock_beta_access(self.client, "pet")
         chosen_response = self.client.post(
             "/choose",
             data={"session_id": session_id, "result_id": "pet-1"},
@@ -314,9 +335,10 @@ class PhaseSixChosenNameTest(unittest.TestCase):
 
     def test_baby_chosen_page_uses_keepsake_details_when_present(self):
         query = b"gender=Girl&style=Classic&sound=Soft&family_context=Surname+Parker"
-        session_id = make_session_id("baby", query)
+        session_id = self._session_id_for_query(BABY, query)
         self.client.get(f"/baby/results?{query.decode('utf-8')}")
         expected_name = get_session_snapshot(session_id)["results"][0]["name"]
+        unlock_beta_access(self.client, "baby")
         response = self.client.post(
             "/choose",
             data={"session_id": session_id, "result_id": "baby-1"},
@@ -381,3 +403,4 @@ class PhaseSixChosenNameTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
