@@ -1,4 +1,5 @@
 import os
+import sqlite3
 import tempfile
 import unittest
 from datetime import datetime, timedelta, timezone
@@ -54,6 +55,12 @@ class MissionControlTelemetryV1Test(unittest.TestCase):
                             "latency_ms": 200,
                             "usage": {"input_tokens": 200, "output_tokens": 50, "total_tokens": 250},
                         },
+                        {
+                            "stage": "critic_ranker_finalizer_v1",
+                            "model": "gpt-4.1-mini",
+                            "latency_ms": 300,
+                            "usage": {"input_tokens": 300, "output_tokens": 75, "total_tokens": 375},
+                        },
                     ],
                 }
             )
@@ -89,32 +96,76 @@ class MissionControlTelemetryV1Test(unittest.TestCase):
             )
         save_session("business-telemetry-session", "business", brief, names)
 
+    def _set_session_created_at(self, session_id, created_at):
+        connection = sqlite3.connect(os.environ["NAMENGINE_DB_PATH"])
+        try:
+            connection.execute(
+                "UPDATE sessions SET created_at = ?, updated_at = ? WHERE id = ?",
+                (created_at.isoformat(), created_at.isoformat(), session_id),
+            )
+            connection.commit()
+        finally:
+            connection.close()
+
+    def _seed_legacy_openai_session(self):
+        vertical = get_vertical("baby")
+        brief = build_brief(vertical, {"gender": "Girl", "style": "Classic"})
+        names = generate_names(vertical, brief, use_ai=False)[:2]
+        for name in names:
+            name.metadata.update(
+                {
+                    "provider": "openai",
+                    "model": "gpt-4.1-mini",
+                    "prompt_version": "namengine-baby-quality-v1",
+                    "ai_calls": [
+                        {
+                            "stage": "legacy_candidate_generator_ranker_v1",
+                            "model": "gpt-4.1-mini",
+                            "latency_ms": 175,
+                            "usage": {"input_tokens": 140, "output_tokens": 40, "total_tokens": 180},
+                        }
+                    ],
+                }
+            )
+        save_session("baby-legacy-telemetry-session", "baby", brief, names)
+
     def test_usage_report_aggregates_spend_tokens_and_requests(self):
         self._seed_openai_session()
+        self._seed_legacy_openai_session()
 
         report = build_openai_usage_report()
 
-        self.assertEqual(report["summary"]["request_count"], 2)
-        self.assertEqual(report["summary"]["success_count"], 2)
-        self.assertEqual(report["summary"]["input_tokens"], 300)
-        self.assertEqual(report["summary"]["output_tokens"], 75)
-        self.assertEqual(report["summary"]["total_tokens"], 375)
-        self.assertEqual(report["summary"]["generated_name_count"], 2)
-        self.assertAlmostEqual(report["summary"]["estimated_spend_usd"], 0.00024, places=6)
+        self.assertEqual(report["summary"]["request_count"], 4)
+        self.assertEqual(report["summary"]["success_count"], 4)
+        self.assertEqual(report["summary"]["input_tokens"], 740)
+        self.assertEqual(report["summary"]["output_tokens"], 190)
+        self.assertEqual(report["summary"]["total_tokens"], 930)
+        self.assertEqual(report["summary"]["generated_name_count"], 4)
+        self.assertAlmostEqual(report["summary"]["estimated_spend_usd"], 0.0006, places=6)
         self.assertEqual(report["requests_by_model"][0]["model"], "gpt-4.1-mini")
-        self.assertEqual(report["requests_by_session"][0]["session_id"], "baby-telemetry-session")
-        self.assertIn("timestamp", report["requests_by_session"][0])
-        self.assertEqual(report["requests_by_session"][0]["request_count"], 2)
-        self.assertEqual(report["requests_by_session"][0]["input_tokens"], 300)
-        self.assertEqual(report["requests_by_session"][0]["output_tokens"], 75)
-        self.assertEqual(report["requests_by_session"][0]["total_tokens"], 375)
-        self.assertAlmostEqual(
-            report["requests_by_session"][0]["estimated_spend_usd"],
-            0.00024,
-            places=6,
+        normal_session = next(
+            row for row in report["requests_by_session"] if row["session_id"] == "baby-telemetry-session"
         )
+        self.assertEqual(normal_session["session_id"], "baby-telemetry-session")
+        self.assertIn("timestamp", normal_session)
+        self.assertEqual(normal_session["request_count"], 3)
+        self.assertEqual(normal_session["input_tokens"], 600)
+        self.assertEqual(normal_session["output_tokens"], 150)
+        self.assertEqual(normal_session["total_tokens"], 750)
+        self.assertAlmostEqual(normal_session["estimated_spend_usd"], 0.00048, places=6)
         self.assertEqual(report["requests_by_vertical"][0]["vertical"], "baby")
         self.assertTrue(report["requests_by_day"])
+        self.assertEqual(report["usage_exceptions"]["summary"]["normal_request_count"], 3)
+        self.assertEqual(report["usage_exceptions"]["summary"]["exception_request_count"], 1)
+        self.assertEqual(report["usage_exceptions"]["summary"]["unexpected_request_type_count"], 1)
+        self.assertEqual(
+            report["usage_exceptions"]["unexpected_request_types"][0]["request_type"],
+            "legacy_candidate_generator_ranker_v1",
+        )
+        self.assertEqual(
+            report["usage_exceptions"]["sessions_with_pipeline_anomalies"][0]["session_id"],
+            "baby-legacy-telemetry-session",
+        )
 
     def test_usage_report_filters_and_groups_by_vertical(self):
         self._seed_openai_session()
@@ -143,6 +194,41 @@ class MissionControlTelemetryV1Test(unittest.TestCase):
                 "generated_name_count": 2,
             }
         ])
+
+    def test_report_defaults_to_last_24_hours(self):
+        self._seed_openai_session()
+        self._seed_business_openai_session()
+        self._set_session_created_at(
+            "business-telemetry-session",
+            datetime.now(timezone.utc) - timedelta(days=2),
+        )
+
+        report = build_openai_usage_report()
+
+        self.assertEqual(report["range"]["reporting_window"], "last_24_hours")
+        self.assertEqual(report["summary"]["request_count"], 3)
+        self.assertEqual(report["requests_by_session"][0]["session_id"], "baby-telemetry-session")
+
+    def test_report_sorts_session_rows_by_requested_column(self):
+        self._seed_openai_session()
+        self._seed_business_openai_session()
+
+        report = build_openai_usage_report(
+            session_sort="estimated_spend_usd",
+            session_sort_direction="asc",
+        )
+
+        self.assertEqual(report["session_sort"], {"sort_by": "estimated_spend_usd", "direction": "asc"})
+        self.assertEqual(report["requests_by_session"][0]["session_id"], "business-telemetry-session")
+        self.assertEqual(report["requests_by_session"][1]["session_id"], "baby-telemetry-session")
+
+    def test_endpoint_rejects_invalid_session_sort(self):
+        response = self.client.get(
+            "/api/internal/mission-control/openai-usage?session_sort=not_a_column",
+            headers={"Authorization": "Bearer test-telemetry-token"},
+        )
+
+        self.assertEqual(response.status_code, 400)
 
     def test_endpoint_filters_by_vertical(self):
         self._seed_openai_session()
@@ -178,7 +264,7 @@ class MissionControlTelemetryV1Test(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         payload = response.get_json()
-        self.assertEqual(payload["summary"]["request_count"], 2)
+        self.assertEqual(payload["summary"]["request_count"], 3)
         self.assertIn("estimated_spend_usd", payload["summary"])
 
     def test_endpoint_filters_by_date_and_success(self):

@@ -1,0 +1,666 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NamEngine Business · Premium Feelings Graph Prototype</title>
+  <style>
+    :root {
+      --ink: #10192d;
+      --muted: #657083;
+      --page: #f3f9f8;
+      --surface: #ffffff;
+      --line: rgba(16, 25, 45, 0.1);
+      --teal: #40aaa0;
+      --teal-deep: #157a73;
+      --gold: #d7a845;
+      --cream: #f7efe0;
+      --blue: #dfeef4;
+      --shadow: 0 28px 70px rgba(18, 37, 50, 0.15);
+      --serif: Georgia, 'Times New Roman', serif;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: var(--sans);
+      background:
+        radial-gradient(circle at 12% 4%, rgba(215, 168, 69, 0.16), transparent 27rem),
+        radial-gradient(circle at 92% 12%, rgba(64, 170, 160, 0.19), transparent 26rem),
+        linear-gradient(180deg, #f7fbfb, var(--page));
+    }
+
+    main {
+      width: min(100% - 32px, 900px);
+      margin: 0 auto;
+      padding: 34px 0 52px;
+    }
+
+    .mobile-shell {
+      position: relative;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: #4b5a6e;
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 760px;
+      color: #101b31;
+      font-family: var(--serif);
+      font-size: clamp(50px, 8vw, 78px);
+      font-weight: 500;
+      line-height: 0.9;
+      letter-spacing: -0.055em;
+    }
+
+    .lede {
+      max-width: 720px;
+      margin: 24px 0 26px;
+      color: #536171;
+      font-size: clamp(18px, 2.5vw, 23px);
+      line-height: 1.45;
+    }
+
+    .prototype-card {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(18px, 4vw, 30px);
+      background:
+        linear-gradient(#fff, #fff) padding-box,
+        linear-gradient(135deg, rgba(64, 170, 160, 0.95), rgba(215, 168, 69, 0.7), rgba(16, 25, 45, 0.16)) border-box;
+      border: 1px solid transparent;
+      border-top-width: 5px;
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .mobile-status {
+      display: none;
+    }
+
+    .prototype-card::before {
+      content: '';
+      position: absolute;
+      inset: -30% -12% auto;
+      height: 300px;
+      pointer-events: none;
+      background: radial-gradient(circle, rgba(64, 170, 160, 0.16), transparent 66%);
+      filter: blur(2px);
+    }
+
+    .board {
+      position: relative;
+      min-height: 430px;
+      padding: clamp(18px, 4vw, 34px);
+      overflow: hidden;
+      background:
+        radial-gradient(circle at var(--focus-x, 50%) var(--focus-y, 48%), rgba(64, 170, 160, 0.24), transparent 24%),
+        linear-gradient(135deg, rgba(247, 239, 224, 0.92), rgba(230, 244, 242, 0.88));
+      border: 1px solid rgba(16, 25, 45, 0.1);
+      border-radius: 15px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.9);
+    }
+
+    .board::before {
+      content: '';
+      position: absolute;
+      inset: 18px;
+      opacity: 0.35;
+      background-image:
+        linear-gradient(rgba(16, 25, 45, 0.065) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(16, 25, 45, 0.065) 1px, transparent 1px);
+      background-size: 34px 34px;
+      mask-image: radial-gradient(circle at center, black 0 58%, transparent 88%);
+    }
+
+    .graph-wrap {
+      position: absolute;
+      inset: 70px clamp(28px, 6vw, 70px) 76px;
+    }
+
+    svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .axis {
+      stroke: rgba(16, 25, 45, 0.18);
+      stroke-width: 1.4;
+      stroke-dasharray: 3 7;
+    }
+
+    .tri-fill {
+      fill: rgba(64, 170, 160, 0.12);
+      stroke: rgba(64, 170, 160, 0.38);
+      stroke-width: 1.5;
+    }
+
+    .weight-shape {
+      fill: url(#tasteFill);
+      stroke: rgba(16, 25, 45, 0.42);
+      stroke-width: 2.5;
+      filter: drop-shadow(0 14px 20px rgba(22, 89, 86, 0.22));
+      transition: d 180ms ease;
+    }
+
+    .node-dot {
+      fill: #fff;
+      stroke: var(--teal-deep);
+      stroke-width: 3;
+      filter: drop-shadow(0 8px 14px rgba(16, 25, 45, 0.18));
+    }
+
+    .business-token {
+      position: absolute;
+      left: var(--focus-x, 50%);
+      top: var(--focus-y, 48%);
+      z-index: 4;
+      display: grid;
+      width: 88px;
+      height: 88px;
+      place-items: center;
+      background:
+        linear-gradient(145deg, rgba(255,255,255,0.98), rgba(242,248,248,0.95));
+      border: 1px solid rgba(16, 25, 45, 0.14);
+      border-radius: 26px;
+      box-shadow: 0 22px 44px rgba(16, 25, 45, 0.24), 0 0 0 10px rgba(255,255,255,0.42);
+      transform: translate(-50%, -50%);
+      transition: left 160ms ease, top 160ms ease;
+    }
+
+    .building {
+      position: relative;
+      width: 45px;
+      height: 54px;
+      border: 2px solid var(--ink);
+      border-radius: 9px 9px 6px 6px;
+      background: linear-gradient(180deg, #fbfcff, #dfeeed);
+    }
+
+    .building::before {
+      content: '';
+      position: absolute;
+      top: -13px;
+      left: 11px;
+      width: 23px;
+      height: 13px;
+      background: var(--gold);
+      border: 2px solid var(--ink);
+      border-bottom: 0;
+      border-radius: 5px 5px 0 0;
+    }
+
+    .building::after {
+      content: '';
+      position: absolute;
+      inset: 13px 9px 18px;
+      background:
+        linear-gradient(var(--teal) 0 0) 0 0 / 7px 7px,
+        linear-gradient(var(--teal) 0 0) 14px 0 / 7px 7px,
+        linear-gradient(var(--teal) 0 0) 0 14px / 7px 7px,
+        linear-gradient(var(--teal) 0 0) 14px 14px / 7px 7px;
+      background-repeat: no-repeat;
+      opacity: 0.72;
+    }
+
+    .axis-label {
+      position: absolute;
+      z-index: 5;
+      max-width: 190px;
+      padding: 11px 13px;
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 900;
+      line-height: 1.15;
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid rgba(16, 25, 45, 0.11);
+      border-radius: 999px;
+      box-shadow: 0 14px 32px rgba(16, 25, 45, 0.12);
+      backdrop-filter: blur(10px);
+    }
+
+    .axis-label small {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 750;
+    }
+
+    .label-about { left: 20px; top: 20px; }
+    .label-style { right: 20px; top: 20px; text-align: right; }
+    .label-launch { left: 50%; bottom: 20px; text-align: center; transform: translateX(-50%); }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .control {
+      padding: 16px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(250,252,252,0.92));
+      border: 1px solid rgba(16, 25, 45, 0.09);
+      border-radius: 15px;
+      box-shadow: 0 14px 34px rgba(16, 25, 45, 0.06);
+    }
+
+    .control-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .control strong {
+      font-size: 14px;
+      line-height: 1.2;
+    }
+
+    .value-pill {
+      color: var(--teal-deep);
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    input[type='range'] {
+      width: 100%;
+      accent-color: var(--teal);
+    }
+
+    input[type='range']::-webkit-slider-thumb {
+      cursor: pointer;
+    }
+
+    .range-track-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .summary-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 20px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .primary-button {
+      appearance: none;
+      padding: 16px 20px;
+      color: #fff;
+      font: inherit;
+      font-weight: 900;
+      background: #111a2f;
+      border: 0;
+      border-radius: 9px;
+      box-shadow: 0 14px 24px rgba(17, 26, 47, 0.18);
+    }
+
+    .readout {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 11px;
+      color: #394657;
+      font-size: 12px;
+      font-weight: 850;
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(16, 25, 45, 0.09);
+      border-radius: 999px;
+    }
+
+    .readout-dot {
+      width: 9px;
+      height: 9px;
+      background: linear-gradient(135deg, var(--teal), var(--gold));
+      border-radius: 50%;
+      box-shadow: 0 0 0 4px rgba(64, 170, 160, 0.12);
+    }
+
+    @media (max-width: 720px) {
+      body {
+        background:
+          radial-gradient(circle at 20% -8%, rgba(215, 168, 69, 0.22), transparent 18rem),
+          radial-gradient(circle at 100% 8%, rgba(64, 170, 160, 0.23), transparent 18rem),
+          linear-gradient(180deg, #f8fbfb, #edf7f6);
+      }
+
+      main {
+        width: min(100% - 18px, 430px);
+        padding: 14px 0 26px;
+      }
+
+      .mobile-shell {
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.42);
+        border: 1px solid rgba(16, 25, 45, 0.08);
+        border-radius: 30px;
+        box-shadow: 0 30px 80px rgba(16, 25, 45, 0.16);
+        backdrop-filter: blur(18px);
+      }
+
+      .eyebrow {
+        margin: 6px 8px 8px;
+        font-size: 11px;
+        letter-spacing: 0.08em;
+      }
+
+      h1 {
+        margin: 0 6px;
+        font-size: clamp(48px, 15vw, 64px);
+        line-height: 0.86;
+      }
+
+      .lede {
+        margin: 18px 7px 18px;
+        font-size: 16px;
+        line-height: 1.43;
+      }
+
+      .prototype-card {
+        padding: 10px;
+        border-top-width: 4px;
+        border-radius: 24px;
+        box-shadow: 0 22px 52px rgba(16, 25, 45, 0.14);
+      }
+
+      .mobile-status {
+        position: relative;
+        z-index: 3;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin: 2px 2px 10px;
+        padding: 10px 12px;
+        color: #344255;
+        font-size: 12px;
+        font-weight: 850;
+        background: linear-gradient(135deg, rgba(255,255,255,0.92), rgba(239,247,247,0.86));
+        border: 1px solid rgba(16, 25, 45, 0.08);
+        border-radius: 999px;
+      }
+
+      .mobile-status span:last-child {
+        color: var(--teal-deep);
+      }
+
+      .board {
+        min-height: 345px;
+        padding: 12px;
+        border-radius: 20px;
+      }
+
+      .board::before {
+        inset: 14px;
+        background-size: 26px 26px;
+        opacity: 0.28;
+      }
+
+      .graph-wrap {
+        inset: 82px 22px 78px;
+      }
+
+      .axis-label {
+        max-width: 132px;
+        padding: 9px 10px;
+        font-size: 10.5px;
+        box-shadow: 0 12px 25px rgba(16, 25, 45, 0.1);
+      }
+
+      .axis-label small {
+        display: none;
+      }
+
+      .label-about { left: 12px; top: 14px; }
+      .label-style { right: 12px; top: 14px; }
+      .label-launch { bottom: 13px; }
+
+      .business-token {
+        width: 76px;
+        height: 76px;
+        border-radius: 24px;
+        box-shadow: 0 20px 40px rgba(16, 25, 45, 0.22), 0 0 0 8px rgba(255,255,255,0.38);
+      }
+
+      .building {
+        transform: scale(0.88);
+      }
+
+      .controls {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        margin-top: 12px;
+      }
+
+      .control {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+        padding: 14px;
+        border-radius: 18px;
+        background: linear-gradient(180deg, rgba(255,255,255,0.97), rgba(246,250,250,0.94));
+      }
+
+      .control-head {
+        margin-bottom: 0;
+      }
+
+      .control strong {
+        font-size: 13px;
+      }
+
+      .value-pill {
+        padding: 4px 8px;
+        background: rgba(64, 170, 160, 0.1);
+        border-radius: 999px;
+      }
+
+      input[type='range'] {
+        height: 34px;
+      }
+
+      input[type='range']::-webkit-slider-thumb {
+        width: 28px;
+        height: 28px;
+      }
+
+      .range-track-labels {
+        margin-top: -2px;
+        font-size: 9px;
+      }
+
+      .summary-row {
+        display: grid;
+        gap: 12px;
+        margin-top: 14px;
+      }
+
+      .readout {
+        justify-content: center;
+        width: 100%;
+        padding: 11px 12px;
+        text-align: center;
+        border-radius: 16px;
+      }
+
+      .primary-button {
+        width: 100%;
+        padding: 17px 20px;
+        border-radius: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="mobile-shell">
+      <p class="eyebrow">NamEngine Business</p>
+      <h1>Feelings Scale</h1>
+      <p class="lede">Shape the emphasis like a portfolio: move the sliders and watch the business signal rebalance across story, style, and launch readiness.</p>
+
+    <section class="prototype-card" aria-label="Premium feelings graph prototype">
+      <div class="mobile-status"><span>Business signal tuner</span><span>Live graph</span></div>
+      <div class="board" data-board>
+        <span class="axis-label label-about">About the business<small>Substance, story, audience</small></span>
+        <span class="axis-label label-style">Name style<small>Tone, sound, memorability</small></span>
+        <span class="axis-label label-launch">Launch fit<small>Clarity, domain, momentum</small></span>
+
+        <div class="graph-wrap" aria-hidden="true">
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="tasteFill" x1="0" x2="1" y1="0" y2="1">
+                <stop offset="0" stop-color="#40aaa0" stop-opacity="0.42"></stop>
+                <stop offset="0.58" stop-color="#d7a845" stop-opacity="0.28"></stop>
+                <stop offset="1" stop-color="#10192d" stop-opacity="0.12"></stop>
+              </linearGradient>
+            </defs>
+            <polygon class="tri-fill" points="8,10 92,10 50,92"></polygon>
+            <line class="axis" x1="50" y1="53" x2="8" y2="10"></line>
+            <line class="axis" x1="50" y1="53" x2="92" y2="10"></line>
+            <line class="axis" x1="50" y1="53" x2="50" y2="92"></line>
+            <polygon class="weight-shape" data-shape points="34,39 66,39 50,65"></polygon>
+            <circle class="node-dot" data-dot="0" cx="34" cy="39" r="2.7"></circle>
+            <circle class="node-dot" data-dot="1" cx="66" cy="39" r="2.7"></circle>
+            <circle class="node-dot" data-dot="2" cx="50" cy="65" r="2.7"></circle>
+          </svg>
+        </div>
+
+        <div class="business-token" data-token>
+          <span class="building" aria-hidden="true"></span>
+        </div>
+      </div>
+
+      <div class="controls" aria-label="Feelings variables">
+        <label class="control">
+          <span class="control-head"><strong>About the business</strong><span class="value-pill" data-value="about">34%</span></span>
+          <input type="range" min="0" max="100" value="34" data-slider="about">
+          <span class="range-track-labels"><span>Quiet</span><span>Primary</span></span>
+        </label>
+        <label class="control">
+          <span class="control-head"><strong>Name style</strong><span class="value-pill" data-value="style">33%</span></span>
+          <input type="range" min="0" max="100" value="33" data-slider="style">
+          <span class="range-track-labels"><span>Quiet</span><span>Primary</span></span>
+        </label>
+        <label class="control">
+          <span class="control-head"><strong>Launch fit</strong><span class="value-pill" data-value="launch">33%</span></span>
+          <input type="range" min="0" max="100" value="33" data-slider="launch">
+          <span class="range-track-labels"><span>Quiet</span><span>Primary</span></span>
+        </label>
+      </div>
+
+      <div class="summary-row">
+        <span class="readout"><span class="readout-dot"></span><span data-summary>Balanced emphasis across all three signals.</span></span>
+        <button class="primary-button" type="button">Generate Business Names</button>
+      </div>
+    </section>
+    </div>
+  </main>
+
+  <script>
+    const sliders = {
+      about: document.querySelector('[data-slider="about"]'),
+      style: document.querySelector('[data-slider="style"]'),
+      launch: document.querySelector('[data-slider="launch"]'),
+    };
+    const values = {
+      about: document.querySelector('[data-value="about"]'),
+      style: document.querySelector('[data-value="style"]'),
+      launch: document.querySelector('[data-value="launch"]'),
+    };
+    const board = document.querySelector('[data-board]');
+    const shape = document.querySelector('[data-shape]');
+    const dots = Array.from(document.querySelectorAll('[data-dot]'));
+    const summary = document.querySelector('[data-summary]');
+
+    const anchors = {
+      about: { x: 8, y: 10 },
+      style: { x: 92, y: 10 },
+      launch: { x: 50, y: 92 },
+    };
+    const center = { x: 50, y: 53 };
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function normalize(raw) {
+      const total = Object.values(raw).reduce((sum, value) => sum + value, 0) || 1;
+      const normalized = Object.fromEntries(Object.entries(raw).map(([key, value]) => [key, Math.round((value / total) * 100)]));
+      const drift = 100 - Object.values(normalized).reduce((sum, value) => sum + value, 0);
+      normalized.launch += drift;
+      return normalized;
+    }
+
+    function pointFor(key, weight) {
+      const anchor = anchors[key];
+      const influence = clamp(weight / 100, 0, 1);
+      return {
+        x: center.x + (anchor.x - center.x) * influence,
+        y: center.y + (anchor.y - center.y) * influence,
+      };
+    }
+
+    function friendlyTop(weights) {
+      const entries = Object.entries(weights).sort((a, b) => b[1] - a[1]);
+      if (entries[0][1] - entries[1][1] < 8) return 'Balanced emphasis across all three signals.';
+      const labels = {
+        about: 'Business story is leading the naming direction.',
+        style: 'Name style is leading the naming direction.',
+        launch: 'Launch fit is leading the naming direction.',
+      };
+      return labels[entries[0][0]];
+    }
+
+    function update() {
+      const raw = Object.fromEntries(Object.entries(sliders).map(([key, input]) => [key, Number(input.value)]));
+      const weights = normalize(raw);
+      Object.entries(weights).forEach(([key, value]) => { values[key].textContent = value + '%'; });
+
+      const points = ['about', 'style', 'launch'].map((key) => pointFor(key, weights[key]));
+      shape.setAttribute('points', points.map((point) => `${point.x},${point.y}`).join(' '));
+      points.forEach((point, index) => {
+        dots[index].setAttribute('cx', point.x);
+        dots[index].setAttribute('cy', point.y);
+      });
+
+      const focus = Object.entries(weights).reduce((point, [key, weight]) => {
+        point.x += anchors[key].x * (weight / 100);
+        point.y += anchors[key].y * (weight / 100);
+        return point;
+      }, { x: 0, y: 0 });
+      board.style.setProperty('--focus-x', clamp(focus.x, 13, 87) + '%');
+      board.style.setProperty('--focus-y', clamp(focus.y, 16, 82) + '%');
+      summary.textContent = friendlyTop(weights);
+    }
+
+    Object.values(sliders).forEach((input) => input.addEventListener('input', update));
+    update();
+  </script>
+</body>
+</html>

@@ -49,6 +49,84 @@ Not included:
 - Frontend Operations dashboard rendering changes if that dashboard source lives outside this repository.
 - Authentication or token changes for the internal telemetry endpoint.
 
+## Mission Control usage exceptions/anomalies feed
+
+Status: validated locally / included in next release batch
+Branch: current working tree / next local-first release batch
+
+Included intent:
+- Investigate the legacy `candidate_generator_ranker_v1` request type seen in Mission Control usage distribution.
+- Confirm it is historical telemetry from the older one-call / generator-ranker flow, not part of the current normal three-pass engine.
+- Preserve the existing `requests_by_request_type` payload for frontend compatibility.
+- Add a new `usage_exceptions` payload so Mission Control can emphasize anomalies instead of merely counting normal engine stages.
+- Define the normal pipeline as `taste_interpreter_v1`, `candidate_generator_v1`, and `critic_ranker_finalizer_v1`.
+- Surface unexpected request types, sessions with missing/imbalanced pipeline stages, failures by error type, and missing-token-usage rows.
+
+Expected Mission Control effect:
+- The Operations dashboard can replace or supplement “Usage by request type” with “Usage Exceptions” / “Anomalies.”
+- Normal 3-stage traffic becomes baseline context instead of the main visual signal.
+- Legacy or abnormal request types like `candidate_generator_ranker_v1` become easier to notice and explain.
+
+Validation run:
+- `python -m py_compile namengine/core/mission_control_telemetry.py app.py`
+- `python -m pytest tests/test_mission_control_telemetry_v1.py tests/test_phase21_engine_audit.py -q`
+- `git diff --check`
+
+Not included:
+- Frontend Operations dashboard UI changes to consume `usage_exceptions`.
+- Removal of legacy request-type aggregate fields from the API.
+- Production database cleanup or historical telemetry rewriting.
+
+## Mission Control session-cost reporting window and sort feed
+
+Status: validated locally / included in next release batch
+Branch: current working tree / next local-first release batch
+
+Included intent:
+- Make the internal OpenAI usage report default to a `last_24_hours` reporting window when no explicit start/end is provided.
+- Include the applied reporting window in the response range metadata.
+- Add session-cost sort parameters for `requests_by_session` so the Mission Control UI can drive clickable sortable columns.
+- Support sorting by timestamp/newest-oldest, session id, vertical, model, request count, token totals, latency, missing-token count, estimated spend, and generated-name count.
+- Keep the existing endpoint and payload fields backward-compatible; do not change unrelated Mission Control reporting behavior.
+
+Expected Mission Control effect:
+- The Estimated cost by session table can default to the last 24 hours.
+- The UI can make session table columns clickable by passing `session_sort` and `session_sort_direction`.
+- Newest-to-oldest sorting is available via the default `timestamp` descending sort.
+
+Validation run:
+- `python -m py_compile app.py namengine/core/mission_control_telemetry.py`
+- `python -m pytest tests/test_mission_control_telemetry_v1.py tests/test_phase21_engine_audit.py -q`
+- `git diff --check -- app.py namengine/core/mission_control_telemetry.py tests/test_mission_control_telemetry_v1.py`
+
+Not included:
+- Frontend Mission Control dashboard UI changes; the dashboard source was not present in the active NamEngine workspace.
+- Changes to unrelated aggregate tables or customer-facing NamEngine pages.
+
+## Feelings Scale premium strength-meter prototype
+
+Status: local review prototype / included in deploy bucket for decision tracking
+Branch: current working tree / next local-first release batch
+
+Included intent:
+- Explore a more premium mobile Feelings Scale direction without changing production Baby, Pet, or Business pages.
+- Create standalone functional local HTML prototypes under `audit_outputs/20260803-feelings-scale-premium-prototype/`.
+- Latest preferred prototype uses independent tapered strength meters instead of the previous draggable graph.
+- Remove the building graphic and extra explanatory wording from the prototype.
+- Make each scale independently slidable, with the meter thinner on the left and thicker on the right.
+
+Review artifact:
+- `audit_outputs/20260803-feelings-scale-premium-prototype/business-feelings-strength-meter-prototype.html`
+- `audit_outputs/20260803-feelings-scale-premium-prototype/business-feelings-strength-meter-prototype-mobile.png`
+
+Validation run:
+- Playwright opened the local HTML, adjusted all three sliders, captured the mobile screenshot, and verified no `.building` element exists.
+
+Not included:
+- Production implementation in Baby, Pet, or Business templates/CSS/JS.
+- Route changes, results-generation changes, or deployment-ready UI replacement.
+- Removal of the older graph prototype file; it remains as comparison-only audit output.
+
 ## Cross-vertical paid-access refinement gate bundle
 
 Status: ready for validation/push

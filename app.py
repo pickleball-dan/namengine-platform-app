@@ -1265,6 +1265,11 @@ def create_app() -> Flask:
                 model=_optional_query_arg(request.args.get("model")),
                 vertical=_optional_query_arg(request.args.get("vertical")),
                 success=_parse_bool_arg(request.args.get("success")),
+                reporting_window=_optional_query_arg(request.args.get("reporting_window")),
+                session_sort=_optional_query_arg(request.args.get("session_sort")) or "timestamp",
+                session_sort_direction=(
+                    _optional_query_arg(request.args.get("session_sort_direction")) or "desc"
+                ),
             )
         except ValueError:
             return jsonify({"error": "invalid_query"}), 400

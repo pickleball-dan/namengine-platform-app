@@ -5,12 +5,40 @@ from __future__ import annotations
 import json
 from collections import defaultdict
 from contextlib import closing
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
 from namengine.core.cost_estimates import estimate_ai_call_cost_usd
 from namengine.core.storage import connect, initialize_database
+
+
+NORMAL_ENGINE_STAGES = (
+    "taste_interpreter_v1",
+    "candidate_generator_v1",
+    "critic_ranker_finalizer_v1",
+)
+DEFAULT_REPORTING_WINDOW = "last_24_hours"
+SESSION_SORT_FIELDS = {
+    "timestamp",
+    "date",
+    "session_id",
+    "vertical",
+    "model",
+    "request_count",
+    "success_count",
+    "failure_count",
+    "success_rate",
+    "input_tokens",
+    "output_tokens",
+    "total_tokens",
+    "average_latency_ms",
+    "maximum_latency_ms",
+    "image_generation_count",
+    "requests_missing_token_usage",
+    "estimated_spend_usd",
+    "generated_name_count",
+}
 
 
 def build_openai_usage_report(
@@ -21,9 +49,14 @@ def build_openai_usage_report(
     model: str | None = None,
     vertical: str | None = None,
     success: bool | None = None,
+    reporting_window: str | None = DEFAULT_REPORTING_WINDOW,
+    session_sort: str = "timestamp",
+    session_sort_direction: str = "desc",
     db_path: Path | None = None,
 ) -> dict[str, Any]:
     """Return aggregate AI-call usage in the shape Mission Control expects."""
+    start, end, applied_reporting_window = _resolve_report_range(start, end, reporting_window)
+    session_sort, session_sort_direction = _resolve_session_sort(session_sort, session_sort_direction)
     initialize_database(db_path)
     events = _successful_call_events(db_path)
     failure_events = _failure_events(db_path)
@@ -43,12 +76,22 @@ def build_openai_usage_report(
         "range": {
             "start": start.isoformat() if start else None,
             "end": end.isoformat() if end else None,
+            "reporting_window": applied_reporting_window,
+        },
+        "session_sort": {
+            "sort_by": session_sort,
+            "direction": session_sort_direction,
         },
         "summary": _metric_row(filtered),
         "requests_by_day": _group_rows(successful, "date"),
         "requests_by_request_type": _group_rows(successful, "request_type"),
+        "usage_exceptions": _usage_exception_rows(successful, failures),
         "requests_by_model": _group_rows(successful, "model"),
-        "requests_by_session": _session_rows(successful),
+        "requests_by_session": _session_rows(
+            successful,
+            sort_by=session_sort,
+            direction=session_sort_direction,
+        ),
         "requests_by_vertical": _group_rows(successful, "vertical"),
         "failures_by_error_type": _failure_rows(failures),
         "slowest_request_categories": _slowest_rows(successful),
@@ -186,7 +229,102 @@ def _failure_rows(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
     ]
 
 
-def _session_rows(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def _usage_exception_rows(
+    successful: list[dict[str, Any]], failures: list[dict[str, Any]]
+) -> dict[str, Any]:
+    normal_stage_set = set(NORMAL_ENGINE_STAGES)
+    unexpected = [event for event in successful if event["request_type"] not in normal_stage_set]
+    normal = [event for event in successful if event["request_type"] in normal_stage_set]
+    return {
+        "normal_pipeline": list(NORMAL_ENGINE_STAGES),
+        "summary": {
+            "normal_request_count": len(normal),
+            "exception_request_count": len(unexpected) + len(failures),
+            "unexpected_request_type_count": len(unexpected),
+            "failure_count": len(failures),
+            "pipeline_anomaly_session_count": len(_pipeline_anomaly_rows(successful)),
+            "requests_missing_token_usage": sum(
+                1 for event in successful if event["missing_token_usage"]
+            ),
+        },
+        "unexpected_request_types": _unexpected_request_type_rows(unexpected),
+        "sessions_with_pipeline_anomalies": _pipeline_anomaly_rows(successful),
+        "failures_by_error_type": _failure_rows(failures),
+        "requests_with_unavailable_token_usage": _missing_usage_rows(successful),
+    }
+
+
+def _unexpected_request_type_rows(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    rows = _group_rows(events, "request_type")
+    for row in rows:
+        row["reason"] = "outside_normal_three_pass_pipeline"
+    return sorted(rows, key=lambda row: row["request_count"], reverse=True)
+
+
+def _pipeline_anomaly_rows(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    normal_stage_set = set(NORMAL_ENGINE_STAGES)
+    grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for event in events:
+        session_id = str(event.get("session_id") or "unknown")
+        grouped[session_id].append(event)
+
+    rows: list[dict[str, Any]] = []
+    for session_id, items in grouped.items():
+        stage_counts: dict[str, int] = defaultdict(int)
+        unexpected_types = sorted(
+            {str(event["request_type"]) for event in items if event["request_type"] not in normal_stage_set}
+        )
+        for event in items:
+            request_type = str(event["request_type"])
+            if request_type in normal_stage_set:
+                stage_counts[request_type] += 1
+
+        expected_count = max(stage_counts.values(), default=0)
+        if expected_count == 0 and unexpected_types:
+            expected_count = 1
+        missing_stages = [
+            stage for stage in NORMAL_ENGINE_STAGES if stage_counts.get(stage, 0) < expected_count
+        ]
+        duplicate_stages = [stage for stage, count in stage_counts.items() if count > expected_count]
+        unbalanced_stages = len({stage_counts.get(stage, 0) for stage in NORMAL_ENGINE_STAGES}) > 1
+
+        if not (unexpected_types or missing_stages or duplicate_stages or unbalanced_stages):
+            continue
+
+        latest_timestamp = max(event["timestamp"] for event in items)
+        verticals = sorted({str(event.get("vertical") or "unknown") for event in items})
+        rows.append(
+            {
+                "session_id": session_id,
+                "timestamp": latest_timestamp.isoformat(),
+                "date": latest_timestamp.date().isoformat(),
+                "vertical": verticals[0] if len(verticals) == 1 else "mixed",
+                "stage_counts": {stage: stage_counts.get(stage, 0) for stage in NORMAL_ENGINE_STAGES},
+                "missing_stages": missing_stages,
+                "unexpected_request_types": unexpected_types,
+                "reason": _pipeline_anomaly_reason(missing_stages, unexpected_types, duplicate_stages),
+                **_metric_row(items),
+            }
+        )
+    return sorted(rows, key=lambda row: (row["date"], row["request_count"]), reverse=True)[:25]
+
+
+def _pipeline_anomaly_reason(
+    missing_stages: list[str], unexpected_types: list[str], duplicate_stages: list[str]
+) -> str:
+    reasons: list[str] = []
+    if unexpected_types:
+        reasons.append("unexpected_request_type")
+    if missing_stages:
+        reasons.append("missing_normal_stage")
+    if duplicate_stages:
+        reasons.append("duplicate_normal_stage")
+    return ",".join(reasons) or "pipeline_stage_imbalance"
+
+
+def _session_rows(
+    events: list[dict[str, Any]], *, sort_by: str = "timestamp", direction: str = "desc"
+) -> list[dict[str, Any]]:
     grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for event in events:
         session_id = str(event.get("session_id") or "unknown")
@@ -209,7 +347,31 @@ def _session_rows(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 **_metric_row(items),
             }
         )
-    return sorted(rows, key=lambda row: (row["date"], row["estimated_spend_usd"]), reverse=True)
+    return sorted(rows, key=lambda row: row[sort_by], reverse=(direction == "desc"))
+
+
+def _resolve_report_range(
+    start: datetime | None,
+    end: datetime | None,
+    reporting_window: str | None,
+) -> tuple[datetime | None, datetime | None, str | None]:
+    if reporting_window not in (None, "", DEFAULT_REPORTING_WINDOW):
+        raise ValueError("unsupported reporting window")
+    if start is None and end is None and reporting_window in (None, "", DEFAULT_REPORTING_WINDOW):
+        end = datetime.now(timezone.utc)
+        start = end - timedelta(hours=24)
+        return start, end, DEFAULT_REPORTING_WINDOW
+    return start, end, None
+
+
+def _resolve_session_sort(sort_by: str, direction: str) -> tuple[str, str]:
+    normalized_sort = str(sort_by or "timestamp")
+    normalized_direction = str(direction or "desc").lower()
+    if normalized_sort not in SESSION_SORT_FIELDS:
+        raise ValueError("unsupported session sort")
+    if normalized_direction not in {"asc", "desc"}:
+        raise ValueError("unsupported session sort direction")
+    return normalized_sort, normalized_direction
 
 
 def _slowest_rows(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
