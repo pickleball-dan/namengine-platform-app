@@ -1660,10 +1660,12 @@ button {
   font-weight: 850;
 }
 
-.reaction-row button:hover {
-  background: #18212f;
-  color: #ffffff;
-  border-color: #18212f;
+.reaction-row button:hover,
+.reaction-row button:focus-visible {
+  background: rgba(47, 148, 134, 0.1);
+  color: #26364d;
+  border-color: rgba(47, 148, 134, 0.42);
+  box-shadow: 0 0 0 3px rgba(47, 148, 134, 0.12);
 }
 
 .reaction-row button.is-selected {
