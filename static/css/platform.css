@@ -10980,3 +10980,355 @@ body.vertical-business {
     box-shadow: 0 4px 16px rgba(41, 52, 79, 0.30);
   }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Mobile result card graphics: deeper color + vertical-specific accents.
+   Baby: keepsake warmth + dot-grid embroidery · Pet: amber energy + dot cluster
+   Business: deep slate + grid texture + gold signal
+   ══════════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 600px) {
+
+  /* ── BABY: Richer blush gradient, coral depth, embroidery dot accent ── */
+
+  .vertical-baby .result-card {
+    background: linear-gradient(148deg, #fff4ef 0%, #fde8dc 52%, #f8d4c2 100%);
+    box-shadow:
+      inset 5px 0 0 #ff6b57,
+      0 2px 8px rgba(255, 107, 87, 0.10),
+      0 10px 30px rgba(16, 43, 84, 0.13),
+      0 32px 64px rgba(16, 43, 84, 0.09);
+  }
+
+  /* Dot-grid embroidery decoration, top-right, fades inward */
+  .vertical-baby .result-card::after {
+    content: "";
+    position: absolute;
+    top: -12px;
+    right: -12px;
+    width: 140px;
+    height: 140px;
+    background-image: radial-gradient(circle, rgba(255, 107, 87, 0.30) 1.8px, transparent 1.8px);
+    background-size: 13px 13px;
+    border-radius: 50%;
+    pointer-events: none;
+    -webkit-mask-image: radial-gradient(circle at 85% 15%, black 20%, transparent 72%);
+    mask-image: radial-gradient(circle at 85% 15%, black 20%, transparent 72%);
+  }
+
+  .vertical-baby .result-index {
+    color: #b82c1c;
+  }
+
+  .vertical-baby .result-card h2 {
+    color: #0e2248;
+  }
+
+  .vertical-baby .result-card .tagline {
+    color: #3a4c68;
+  }
+
+  .vertical-baby .result-card-meaning {
+    color: #8a5040;
+  }
+
+  .vertical-baby .result-card .result-tags span {
+    background: rgba(255, 107, 87, 0.20);
+    color: #a82818;
+    border: 1.5px solid rgba(255, 107, 87, 0.40);
+  }
+
+  .vertical-baby .result-card > .reaction-row button {
+    background: rgba(255, 107, 87, 0.09);
+    border-color: rgba(255, 107, 87, 0.26);
+  }
+
+  .vertical-baby .result-card > .reaction-row button.is-selected {
+    background: rgba(255, 107, 87, 0.16);
+    border-color: #ff6b57;
+    box-shadow: 0 4px 18px rgba(255, 107, 87, 0.26);
+  }
+
+  .vertical-baby .result-card > .result-explore-link {
+    background: linear-gradient(135deg, #9a6c10 0%, #b88018 100%);
+    box-shadow: 0 6px 22px rgba(154, 108, 16, 0.44);
+  }
+
+
+  /* ── PET: Richer amber gradient, dot cluster, vivid teal CTA ── */
+
+  .vertical-pet .result-card {
+    background: linear-gradient(148deg, #fffbe0 0%, #fff0b0 52%, #ffe590 100%);
+    box-shadow:
+      inset 5px 0 0 #f2b84b,
+      0 2px 8px rgba(242, 184, 75, 0.14),
+      0 10px 30px rgba(26, 32, 53, 0.12),
+      0 32px 64px rgba(26, 32, 53, 0.07);
+  }
+
+  /* Warm dot cluster in bottom-right — playful energy cue */
+  .vertical-pet .result-card::after {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    right: -10px;
+    width: 120px;
+    height: 120px;
+    background-image: radial-gradient(circle, rgba(242, 148, 20, 0.50) 2.2px, transparent 2.2px);
+    background-size: 15px 15px;
+    border-radius: 50%;
+    pointer-events: none;
+    -webkit-mask-image: radial-gradient(circle at 80% 80%, black 22%, transparent 70%);
+    mask-image: radial-gradient(circle at 80% 80%, black 22%, transparent 70%);
+  }
+
+  .vertical-pet .result-index {
+    color: #7a5000;
+  }
+
+  .vertical-pet .result-card h2 {
+    color: #141c30;
+  }
+
+  .vertical-pet .result-card .tagline {
+    color: #382a0c;
+  }
+
+  .vertical-pet .result-card-meaning {
+    color: #7a5818;
+  }
+
+  .vertical-pet .result-card .result-tags span {
+    background: rgba(242, 184, 75, 0.34);
+    color: #6a4800;
+    border: 1.5px solid rgba(242, 184, 75, 0.58);
+  }
+
+  .vertical-pet .result-card > .reaction-row button {
+    background: rgba(242, 184, 75, 0.14);
+    border-color: rgba(242, 184, 75, 0.42);
+  }
+
+  .vertical-pet .result-card > .reaction-row button.is-selected {
+    background: rgba(242, 184, 75, 0.26);
+    border-color: #d4a030;
+    box-shadow: 0 4px 18px rgba(242, 184, 75, 0.36);
+  }
+
+  .vertical-pet .result-card > .result-explore-link {
+    background: linear-gradient(135deg, #207060 0%, #2f9486 100%);
+    box-shadow: 0 6px 22px rgba(32, 112, 96, 0.46);
+  }
+
+
+  /* ── BUSINESS: Deep slate gradient, grid texture, gold signal ── */
+
+  .vertical-business .result-card {
+    background: linear-gradient(148deg, #dce8f8 0%, #c8d8f0 52%, #b4c8e6 100%);
+    box-shadow:
+      inset 5px 0 0 #27476e,
+      0 2px 8px rgba(15, 23, 42, 0.12),
+      0 10px 30px rgba(15, 23, 42, 0.16),
+      0 32px 64px rgba(15, 23, 42, 0.10);
+  }
+
+  /* Grid lines: launch notes / gridded paper motif, fades from bottom-right */
+  .vertical-business .result-card::before {
+    display: block;
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(39, 71, 110, 0.11) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(39, 71, 110, 0.11) 1px, transparent 1px);
+    background-size: 30px 30px;
+    -webkit-mask-image: linear-gradient(145deg, transparent 15%, rgba(0,0,0,0.7) 100%);
+    mask-image: linear-gradient(145deg, transparent 15%, rgba(0,0,0,0.7) 100%);
+    pointer-events: none;
+    border-radius: 28px;
+  }
+
+  .vertical-business .result-index {
+    color: #162c58;
+  }
+
+  /* Gold spark accent on the index label */
+  .vertical-business .result-index::after {
+    content: " ◆";
+    color: #d9a441;
+    font-size: 7px;
+    letter-spacing: 0;
+    vertical-align: middle;
+    opacity: 0.90;
+  }
+
+  .vertical-business .result-card h2 {
+    color: #080f1e;
+  }
+
+  .vertical-business .result-card .tagline {
+    color: #162848;
+    font-weight: 600;
+  }
+
+  .vertical-business .result-card-meaning {
+    color: #30507a;
+  }
+
+  .vertical-business .result-card .result-tags span {
+    background: rgba(39, 71, 110, 0.18);
+    color: #162c58;
+    border: 1.5px solid rgba(39, 71, 110, 0.36);
+  }
+
+  .vertical-business .result-card > .reaction-row button {
+    background: rgba(39, 71, 110, 0.10);
+    border-color: rgba(39, 71, 110, 0.28);
+  }
+
+  .vertical-business .result-card > .reaction-row button.is-selected {
+    background: rgba(39, 71, 110, 0.20);
+    border-color: #27476e;
+    box-shadow: 0 4px 18px rgba(39, 71, 110, 0.30);
+  }
+
+  .vertical-business .result-card > .result-explore-link {
+    background: linear-gradient(135deg, #0e1c36 0%, #27476e 100%);
+    box-shadow: 0 6px 22px rgba(14, 28, 54, 0.50);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Vertical intake page graphics: same vocabulary as result cards.
+   Deeper page backgrounds + richer welcome hero gradients + accent colours.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── BABY: Deep blush page + richer welcome hero ── */
+
+body.vertical-baby {
+  background:
+    radial-gradient(circle at 12% 0%, rgba(255, 107, 87, 0.14), transparent 50%),
+    radial-gradient(circle at 92% 100%, rgba(125, 149, 199, 0.12), transparent 50%),
+    linear-gradient(180deg, #fdeee6 0%, #f8dece 100%);
+}
+
+.vertical-baby .baby-welcome {
+  background:
+    radial-gradient(circle at 88% 10%, rgba(255, 107, 87, 0.36), transparent 42%),
+    radial-gradient(circle at 8% 92%, rgba(125, 149, 199, 0.24), transparent 44%),
+    linear-gradient(148deg, #ffece0 0%, #fbdac6 100%);
+  border-color: rgba(255, 107, 87, 0.24);
+  box-shadow: 0 30px 90px rgba(255, 107, 87, 0.16);
+}
+
+.vertical-baby .baby-welcome::after {
+  background: linear-gradient(135deg, rgba(255, 107, 87, 0.34), rgba(240, 184, 200, 0.24));
+}
+
+.vertical-baby .baby-welcome::before {
+  border-color: rgba(255, 107, 87, 0.22);
+}
+
+.vertical-baby .baby-begin-button {
+  background: linear-gradient(135deg, #9a6c10 0%, #b88018 100%);
+  box-shadow: 0 16px 34px rgba(154, 108, 16, 0.36);
+}
+
+.vertical-baby .baby-intake-form .intake-section {
+  background: linear-gradient(145deg, rgba(255, 248, 244, 0.96), rgba(255, 238, 230, 0.90));
+  border-color: rgba(255, 107, 87, 0.14);
+}
+
+.vertical-baby .baby-intake-form .intake-section legend::before {
+  background: rgba(255, 107, 87, 0.20);
+  color: #b82c1c;
+  border-color: rgba(255, 107, 87, 0.30);
+}
+
+
+/* ── PET: Deep amber page + richer warm welcome hero ── */
+
+body.vertical-pet {
+  background:
+    radial-gradient(circle at 12% 0%, rgba(242, 184, 75, 0.20), transparent 50%),
+    radial-gradient(circle at 92% 100%, rgba(47, 148, 134, 0.10), transparent 50%),
+    linear-gradient(180deg, #fff8d8 0%, #fff0a8 100%);
+}
+
+.vertical-pet .baby-welcome {
+  background:
+    radial-gradient(circle at 88% 10%, rgba(242, 184, 75, 0.44), transparent 44%),
+    radial-gradient(circle at 8% 92%, rgba(47, 148, 134, 0.18), transparent 46%),
+    linear-gradient(148deg, #fffce0 0%, #fff4b8 100%);
+  border-color: rgba(242, 184, 75, 0.32);
+  box-shadow: 0 30px 90px rgba(242, 184, 75, 0.18);
+}
+
+.vertical-pet .baby-welcome::after {
+  background: linear-gradient(135deg, rgba(242, 184, 75, 0.40), rgba(47, 148, 134, 0.16));
+}
+
+.vertical-pet .baby-begin-button {
+  background: linear-gradient(135deg, #207060 0%, #2f9486 100%);
+  box-shadow: 0 16px 34px rgba(32, 112, 96, 0.34);
+}
+
+.vertical-pet .polished-intake-form .intake-section {
+  background: linear-gradient(145deg, rgba(255, 252, 232, 0.96), rgba(255, 246, 200, 0.90));
+  border-color: rgba(242, 184, 75, 0.18);
+}
+
+.vertical-pet .polished-intake-form {
+  background: rgba(255, 250, 220, 0.82);
+  border-color: rgba(242, 184, 75, 0.20);
+}
+
+
+/* ── BUSINESS: Deep slate page + grid texture welcome hero ── */
+
+body.vertical-business {
+  background:
+    radial-gradient(circle at 12% 0%, rgba(39, 71, 110, 0.16), transparent 50%),
+    radial-gradient(circle at 92% 100%, rgba(217, 164, 65, 0.10), transparent 50%),
+    linear-gradient(180deg, #d8e8f8 0%, #c0d4ec 100%);
+}
+
+.vertical-business .baby-welcome {
+  background:
+    radial-gradient(circle at 88% 10%, rgba(39, 71, 110, 0.26), transparent 44%),
+    radial-gradient(circle at 8% 92%, rgba(217, 164, 65, 0.16), transparent 46%),
+    linear-gradient(148deg, #dce8f8 0%, #c8d8f0 100%);
+  border-color: rgba(39, 71, 110, 0.30);
+  box-shadow: 0 30px 90px rgba(15, 23, 42, 0.20);
+}
+
+/* Grid texture inside business welcome hero */
+.vertical-business .baby-welcome::before {
+  background-image:
+    linear-gradient(rgba(39, 71, 110, 0.10) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(39, 71, 110, 0.10) 1px, transparent 1px);
+  background-size: 30px 30px;
+  border: none;
+  border-radius: 34px;
+  -webkit-mask-image: linear-gradient(145deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.65) 100%);
+  mask-image: linear-gradient(145deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.65) 100%);
+}
+
+.vertical-business .baby-welcome::after {
+  background: linear-gradient(135deg, rgba(39, 71, 110, 0.22), rgba(217, 164, 65, 0.14));
+}
+
+.vertical-business .baby-begin-button {
+  background: linear-gradient(135deg, #0e1c36 0%, #27476e 100%);
+  box-shadow: 0 16px 34px rgba(14, 28, 54, 0.40);
+}
+
+.vertical-business .polished-intake-form .intake-section {
+  background: linear-gradient(145deg, rgba(224, 236, 252, 0.96), rgba(208, 224, 248, 0.90));
+  border-color: rgba(39, 71, 110, 0.18);
+}
+
+.vertical-business .polished-intake-form {
+  background: rgba(210, 228, 248, 0.80);
+  border-color: rgba(39, 71, 110, 0.22);
+}
