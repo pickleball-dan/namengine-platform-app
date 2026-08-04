@@ -113,29 +113,13 @@ def _structured_preferences(value: Any) -> list[dict[str, str]]:
 def _derived_preferences(
     result: Mapping[str, Any], inputs: Mapping[str, Any]
 ) -> list[dict[str, str]]:
-    tags = {item.casefold(): item for item in _strings(result.get("tags"))}
-    searchable = " ".join(
-        _text(result.get(key)) for key in ("tagline", "why_this_name", "fit_note")
-    ).casefold()
-    items: list[dict[str, str]] = []
-    for key, label in _PREFERENCE_LABELS.items():
-        value = _text(inputs.get(key))
-        if not value or value.casefold() in {"no preference", "none"}:
-            continue
-        exact_tag = tags.get(value.casefold())
-        if not exact_tag and value.casefold() not in searchable:
-            continue
-        items.append(
-            {
-                "preference": f"{label}: {value}",
-                "evidence": f"You selected {value}.",
-                "fit": (
-                    f"{result.get('name', 'This name')} carries that signal in its "
-                    f"{exact_tag or value} direction."
-                ),
-            }
-        )
-    return items
+    # The old fallback echoed the user's own selection back to them:
+    # "You selected Soft and romantic. [Name] carries that signal in its Soft and
+    # romantic direction." — both sentences said the same thing.
+    # New AI generations populate matched_preferences directly with name-specific copy.
+    # For older sessions without matched_preferences, the recommendation_reason and
+    # strongest_fit fields provide better fallback content than tautological cards.
+    return []
 
 
 def _personalized_legacy_reason(

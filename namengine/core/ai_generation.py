@@ -479,7 +479,7 @@ def _baby_generation_guidance(vertical: VerticalConfig, brief: NamingBrief) -> d
         "why_this_name_should_connect_style_heritage_sound_and_family_context": True,
         "decision_support_requirements": {
             "recommendation_reason": "Explain why the name earned a place using concrete intake or reaction evidence.",
-            "matched_preferences": "Name the selected preference, the user evidence, and the name-specific fit.",
+            "matched_preferences": "2-4 entries. preference=dimension+value (e.g. 'Sound: Strong'). evidence=name-specific phonetic or stylistic observation, NOT 'You selected X'. fit=why this name delivers on this preference in concrete terms, NOT '[Name] carries that signal in its X direction'.",
             "strongest_fit": "State the single most decision-relevant fit, without generic praise.",
             "real_life_impression": "Describe childhood, adulthood, and overall use only when supported by sound and form.",
             "tradeoffs": "Give honest practical considerations; do not restate generic strengths.",
@@ -575,6 +575,7 @@ def build_finalizer_prompt(
                 "meaning",
                 "why_this_name",
                 "fit_note",
+                "matched_preferences",
                 "risks",
                 "tags",
                 "scores",
@@ -648,10 +649,21 @@ def name_generation_response_format(vertical_slug: str | None = None) -> dict[st
         "meaning",
         "why_this_name",
         "fit_note",
+        "matched_preferences",
         "risks",
         "tags",
         "scores",
     ]
+    _preference_item = {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["preference", "evidence", "fit"],
+        "properties": {
+            "preference": {"type": "string"},
+            "evidence": {"type": "string"},
+            "fit": {"type": "string"},
+        },
+    }
     properties: dict[str, Any] = {
         "name": {"type": "string"},
         "pronunciation": {"type": "string"},
@@ -660,6 +672,7 @@ def name_generation_response_format(vertical_slug: str | None = None) -> dict[st
         "meaning": {"type": "string"},
         "why_this_name": {"type": "string"},
         "fit_note": {"type": "string"},
+        "matched_preferences": {"type": "array", "items": _preference_item},
         "risks": {"type": "array", "items": {"type": "string"}},
         "tags": {"type": "array", "items": {"type": "string"}},
         "scores": {
@@ -785,6 +798,12 @@ def _explanation_guidance(vertical_slug: str) -> list[str]:
         "why_this_name should explain why this name won against the user's taste thesis",
         "fit_note should connect to a concrete user input, not generic praise",
         "risks should be honest and practical",
+        "matched_preferences must contain 2-4 entries covering the most clearly satisfied user preferences",
+        "matched_preferences[].preference: the dimension label and user-selected value, e.g. 'Sound: Strong' or 'Style direction: Soft and romantic'",
+        "matched_preferences[].evidence: a NAME-SPECIFIC observation — phonetic, stylistic, cultural, or semantic quality of this name that connects to the preference. NEVER write 'You selected X' or echo the intake choice back.",
+        "matched_preferences[].fit: why this specific name delivers on that preference in concrete terms. NEVER write '[Name] carries that signal in its [X] direction' — that is a tautological echo of the input, not a story.",
+        "Good matched_preferences example: {\"preference\": \"Sound: Strong\", \"evidence\": \"Two syllables landing on the grounded nd consonant cluster\", \"fit\": \"Holds presence and authority without sounding harsh\"}",
+        "Bad matched_preferences example: {\"preference\": \"Sound: Strong\", \"evidence\": \"You selected Strong\", \"fit\": \"Leander carries that signal in its strong direction\"}",
     ]
     return guidance + list(quality_prompt_guidance(vertical_slug, ()))
 

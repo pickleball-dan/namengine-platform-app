@@ -1710,16 +1710,12 @@ def create_app() -> Flask:
         if not beta_unlocked_from_request(vertical):
             return _access_required_response(vertical, session_id)
 
-        decision_support = (
-            build_baby_decision_support(
-                detail["result"],
-                detail["session"],
-                detail["taste_profile"],
-                detail["available_results"],
-                detail["reaction_value"],
-            )
-            if vertical.slug == "baby"
-            else None
+        decision_support = build_baby_decision_support(
+            detail["result"],
+            detail["session"],
+            detail["taste_profile"],
+            detail["available_results"],
+            detail["reaction_value"],
         )
 
         return render_template(
