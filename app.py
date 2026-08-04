@@ -892,7 +892,6 @@ def _free_session_access_blocked(vertical, session_id: str) -> bool:
         return False
 
     visitor_id = _beta_visitor_id(create=False)
-    legacy_cookie_session_id = request.cookies.get(free_generation_cookie_name(vertical), "")
 
     if visitor_id:
         usage = get_beta_usage(visitor_id, vertical.slug)
@@ -901,11 +900,9 @@ def _free_session_access_blocked(vertical, session_id: str) -> bool:
                 return True
             return _beta_usage_expired(usage)
 
-    # Old pre-ledger browsers may already carry the first-free cookie. Do not
-    # silently grandfather those into a fresh free-view window; require access.
-    if legacy_cookie_session_id:
-        return True
-
+    # Old pre-ledger browsers (no visitor ledger yet): allow access.
+    # _remember_free_generation will create their visitor ledger entry.
+    # Permanently blocking them via old cookie was too aggressive.
     return False
 
 
@@ -920,8 +917,9 @@ def _free_generation_blocked(vertical, session_id: str, *, needs_generation: boo
         if usage:
             return str(usage.get("free_session_id") or "") != session_id or _beta_usage_expired(usage)
 
-    first_free_session_id = request.cookies.get(free_generation_cookie_name(vertical), "")
-    return bool(first_free_session_id)
+    # Old pre-ledger browsers (no visitor ledger yet): allow generation.
+    # _remember_free_generation will create their visitor ledger entry going forward.
+    return False
 
 
 def _remember_free_generation(response, vertical, session_id: str):

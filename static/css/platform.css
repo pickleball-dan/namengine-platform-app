@@ -2500,6 +2500,34 @@ button {
   box-shadow: 0 28px 90px rgba(24, 33, 47, 0.22);
 }
 
+/* Vertical-specific progress overlay colours — matches result card palette */
+.vertical-baby .progress-panel {
+  background:
+    linear-gradient(148deg, #fff4ef 0%, #fde8dc 55%, #f8d4c2 100%),
+    var(--card);
+  border-top-color: #ff6b57;
+  border-color: rgba(255, 107, 87, 0.20);
+  box-shadow: 0 28px 90px rgba(16, 43, 84, 0.20);
+}
+
+.vertical-pet .progress-panel {
+  background:
+    linear-gradient(148deg, #fffbe0 0%, #fff0b0 55%, #ffe590 100%),
+    var(--card);
+  border-top-color: #f2b84b;
+  border-color: rgba(242, 184, 75, 0.28);
+  box-shadow: 0 28px 90px rgba(26, 32, 53, 0.20);
+}
+
+.vertical-business .progress-panel {
+  background:
+    linear-gradient(148deg, #dce8f8 0%, #c8d8f0 55%, #b4c8e6 100%),
+    var(--card);
+  border-top-color: #27476e;
+  border-color: rgba(39, 71, 110, 0.24);
+  box-shadow: 0 28px 90px rgba(15, 23, 42, 0.24);
+}
+
 .progress-visual {
   position: relative;
   width: min(100%, 224px);
