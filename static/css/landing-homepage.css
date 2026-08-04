@@ -813,16 +813,16 @@ main {
 }
 
 .landing-final-actions a.baby {
-  background: linear-gradient(135deg, #ff6b6b, #e1421f);
+  background: linear-gradient(135deg, #9a6c10, #b88018);
 }
 
 .landing-final-actions a.pet {
-  color: #3d2505;
-  background: linear-gradient(135deg, #ffd48a, #fcba76);
+  color: #ffffff;
+  background: linear-gradient(135deg, #207060, #2f9486);
 }
 
 .landing-final-actions a.business {
-  background: linear-gradient(135deg, #53c7bd, #3fa6a0);
+  background: linear-gradient(135deg, #0e1c36, #27476e);
 }
 
 @media (max-width: 860px) {
