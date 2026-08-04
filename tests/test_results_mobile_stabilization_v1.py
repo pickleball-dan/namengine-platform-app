@@ -282,6 +282,7 @@ class ResultsMobileStabilizationTest(unittest.TestCase):
         self.assertIn('setAttribute("aria-expanded"', script)
         self.assertIn(".results-accordion-ready .result-card:not(.is-expanded)", css)
         self.assertIn("@media (max-width: 760px)", css)
+        self.assertNotIn('content: "Unlock"', css)
 
     def test_homepage_mobile_sections_have_final_full_width_cascade_override(self):
         root = Path(__file__).resolve().parents[1]

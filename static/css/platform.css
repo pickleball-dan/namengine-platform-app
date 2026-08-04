@@ -1238,26 +1238,8 @@ button {
 }
 
 .premium-locked-action::after {
-  content: "Unlock";
-  display: inline-flex;
-  align-items: center;
-  margin-left: 8px;
-  padding: 3px 7px;
-  color: var(--accent-deep);
-  background: var(--accent-soft);
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.reaction-row .premium-locked-action::after,
-.result-card-toggle.premium-locked-action::after,
-.choose-button.premium-locked-action::after {
-  content: "Unlock";
-  margin-left: 0;
-  margin-top: 4px;
+  content: none;
+  display: none;
 }
 
 .premium-locked-row button {
