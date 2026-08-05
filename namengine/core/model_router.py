@@ -90,6 +90,19 @@ def generate_with_router(
             vertical_slug=vertical.slug,
         )
     results = [candidate.result for candidate in selected]
+    provider_failures = [result for result in provider_results if result.status != "ok"]
+    if provider_failures and any(candidate.provider == ModelProvider.FALLBACK for candidate in selected):
+        failure_payload = [
+            {
+                "provider": failure.provider.value,
+                "latency_ms": failure.latency_ms or 0,
+                "exception_type": str(failure.metadata.get("exception_type") or "generation_error"),
+            }
+            for failure in provider_failures
+        ]
+        for candidate in selected:
+            if candidate.provider == ModelProvider.FALLBACK:
+                candidate.result.metadata["provider_failures"] = failure_payload
     intake_metadata = version_metadata_for_brief(brief)
     for result in results:
         result.metadata.update(intake_metadata)
@@ -296,6 +309,7 @@ def _run_provider(
             status="error",
             error=str(exc),
             latency_ms=latency_ms,
+            metadata={"exception_type": type(exc).__name__},
         )
 
 

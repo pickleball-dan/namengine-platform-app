@@ -25,6 +25,7 @@ from namengine.core.provider_performance import build_provider_performance
 
 DEFAULT_DB_PATH = Path(__file__).resolve().parents[2] / "data" / "namengine.sqlite3"
 SQLITE_BUSY_TIMEOUT_MS = 5000
+_INITIALIZED_DATABASE_PATHS: set[Path] = set()
 
 
 class StorageError(RuntimeError):
@@ -35,8 +36,12 @@ def get_database_path() -> Path:
     return Path(os.getenv("NAMENGINE_DB_PATH", DEFAULT_DB_PATH))
 
 
+def _normalized_database_path(db_path: Path | None = None) -> Path:
+    return Path(db_path or get_database_path())
+
+
 def connect(db_path: Path | None = None) -> sqlite3.Connection:
-    path = db_path or get_database_path()
+    path = _normalized_database_path(db_path)
     path.parent.mkdir(parents=True, exist_ok=True)
     connection = sqlite3.connect(path, timeout=SQLITE_BUSY_TIMEOUT_MS / 1000)
     connection.row_factory = sqlite3.Row
@@ -46,7 +51,11 @@ def connect(db_path: Path | None = None) -> sqlite3.Connection:
 
 
 def initialize_database(db_path: Path | None = None) -> None:
-    with closing(connect(db_path)) as connection:
+    path = _normalized_database_path(db_path)
+    if path in _INITIALIZED_DATABASE_PATHS and path.exists():
+        return
+
+    with closing(connect(path)) as connection:
         connection.executescript(
             """
             CREATE TABLE IF NOT EXISTS sessions (
@@ -191,6 +200,7 @@ def initialize_database(db_path: Path | None = None) -> None:
         _ensure_column(connection, "sessions", "parent_session_id", "TEXT")
         _ensure_column(connection, "sessions", "refinement_prompt", "TEXT")
         connection.commit()
+    _INITIALIZED_DATABASE_PATHS.add(path)
 
 
 def get_beta_usage(
@@ -910,6 +920,12 @@ def get_session_snapshot(session_id: str, db_path: Path | None = None) -> dict[s
             (session_id,),
         ).fetchall()
 
+    reaction_counts = {"love": 0, "maybe": 0, "no": 0}
+    for row in reactions:
+        value = str(row["value"])
+        if value in reaction_counts:
+            reaction_counts[value] += 1
+
     return {
         "session": dict(session),
         "results": [dict(row) for row in results],
@@ -918,7 +934,7 @@ def get_session_snapshot(session_id: str, db_path: Path | None = None) -> dict[s
         "taste_profile": dict(taste_profile) if taste_profile else None,
         "validation_results": [dict(row) for row in validation],
         "provider_performance": [dict(row) for row in provider_performance],
-        "reaction_counts": get_reaction_counts(session_id, db_path),
+        "reaction_counts": reaction_counts,
     }
 
 

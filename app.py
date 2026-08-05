@@ -406,6 +406,15 @@ def _reaction_total(reaction_counts: dict[str, int]) -> int:
     return sum(int(reaction_counts.get(value, 0)) for value in ("love", "maybe", "no"))
 
 
+def _reaction_counts_from_snapshot(snapshot: dict | None) -> dict[str, int]:
+    counts = {"love": 0, "maybe": 0, "no": 0}
+    for row in (snapshot or {}).get("reactions", []):
+        value = str(row.get("value", ""))
+        if value in counts:
+            counts[value] += 1
+    return counts
+
+
 def _reaction_values(snapshot: dict | None) -> dict[str, str]:
     return {
         str(row["result_id"]): str(row["value"])
@@ -997,7 +1006,7 @@ def _render_results_snapshot(
             refinement_prompt=snapshot["session"].get("refinement_prompt"),
         )
         snapshot = get_session_snapshot(session_id) or snapshot
-    reaction_counts = get_reaction_counts(session_id)
+    reaction_counts = snapshot.get("reaction_counts") or _reaction_counts_from_snapshot(snapshot)
     response = make_response(
         render_template(
             "results.html",
@@ -1321,7 +1330,8 @@ def create_app() -> Flask:
                 return _free_generation_access_required_response(vertical, session_id)
             names = _generate_names_for_route(vertical, brief)
             save_session(session_id, vertical.slug, brief, names)
-        taste_profile_row = get_taste_profile(session_id)
+            snapshot = get_session_snapshot(session_id)
+        reaction_counts = snapshot.get("reaction_counts") if snapshot else {"love": 0, "maybe": 0, "no": 0}
         response = make_response(render_template(
             "results.html",
             vertical=vertical,
@@ -1329,9 +1339,9 @@ def create_app() -> Flask:
             names=names,
             trust_cue=build_trust_cue(names),
             session_id=session_id,
-            reaction_counts=get_reaction_counts(session_id),
-            reaction_values=_reaction_values(get_session_snapshot(session_id)),
-            taste_profile=json_loads(taste_profile_row["profile_json"]) if taste_profile_row else None,
+            reaction_counts=reaction_counts,
+            reaction_values=_reaction_values(snapshot),
+            taste_profile=_taste_profile_from_snapshot(snapshot or {}),
             round_number=1,
             parent_session_id=None,
             original_mode=True,
@@ -1402,7 +1412,8 @@ def create_app() -> Flask:
                 return _free_generation_access_required_response(vertical, session_id)
             names = _generate_names_for_route(vertical, brief)
             save_session(session_id, vertical.slug, brief, names)
-        taste_profile_row = get_taste_profile(session_id)
+            snapshot = get_session_snapshot(session_id)
+        reaction_counts = snapshot.get("reaction_counts") if snapshot else {"love": 0, "maybe": 0, "no": 0}
         response = make_response(render_template(
             "results.html",
             vertical=vertical,
@@ -1410,9 +1421,9 @@ def create_app() -> Flask:
             names=names,
             trust_cue=build_trust_cue(names),
             session_id=session_id,
-            reaction_counts=get_reaction_counts(session_id),
-            reaction_values=_reaction_values(get_session_snapshot(session_id)),
-            taste_profile=json_loads(taste_profile_row["profile_json"]) if taste_profile_row else None,
+            reaction_counts=reaction_counts,
+            reaction_values=_reaction_values(snapshot),
+            taste_profile=_taste_profile_from_snapshot(snapshot or {}),
             round_number=1,
             parent_session_id=None,
             original_mode=False,
@@ -2054,6 +2065,7 @@ def _generate_names_for_route(
                 name.metadata["llm_required"] = False
                 name.metadata["ai_primary_fallback"] = True
             name.metadata["ai_primary_requested"] = True
+        _record_provider_failures_from_fallback(vertical, brief, names)
         if vertical.slug == "business":
             names = enrich_business_domain_info(names)
         return names
@@ -2067,6 +2079,42 @@ def _generate_names_for_route(
         previous_names=previous_names or [],
         use_ai=False,
     )
+
+
+def _record_provider_failures_from_fallback(vertical, brief: NamingBrief, names: list[NameResult]) -> None:
+    if vertical.slug not in {"baby", "pet"}:
+        return
+
+    recorded: set[tuple[str, str]] = set()
+    for name in names:
+        if str(name.metadata.get("provider") or "").lower() != ModelProvider.FALLBACK.value:
+            continue
+        failures = name.metadata.get("provider_failures")
+        if not isinstance(failures, list):
+            continue
+        for failure in failures:
+            if not isinstance(failure, dict):
+                continue
+            provider = str(failure.get("provider") or ModelProvider.OPENAI.value)
+            exception_type = str(failure.get("exception_type") or "generation_error")
+            key = (provider, exception_type)
+            if key in recorded:
+                continue
+            recorded.add(key)
+            try:
+                save_failed_generation_audit(
+                    vertical=vertical.slug,
+                    provider=provider,
+                    model=os.getenv("NAMENGINE_OPENAI_MODEL", DEFAULT_MODEL),
+                    prompt_version=prompt_version_for(vertical.slug),
+                    latency_ms=int(failure.get("latency_ms") or 0),
+                    customer_intake=_audit_customer_intake(brief),
+                    exception_type=exception_type,
+                    safe_error_message="Provider failed; deterministic fallback returned customer results.",
+                )
+            except Exception:  # pragma: no cover - audit failure must not replace product response
+                logger.exception("Could not persist fallback provider-failure audit for %s", vertical.slug)
+        name.metadata.pop("provider_failures", None)
 
 
 def _audit_customer_intake(brief: NamingBrief) -> dict:

@@ -1,4 +1,6 @@
 import unittest
+import os
+import tempfile
 from unittest.mock import patch
 
 import httpx
@@ -7,6 +9,8 @@ from openai import APITimeoutError
 import app as platform_app
 import namengine.core.model_router as model_router
 from app import NameGenerationUnavailable, create_app
+from namengine.core import get_failed_generation_audits
+from namengine.core.mission_control_telemetry import build_openai_usage_report
 from namengine.core.ai_generation import AIGenerationError, _default_client, _openai_timeout_seconds
 from namengine.core.briefs import build_brief
 from namengine.core.schemas import ModelProvider
@@ -29,12 +33,22 @@ def _openai_incomplete(*args, **kwargs):
 
 class OpenAITimeoutFallbackTest(unittest.TestCase):
     def setUp(self):
+        self.tempdir = tempfile.TemporaryDirectory()
+        self.previous_db_path = os.environ.get("NAMENGINE_DB_PATH")
+        os.environ["NAMENGINE_DB_PATH"] = os.path.join(self.tempdir.name, "fallback.sqlite3")
         create_app()
         self.vertical = get_vertical("baby")
         self.brief = build_brief(
             self.vertical,
             {"gender": "Girl", "style": "Playful", "sound": "Soft and flowing"},
         )
+
+    def tearDown(self):
+        if self.previous_db_path is None:
+            os.environ.pop("NAMENGINE_DB_PATH", None)
+        else:
+            os.environ["NAMENGINE_DB_PATH"] = self.previous_db_path
+        self.tempdir.cleanup()
 
     def test_production_timeout_allows_three_pass_quality_generation_and_sdk_retries_are_disabled(self):
         with patch.dict("os.environ", {"NAMENGINE_OPENAI_TIMEOUT_SECONDS": "8"}), patch(
@@ -133,6 +147,34 @@ class OpenAITimeoutFallbackTest(unittest.TestCase):
         self.assertTrue(all(name.metadata["ai_primary_fallback"] is True for name in names))
         self.assertTrue(all(name.metadata["ai_primary_requested"] is True for name in names))
 
+    def test_baby_fallback_after_openai_timeout_records_failure_telemetry(self):
+        with patch.object(platform_app, "is_ai_generation_configured", return_value=True), patch.object(
+            model_router, "_openai_provider", side_effect=_openai_timeout
+        ), patch.dict("os.environ", {"NAMENGINE_AI_PRIMARY_VERTICALS": "baby"}):
+            names = platform_app._generate_names_for_route(self.vertical, self.brief)
+
+        self.assertTrue(names)
+        failures = get_failed_generation_audits("baby")
+        self.assertEqual(len(failures), 1)
+        self.assertEqual(failures[0]["provider"], "openai")
+        self.assertEqual(failures[0]["exception_type"], "AIGenerationError")
+        self.assertEqual(failures[0]["customer_intake"]["inputs"]["gender"], "Girl")
+        self.assertNotIn("request timed out", failures[0]["safe_error_message"])
+        report = build_openai_usage_report(vertical="baby", success=False)
+        self.assertEqual(report["summary"]["failure_count"], 1)
+        self.assertEqual(report["failures_by_error_type"][0]["error_type"], "AIGenerationError")
+
+    def test_business_provider_failure_still_does_not_fallback_or_record_successful_fallback(self):
+        business = get_vertical("business")
+        brief = build_brief(business, {"business_description": "Test studio", "style": "Clear"})
+        with patch.object(platform_app, "is_ai_generation_configured", return_value=True), patch.object(
+            model_router, "_openai_provider", side_effect=_openai_timeout
+        ), patch.dict("os.environ", {"NAMENGINE_AI_PRIMARY_VERTICALS": "business"}):
+            with self.assertRaises(NameGenerationUnavailable):
+                platform_app._generate_names_for_route(business, brief)
+
+        self.assertEqual(get_failed_generation_audits("business")[0]["exception_type"], "AIGenerationError")
+
     def test_user_sees_unavailable_only_when_both_providers_fail(self):
         with patch.object(platform_app, "is_ai_generation_configured", return_value=True), patch.object(
             model_router, "_openai_provider", side_effect=_openai_timeout
@@ -145,4 +187,3 @@ class OpenAITimeoutFallbackTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
