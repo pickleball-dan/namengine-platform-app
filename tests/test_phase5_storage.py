@@ -1,6 +1,7 @@
 import os
 import tempfile
 import unittest
+from contextlib import closing
 
 from app import create_app, make_session_id
 from access_helpers import unlock_beta_access
@@ -14,6 +15,7 @@ from namengine.core import (
     save_session,
 )
 from namengine.verticals import PET
+from namengine.core.storage import connect
 
 
 class PhaseFiveStorageTest(unittest.TestCase):
@@ -32,6 +34,14 @@ class PhaseFiveStorageTest(unittest.TestCase):
         else:
             os.environ["NAMENGINE_DB_PATH"] = self.previous_db_path
         self.tempdir.cleanup()
+
+    def test_connect_enables_foreign_keys_and_busy_timeout(self):
+        with closing(connect()) as connection:
+            foreign_keys = connection.execute("PRAGMA foreign_keys").fetchone()[0]
+            busy_timeout = connection.execute("PRAGMA busy_timeout").fetchone()[0]
+
+        self.assertEqual(foreign_keys, 1)
+        self.assertEqual(busy_timeout, 5000)
 
     def test_save_session_persists_brief_and_results(self):
         brief = build_brief(PET, {"species": "Dog", "style": "Warm"})

@@ -24,6 +24,7 @@ from namengine.core.provider_performance import build_provider_performance
 
 
 DEFAULT_DB_PATH = Path(__file__).resolve().parents[2] / "data" / "namengine.sqlite3"
+SQLITE_BUSY_TIMEOUT_MS = 5000
 
 
 class StorageError(RuntimeError):
@@ -37,9 +38,10 @@ def get_database_path() -> Path:
 def connect(db_path: Path | None = None) -> sqlite3.Connection:
     path = db_path or get_database_path()
     path.parent.mkdir(parents=True, exist_ok=True)
-    connection = sqlite3.connect(path)
+    connection = sqlite3.connect(path, timeout=SQLITE_BUSY_TIMEOUT_MS / 1000)
     connection.row_factory = sqlite3.Row
     connection.execute("PRAGMA foreign_keys = ON")
+    connection.execute(f"PRAGMA busy_timeout = {SQLITE_BUSY_TIMEOUT_MS}")
     return connection
 
 

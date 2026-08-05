@@ -1,6 +1,9 @@
 import os
+import subprocess
 import tempfile
+import textwrap
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 from app import create_app
@@ -139,6 +142,142 @@ class PhaseFourteenProgressExperienceTest(unittest.TestCase):
         self.assertIn("Finding names for ${subject}", script)
         self.assertIn("HTMLFormElement.prototype.submit.call(form)", script)
         self.assertIn('visual.dataset.progressPhase = String(index + 1)', script)
+
+    def _run_progress_duplicate_submit_harness(self, action):
+        script_path = Path(self.app.static_folder) / "js" / "progress.js"
+        harness = textwrap.dedent(
+            f"""
+            const fs = require("fs");
+            const vm = require("vm");
+            const progressScript = fs.readFileSync({str(script_path)!r}, "utf8");
+
+            function classList() {{
+              return {{
+                add() {{}},
+                remove() {{}},
+                toggle() {{}},
+                contains() {{ return false; }}
+              }};
+            }}
+
+            function element() {{
+              return {{
+                hidden: false,
+                dataset: {{}},
+                textContent: "",
+                classList: classList(),
+                querySelector() {{ return null; }},
+                querySelectorAll() {{ return []; }},
+                removeAttribute() {{}},
+                setAttribute() {{}},
+                appendChild() {{}},
+                closest() {{ return null; }},
+                checkValidity() {{ return true; }},
+                focus() {{}},
+                scrollIntoView() {{}},
+                offsetWidth: 1,
+              }};
+            }}
+
+            const overlay = element();
+            const current = element();
+            const visual = element();
+            const steps = [element(), element(), element()];
+            steps.forEach((step, index) => {{
+              step.dataset.progressHeadline = `Step ${{index + 1}}`;
+              step.textContent = `Step ${{index + 1}}`;
+            }});
+
+            const listeners = {{}};
+            const form = element();
+            form.method = "post";
+            form.action = {action!r};
+            form.elements = {{ namedItem() {{ return null; }} }};
+            form.matches = (selector) => selector === "[data-progress-form]";
+            form.addEventListener = (name, handler) => {{ listeners[name] = handler; }};
+
+            let fetchCount = 0;
+            const context = {{
+              console,
+              Promise,
+              Error,
+              Number,
+              Math,
+              String,
+              Boolean,
+              Array,
+              URL,
+              URLSearchParams,
+              FormData: class {{
+                constructor() {{}}
+                append() {{}}
+              }},
+              HTMLFormElement: {{ prototype: {{ submit() {{ throw new Error("fallback submit should not run"); }} }} }},
+              fetch() {{
+                fetchCount += 1;
+                return new Promise(() => {{}});
+              }},
+              document: {{
+                body: {{ classList: classList() }},
+                createElement: element,
+                getElementById() {{ return null; }},
+                querySelector(selector) {{
+                  if (selector === "[data-progress-overlay]") return overlay;
+                  if (selector === "[data-progress-current]") return current;
+                  if (selector === "[data-progress-eyebrow]") return element();
+                  if (selector === "[data-progress-visual]") return visual;
+                  if (selector === ".progress-visual-label") return element();
+                  if (selector === "[data-progress-note]") return element();
+                  return null;
+                }},
+                querySelectorAll(selector) {{
+                  if (selector === "[data-progress-step]") return steps;
+                  if (selector === "form") return [form];
+                  return [];
+                }},
+              }},
+              window: {{
+                location: {{ href: "https://example.test/current", assign() {{}} }},
+                addEventListener() {{}},
+                setInterval() {{ return 1; }},
+                clearInterval() {{}},
+                setTimeout() {{ return 1; }},
+              }},
+            }};
+            context.window.window = context.window;
+            vm.createContext(context);
+            vm.runInContext(progressScript, context);
+
+            const firstEvent = {{ prevented: false, preventDefault() {{ this.prevented = true; }} }};
+            const secondEvent = {{ prevented: false, preventDefault() {{ this.prevented = true; }} }};
+            listeners.submit(firstEvent);
+            listeners.submit(secondEvent);
+            console.log(JSON.stringify({{ fetchCount, firstPrevented: firstEvent.prevented, secondPrevented: secondEvent.prevented }}));
+            """
+        )
+        result = subprocess.run(
+            ["node", "-e", harness],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        return result.stdout.strip()
+
+    def test_intake_progress_suppresses_duplicate_in_flight_submit(self):
+        result = self._run_progress_duplicate_submit_harness("https://example.test/baby/results")
+
+        self.assertEqual(
+            result,
+            '{"fetchCount":1,"firstPrevented":true,"secondPrevented":true}',
+        )
+
+    def test_refine_progress_suppresses_duplicate_in_flight_submit(self):
+        result = self._run_progress_duplicate_submit_harness("https://example.test/refine")
+
+        self.assertEqual(
+            result,
+            '{"fetchCount":1,"firstPrevented":true,"secondPrevented":true}',
+        )
 
     def test_progress_overlay_has_synced_node_animation_styles(self):
         css_path = os.path.join(self.app.static_folder, "css", "platform.css")

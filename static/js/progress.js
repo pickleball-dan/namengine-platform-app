@@ -359,6 +359,7 @@
 
     form.addEventListener("submit", (event) => {
       if (submittingForm === form) {
+        event.preventDefault();
         return;
       }
       if (!form.checkValidity()) {
