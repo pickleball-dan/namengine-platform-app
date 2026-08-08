@@ -16,6 +16,20 @@
     "pet": [["✦", "Personality-led suggestions", "Names shaped around their energy, look, and place in your life."], ["◈", "Your details stay private", "Share only the pet details that help the search feel personal."], ["♥", "You choose what fits", "Save, compare, and refine until the name feels natural."]],
     "business": [["✦", "Strategic AI guidance", "Options shaped around positioning, audience, and category fit."], ["◈", "Your business context stays private", "Avoid confidential data while giving the engine useful direction."], ["♥", "You keep final control", "Compare fit, risks, and launch practicality before deciding."]]
   }.get(vertical.slug, []) %}
+  {% set textarea_tooltips = {
+    "baby": {
+      "notes": ["a name that feels gentle but not fragile", "something that still feels substantial when they are grown", "a quiet, hopeful feeling without sounding too sweet"],
+      "partner_alignment": ["we agree on the feeling but not the length", "one side loves nicknames; the other wants full-name strength", "we need a compromise that does not feel like settling"]
+    },
+    "pet": {
+      "pet_details": ["comes running the second you call", "acts like the tiny mayor of the room", "gentle with kids but dramatic at dinner"]
+    },
+    "business": {
+      "business_description": ["who pays, what they get, and what changes after", "what happens right before someone needs you", "where the business makes money"],
+      "notes": ["what would make the wrong name feel off", "a detail competitors usually miss", "the impression you want after the first visit"],
+      "partner_alignment": ["easy to explain versus interesting to remember", "sounds established without feeling generic", "inviting to first-time buyers but serious enough to trust"]
+    }
+  } %}
   <section class="intake-shell{% if is_polished_flow %} baby-flow-shell polished-flow-shell{% endif %}">
     <div class="intake-heading">
       {% set page_logo = vertical.assets.get("page_logo", vertical.assets.get("logo")) %}
@@ -164,6 +178,20 @@
               </p>
               <div class="baby-question-heading">
                 <h2 id="baby-question-{{ question.id }}">{{ question.label }}</h2>
+                {% set tooltip_examples = textarea_tooltips.get(vertical.slug, {}).get(question.id, []) %}
+                {% if question.kind == "textarea" and tooltip_examples %}
+                  <details class="intake-tooltip" data-intake-tooltip>
+                    <summary aria-label="Show examples for {{ question.label }}"><span aria-hidden="true">?</span></summary>
+                    <div class="intake-tooltip-panel" role="note">
+                      <strong>Try examples like:</strong>
+                      <ul>
+                        {% for example in tooltip_examples %}
+                          <li>{{ example }}</li>
+                        {% endfor %}
+                      </ul>
+                    </div>
+                  </details>
+                {% endif %}
                 <span class="baby-question-status">{{ "Required" if question.required else "Optional" }}</span>
               </div>
               {% if question.id == "gender" %}<p class="baby-question-lede">This helps us find names that feel just right.</p>{% endif %}
@@ -296,6 +324,20 @@
             <label class="field{% if is_polished_flow and question.required %} is-required{% endif %}{% if request.args.get('edit') == question.id %} is-edit-target{% endif %}" for="{{ question.id }}" id="field-{{ question.id }}">
               <span class="field-heading">
                 <span class="field-label-copy">{% if is_polished_flow %}<span class="baby-field-anchor" aria-hidden="true">{{ baby_field_icons.get(question.id, "·") }}</span>{% endif %}{{ question.label }}</span>
+                {% set tooltip_examples = textarea_tooltips.get(vertical.slug, {}).get(question.id, []) %}
+                {% if question.kind == "textarea" and tooltip_examples %}
+                  <details class="intake-tooltip" data-intake-tooltip>
+                    <summary aria-label="Show examples for {{ question.label }}"><span aria-hidden="true">?</span></summary>
+                    <div class="intake-tooltip-panel" role="note">
+                      <strong>Try examples like:</strong>
+                      <ul>
+                        {% for example in tooltip_examples %}
+                          <li>{{ example }}</li>
+                        {% endfor %}
+                      </ul>
+                    </div>
+                  </details>
+                {% endif %}
                 <em>{% if question.required %}Required{% else %}Optional{% endif %}</em>
               </span>
               {% if question.kind == "textarea" %}

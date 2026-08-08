@@ -746,6 +746,65 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         business_form = body.split('id="business-intake-form"', 1)[1].split('</form>', 1)[0]
         self.assertNotIn('<select', business_form)
 
+    def test_textarea_tooltips_render_examples_for_polished_verticals(self):
+        expectations = {
+            "baby": ("Tell us what matters", "something that still feels substantial when they are grown"),
+            "pet": ("Any other details that should shape the name or portrait?", "acts like the tiny mayor of the room"),
+            "business": ("What does the business do?", "what happens right before someone needs you"),
+        }
+
+        for slug, (label, example) in expectations.items():
+            with self.subTest(vertical=slug):
+                response = self.client.get(f"/{slug}")
+                body = response.get_data(as_text=True)
+
+                self.assertEqual(response.status_code, 200)
+                self.assertIn('class="intake-tooltip" data-intake-tooltip', body)
+                self.assertIn(f'aria-label="Show examples for {label}"', body)
+                self.assertIn("Try examples like:", body)
+                self.assertIn(example, body)
+
+        css = (Path(self.app.static_folder) / "css" / "platform.css").read_text(encoding="utf-8")
+        self.assertIn(".intake-tooltip", css)
+        self.assertIn(".intake-tooltip-panel", css)
+
+    def test_textarea_tooltip_copy_does_not_duplicate_taste_questions(self):
+        redundant_examples = {
+            "baby": (
+                "classic, elegant, easy to spell",
+                "Irish heritage, modern but not trendy",
+                "names already on your list and why they appeal",
+                "a naming tradition you want handled carefully",
+                "honor someone without using the exact name",
+                "avoid names starting with B",
+            ),
+            "pet": (
+                "outdoorsy names for an energetic puppy",
+                "favorite toy, ritual, or place",
+                "old-man names for a grumpy bulldog",
+                "avoid Bella or Max",
+            ),
+            "business": (
+                "modern name for a mobile coffee cart",
+                "luxury-feeling skincare brand",
+                "the service or offer in plain language",
+                "mission or customer promise",
+                "geography or local-market context",
+                "founder story or edge",
+                "short .com-style name for an AI tool",
+                "avoid anything too corporate",
+            ),
+        }
+
+        for slug, examples in redundant_examples.items():
+            with self.subTest(vertical=slug):
+                response = self.client.get(f"/{slug}")
+                body = response.get_data(as_text=True)
+
+                self.assertEqual(response.status_code, 200)
+                for example in examples:
+                    self.assertNotIn(example, body)
+
     def test_pet_intake_renders_as_three_decision_sections(self):
         response = self.client.get("/pet")
         body = response.get_data(as_text=True)

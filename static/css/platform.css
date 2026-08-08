@@ -7395,6 +7395,127 @@ button {
   white-space: nowrap;
 }
 
+.intake-tooltip {
+  position: relative;
+  flex: 0 0 auto;
+  align-self: center;
+  font-weight: 600;
+}
+
+.intake-tooltip summary {
+  display: inline-grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  color: var(--accent-deep);
+  background: var(--accent-soft);
+  border: 1px solid rgba(41, 52, 79, 0.1);
+  border-radius: 999px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.intake-tooltip summary::-webkit-details-marker {
+  display: none;
+}
+
+.intake-tooltip summary span {
+  display: block;
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.intake-tooltip[open] summary {
+  color: #ffffff;
+  background: var(--accent-deep);
+}
+
+.intake-tooltip-panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 20;
+  width: min(280px, calc(100vw - 48px));
+  padding: 14px 16px;
+  color: var(--ink);
+  text-align: left;
+  text-transform: none;
+  letter-spacing: 0;
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: 0 18px 40px rgba(24, 33, 47, 0.16);
+}
+
+.intake-tooltip-panel strong {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--accent-deep);
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.intake-tooltip-panel ul {
+  display: grid;
+  gap: 6px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.intake-tooltip-panel li {
+  position: relative;
+  padding-left: 14px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.intake-tooltip-panel li::before {
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  content: "•";
+}
+
+.vertical-baby .baby-question-heading .intake-tooltip {
+  position: absolute;
+  top: 0.18em;
+  right: 94px;
+}
+
+.vertical-baby .baby-question-heading .intake-tooltip-panel {
+  right: -40px;
+}
+
+@media (max-width: 560px) {
+  :is(.vertical-pet, .vertical-business) .field-heading {
+    flex-wrap: wrap;
+  }
+
+  .intake-tooltip-panel {
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .vertical-baby .baby-question-heading .intake-tooltip {
+    position: relative;
+    top: auto;
+    right: auto;
+    display: inline-block;
+    margin-top: 12px;
+  }
+
+  .vertical-baby .baby-question-heading .intake-tooltip-panel {
+    right: auto;
+    left: 0;
+    transform: none;
+  }
+}
+
 body.vertical-business {
   background:
     radial-gradient(circle at 20% 0%, rgba(255, 255, 255, 0.98) 0%, rgba(243, 250, 249, 0.96) 40%, rgba(232, 247, 245, 0.9) 100%),
