@@ -7492,13 +7492,22 @@ button {
 
 @media (max-width: 560px) {
   :is(.vertical-pet, .vertical-business) .field-heading {
+    position: relative;
     flex-wrap: wrap;
+    overflow: visible;
   }
 
-  .intake-tooltip-panel {
-    right: auto;
-    left: 50%;
-    transform: translateX(-50%);
+  :is(.vertical-pet, .vertical-business) .field-heading .intake-tooltip {
+    position: static;
+  }
+
+  :is(.vertical-pet, .vertical-business) .field-heading .intake-tooltip-panel {
+    top: calc(100% + 10px);
+    right: 0;
+    left: 0;
+    width: auto;
+    min-width: 0;
+    transform: none;
   }
 
   .vertical-baby .baby-question-heading .intake-tooltip {
