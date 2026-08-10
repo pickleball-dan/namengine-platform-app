@@ -179,7 +179,7 @@
                 {% set tooltip_examples = textarea_tooltips.get(vertical.slug, {}).get(question.id, []) %}
                 {% if question.kind == "textarea" and tooltip_examples %}
                   <details class="intake-tooltip" data-intake-tooltip>
-                    <summary aria-label="Show examples for {{ question.label }}"><span aria-hidden="true">?</span></summary>
+                    <summary aria-label="Show ideas for {{ question.label }}"><span aria-hidden="true">?</span><span class="intake-tooltip-label">Ideas</span></summary>
                     <div class="intake-tooltip-panel" role="note">
                       <strong>Try examples like:</strong>
                       <ul>

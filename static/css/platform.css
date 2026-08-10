@@ -7426,6 +7426,26 @@ button {
   line-height: 1;
 }
 
+.intake-tooltip summary .intake-tooltip-label {
+  display: none;
+}
+
+.vertical-baby .baby-question-heading .intake-tooltip summary {
+  display: inline-flex;
+  width: auto;
+  min-width: 26px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 9px;
+}
+
+.vertical-baby .baby-question-heading .intake-tooltip summary .intake-tooltip-label {
+  display: inline;
+  font-size: 12px;
+  font-weight: 850;
+}
+
 .intake-tooltip[open] summary {
   color: #ffffff;
   background: var(--accent-deep);
@@ -7516,9 +7536,25 @@ button {
     position: relative;
     top: auto;
     right: auto;
-    display: block;
-    flex-basis: 100%;
-    margin-top: 12px;
+    display: inline-flex;
+    flex: 0 0 auto;
+    margin-top: 0.42em;
+  }
+
+  .vertical-baby .baby-question-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 0 10px;
+    padding-right: 82px;
+  }
+
+  .vertical-baby .baby-question-heading h2 {
+    max-width: 100%;
+  }
+
+  .vertical-baby .baby-question-heading .baby-question-status {
+    right: 0;
   }
 
   .vertical-baby .baby-question-heading .intake-tooltip-panel {
