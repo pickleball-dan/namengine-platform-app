@@ -972,6 +972,20 @@ def beta_return_session_for(vertical) -> str:
     return return_session
 
 
+def _beta_usage_session_id(vertical, beta_usage: dict | None) -> str:
+    session_id = str((beta_usage or {}).get("free_session_id") or "").strip()
+    if session_id and session_id.startswith(f"{vertical.slug}-"):
+        return session_id
+    return ""
+
+
+def _beta_paid_continue_url(vertical, return_session: str, beta_usage: dict | None) -> str:
+    session_id = return_session or _beta_usage_session_id(vertical, beta_usage)
+    if session_id:
+        return url_for("session_results", session_id=session_id)
+    return url_for("intake", vertical_slug=vertical.slug)
+
+
 def _brief_from_snapshot(snapshot: dict) -> NamingBrief:
     return NamingBrief(**json_loads(snapshot["session"]["brief_json"]))
 
@@ -1121,18 +1135,15 @@ def create_app() -> Flask:
         checkout_return = beta_pending_checkout_from_request(vertical)
         stripe_payment_link = beta_payment_link_for(vertical)
         beta_usage = get_beta_usage(visitor_id, vertical.slug) if visitor_id else None
+        paid_session_id = return_session or _beta_usage_session_id(vertical, beta_usage)
         beta_checkout_url = (
             url_for("beta_checkout", vertical_slug=vertical.slug, return_session=return_session)
             if stripe_payment_link
             else ""
         )
-        beta_continue_url = (
-            url_for("session_results", session_id=return_session)
-            if (paid or checkout_return) and return_session
-            else url_for("intake", vertical_slug=vertical.slug)
-        )
-        if (paid or checkout_return) and return_session:
-            response = redirect(url_for("session_results", session_id=return_session))
+        beta_continue_url = _beta_paid_continue_url(vertical, return_session, beta_usage)
+        if (paid or checkout_return) and paid_session_id:
+            response = redirect(url_for("session_results", session_id=paid_session_id))
         else:
             response = make_response(
                 render_template(
@@ -1143,7 +1154,7 @@ def create_app() -> Flask:
                     beta_price=beta_price_for(vertical),
                     paid=paid or checkout_return,
                     beta_return_session=return_session if paid else "",
-                    beta_has_prior_round=bool(return_session),
+                    beta_has_prior_round=bool(paid_session_id),
                     beta_continue_url=beta_continue_url,
                     focused_access_return=bool(return_session) and not (paid or checkout_return),
                     beta_usage=beta_usage,
@@ -1163,7 +1174,7 @@ def create_app() -> Flask:
                 secure=request.is_secure,
             )
             response.delete_cookie(beta_pending_cookie_name(vertical))
-        if (paid or checkout_return) and return_session:
+        if (paid or checkout_return) and paid_session_id:
             response.delete_cookie(beta_return_cookie_name(vertical))
         return response
 

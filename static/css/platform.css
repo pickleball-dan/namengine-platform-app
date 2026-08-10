@@ -7499,14 +7499,16 @@ button {
 
   :is(.vertical-pet, .vertical-business) .field-heading .intake-tooltip {
     position: static;
+    flex-basis: 100%;
   }
 
   :is(.vertical-pet, .vertical-business) .field-heading .intake-tooltip-panel {
-    top: calc(100% + 10px);
-    right: 0;
-    left: 0;
-    width: auto;
+    position: static;
+    width: 100%;
     min-width: 0;
+    max-height: none;
+    margin-top: 10px;
+    overflow: visible;
     transform: none;
   }
 
@@ -7514,13 +7516,17 @@ button {
     position: relative;
     top: auto;
     right: auto;
-    display: inline-block;
+    display: block;
+    flex-basis: 100%;
     margin-top: 12px;
   }
 
   .vertical-baby .baby-question-heading .intake-tooltip-panel {
-    right: auto;
-    left: 0;
+    position: static;
+    width: 100%;
+    max-height: none;
+    margin-top: 10px;
+    overflow: visible;
     transform: none;
   }
 }
@@ -7919,12 +7925,12 @@ body.vertical-business {
 @media (max-width: 760px) {
   :is(.vertical-pet, .vertical-business) .polished-flow-shell {
     gap: 28px;
-    padding-top: 0;
+    padding-top: max(18px, env(safe-area-inset-top));
   }
 
   :is(.vertical-pet, .vertical-business) .baby-welcome {
     min-height: calc(100svh - 150px);
-    padding: 34px 24px;
+    padding: max(44px, calc(env(safe-area-inset-top) + 34px)) 24px 34px;
     border-radius: 26px;
   }
 
@@ -8062,7 +8068,7 @@ body.vertical-business {
 @media (max-width: 390px) {
   :is(.vertical-pet, .vertical-business) .baby-welcome {
     min-height: 0;
-    padding: 24px 18px;
+    padding: max(40px, calc(env(safe-area-inset-top) + 28px)) 18px 24px;
   }
 
   :is(.vertical-pet, .vertical-business) .baby-welcome .vertical-page-logo {

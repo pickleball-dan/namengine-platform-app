@@ -4,6 +4,7 @@ import tempfile
 import unittest
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from unittest.mock import patch
 
 from app import create_app, make_session_id
 from namengine.core.storage import get_beta_usage, get_session_snapshot
@@ -36,6 +37,13 @@ class BetaUsageLimitsTest(unittest.TestCase):
 
     def _baby_first_query(self) -> str:
         return "gender=Girl&style=Classic&sound=Soft"
+
+    def _first_query_for(self, vertical: str) -> str:
+        return {
+            "baby": self._baby_first_query(),
+            "pet": "pet_type=Dog&style=Classic&vibe=Playful",
+            "business": "business_description=Design+studio&audience=Premium+clients&style=Premium+and+refined",
+        }[vertical]
 
     def _extract_session_id(self, html: str) -> str:
         marker = 'data-session-id="'
@@ -117,6 +125,35 @@ class BetaUsageLimitsTest(unittest.TestCase):
         response = self.client.get(f"/results/session/{session_id}", follow_redirects=False)
 
         self.assertEqual(response.status_code, 200)
+
+    def test_paid_checkout_return_resumes_existing_generated_list_without_return_session(self):
+        for vertical in ("baby", "pet", "business"):
+            with self.subTest(vertical=vertical):
+                self.client = create_app().test_client()
+                first = self.client.get(f"/{vertical}/results?{self._first_query_for(vertical)}")
+                session_id = self._extract_session_id(first.get_data(as_text=True))
+                env_key = f"NAMENGINE_{vertical.upper()}_BETA_PAYMENT_LINK"
+                previous = os.environ.get(env_key)
+                os.environ[env_key] = "https://buy.stripe.com/test_example"
+                try:
+                    checkout = self.client.get(f"/{vertical}/access/checkout", follow_redirects=False)
+                    with patch("app._stripe_checkout_session_paid", return_value=True):
+                        paid_return = self.client.get(
+                            f"/{vertical}/access?checkout_session_id=cs_test_paid",
+                            follow_redirects=False,
+                        )
+                    paid_access_revisit = self.client.get(f"/{vertical}/access", follow_redirects=False)
+                finally:
+                    if previous is None:
+                        os.environ.pop(env_key, None)
+                    else:
+                        os.environ[env_key] = previous
+
+                self.assertEqual(checkout.status_code, 302)
+                self.assertEqual(paid_return.status_code, 302)
+                self.assertEqual(paid_return.headers["Location"], f"/results/session/{session_id}")
+                self.assertEqual(paid_access_revisit.status_code, 302)
+                self.assertEqual(paid_access_revisit.headers["Location"], f"/results/session/{session_id}")
 
     def test_optional_email_capture_records_email_without_unlocking_access(self):
         first = self.client.get(f"/baby/results?{self._baby_first_query()}")

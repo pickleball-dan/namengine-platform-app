@@ -609,6 +609,26 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.assertNotIn('aria-label="Edit Gender"', text)
         self.assertNotIn('data-adjust-feelings', text)
 
+    def test_free_results_show_name_cards_before_any_unlock_prompt(self):
+        cases = (
+            ("baby", b"gender=Girl&style=Classic&sound=Soft"),
+            ("pet", b"pet_type=Dog&style=Classic&vibe=Playful"),
+            ("business", b"business_description=Design+studio&audience=Premium+clients&style=Premium+and+refined"),
+        )
+        for vertical, query in cases:
+            with self.subTest(vertical=vertical):
+                client = create_app().test_client()
+                response = client.get(f"/{vertical}/results?{query.decode('utf-8')}")
+                text = response.get_data(as_text=True)
+                results_grid_index = text.index('class="results-grid"')
+                bottom_lock_index = text.index('class="bottom-refine-form beta-refine-lock"')
+
+                self.assertEqual(response.status_code, 200)
+                self.assertIn('class="result-card', text)
+                self.assertIn(f"/{vertical}/access?return_session=", text)
+                self.assertNotIn("results-access-panel", text)
+                self.assertGreater(bottom_lock_index, results_grid_index)
+
     def test_free_post_results_actions_redirect_to_access(self):
         query = b"gender=Girl&style=Classic&sound=Soft"
         session_id = make_session_id("baby", query)
