@@ -8,6 +8,7 @@ from unittest.mock import patch
 
 from app import create_app, make_session_id
 from namengine.core.storage import get_beta_usage, get_session_snapshot
+from namengine.verticals import get_vertical
 
 
 class BetaUsageLimitsTest(unittest.TestCase):
@@ -154,6 +155,66 @@ class BetaUsageLimitsTest(unittest.TestCase):
                 self.assertEqual(paid_return.headers["Location"], f"/results/session/{session_id}")
                 self.assertEqual(paid_access_revisit.status_code, 302)
                 self.assertEqual(paid_access_revisit.headers["Location"], f"/results/session/{session_id}")
+
+    def test_paid_checkout_return_recovers_prior_list_from_signed_checkout_cookie(self):
+        from app import _signed_beta_access_token, beta_pending_cookie_name
+
+        first = self.client.get(f"/pet/results?{self._first_query_for('pet')}")
+        session_id = self._extract_session_id(first.get_data(as_text=True))
+        vertical = get_vertical("pet")
+        returning_client = create_app().test_client()
+        returning_client.set_cookie(
+            beta_pending_cookie_name(vertical),
+            _signed_beta_access_token(vertical, session_id),
+        )
+
+        with patch("app._stripe_checkout_session_paid", return_value=True):
+            paid_return = returning_client.get(
+                "/pet/access?checkout_session_id=cs_test_paid",
+                follow_redirects=False,
+            )
+
+        self.assertEqual(paid_return.status_code, 302)
+        self.assertEqual(paid_return.headers["Location"], f"/results/session/{session_id}")
+
+    def test_paid_checkout_return_recovers_prior_list_from_stripe_metadata(self):
+        from app import _signed_beta_access_token, beta_pending_cookie_name
+
+        first = self.client.get(f"/pet/results?{self._first_query_for('pet')}")
+        session_id = self._extract_session_id(first.get_data(as_text=True))
+        vertical = get_vertical("pet")
+        returning_client = create_app().test_client()
+        returning_client.set_cookie(
+            beta_pending_cookie_name(vertical),
+            _signed_beta_access_token(vertical),
+        )
+        previous_secret = os.environ.get("STRIPE_SECRET_KEY")
+        os.environ["STRIPE_SECRET_KEY"] = "sk_test_example"
+        try:
+            with patch("app._stripe_checkout_session_paid", return_value=True), patch(
+                "app._stripe_api_get",
+                return_value={
+                    "payment_status": "paid",
+                    "status": "complete",
+                    "metadata": {
+                        "namengine_access": "1",
+                        "namengine_vertical": "pet",
+                        "namengine_return_session": session_id,
+                    },
+                },
+            ):
+                paid_return = returning_client.get(
+                    "/pet/access?checkout_session_id=cs_test_paid",
+                    follow_redirects=False,
+                )
+        finally:
+            if previous_secret is None:
+                os.environ.pop("STRIPE_SECRET_KEY", None)
+            else:
+                os.environ["STRIPE_SECRET_KEY"] = previous_secret
+
+        self.assertEqual(paid_return.status_code, 302)
+        self.assertEqual(paid_return.headers["Location"], f"/results/session/{session_id}")
 
     def test_optional_email_capture_records_email_without_unlocking_access(self):
         first = self.client.get(f"/baby/results?{self._baby_first_query()}")

@@ -849,6 +849,53 @@ def _stripe_checkout_session_paid(session_id: str, vertical) -> bool:
     return bool(payment_link_id) and session_payment_link == payment_link_id
 
 
+def _checkout_return_session_candidate(vertical, value: str) -> str:
+    session_id = str(value or "").strip()
+    if session_id and session_id.startswith(f"{vertical.slug}-"):
+        return session_id
+    return ""
+
+
+def _beta_pending_return_session_from_request(vertical) -> str:
+    """Recover the original results session from the signed checkout-continuity cookie."""
+    token = request.cookies.get(beta_pending_cookie_name(vertical), "")
+    if not _valid_beta_access_token(vertical, token, max_age_seconds=60 * 60 * 6):
+        return ""
+    try:
+        return_session, _issued_at, _signature = str(token or "").rsplit(":", 2)
+    except (TypeError, ValueError):
+        return ""
+    return _checkout_return_session_candidate(vertical, return_session)
+
+
+def _stripe_checkout_return_session(session_id: str, vertical) -> str:
+    """Recover the app-created Checkout Session's original results session from Stripe metadata."""
+    session_id = str(session_id or "").strip()
+    secret_key = _stripe_secret_key()
+    if not session_id or not secret_key:
+        return ""
+    try:
+        payload = _stripe_api_get(f"checkout/sessions/{session_id}", secret_key)
+    except (HTTPError, URLError, TimeoutError, ValueError, OSError) as exc:
+        logger.warning("Could not recover Stripe checkout return session %s: %s", session_id, exc.__class__.__name__)
+        return ""
+    if not isinstance(payload, dict):
+        return ""
+    if payload.get("payment_status") != "paid" or payload.get("status") != "complete":
+        return ""
+    metadata = payload.get("metadata") if isinstance(payload.get("metadata"), dict) else {}
+    if metadata.get("namengine_access") != "1" or metadata.get("namengine_vertical") != vertical.slug:
+        return ""
+    return _checkout_return_session_candidate(
+        vertical,
+        str(metadata.get("namengine_return_session") or payload.get("client_reference_id") or ""),
+    )
+
+
+def _stripe_checkout_return_session_from_request(vertical) -> str:
+    return _stripe_checkout_return_session(beta_stripe_checkout_session_id_from_request(), vertical)
+
+
 def beta_stripe_checkout_session_id_from_request() -> str:
     return (
         request.args.get("checkout_session_id", "").strip()
@@ -1133,6 +1180,11 @@ def create_app() -> Flask:
         return_session = beta_return_session_for(vertical)
         paid = beta_unlocked_from_request(vertical)
         checkout_return = beta_pending_checkout_from_request(vertical)
+        if checkout_return and not return_session:
+            return_session = (
+                _beta_pending_return_session_from_request(vertical)
+                or _stripe_checkout_return_session_from_request(vertical)
+            )
         stripe_payment_link = beta_payment_link_for(vertical)
         beta_usage = get_beta_usage(visitor_id, vertical.slug) if visitor_id else None
         paid_session_id = return_session or _beta_usage_session_id(vertical, beta_usage)
