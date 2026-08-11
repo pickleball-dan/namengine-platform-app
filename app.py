@@ -792,6 +792,15 @@ def _stripe_checkout_cancel_url(vertical, return_session: str) -> str:
     return _absolute_url(access_path)
 
 
+def _stripe_payment_link_checkout_url(payment_link: str, return_session: str) -> str:
+    payment_link = str(payment_link or "").strip()
+    return_session = str(return_session or "").strip()
+    if not payment_link or not return_session:
+        return payment_link
+    separator = "&" if "?" in payment_link else "?"
+    return f"{payment_link}{separator}{urlencode({'client_reference_id': return_session})}"
+
+
 def _create_stripe_checkout_session(vertical, return_session: str) -> str:
     """Create a Stripe Checkout Session with an app-controlled success URL."""
     secret_key = _stripe_secret_key()
@@ -884,12 +893,19 @@ def _stripe_checkout_return_session(session_id: str, vertical) -> str:
     if payload.get("payment_status") != "paid" or payload.get("status") != "complete":
         return ""
     metadata = payload.get("metadata") if isinstance(payload.get("metadata"), dict) else {}
-    if metadata.get("namengine_access") != "1" or metadata.get("namengine_vertical") != vertical.slug:
-        return ""
-    return _checkout_return_session_candidate(
-        vertical,
-        str(metadata.get("namengine_return_session") or payload.get("client_reference_id") or ""),
+    if metadata.get("namengine_access") == "1" and metadata.get("namengine_vertical") == vertical.slug:
+        return _checkout_return_session_candidate(
+            vertical,
+            str(metadata.get("namengine_return_session") or payload.get("client_reference_id") or ""),
+        )
+    payment_link_id = beta_payment_link_id_for(vertical) or _stripe_payment_link_id_from_url(
+        beta_payment_link_for(vertical),
+        secret_key,
     )
+    session_payment_link = str(payload.get("payment_link") or "").strip()
+    if payment_link_id and session_payment_link == payment_link_id:
+        return _checkout_return_session_candidate(vertical, str(payload.get("client_reference_id") or ""))
+    return ""
 
 
 def _stripe_checkout_return_session_from_request(vertical) -> str:
@@ -1188,8 +1204,9 @@ def create_app() -> Flask:
         stripe_payment_link = beta_payment_link_for(vertical)
         beta_usage = get_beta_usage(visitor_id, vertical.slug) if visitor_id else None
         paid_session_id = return_session or _beta_usage_session_id(vertical, beta_usage)
+        checkout_return_session = return_session or _beta_usage_session_id(vertical, beta_usage)
         beta_checkout_url = (
-            url_for("beta_checkout", vertical_slug=vertical.slug, return_session=return_session)
+            url_for("beta_checkout", vertical_slug=vertical.slug, return_session=checkout_return_session)
             if stripe_payment_link
             else ""
         )
@@ -1279,13 +1296,20 @@ def create_app() -> Flask:
         if vertical_slug not in VERTICALS:
             abort(404)
         vertical = get_vertical(vertical_slug)
-        return_session = request.args.get("return_session", "").strip()
+        return_session = request.args.get("return_session", "").strip() or beta_return_session_for(vertical)
         if return_session and not return_session.startswith(f"{vertical.slug}-"):
             return_session = ""
+        if not return_session:
+            visitor_id = _beta_visitor_id(create=False)
+            beta_usage = get_beta_usage(visitor_id, vertical.slug) if visitor_id else None
+            return_session = _beta_usage_session_id(vertical, beta_usage)
         stripe_payment_link = beta_payment_link_for(vertical)
         if not stripe_payment_link:
             return redirect(url_for("beta_landing", vertical_slug=vertical.slug))
-        checkout_url = _create_stripe_checkout_session(vertical, return_session) or stripe_payment_link
+        checkout_url = _create_stripe_checkout_session(vertical, return_session) or _stripe_payment_link_checkout_url(
+            stripe_payment_link,
+            return_session,
+        )
         response = redirect(checkout_url)
         response.set_cookie(
             beta_pending_cookie_name(vertical),

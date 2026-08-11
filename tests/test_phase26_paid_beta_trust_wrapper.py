@@ -413,7 +413,10 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
 
         checkout_cookies = "\n".join(checkout.headers.getlist("Set-Cookie"))
         self.assertEqual(checkout.status_code, 302)
-        self.assertEqual(checkout.headers["Location"], "https://buy.stripe.com/test_example")
+        self.assertEqual(
+            checkout.headers["Location"],
+            "https://buy.stripe.com/test_example?client_reference_id=baby-testsession",
+        )
         self.assertIn("namengine_access_checkout_baby=", checkout_cookies)
         self.assertIn("namengine_access_return_baby=baby-testsession", checkout_cookies)
         self.assertEqual(paid_return.status_code, 302)

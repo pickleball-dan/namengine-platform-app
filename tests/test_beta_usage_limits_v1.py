@@ -127,6 +127,24 @@ class BetaUsageLimitsTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
 
+    def test_access_checkout_link_carries_first_generated_list_from_usage_ledger(self):
+        first = self.client.get(f"/pet/results?{self._first_query_for('pet')}")
+        session_id = self._extract_session_id(first.get_data(as_text=True))
+        previous_link = os.environ.get("NAMENGINE_PET_BETA_PAYMENT_LINK")
+        os.environ["NAMENGINE_PET_BETA_PAYMENT_LINK"] = "https://buy.stripe.com/test_example"
+        try:
+            access = self.client.get("/pet/access")
+            checkout = self.client.get("/pet/access/checkout", follow_redirects=False)
+        finally:
+            if previous_link is None:
+                os.environ.pop("NAMENGINE_PET_BETA_PAYMENT_LINK", None)
+            else:
+                os.environ["NAMENGINE_PET_BETA_PAYMENT_LINK"] = previous_link
+
+        self.assertIn(f"/pet/access/checkout?return_session={session_id}", access.get_data(as_text=True))
+        checkout_cookies = "\n".join(checkout.headers.getlist("Set-Cookie"))
+        self.assertIn(f"namengine_access_return_pet={session_id}", checkout_cookies)
+
     def test_paid_checkout_return_resumes_existing_generated_list_without_return_session(self):
         for vertical in ("baby", "pet", "business"):
             with self.subTest(vertical=vertical):
@@ -173,6 +191,69 @@ class BetaUsageLimitsTest(unittest.TestCase):
                 "/pet/access?checkout_session_id=cs_test_paid",
                 follow_redirects=False,
             )
+
+        self.assertEqual(paid_return.status_code, 302)
+        self.assertEqual(paid_return.headers["Location"], f"/results/session/{session_id}")
+
+    def test_payment_link_fallback_carries_prior_list_client_reference_id(self):
+        first = self.client.get(f"/pet/results?{self._first_query_for('pet')}")
+        session_id = self._extract_session_id(first.get_data(as_text=True))
+        previous_link = os.environ.get("NAMENGINE_PET_BETA_PAYMENT_LINK")
+        os.environ["NAMENGINE_PET_BETA_PAYMENT_LINK"] = "https://buy.stripe.com/test_example"
+        try:
+            with patch("app._create_stripe_checkout_session", return_value=""):
+                checkout = self.client.get("/pet/access/checkout", follow_redirects=False)
+        finally:
+            if previous_link is None:
+                os.environ.pop("NAMENGINE_PET_BETA_PAYMENT_LINK", None)
+            else:
+                os.environ["NAMENGINE_PET_BETA_PAYMENT_LINK"] = previous_link
+
+        self.assertEqual(checkout.status_code, 302)
+        self.assertEqual(
+            checkout.headers["Location"],
+            f"https://buy.stripe.com/test_example?client_reference_id={session_id}",
+        )
+
+    def test_paid_checkout_return_recovers_payment_link_client_reference_id(self):
+        from app import _signed_beta_access_token, beta_pending_cookie_name
+
+        first = self.client.get(f"/pet/results?{self._first_query_for('pet')}")
+        session_id = self._extract_session_id(first.get_data(as_text=True))
+        vertical = get_vertical("pet")
+        returning_client = create_app().test_client()
+        returning_client.set_cookie(
+            beta_pending_cookie_name(vertical),
+            _signed_beta_access_token(vertical),
+        )
+        previous_secret = os.environ.get("STRIPE_SECRET_KEY")
+        previous_link_id = os.environ.get("NAMENGINE_PET_STRIPE_PAYMENT_LINK_ID")
+        os.environ["STRIPE_SECRET_KEY"] = "sk_test_example"
+        os.environ["NAMENGINE_PET_STRIPE_PAYMENT_LINK_ID"] = "plink_pet"
+        try:
+            with patch(
+                "app._stripe_api_get",
+                return_value={
+                    "payment_status": "paid",
+                    "status": "complete",
+                    "payment_link": "plink_pet",
+                    "client_reference_id": session_id,
+                    "metadata": {},
+                },
+            ):
+                paid_return = returning_client.get(
+                    "/pet/access?checkout_session_id=cs_test_paid",
+                    follow_redirects=False,
+                )
+        finally:
+            if previous_secret is None:
+                os.environ.pop("STRIPE_SECRET_KEY", None)
+            else:
+                os.environ["STRIPE_SECRET_KEY"] = previous_secret
+            if previous_link_id is None:
+                os.environ.pop("NAMENGINE_PET_STRIPE_PAYMENT_LINK_ID", None)
+            else:
+                os.environ["NAMENGINE_PET_STRIPE_PAYMENT_LINK_ID"] = previous_link_id
 
         self.assertEqual(paid_return.status_code, 302)
         self.assertEqual(paid_return.headers["Location"], f"/results/session/{session_id}")
