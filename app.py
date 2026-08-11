@@ -865,16 +865,33 @@ def _checkout_return_session_candidate(vertical, value: str) -> str:
     return ""
 
 
-def _beta_pending_return_session_from_request(vertical) -> str:
-    """Recover the original results session from the signed checkout-continuity cookie."""
-    token = request.cookies.get(beta_pending_cookie_name(vertical), "")
-    if not _valid_beta_access_token(vertical, token, max_age_seconds=60 * 60 * 6):
+def _beta_return_session_from_signed_cookie(vertical, cookie_name: str, *, max_age_seconds: int) -> str:
+    token = request.cookies.get(cookie_name, "")
+    if not _valid_beta_access_token(vertical, token, max_age_seconds=max_age_seconds):
         return ""
     try:
         return_session, _issued_at, _signature = str(token or "").rsplit(":", 2)
     except (TypeError, ValueError):
         return ""
     return _checkout_return_session_candidate(vertical, return_session)
+
+
+def _beta_pending_return_session_from_request(vertical) -> str:
+    """Recover the original results session from the signed checkout-continuity cookie."""
+    return _beta_return_session_from_signed_cookie(
+        vertical,
+        beta_pending_cookie_name(vertical),
+        max_age_seconds=60 * 60 * 6,
+    )
+
+
+def _beta_unlocked_return_session_from_request(vertical) -> str:
+    """Recover the paid user's original results session from the long-lived unlock cookie."""
+    return _beta_return_session_from_signed_cookie(
+        vertical,
+        beta_unlock_cookie_name(vertical),
+        max_age_seconds=60 * 60 * 24 * 30,
+    )
 
 
 def _stripe_checkout_return_session(session_id: str, vertical) -> str:
@@ -1195,7 +1212,12 @@ def create_app() -> Flask:
         visitor_id = _beta_visitor_id(create=True)
         return_session = beta_return_session_for(vertical)
         paid = beta_unlocked_from_request(vertical)
+        if paid and not return_session:
+            return_session = _beta_unlocked_return_session_from_request(vertical)
+        checkout_session_id = beta_stripe_checkout_session_id_from_request()
         checkout_return = beta_pending_checkout_from_request(vertical)
+        if checkout_session_id and not checkout_return:
+            checkout_return = _stripe_checkout_session_paid(checkout_session_id, vertical)
         if checkout_return and not return_session:
             return_session = (
                 _beta_pending_return_session_from_request(vertical)
@@ -1236,7 +1258,7 @@ def create_app() -> Flask:
         if checkout_return:
             response.set_cookie(
                 beta_unlock_cookie_name(vertical),
-                _signed_beta_access_token(vertical),
+                _signed_beta_access_token(vertical, paid_session_id),
                 max_age=60 * 60 * 24 * 30,
                 httponly=True,
                 samesite="Lax",

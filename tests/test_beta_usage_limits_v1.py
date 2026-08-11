@@ -297,6 +297,49 @@ class BetaUsageLimitsTest(unittest.TestCase):
         self.assertEqual(paid_return.status_code, 302)
         self.assertEqual(paid_return.headers["Location"], f"/results/session/{session_id}")
 
+    def test_paid_checkout_return_recovers_prior_list_from_stripe_without_pending_cookie(self):
+        first = self.client.get(f"/baby/results?{self._first_query_for('baby')}")
+        session_id = self._extract_session_id(first.get_data(as_text=True))
+        returning_client = create_app().test_client()
+        previous_secret = os.environ.get("STRIPE_SECRET_KEY")
+        os.environ["STRIPE_SECRET_KEY"] = "sk_test_example"
+        try:
+            with patch(
+                "app._stripe_api_get",
+                return_value={
+                    "payment_status": "paid",
+                    "status": "complete",
+                    "metadata": {
+                        "namengine_access": "1",
+                        "namengine_vertical": "baby",
+                        "namengine_return_session": session_id,
+                    },
+                },
+            ):
+                paid_return = returning_client.get(
+                    "/baby/access?checkout_session_id=cs_test_paid",
+                    follow_redirects=False,
+                    base_url="https://nam-engine.com",
+                )
+        finally:
+            if previous_secret is None:
+                os.environ.pop("STRIPE_SECRET_KEY", None)
+            else:
+                os.environ["STRIPE_SECRET_KEY"] = previous_secret
+
+        paid_cookie = "\n".join(paid_return.headers.getlist("Set-Cookie"))
+        paid_access_revisit = returning_client.get(
+            "/baby/access",
+            follow_redirects=False,
+            base_url="https://nam-engine.com",
+        )
+
+        self.assertEqual(paid_return.status_code, 302)
+        self.assertEqual(paid_return.headers["Location"], f"/results/session/{session_id}")
+        self.assertIn("namengine_access_unlocked_baby=", paid_cookie)
+        self.assertEqual(paid_access_revisit.status_code, 302)
+        self.assertEqual(paid_access_revisit.headers["Location"], f"/results/session/{session_id}")
+
     def test_optional_email_capture_records_email_without_unlocking_access(self):
         first = self.client.get(f"/baby/results?{self._baby_first_query()}")
         session_id = self._extract_session_id(first.get_data(as_text=True))
