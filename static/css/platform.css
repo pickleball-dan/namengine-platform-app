@@ -11535,3 +11535,48 @@ body.vertical-business {
   background: rgba(210, 228, 248, 0.80);
   border-color: rgba(39, 71, 110, 0.22);
 }
+
+/* Final mobile guardrail: keep baby Ideas examples inside the viewport. */
+@media (max-width: 560px) {
+  .vertical-baby .baby-conversation:has(.intake-tooltip[open]) {
+    overflow: visible !important;
+  }
+
+  .vertical-baby .baby-conversation .baby-question-heading:has(.intake-tooltip) {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: flex-start !important;
+    gap: 0 10px !important;
+    overflow: visible !important;
+  }
+
+  .vertical-baby .baby-conversation .baby-question-heading .intake-tooltip {
+    position: static !important;
+    inset: auto !important;
+    display: block !important;
+    flex: 1 0 100% !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-top: 0.42em !important;
+    overflow: visible !important;
+  }
+
+  .vertical-baby .baby-conversation .baby-question-heading .intake-tooltip summary {
+    width: fit-content !important;
+  }
+
+  .vertical-baby .baby-conversation .baby-question-heading .intake-tooltip-panel {
+    position: static !important;
+    inset: auto !important;
+    display: block !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: none !important;
+    margin-top: 10px !important;
+    overflow: visible !important;
+    overflow-wrap: anywhere !important;
+    white-space: normal !important;
+    transform: none !important;
+  }
+}
