@@ -6403,6 +6403,12 @@ button {
   box-shadow: 0 28px 90px rgba(61, 44, 48, 0.1);
 }
 
+@media (max-width: 560px) {
+  .vertical-baby .baby-conversation:has(.intake-tooltip[open]) {
+    overflow: visible;
+  }
+}
+
 .vertical-baby .baby-conversation > :not(.baby-nursery-scene) {
   position: relative;
   z-index: 2;
@@ -7536,9 +7542,16 @@ button {
     position: relative;
     top: auto;
     right: auto;
-    display: inline-flex;
-    flex: 0 0 auto;
+    display: block;
+    flex: 1 0 100%;
+    width: 100%;
+    max-width: 100%;
     margin-top: 0.42em;
+    overflow: visible;
+  }
+
+  .vertical-baby .baby-question-heading .intake-tooltip summary {
+    width: fit-content;
   }
 
   .vertical-baby .baby-question-heading {
@@ -7547,6 +7560,7 @@ button {
     align-items: flex-start;
     gap: 0 10px;
     padding-right: 82px;
+    overflow: visible;
   }
 
   .vertical-baby .baby-question-heading h2 {
@@ -7558,11 +7572,18 @@ button {
   }
 
   .vertical-baby .baby-question-heading .intake-tooltip-panel {
-    position: static;
+    position: relative;
+    top: auto;
+    right: auto;
+    display: block;
+    box-sizing: border-box;
     width: 100%;
+    max-width: min(100%, calc(100vw - 48px));
     max-height: none;
     margin-top: 10px;
     overflow: visible;
+    overflow-wrap: anywhere;
+    white-space: normal;
     transform: none;
   }
 }
