@@ -344,10 +344,34 @@ def _session_rows(
                 "vertical": verticals[0] if len(verticals) == 1 else "mixed",
                 "model": models[0] if len(models) == 1 else "mixed",
                 "request_types": request_types,
+                "stage_breakdown": _stage_breakdown_rows(items),
                 **_metric_row(items),
             }
         )
     return sorted(rows, key=lambda row: row[sort_by], reverse=(direction == "desc"))
+
+
+def _stage_breakdown_rows(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for event in events:
+        grouped[str(event.get("request_type") or "generation")].append(event)
+
+    rows = []
+    for stage, items in grouped.items():
+        row = _metric_row(items)
+        rows.append(
+            {
+                "stage": stage,
+                "request_count": row["request_count"],
+                "average_latency_ms": row["average_latency_ms"],
+                "maximum_latency_ms": row["maximum_latency_ms"],
+                "input_tokens": row["input_tokens"],
+                "output_tokens": row["output_tokens"],
+                "total_tokens": row["total_tokens"],
+                "estimated_spend_usd": row["estimated_spend_usd"],
+            }
+        )
+    return sorted(rows, key=lambda row: row["stage"])
 
 
 def _resolve_report_range(

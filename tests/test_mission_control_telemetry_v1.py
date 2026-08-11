@@ -153,6 +153,41 @@ class MissionControlTelemetryV1Test(unittest.TestCase):
         self.assertEqual(normal_session["output_tokens"], 150)
         self.assertEqual(normal_session["total_tokens"], 750)
         self.assertAlmostEqual(normal_session["estimated_spend_usd"], 0.00048, places=6)
+        self.assertEqual(
+            normal_session["stage_breakdown"],
+            [
+                {
+                    "stage": "candidate_generator_v1",
+                    "request_count": 1,
+                    "average_latency_ms": 200.0,
+                    "maximum_latency_ms": 200,
+                    "input_tokens": 200,
+                    "output_tokens": 50,
+                    "total_tokens": 250,
+                    "estimated_spend_usd": 0.00016,
+                },
+                {
+                    "stage": "critic_ranker_finalizer_v1",
+                    "request_count": 1,
+                    "average_latency_ms": 300.0,
+                    "maximum_latency_ms": 300,
+                    "input_tokens": 300,
+                    "output_tokens": 75,
+                    "total_tokens": 375,
+                    "estimated_spend_usd": 0.00024,
+                },
+                {
+                    "stage": "taste_interpreter_v1",
+                    "request_count": 1,
+                    "average_latency_ms": 100.0,
+                    "maximum_latency_ms": 100,
+                    "input_tokens": 100,
+                    "output_tokens": 25,
+                    "total_tokens": 125,
+                    "estimated_spend_usd": 0.00008,
+                },
+            ],
+        )
         self.assertEqual(report["requests_by_vertical"][0]["vertical"], "baby")
         self.assertTrue(report["requests_by_day"])
         self.assertEqual(report["usage_exceptions"]["summary"]["normal_request_count"], 3)
