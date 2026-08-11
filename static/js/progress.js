@@ -5,34 +5,35 @@
   const visual = document.querySelector("[data-progress-visual]");
   const visualLabel = document.querySelector(".progress-visual-label");
   const note = document.querySelector("[data-progress-note]");
+  const patienceMeter = document.querySelector("[data-progress-patience-meter]");
   const steps = Array.from(document.querySelectorAll("[data-progress-step]"));
   const forms = Array.from(document.querySelectorAll("form"));
   const minimumProgressMs = 18000;
   const defaultLongWaitMessages = [
-    "Working hard to get your perfect matches.",
-    "Exploring meaning, sound, and cultural fit.",
+    "Still working — most lists take about 1–2 minutes.",
+    "Reading your taste profile and exploring name directions.",
     "Comparing the strongest names against your taste.",
-    "Almost there — shaping the final names."
+    "Almost there — writing the final name explanations."
   ];
   const babyLongWaitMessages = [
-    "Interpreting your naming taste…",
-    "Building a broader candidate pool…",
-    "Comparing names against your story and style…",
-    "Rejecting weaker fits before we show you finalists…",
-    "Shaping the final names — quality matters more than speed…",
-    "Still working. We’re keeping the page here while NamEngine thinks…"
+    "Still working — baby lists usually take about 1–2 minutes.",
+    "Reading your taste profile and family context…",
+    "Exploring names with the right sound, meaning, and feeling…",
+    "Selecting the strongest names before we show you finalists…",
+    "Writing the final explanations — quality matters more than speed…",
+    "Almost there. We’re keeping the page here while NamEngine finishes…"
   ];
   const petLongWaitMessages = [
-    "Getting to know their personality...",
-    "Listening for names that are joyful to call...",
-    "Balancing affection, energy, and everyday fit...",
-    "Finding names that feel unmistakably like them..."
+    "Still working — pet lists usually take about 1–2 minutes.",
+    "Reading their personality and your taste profile...",
+    "Exploring names that are joyful to call...",
+    "Selecting the strongest names for everyday fit..."
   ];
   const businessLongWaitMessages = [
-    "Reading the market and positioning signals...",
-    "Testing clarity, credibility, and distinctiveness...",
-    "Considering audience fit and launch practicality...",
-    "Building the strongest strategic names..."
+    "Still working — business lists usually take about 1–2 minutes.",
+    "Reading your positioning and audience signals...",
+    "Exploring names with clarity, credibility, and distinctiveness...",
+    "Selecting the strongest strategic names for launch..."
   ];
   let longWaitMessages = defaultLongWaitMessages;
 
@@ -128,19 +129,19 @@
           : defaultLongWaitMessages;
     const feelLine = vibe ? `Matching the ${vibe.toLowerCase()} feel` : "Matching the feel";
     const cultureLine = culture && culture !== "No preference"
-      ? `Exploring ${culture.toLowerCase()} meaning and sound`
-      : "Exploring meaning and sound";
+      ? `Exploring ${culture.toLowerCase()} meaning and fit`
+      : "Exploring meaning and fit";
     const labels = isBaby ? [
       "Bringing together everything you shared",
       cultureLine,
       "Exploring names that fit your style",
-      "Looking at sound, meaning, and feeling",
+      "Looking at meaning, feeling, and family fit",
       "Finding names worth considering",
     ] : isPet ? [
       "Getting to know their personality",
-      "Listening for names that are joyful to call",
+      "Exploring names that are joyful to call",
       feelLine,
-      "Checking sound and everyday fit",
+      "Checking everyday fit",
       "Finding names that feel like them",
     ] : isBusiness ? [
       "Reading your business brief",
@@ -152,7 +153,7 @@
       "Reading the details",
       `Finding names for ${subject}`,
       feelLine,
-      "Checking sound and use",
+      "Checking everyday fit",
       "Picking the strongest names",
     ];
 
@@ -170,12 +171,12 @@
     }
     if (note) {
       note.textContent = isBaby
-        ? "We’re listening to your story, style, and the feeling you want a name to carry."
+        ? "Estimated time: about 1–2 minutes. We’re reading your taste profile, story, style, and the feeling you want a name to carry."
         : isPet
-          ? "We’re matching personality, sound, affection, and everyday callability."
+          ? "Estimated time: about 1–2 minutes. We’re matching personality, affection, everyday fit, and callability."
           : isBusiness
-            ? "We’re weighing positioning, audience, distinctiveness, and practical launch fit."
-            : "A few quick checks before the list appears.";
+            ? "Estimated time: about 1–2 minutes. We’re weighing positioning, audience, distinctiveness, and practical launch fit."
+            : "Estimated time: about 1–2 minutes. A few quick checks before the list appears.";
     }
     steps.forEach((step, index) => {
       const label = labels[index] || cleanValue(step.dataset.progressHeadline || step.textContent);
@@ -204,6 +205,13 @@
     if (visual) {
       visual.classList.add("is-searching");
     }
+    if (patienceMeter) {
+      patienceMeter.classList.remove("is-holding");
+      patienceMeter.style.setProperty("--progress-patience-duration", "110s");
+      patienceMeter.style.setProperty("--progress-patience-fill", "92%");
+      void patienceMeter.offsetWidth;
+      patienceMeter.classList.add("is-filling");
+    }
     activateStep(0);
     let index = 0;
     timer = window.setInterval(() => {
@@ -223,6 +231,9 @@
         visual.classList.remove("is-pulsing");
         void visual.offsetWidth;
         visual.classList.add("is-pulsing");
+      }
+      if (patienceIndex >= longWaitMessages.length && patienceMeter) {
+        patienceMeter.classList.add("is-holding");
       }
     }, 6500);
   }
