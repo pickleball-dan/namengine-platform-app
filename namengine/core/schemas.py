@@ -168,6 +168,10 @@ class TasteProfile:
     rejected_names: list[str] = field(default_factory=list)
     liked_sounds: list[str] = field(default_factory=list)
     disliked_sounds: list[str] = field(default_factory=list)
+    liked_territories: list[str] = field(default_factory=list)
+    disliked_territories: list[str] = field(default_factory=list)
+    liked_rationales: list[str] = field(default_factory=list)
+    disliked_rationales: list[str] = field(default_factory=list)
     style_preferences: dict[str, float] = field(default_factory=dict)
     rejected_lanes: list[str] = field(default_factory=list)
     summary: str = ""

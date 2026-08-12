@@ -243,8 +243,12 @@ class PhaseElevenAIGenerationTest(unittest.TestCase):
         self.assertEqual(names_format["schema"]["required"], ["names", "rejected_candidates"])
         self.assertIn("scores", names_format["schema"]["properties"]["names"]["items"]["required"])
 
-        self.assertEqual(baby_names_format["schema"]["required"], ["names"])
-        self.assertNotIn("rejected_candidates", baby_names_format["schema"]["properties"])
+        self.assertEqual(baby_names_format["schema"]["required"], ["names", "rejected_candidates"])
+        self.assertIn("rejected_candidates", baby_names_format["schema"]["properties"])
+        self.assertEqual(
+            baby_names_format["schema"]["properties"]["rejected_candidates"]["items"]["required"],
+            ["name", "territory", "rejection_reason", "lost_to", "score_summary"],
+        )
         baby_required = baby_names_format["schema"]["properties"]["names"]["items"]["required"]
         self.assertEqual(
             baby_required,
@@ -256,12 +260,12 @@ class PhaseElevenAIGenerationTest(unittest.TestCase):
                 "meaning",
                 "why_this_name",
                 "fit_note",
+                "matched_preferences",
                 "risks",
                 "tags",
                 "scores",
             ],
         )
-        self.assertNotIn("matched_preferences", baby_required)
         self.assertNotIn("real_life_impression", baby_required)
 
     def test_candidate_generation_prompt_uses_pass_one_taste_strategy(self):
@@ -329,7 +333,7 @@ class PhaseElevenAIGenerationTest(unittest.TestCase):
         self.assertTrue(prompt["finalizer_rules"]["only_choose_from_candidate_pool"])
         self.assertTrue(prompt["finalizer_rules"]["reject_before_ranking"])
 
-    def test_baby_finalizer_prompt_requests_live_result_fields_only(self):
+    def test_baby_finalizer_prompt_requests_rejected_candidate_audit_trail(self):
         brief = build_brief(BABY, {"gender": "Girl", "style": "Warm", "sound": "Soft"})
         strategy = parse_taste_strategy_response(STRATEGY_RESPONSE)
         pool = parse_candidate_pool_response(CANDIDATE_RESPONSE)
@@ -345,9 +349,12 @@ class PhaseElevenAIGenerationTest(unittest.TestCase):
             candidate_pool=pool,
         )
 
-        self.assertEqual(prompt["output_contract"]["top_level_keys"], ["names"])
-        self.assertEqual(prompt["output_contract"]["rejected_candidate_fields"], [])
-        self.assertNotIn("matched_preferences", prompt["output_contract"]["required_name_fields"])
+        self.assertEqual(prompt["output_contract"]["top_level_keys"], ["names", "rejected_candidates"])
+        self.assertEqual(
+            prompt["output_contract"]["rejected_candidate_fields"],
+            ["name", "territory", "rejection_reason", "lost_to", "score_summary"],
+        )
+        self.assertIn("matched_preferences", prompt["output_contract"]["required_name_fields"])
 
     def test_incomplete_openai_response_is_rejected_before_json_parse(self):
         brief = build_brief(PET, {"species": "Dog", "style": "Warm"})
@@ -511,7 +518,7 @@ class PhaseElevenAIGenerationTest(unittest.TestCase):
         self.assertIn("Milo", [item.name for item in results])
 
     def test_refinement_passes_taste_profile_to_ai_layer(self):
-        query = b"species=Dog&personality=Gentle&style=Warm"
+        query = b"pet_type=Dog&vibe=Gentle&style=Warm"
         session_id = make_session_id("pet", query)
         self.client.get(f"/pet/results?{query.decode('utf-8')}")
         save_reaction(build_reaction(session_id, "pet-1", "love"))

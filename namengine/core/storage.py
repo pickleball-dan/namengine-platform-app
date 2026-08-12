@@ -25,6 +25,7 @@ from namengine.core.provider_performance import build_provider_performance
 
 DEFAULT_DB_PATH = Path(__file__).resolve().parents[2] / "data" / "namengine.sqlite3"
 SQLITE_BUSY_TIMEOUT_MS = 5000
+SQLITE_JOURNAL_MODE = "WAL"
 _INITIALIZED_DATABASE_PATHS: set[Path] = set()
 
 
@@ -47,6 +48,7 @@ def connect(db_path: Path | None = None) -> sqlite3.Connection:
     connection.row_factory = sqlite3.Row
     connection.execute("PRAGMA foreign_keys = ON")
     connection.execute(f"PRAGMA busy_timeout = {SQLITE_BUSY_TIMEOUT_MS}")
+    connection.execute(f"PRAGMA journal_mode = {SQLITE_JOURNAL_MODE}")
     return connection
 
 

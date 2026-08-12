@@ -1,5 +1,157 @@
 # Deploy Bucket
 
+## Baby rejected-candidate audit trail
+
+Status: validated locally / included in next release batch
+Branch: current working tree / next local-first release batch
+
+Included intent:
+- Require `rejected_candidates` in the Baby finalizer prompt contract and strict response schema.
+- Bring Baby into parity with the other verticals for rejected-candidate audit metadata: `name`, `territory`, `rejection_reason`, `lost_to`, and `score_summary`.
+- Preserve live result behavior: final displayed names remain separate from audit metadata; no client-facing template, CSS, or JavaScript changes.
+- Keep `/dev/engine-audit` and future export/audit paths able to explain not only why finalists won, but why Baby candidates lost.
+
+Expected quality/audit effect:
+- Baby generations now retain the same finalist-vs-rejected decision trail as Pet, Business, and other verticals.
+- The primary vertical no longer loses the “why did we reject X” story after the finalizer pass.
+- Rejected Baby candidates can become usable backend evidence for audit, QA, and future client-facing explanation exports.
+
+Validation run:
+- `python -m unittest discover -s tests -p test_phase11_ai_generation.py`
+- `python -m py_compile namengine/core/ai_generation.py app.py`
+- `git diff --check -- namengine/core/ai_generation.py tests/test_phase11_ai_generation.py DEPLOY_BUNDLE.md`
+
+Not included:
+- UI/UX changes.
+- Template, CSS, or JavaScript changes.
+- Client-facing audit/export changes.
+
+## Reaction-derived taste signal enrichment
+
+Status: validated locally / included in next release batch
+Branch: current working tree / next local-first release batch
+
+Included intent:
+- Enrich round 2/3 taste profiles with AI metadata already generated and stored on reacted names.
+- Feed liked/disliked `territory` and rationale signals from matched `candidate_pool` / `rejected_candidates` rows back into the AI-facing taste profile.
+- Preserve legacy first/last-letter `liked_sounds` / `disliked_sounds` compatibility, but stop treating `maybe_names` as an active AI-facing prompt signal because current product reactions do not include Maybe.
+- Keep the change backend/taste-profile/test-only; no UI, UX, template, CSS, or JavaScript changes.
+
+Expected quality effect:
+- Refinement rounds can learn from actual naming territories and rationale/lane metadata instead of relying mostly on shallow letter-edge sound counts.
+- Rejected names can steer away from disliked territories and tags with more precision.
+- Existing stored legacy Maybe values remain readable, but new AI prompts focus on Love/No signals.
+
+Validation run:
+- `python -m unittest discover -s tests -p test_phase9_taste_profile.py`
+- `python -m py_compile namengine/core/taste.py namengine/core/schemas.py namengine/core/ai_generation.py app.py`
+- `git diff --check -- namengine/core/taste.py namengine/core/schemas.py namengine/core/ai_generation.py tests/test_phase9_taste_profile.py DEPLOY_BUNDLE.md`
+
+Not included:
+- UI/UX changes.
+- Reaction button/layout changes.
+- Prompt-pipeline restructuring.
+
+## SQLite WAL concurrency safety
+
+Status: validated locally / included in next release batch
+Branch: current working tree / next local-first release batch
+
+Included intent:
+- Enable SQLite `journal_mode=WAL` at the shared storage connection boundary.
+- Preserve existing `foreign_keys=ON` and `busy_timeout=5000` connection settings.
+- Reduce writer/read-lock contention for reactions, taste-profile saves, session saves, and future multi-worker/multi-thread Render scaling.
+- Keep the change backend/storage-only; no UI, UX, template, CSS, or JavaScript changes.
+
+Expected production effect:
+- SQLite can allow readers during writes instead of relying on rollback-journal exclusive locking behavior.
+- Current single-worker behavior remains compatible while reducing a future scaling landmine.
+
+Validation run:
+- `python -m unittest discover -s tests -p test_phase5_storage.py`
+- `python -m py_compile namengine/core/storage.py app.py`
+- `git diff --check -- namengine/core/storage.py tests/test_phase5_storage.py DEPLOY_BUNDLE.md`
+
+Not included:
+- Worker/thread scaling changes.
+- Database migration scripts.
+- UI/UX changes.
+
+## OpenAI transient retry safety
+
+Status: validated locally / included in next release batch
+Branch: current working tree / next local-first release batch
+
+Included intent:
+- Allow one bounded OpenAI SDK retry by default so a single transient provider/network blip does not kill the entire three-pass generation.
+- Keep retries configurable with `NAMENGINE_OPENAI_MAX_RETRIES` and document production default `1` in `render.yaml`.
+- Preserve the 60s OpenAI timeout floor and three-pass quality pipeline; this does not shorten generation or reduce output budget.
+- Pair with the increased 420s Gunicorn headroom so the retry safety does not immediately collide with the web request timeout.
+
+Expected customer-facing effect:
+- Fewer generic generation-failure messages caused by brief network/provider interruptions during one stage.
+- High-quality generations get one recovery chance instead of failing after the first transient SDK exception.
+
+Validation run:
+- `python -m unittest discover -s tests -p test_openai_timeout_fallback.py`
+- `python -m py_compile namengine/core/ai_generation.py app.py`
+- `git diff --check -- namengine/core/ai_generation.py tests/test_openai_timeout_fallback.py render.yaml DEPLOY_BUNDLE.md`
+
+Not included:
+- UI/UX changes.
+- Prompt, model, or three-pass pipeline changes.
+- OpenAI timeout reductions.
+- Unbounded or app-level retry loops.
+
+## Quality-preserving generation timeout headroom
+
+Status: validated locally / included in next release batch
+Branch: current working tree / next local-first release batch
+
+Included intent:
+- Preserve the three-pass OpenAI naming pipeline quality instead of shortening provider timeouts below observed Mission Control latency.
+- Increase Gunicorn request headroom from 240s to 420s in `gunicorn.conf.py`, `Procfile`, and `render.yaml` so slow high-quality generations are less likely to be cut off near the end of the request.
+- Keep `NAMENGINE_OPENAI_TIMEOUT_SECONDS` unchanged at 60s; this does not lower OpenAI quality budget.
+- Add a focused runtime-config test that locks the Gunicorn config and start-command timeout values together.
+
+Expected customer-facing effect:
+- Users are less likely to hit a 502 after waiting for a legitimate long-running quality generation.
+- Existing generation UI/UX remains unchanged in this backend/runtime bucket.
+
+Validation run:
+- `python -m unittest discover -s tests -p test_gunicorn_runtime_config.py`
+- `python -m py_compile app.py namengine/core/ai_generation.py`
+- `git diff --check -- gunicorn.conf.py Procfile render.yaml tests/test_gunicorn_runtime_config.py DEPLOY_BUNDLE.md`
+
+Not included:
+- OpenAI timeout reductions.
+- Three-pass prompt/pipeline changes.
+- Template, CSS, JavaScript, or UX copy changes.
+
+## Dev eval report AI-default safety fix
+
+Status: validated locally / included in next release batch
+Branch: current working tree / next local-first release batch
+
+Included intent:
+- Make `/dev/eval-report` default to the AI-backed taste engine instead of the deterministic fallback pool.
+- Preserve explicit fallback regression access with `/dev/eval-report?ai=0`.
+- Keep the change backend/test-only; no UI, UX, template, CSS, or JavaScript changes.
+- Prevent internal taste-separation QA from silently validating the wrong engine by default.
+
+Expected internal effect:
+- Default eval-report checks now exercise the same AI path intended to represent production taste behavior.
+- Fallback-pool regression remains available only when explicitly requested.
+
+Validation run:
+- `python -m unittest discover -s tests -p test_phase23_eval_report_view.py`
+- `python -m py_compile app.py namengine/core/evals.py`
+- `git diff --check -- app.py tests/test_phase23_eval_report_view.py DEPLOY_BUNDLE.md`
+
+Not included:
+- UI/UX banner changes.
+- Template, CSS, or JavaScript changes.
+
 ## Vertical header Home link polish
 
 Status: validated locally / included in next release batch

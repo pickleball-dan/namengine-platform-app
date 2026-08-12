@@ -30,6 +30,7 @@ from namengine.core.validation import validate_results
 
 DEFAULT_MODEL = "gpt-4.1-mini"
 DEFAULT_TIMEOUT_SECONDS = 60.0
+DEFAULT_MAX_RETRIES = 1
 PROMPT_VERSION = DEFAULT_PROMPT_VERSION
 TASTE_STRATEGY_SCHEMA_NAME = "namengine_taste_strategy_v1"
 CANDIDATE_POOL_SCHEMA_NAME = "namengine_candidate_pool_v1"
@@ -522,12 +523,8 @@ def build_finalizer_prompt(
     candidate_pool: list[dict[str, Any]],
     prompt_version: str | None = None,
 ) -> dict[str, Any]:
-    top_level_keys = ["names"] if vertical.slug == "baby" else ["names", "rejected_candidates"]
-    rejected_candidate_fields = (
-        []
-        if vertical.slug == "baby"
-        else ["name", "territory", "rejection_reason", "lost_to", "score_summary"]
-    )
+    top_level_keys = ["names", "rejected_candidates"]
+    rejected_candidate_fields = ["name", "territory", "rejection_reason", "lost_to", "score_summary"]
     return {
         **_baby_taxonomy_diagnostics(vertical, brief),
         "role": "NamEngine critic, ranker, and finalizer",
@@ -682,7 +679,7 @@ def name_generation_response_format(vertical_slug: str | None = None) -> dict[st
             "properties": {key: {"type": "number"} for key in score_keys},
         },
     }
-    schema_required = ["names"] if vertical_slug == "baby" else ["names", "rejected_candidates"]
+    schema_required = ["names", "rejected_candidates"]
     schema_properties: dict[str, Any] = {
         "names": {
             "type": "array",
@@ -692,10 +689,8 @@ def name_generation_response_format(vertical_slug: str | None = None) -> dict[st
                 "required": required,
                 "properties": properties,
             },
-        }
-    }
-    if vertical_slug != "baby":
-        schema_properties["rejected_candidates"] = {
+        },
+        "rejected_candidates": {
             "type": "array",
             "items": {
                 "type": "object",
@@ -709,7 +704,8 @@ def name_generation_response_format(vertical_slug: str | None = None) -> dict[st
                     "score_summary": {"type": "string"},
                 },
             },
-        }
+        },
+    }
     return {
         "type": "json_schema",
         "name": NAME_GENERATION_SCHEMA_NAME,
@@ -1224,7 +1220,7 @@ def _usage_payload(usage: Any) -> dict[str, int]:
 def _default_client():
     from openai import OpenAI
 
-    return OpenAI(max_retries=0)
+    return OpenAI(max_retries=_openai_max_retries())
 
 
 def _openai_timeout_seconds() -> float:
@@ -1234,6 +1230,15 @@ def _openai_timeout_seconds() -> float:
     except ValueError:
         return DEFAULT_TIMEOUT_SECONDS
     return max(DEFAULT_TIMEOUT_SECONDS, value)
+
+
+def _openai_max_retries() -> int:
+    raw_value = os.getenv("NAMENGINE_OPENAI_MAX_RETRIES", str(DEFAULT_MAX_RETRIES))
+    try:
+        value = int(raw_value)
+    except ValueError:
+        return DEFAULT_MAX_RETRIES
+    return max(0, value)
 
 
 def _openai_max_output_tokens() -> int:
@@ -1263,10 +1268,13 @@ def _taste_profile_payload(profile: TasteProfile | None) -> dict[str, Any]:
     return {
         "summary": profile.summary,
         "loved_names": profile.loved_names,
-        "maybe_names": profile.maybe_names,
         "rejected_names": profile.rejected_names,
         "liked_sounds": profile.liked_sounds,
         "disliked_sounds": profile.disliked_sounds,
+        "liked_territories": profile.liked_territories,
+        "disliked_territories": profile.disliked_territories,
+        "liked_rationales": profile.liked_rationales,
+        "disliked_rationales": profile.disliked_rationales,
         "style_preferences": profile.style_preferences,
         "rejected_lanes": profile.rejected_lanes,
     }

@@ -11,7 +11,7 @@ import namengine.core.model_router as model_router
 from app import NameGenerationUnavailable, create_app
 from namengine.core import get_failed_generation_audits
 from namengine.core.mission_control_telemetry import build_openai_usage_report
-from namengine.core.ai_generation import AIGenerationError, _default_client, _openai_timeout_seconds
+from namengine.core.ai_generation import AIGenerationError, _default_client, _openai_max_retries, _openai_timeout_seconds
 from namengine.core.briefs import build_brief
 from namengine.core.schemas import ModelProvider
 from namengine.verticals import get_vertical
@@ -50,15 +50,27 @@ class OpenAITimeoutFallbackTest(unittest.TestCase):
             os.environ["NAMENGINE_DB_PATH"] = self.previous_db_path
         self.tempdir.cleanup()
 
-    def test_production_timeout_allows_three_pass_quality_generation_and_sdk_retries_are_disabled(self):
+    def test_production_timeout_preserves_quality_budget_and_allows_one_sdk_retry(self):
         with patch.dict("os.environ", {"NAMENGINE_OPENAI_TIMEOUT_SECONDS": "8"}), patch(
             "openai.OpenAI"
         ) as client_factory:
             _default_client()
             timeout_seconds = _openai_timeout_seconds()
+            retry_count = _openai_max_retries()
 
         self.assertEqual(timeout_seconds, 60.0)
-        client_factory.assert_called_once_with(max_retries=0)
+        self.assertEqual(retry_count, 1)
+        client_factory.assert_called_once_with(max_retries=1)
+
+    def test_openai_retry_count_can_be_disabled_or_raised_by_config(self):
+        with patch.dict("os.environ", {"NAMENGINE_OPENAI_MAX_RETRIES": "0"}):
+            self.assertEqual(_openai_max_retries(), 0)
+
+        with patch.dict("os.environ", {"NAMENGINE_OPENAI_MAX_RETRIES": "2"}):
+            self.assertEqual(_openai_max_retries(), 2)
+
+        with patch.dict("os.environ", {"NAMENGINE_OPENAI_MAX_RETRIES": "not-a-number"}):
+            self.assertEqual(_openai_max_retries(), 1)
 
     def test_openai_timeout_is_a_concise_expected_provider_event(self):
         with patch.object(model_router, "_openai_provider", side_effect=_openai_timeout):

@@ -1796,7 +1796,7 @@ def create_app() -> Flask:
     def eval_report():
         fixtures = load_taste_engine_fixtures()
         limit = _positive_int(request.args.get("limit"))
-        use_ai = request.args.get("ai") == "1"
+        use_ai = request.args.get("ai", "1") != "0"
         if limit:
             fixtures = fixtures[:limit]
 

@@ -6,7 +6,6 @@ from unittest.mock import patch
 
 import app as platform_app
 from app import create_app, make_session_id
-from access_helpers import unlock_beta_access
 from namengine.core import (
     build_brief,
     build_reaction,
@@ -44,13 +43,15 @@ class PhaseFiveStorageTest(unittest.TestCase):
             os.environ["NAMENGINE_AI_PRIMARY_VERTICALS"] = self.previous_ai_primary_verticals
         self.tempdir.cleanup()
 
-    def test_connect_enables_foreign_keys_and_busy_timeout(self):
+    def test_connect_enables_foreign_keys_busy_timeout_and_wal(self):
         with closing(connect()) as connection:
             foreign_keys = connection.execute("PRAGMA foreign_keys").fetchone()[0]
             busy_timeout = connection.execute("PRAGMA busy_timeout").fetchone()[0]
+            journal_mode = connection.execute("PRAGMA journal_mode").fetchone()[0]
 
         self.assertEqual(foreign_keys, 1)
         self.assertEqual(busy_timeout, 5000)
+        self.assertEqual(journal_mode.lower(), "wal")
 
     def test_initialize_database_memoizes_per_existing_database_path(self):
         original_connect = storage.connect
@@ -92,9 +93,10 @@ class PhaseFiveStorageTest(unittest.TestCase):
         results = generate_names(PET, brief)
         save_session("pet-session", "pet", brief, results)
         save_reaction(build_reaction("pet-session", "pet-1", "love"))
-        unlock_beta_access(self.client, "pet")
 
-        with patch.object(platform_app, "get_reaction_counts", side_effect=AssertionError("duplicate read")):
+        with patch.object(platform_app, "beta_unlocked_from_request", return_value=True), patch.object(
+            platform_app, "get_reaction_counts", side_effect=AssertionError("duplicate read")
+        ):
             response = self.client.get("/results/session/pet-session")
 
         self.assertEqual(response.status_code, 200)
@@ -125,15 +127,15 @@ class PhaseFiveStorageTest(unittest.TestCase):
         query = b"pet_type=Dog&vibe=Gentle&style=Warm"
         session_id = make_session_id("pet", query)
         self.client.get(f"/pet/results?{query.decode('utf-8')}")
-        unlock_beta_access(self.client, "pet")
-        response = self.client.post(
-            "/api/react",
-            json={
-                "session_id": session_id,
-                "result_id": "pet-1",
-                "value": "love",
-            },
-        )
+        with patch.object(platform_app, "beta_unlocked_from_request", return_value=True):
+            response = self.client.post(
+                "/api/react",
+                json={
+                    "session_id": session_id,
+                    "result_id": "pet-1",
+                    "value": "love",
+                },
+            )
 
         self.assertEqual(response.status_code, 201)
         data = response.get_json()
