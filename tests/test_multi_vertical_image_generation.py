@@ -7,6 +7,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
+from access_helpers import unlock_beta_access
 import app as app_module
 from app import create_app
 from namengine.core import (
@@ -111,6 +112,7 @@ class MultiVerticalImageGenerationTest(unittest.TestCase):
             "Northwell",
         )
 
+        unlock_beta_access(self.client, "business")
         with patch("app.Thread") as thread:
             page = self.client.get(f"/chosen/{snapshot['chosen']['id']}")
 
@@ -152,6 +154,7 @@ class MultiVerticalImageGenerationTest(unittest.TestCase):
         self.assertEqual(metadata["status"], "failed")
         self.assertNotIn("sk-super-secret", metadata["error_message"])
 
+        unlock_beta_access(self.client, "pet")
         page = self.client.get(f"/chosen/{after['chosen']['id']}")
         body = page.get_data(as_text=True)
         self.assertIn("Clover", body)
@@ -168,6 +171,7 @@ class MultiVerticalImageGenerationTest(unittest.TestCase):
             snapshot["chosen"]["id"],
             {"baby_keepsake": {"status": "failed", "error_message": "Image creation failed. Please try again."}},
         )
+        unlock_beta_access(self.client, "baby")
 
         with patch("app.Thread") as thread:
             response = self.client.post(
@@ -243,6 +247,7 @@ class MultiVerticalImageGenerationTest(unittest.TestCase):
         chosen_id = snapshot["chosen"]["id"]
         session_id = snapshot["chosen"]["session_id"]
         result_id = snapshot["chosen"]["result_id"]
+        unlock_beta_access(self.client, "pet")
         reaction = self.client.post(
             "/api/react",
             json={"session_id": session_id, "result_id": result_id, "value": "love"},

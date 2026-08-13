@@ -1918,6 +1918,10 @@ def create_app() -> Flask:
         snapshot = get_chosen_snapshot(chosen_id)
         if snapshot is None:
             abort(404)
+        vertical = get_vertical(snapshot["chosen"]["vertical"])
+        if not beta_unlocked_from_request(vertical):
+            session_id = str((snapshot.get("session") or {}).get("id") or snapshot["chosen"].get("session_id") or "")
+            return _access_required_response(vertical, session_id, wants_json=True)
         portrait = _queue_keepsake_generation(chosen_id, force_retry=True)
         return jsonify(
             {
