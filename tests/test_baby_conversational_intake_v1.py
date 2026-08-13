@@ -101,13 +101,13 @@ class BabyConversationalIntakeV1Test(unittest.TestCase):
             with self.subTest(question_id=question_id):
                 question = self.question_markup(body, question_id)
                 self.assertIn(
-                    '<p class="baby-optional-note">Optional · Personalizes results</p>',
+                    '<p class="baby-optional-help">Answering helps us shape more personal names.</p>',
                     question,
                 )
 
         for question_id in ("gender", "style", "sound"):
             with self.subTest(question_id=question_id):
-                self.assertNotIn("baby-optional-note", self.question_markup(body, question_id))
+                self.assertNotIn("baby-optional-help", self.question_markup(body, question_id))
 
     def test_skip_clears_selection_and_answering_removes_skipped_state(self):
         intake_js = (self.root / "static" / "js" / "baby-intake-polish.js").read_text(encoding="utf-8")

@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 
 from access_helpers import unlock_beta_access
-from app import create_app, make_session_id
+from app import _query_string_from_mapping, _sanitize_intake_source, create_app, make_session_id
 from namengine.core import build_brief, get_chosen_snapshot, get_session_snapshot
 from namengine.verticals import PET
 
@@ -32,6 +32,12 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
         else:
             os.environ["NAMENGINE_AI_PRIMARY_VERTICALS"] = self.previous_ai_verticals
         self.tempdir.cleanup()
+
+    def _session_id_for_query(self, vertical, query: bytes, *, session_vertical: str | None = None) -> str:
+        source = dict(pair.split("=", 1) for pair in query.decode("utf-8").split("&"))
+        source = {key: value.replace("+", " ") for key, value in source.items()}
+        sanitized = _sanitize_intake_source(vertical, source)
+        return make_session_id(session_vertical or vertical.slug, _query_string_from_mapping(sanitized).encode("utf-8"))
 
     def test_pet_uses_approved_active_graphic_assets(self):
         response = self.client.get("/pet")
@@ -187,7 +193,7 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
             b"&timeless_vs_distinctive=Mostly+distinctive"
             b"&partner_alignment=human-name+but+not+too+serious&avoid=Spot"
         )
-        session_id = make_session_id("pet", query)
+        session_id = self._session_id_for_query(PET, query)
 
         response = self.client.get(f"/pet/results?{query.decode('utf-8')}")
         body = response.get_data(as_text=True)
@@ -224,7 +230,7 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
             b"&timeless_vs_distinctive=Mostly+distinctive"
             b"&partner_alignment=human-name+but+not+too+serious&avoid=Spot"
         )
-        session_id = make_session_id("pet", query)
+        session_id = self._session_id_for_query(PET, query)
         self.client.get(f"/pet/results?{query.decode('utf-8')}")
         snapshot = get_session_snapshot(session_id)
         first = json.loads(snapshot["results"][0]["result_json"])
@@ -283,7 +289,7 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
             b"&timeless_vs_distinctive=Mostly+distinctive"
             b"&partner_alignment=human-name+but+not+too+serious&avoid=Spot"
         )
-        session_id = make_session_id("pet", query)
+        session_id = self._session_id_for_query(PET, query)
         self.client.get(f"/pet/results?{query.decode('utf-8')}")
         parent_snapshot = get_session_snapshot(session_id)
         parent_results = [json.loads(row["result_json"]) for row in parent_snapshot["results"]]
@@ -349,7 +355,7 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
 
     def test_shared_shortlist_route_renders_saved_session(self):
         query = b"pet_type=Dog&style=Classic&vibe=Playful"
-        session_id = make_session_id("pet", query)
+        session_id = self._session_id_for_query(PET, query)
         self.client.get(f"/pet/results?{query.decode('utf-8')}")
         unlock_beta_access(self.client, "pet")
 
@@ -366,7 +372,7 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
             b"pet_type=Dog&pet_breed=Whippet&pet_color=Blue+gray"
             b"&pet_life_stage=Mature&style=Modern&vibe=Playful&starting_letter=L"
         )
-        session_id = make_session_id("pet-original", query)
+        session_id = self._session_id_for_query(PET, query, session_vertical="pet-original")
         self.client.get(f"/pet/original/results?{query.decode('utf-8')}")
         unlock_beta_access(self.client, "pet")
 
