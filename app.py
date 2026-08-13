@@ -424,10 +424,18 @@ def _reaction_values(snapshot: dict | None) -> dict[str, str]:
 
 
 def _beta_access_secret() -> str:
-    return (
-        os.getenv("NAMENGINE_ACCESS_TOKEN_SECRET", "").strip()
-        or os.getenv("NAMENGINE_TELEMETRY_TOKEN", "").strip()
-        or _LOCAL_BETA_ACCESS_SECRET
+    dedicated_secret = os.getenv("NAMENGINE_ACCESS_TOKEN_SECRET", "").strip()
+    if dedicated_secret:
+        return dedicated_secret
+    return _LOCAL_BETA_ACCESS_SECRET
+
+
+if not os.getenv("NAMENGINE_ACCESS_TOKEN_SECRET", "").strip():
+    logger.warning(
+        "NAMENGINE_ACCESS_TOKEN_SECRET is not set. Paid-access tokens will be signed with a "
+        "random secret generated for this process only, which changes on every restart/deploy "
+        "and will invalidate previously issued paid-access cookies. Set NAMENGINE_ACCESS_TOKEN_SECRET "
+        "in the environment to a dedicated, stable secret to avoid this."
     )
 
 
@@ -1794,6 +1802,10 @@ def create_app() -> Flask:
 
     @app.get("/dev/eval-report")
     def eval_report():
+        if not _engine_audit_enabled():
+            abort(404)
+        if not _mission_control_authorized(request.headers.get("Authorization", "")):
+            abort(404)
         fixtures = load_taste_engine_fixtures()
         limit = _positive_int(request.args.get("limit"))
         use_ai = request.args.get("ai", "1") != "0"

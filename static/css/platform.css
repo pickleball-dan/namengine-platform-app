@@ -4656,6 +4656,32 @@ button {
   font-weight: 800;
 }
 
+.eval-mode-banner {
+  margin: 12px 0 20px;
+  padding: 14px 18px;
+  border: 1px solid #b35b00;
+  border-radius: 8px;
+  background: #fff4e8;
+  color: #7a3f00;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.eval-mode-banner a {
+  color: #7a3f00;
+  text-decoration: underline;
+}
+
+.eval-mode-fallback {
+  color: #b35b00;
+  font-weight: 800;
+}
+
+.eval-mode-ai {
+  color: #167a4a;
+  font-weight: 800;
+}
+
 .eval-fixture-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

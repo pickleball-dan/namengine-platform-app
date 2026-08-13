@@ -9,16 +9,24 @@
       <h1>Taste Engine Eval Report</h1>
       <p>Fixture-based regression view for taste separation, candidate capture, and engine behavior.</p>
       <div class="engine-audit-actions">
-        <a class="button-link secondary-button" href="{{ url_for('eval_report') }}">Fallback / all fixtures</a>
-        <a class="button-link secondary-button" href="{{ url_for('eval_report', ai=1, limit=2) }}">AI smoke / first 2</a>
+        <a class="button-link secondary-button" href="{{ url_for('eval_report') }}">Deterministic pool check (fast, all fixtures)</a>
+        <a class="button-link secondary-button" href="{{ url_for('eval_report', ai=1, limit=2) }}">Real AI taste engine (smoke test, 2 fixtures)</a>
       </div>
     </div>
+
+    {% if not use_ai %}
+    <div class="eval-mode-banner">
+        <strong>Fallback mode.</strong> This run used the deterministic local pool, not the production AI taste engine.
+        Contrast and quality results below do not reflect real taste-separation behavior.
+        Use <a href="{{ url_for('eval_report', ai=1, limit=2) }}">Real AI taste engine</a> to validate the actual engine.
+    </div>
+    {% endif %}
 
     <div class="engine-audit-grid eval-summary-grid">
       <article class="engine-audit-card">
         <h2>Run summary</h2>
         <dl class="engine-audit-kv compact">
-          <dt>Mode</dt><dd>{% if use_ai %}AI{% else %}Fallback{% endif %}</dd>
+          <dt>Mode</dt><dd class="{% if use_ai %}eval-mode-ai{% else %}eval-mode-fallback{% endif %}">{% if use_ai %}Real AI engine{% else %}Deterministic fallback (not production engine){% endif %}</dd>
           <dt>Fixture count</dt><dd>{{ summary.fixture_count }}</dd>
           <dt>Limit</dt><dd>{{ limit or 'none' }}</dd>
           <dt>Providers</dt><dd>{{ summary.providers|join(', ') }}</dd>
