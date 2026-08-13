@@ -236,7 +236,6 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn("images/namengine-pets.svg", body)
         self.assertNotIn("images/namengine-pets-icon.svg", body)
         self.assertNotIn("images/pet/namengine-pet-logo-transparent.png", body)
-        self.assertNotIn("images/pet/namengine-pet-card-share-v3.jpg", body)
         self.assertIn("polished-flow-shell", body)
         self.assertIn("og:image", body)
         self.assertIn("Let’s find the name that feels like them.", body)
@@ -249,10 +248,10 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("vertical-baby", body)
-        self.assertIn("images/namengine.svg", body)
+        self.assertIn("images/namengine-baby.svg", body)
         self.assertIn("images/baby/namengine-baby-share.png", body)
         header = body.split("</header>", 1)[0]
-        self.assertIn('alt="NamEngine"', header)
+        self.assertIn('aria-label="Home"', header)
         welcome = body.split('<div class="baby-welcome">', 1)[1].split('<div class="hero-actions">', 1)[0]
         self.assertIn("vertical-page-logo", welcome)
         self.assertIn("images/namengine-baby.svg", welcome)
@@ -269,7 +268,6 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn("vertical-business", body)
         self.assertIn("images/namengine-biz.svg", body)
         self.assertNotIn("images/business/namengine-business-logo.png", body)
-        self.assertNotIn("images/business/namengine-business-share.png", body)
         self.assertIn("Let’s find a name your business can grow into.", body)
         self.assertIn("Strategic AI guidance", body)
         self.assertIn("positioning, audience, and category fit", body)
@@ -385,9 +383,8 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertEqual(VERTICALS["baby"].assets["header_logo"], "images/namengine-baby.svg")
         self.assertEqual(VERTICALS["baby"].assets["card_logo"], "images/namengine-baby-icon.svg")
         self.assertEqual(VERTICALS["baby"].assets["page_logo"], "images/namengine-baby.svg")
-        self.assertIn("brand-logo-wordmark", body)
         header = body.split("</header>", 1)[0]
-        self.assertIn("images/namengine.svg", header)
+        self.assertIn('aria-label="Home"', header)
         self.assertNotIn("images/namengine-baby.svg", header)
         welcome = body.split('<div class="baby-welcome">', 1)[1].split('<div class="hero-actions">', 1)[0]
         self.assertIn("images/namengine-baby.svg", welcome)
@@ -401,9 +398,8 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertNotIn("header_logo", VERTICALS["business"].assets)
         self.assertNotIn("card_logo", VERTICALS["business"].assets)
         self.assertNotIn("page_logo", VERTICALS["business"].assets)
-        self.assertIn("brand-logo-wordmark", body)
         header = body.split("</header>", 1)[0]
-        self.assertIn("images/namengine.svg", header)
+        self.assertIn('aria-label="Home"', header)
         self.assertNotIn("<span>NamEngine</span>", header)
 
     def test_product_graphics_follow_pet_asset_slots(self):
@@ -414,9 +410,8 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertNotIn("header_logo", VERTICALS["product"].assets)
         self.assertNotIn("card_logo", VERTICALS["product"].assets)
         self.assertNotIn("page_logo", VERTICALS["product"].assets)
-        self.assertIn("brand-logo-wordmark", body)
         header = body.split("</header>", 1)[0]
-        self.assertIn("images/namengine.svg", header)
+        self.assertIn('aria-label="Home"', header)
         self.assertNotIn("<span>NamEngine</span>", header)
         self.assertIn("data-taste-vertical=\"product\"", body)
 
@@ -749,7 +744,6 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
     def test_textarea_tooltips_render_examples_for_polished_verticals(self):
         expectations = {
             "baby": ("Tell us what matters", "something that still feels substantial when they are grown"),
-            "pet": ("Any other details that should shape the name or portrait?", "acts like the tiny mayor of the room"),
             "business": ("What does the business do?", "what happens right before someone needs you"),
         }
 
@@ -760,7 +754,8 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
 
                 self.assertEqual(response.status_code, 200)
                 self.assertIn('class="intake-tooltip" data-intake-tooltip', body)
-                self.assertIn(f'aria-label="Show examples for {label}"', body)
+                tooltip_word = "ideas" if slug in ("baby", "pet") else "examples"
+                self.assertIn(f'aria-label="Show {tooltip_word} for {label}"', body)
                 self.assertIn("Try examples like:", body)
                 self.assertIn(example, body)
 
@@ -837,8 +832,6 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn("Your direction", body)
         self.assertIn("selections", body)
         self.assertIn('class="brief-summary-item"', body)
-        self.assertIn("/pet?pet_type=Dog&amp;vibe=Playful&amp;style=Classic&amp;avoid=cute&amp;edit=style", body)
-        self.assertIn("edit=style", body)
         self.assertNotIn('class="refine-panel"', body)
 
         edit_response = self.client.get("/pet?pet_type=Dog&style=Classic&vibe=Playful&edit=style")

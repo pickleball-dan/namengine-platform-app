@@ -2,10 +2,10 @@ import json
 import os
 import tempfile
 import unittest
-from urllib.parse import urlencode
+from urllib.parse import urlencode, unquote_plus
 
 from access_helpers import unlock_beta_access
-from app import create_app, make_session_id
+from app import create_app, make_session_id, _sanitize_intake_source, _query_string_from_mapping
 from namengine.core import (
     build_brief,
     build_reaction,
@@ -63,7 +63,9 @@ class PhaseNineteenBabySmokeValidationTest(unittest.TestCase):
                 "family_context": "Surname Parker",
             }
         )
-        session_id = make_session_id("baby", query.encode("utf-8"))
+        source = {key: unquote_plus(value) for key, value in (pair.split("=", 1) for pair in query.split("&"))}
+        sanitized = _sanitize_intake_source(BABY, source)
+        session_id = make_session_id("baby", _query_string_from_mapping(sanitized).encode("utf-8"))
 
         response = self.client.get(f"/baby/results?{query}")
         self.assertEqual(response.status_code, 200)

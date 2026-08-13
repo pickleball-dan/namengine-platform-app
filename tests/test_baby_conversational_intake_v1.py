@@ -261,7 +261,7 @@ class BabyConversationalIntakeV1Test(unittest.TestCase):
         self.assertIn('<div class="baby-nursery-scene" aria-hidden="true">', body)
         self.assertIn('<span class="baby-choice-art baby-sprite-bow" aria-hidden="true"></span>', body)
         self.assertIn('<strong>Girl</strong>', body)
-        self.assertIn('aria-label="NamEngine home"', body)
+        self.assertIn('aria-label="Home"', body)
         self.assertTrue(asset.is_file())
         self.assertLess(asset.stat().st_size, 1_000_000)
 
