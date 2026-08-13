@@ -43,6 +43,14 @@ class AIGenerationError(RuntimeError):
     pass
 
 
+class AIGenerationStageError(AIGenerationError):
+    """Generation failed at a known engine stage."""
+
+    def __init__(self, stage: str, message: str):
+        self.stage = stage
+        super().__init__(f"{stage}: {message}")
+
+
 def is_ai_generation_configured() -> bool:
     return bool(os.getenv("OPENAI_API_KEY"))
 
@@ -82,13 +90,16 @@ def generate_ai_names(
         previous_names=previous,
         count=target_count,
     )
-    taste_call = _call_openai_with_metadata(
-        prompt=taste_prompt,
-        model=selected_model,
-        client_factory=shared_client_factory,
-        response_format=taste_strategy_response_format(),
-    )
-    taste_strategy = parse_taste_strategy_response(taste_call["text"])
+    try:
+        taste_call = _call_openai_with_metadata(
+            prompt=taste_prompt,
+            model=selected_model,
+            client_factory=shared_client_factory,
+            response_format=taste_strategy_response_format(),
+        )
+        taste_strategy = parse_taste_strategy_response(taste_call["text"])
+    except AIGenerationError as exc:
+        raise AIGenerationStageError("taste_interpreter_v1", str(exc)) from exc
 
     candidate_prompt = build_generation_prompt(
         vertical=vertical,
@@ -100,54 +111,62 @@ def generate_ai_names(
         taste_strategy=taste_strategy,
         prompt_version=prompt_version,
     )
-    candidate_call = _call_openai_with_metadata(
-        prompt=candidate_prompt,
-        model=selected_model,
-        client_factory=shared_client_factory,
-        response_format=candidate_pool_response_format(),
-    )
-    candidate_pool = parse_candidate_pool_response(candidate_call["text"])
-    if not candidate_pool:
-        raise AIGenerationError("AI candidate generation returned no candidate pool")
+    try:
+        candidate_call = _call_openai_with_metadata(
+            prompt=candidate_prompt,
+            model=selected_model,
+            client_factory=shared_client_factory,
+            response_format=candidate_pool_response_format(),
+        )
+        candidate_pool = parse_candidate_pool_response(candidate_call["text"])
+        if not candidate_pool:
+            raise AIGenerationError("AI candidate generation returned no candidate pool")
+    except AIGenerationError as exc:
+        raise AIGenerationStageError("candidate_generator_v1", str(exc)) from exc
 
-    finalizer_prompt = build_finalizer_prompt(
+    finalizer_call, finalizer_audit, results, finalizer_stage = _run_finalizer_with_business_recovery(
         vertical=vertical,
         brief=brief,
         round_number=round_number,
         taste_profile=taste_profile,
         previous_names=previous,
-        count=target_count,
+        target_count=target_count,
         taste_strategy=taste_strategy,
         candidate_pool=candidate_pool,
         prompt_version=prompt_version,
-    )
-    finalizer_call = _call_openai_with_metadata(
-        prompt=finalizer_prompt,
         model=selected_model,
         client_factory=shared_client_factory,
-        response_format=name_generation_response_format(vertical.slug),
     )
-    finalizer_audit = parse_generation_audit_response(finalizer_call["text"])
-    results = parse_ai_generation_response(finalizer_call["text"], vertical.slug)
-    if not results:
-        raise AIGenerationError("AI finalizer returned no usable names")
 
-    selected_results = results[: finalizer_prompt["count"]]
+    selected_results = results[: min(target_count, len(results))]
     improve_quality_explanations(vertical.slug, selected_results, brief)
     validated = validate_results(vertical, brief, selected_results)
     apply_quality_metadata(vertical.slug, validated, brief)
+    if finalizer_stage != "critic_ranker_finalizer_v1" and vertical.slug == "business" and not _business_results_pass_quality_gate(
+        validated,
+        brief=brief,
+        target_count=target_count,
+        previous_names=previous,
+        candidate_pool=candidate_pool,
+    ):
+        raise AIGenerationStageError(
+            finalizer_stage,
+            "Business recovery returned too few or too-weak usable names",
+        )
     from namengine.core.intake import version_metadata_for_brief
 
     intake_metadata = version_metadata_for_brief(brief)
     ai_calls = [
         _call_audit_summary("taste_interpreter_v1", taste_call, taste_prompt, prompt_version),
         _call_audit_summary("candidate_generator_v1", candidate_call, candidate_prompt, prompt_version),
-        _call_audit_summary("critic_ranker_finalizer_v1", finalizer_call, finalizer_prompt, prompt_version),
+        _call_audit_summary(finalizer_stage, finalizer_call, finalizer_call["prompt"], prompt_version),
     ]
     for result in validated:
         result.metadata.update(intake_metadata)
         result.metadata["taste_strategy"] = taste_strategy
         result.metadata["engine_pipeline"] = "three_pass_llm_v1"
+        if finalizer_stage != "critic_ranker_finalizer_v1":
+            result.metadata["engine_recovery"] = finalizer_stage
         result.metadata["prompt_version"] = prompt_version
         result.metadata["generation_id"] = generation_id
         result.metadata["model"] = selected_model
@@ -582,6 +601,227 @@ def build_finalizer_prompt(
             "metadata_guidance": _explanation_guidance(vertical.slug),
         },
     }
+
+
+def build_business_recovery_finalizer_prompt(
+    vertical: VerticalConfig,
+    brief: NamingBrief,
+    round_number: int,
+    taste_profile: TasteProfile | None,
+    previous_names: list[str],
+    count: int,
+    taste_strategy: dict[str, Any],
+    candidate_pool: list[dict[str, Any]],
+    failure_reason: str,
+    prompt_version: str | None = None,
+) -> dict[str, Any]:
+    """Build a compact Business-only finalizer retry prompt.
+
+    This is not a fallback name source. It retries the LLM critic/finalizer against
+    the same Pass 1 strategy and Pass 2 candidate pool, with a stricter quality
+    bar and permission to return fewer excellent names rather than padded names.
+    """
+    target_count = min(count, 6)
+    return {
+        "role": "NamEngine senior business naming critic",
+        "engine_stage": "business_recovery_finalizer_v1",
+        "prompt_version": prompt_version or prompt_version_for(vertical.slug),
+        "vertical": vertical.slug,
+        "vertical_context": vertical.prompt_context,
+        "round_number": round_number,
+        "count": target_count,
+        "mission": (
+            "Recover from a failed finalization pass without lowering quality. Choose only from the "
+            "candidate pool. Return up to count excellent Business names; do not pad the list. "
+            "If the user's refinement asks for abstraction, move less literal while preserving the "
+            "original commercial job-to-be-done, audience trust, billboard/launch clarity, and legal "
+            "or category credibility."
+        ),
+        "previous_finalizer_failure": failure_reason[:500],
+        "brief": {
+            "inputs": brief.inputs,
+            "avoid": brief.avoid,
+            "notes": _business_refinement_interpretation(brief.notes),
+            "liked_examples": brief.liked_examples,
+            "rejected_examples": brief.rejected_examples,
+        },
+        "taste_strategy": taste_strategy,
+        "candidate_pool": candidate_pool,
+        "taste_profile": _taste_profile_payload(taste_profile),
+        "previous_names": previous_names,
+        "recovery_rules": {
+            "llm_only_no_local_fallback": True,
+            "only_choose_from_candidate_pool": True,
+            "excellent_names_over_quantity": True,
+            "minimum_acceptable_names": max(4, min(6, target_count)),
+            "dedupe_exact_and_near_duplicate_names": True,
+            "avoid_rejected_examples": True,
+            "do_not_repeat_previous_names": True,
+            "preserve_business_quality_bar": True,
+            "quality_floor": {
+                "memorability": 0.74,
+                "category_fit": 0.72,
+                "launch_readiness": 0.72,
+            },
+        },
+        "output_contract": {
+            "format": "json",
+            "top_level_keys": ["names", "rejected_candidates"],
+            "required_name_fields": [
+                "name",
+                "pronunciation",
+                "tagline",
+                "origin",
+                "meaning",
+                "why_this_name",
+                "fit_note",
+                "matched_preferences",
+                "risks",
+                "tags",
+                "scores",
+            ],
+            "score_keys": _score_keys(vertical.slug),
+            "rejected_candidate_fields": ["name", "territory", "rejection_reason", "lost_to", "score_summary"],
+            "metadata_guidance": _explanation_guidance(vertical.slug),
+        },
+    }
+
+
+def _run_finalizer_with_business_recovery(
+    *,
+    vertical: VerticalConfig,
+    brief: NamingBrief,
+    round_number: int,
+    taste_profile: TasteProfile | None,
+    previous_names: list[str],
+    target_count: int,
+    taste_strategy: dict[str, Any],
+    candidate_pool: list[dict[str, Any]],
+    prompt_version: str,
+    model: str,
+    client_factory: Callable[[], Any] | None,
+) -> tuple[dict[str, Any], dict[str, list[dict[str, Any]]], list[NameResult], str]:
+    finalizer_prompt = build_finalizer_prompt(
+        vertical=vertical,
+        brief=brief,
+        round_number=round_number,
+        taste_profile=taste_profile,
+        previous_names=previous_names,
+        count=target_count,
+        taste_strategy=taste_strategy,
+        candidate_pool=candidate_pool,
+        prompt_version=prompt_version,
+    )
+    try:
+        return _run_finalizer_call(
+            prompt=finalizer_prompt,
+            vertical_slug=vertical.slug,
+            model=model,
+            client_factory=client_factory,
+            stage="critic_ranker_finalizer_v1",
+        )
+    except AIGenerationError as exc:
+        if vertical.slug != "business":
+            raise AIGenerationStageError("critic_ranker_finalizer_v1", str(exc)) from exc
+        recovery_prompt = build_business_recovery_finalizer_prompt(
+            vertical=vertical,
+            brief=brief,
+            round_number=round_number,
+            taste_profile=taste_profile,
+            previous_names=previous_names,
+            count=target_count,
+            taste_strategy=taste_strategy,
+            candidate_pool=candidate_pool,
+            failure_reason=str(exc),
+            prompt_version=prompt_version,
+        )
+        try:
+            return _run_finalizer_call(
+                prompt=recovery_prompt,
+                vertical_slug=vertical.slug,
+                model=model,
+                client_factory=client_factory,
+                stage="business_recovery_finalizer_v1",
+            )
+        except AIGenerationError as recovery_exc:
+            raise AIGenerationStageError("business_recovery_finalizer_v1", str(recovery_exc)) from recovery_exc
+
+
+def _run_finalizer_call(
+    *,
+    prompt: dict[str, Any],
+    vertical_slug: str,
+    model: str,
+    client_factory: Callable[[], Any] | None,
+    stage: str,
+) -> tuple[dict[str, Any], dict[str, list[dict[str, Any]]], list[NameResult], str]:
+    call = _call_openai_with_metadata(
+        prompt=prompt,
+        model=model,
+        client_factory=client_factory,
+        response_format=name_generation_response_format(vertical_slug),
+    )
+    call["prompt"] = prompt
+    try:
+        audit = parse_generation_audit_response(call["text"])
+        results = parse_ai_generation_response(call["text"], vertical_slug)
+    except AIGenerationError as exc:
+        raise AIGenerationError(f"{stage} parse failed: {exc}") from exc
+    if not results:
+        raise AIGenerationError(f"{stage} returned no usable names")
+    return call, audit, results, stage
+
+
+def _business_refinement_interpretation(instruction: str) -> str:
+    raw = str(instruction or "").strip()
+    if not raw:
+        return ""
+    lower = raw.lower()
+    if any(term in lower for term in ("abstract", "less specific", "less literal", "not so specific")):
+        return (
+            f"User refinement: {raw}. Interpret this as: move less literal and less descriptor-heavy, "
+            "but preserve the original business category, buyer trust, launch clarity, and practical market fit. "
+            "Do not drift into vague names that could fit any company."
+        )
+    return raw
+
+
+def _business_results_pass_quality_gate(
+    results: list[NameResult],
+    *,
+    brief: NamingBrief,
+    target_count: int,
+    previous_names: list[str],
+    candidate_pool: list[dict[str, Any]],
+) -> bool:
+    minimum_count = max(4, min(6, target_count))
+    if len(results) < minimum_count:
+        return False
+    previous = {name.strip().lower() for name in previous_names if name.strip()}
+    candidate_names = {
+        str(item.get("name") or "").strip().lower()
+        for item in candidate_pool
+        if str(item.get("name") or "").strip()
+    }
+    seen: set[str] = set()
+    for result in results:
+        key = result.name.strip().lower()
+        if not key or key in seen or key in previous:
+            return False
+        if candidate_names and key not in candidate_names:
+            return False
+        seen.add(key)
+        if not result.why_this_name.strip() or not result.fit_note.strip():
+            return False
+        for score_key in ("memorability", "category_fit", "launch_readiness"):
+            if float(result.scores.get(score_key, 0.0) or 0.0) < 0.6:
+                return False
+        if float(result.scores.get("business_quality", result.scores.get("overall", 1.0)) or 0.0) < 0.6:
+            return False
+    avoid = {str(item).strip().lower() for item in brief.avoid if str(item).strip()}
+    if avoid and any(result.name.strip().lower() in avoid for result in results):
+        return False
+    return True
 
 
 def candidate_pool_response_format() -> dict[str, Any]:

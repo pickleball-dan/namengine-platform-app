@@ -15,6 +15,10 @@
       <p class="eyebrow">Your answers are safe</p>
       <h1>We need a moment before trying again.</h1>
       <p>We couldn’t bring your list together just now. Go back when you’re ready and we’ll try again with everything you shared.</p>
+      {% elif vertical and vertical.slug == "business" %}
+      <p class="eyebrow">Quality over filler</p>
+      <h1>We need a clean AI pass before showing business names.</h1>
+      <p>We couldn’t finish a high-quality Business list just now. Rather than show generic fallback names as premium output, please try again with the same brief.</p>
       {% else %}
       <h1>We couldn’t generate this list right now.</h1>
       <p>{{ message }}</p>

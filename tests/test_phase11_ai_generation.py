@@ -26,6 +26,7 @@ from namengine.core.ai_generation import (
     CANDIDATE_POOL_SCHEMA_NAME,
     NAME_GENERATION_SCHEMA_NAME,
     TASTE_STRATEGY_SCHEMA_NAME,
+    build_business_recovery_finalizer_prompt,
     candidate_pool_response_format,
     name_generation_response_format,
     taste_strategy_response_format,
@@ -507,6 +508,129 @@ class PhaseElevenAIGenerationTest(unittest.TestCase):
         self.assertIn('"vertical": "business"', business_prompt)
         self.assertIn('"llm_is_creative_source_not_local_pool": true', business_prompt)
         self.assertIn("Operations support for growing service businesses", business_prompt)
+
+    def test_business_finalizer_failure_retries_with_llm_only_recovery_prompt(self):
+        brief = build_brief(
+            BUSINESS,
+            {
+                "business_description": "Accident recovery and legal cost support",
+                "industry": "Law",
+                "audience": "Consumers",
+                "style": "Clear and credible",
+            },
+        )
+        brief.notes = "Less specific names and more abstract"
+        strategy_response = json.dumps(
+            {
+                "taste_thesis": "Credible accident-recovery names with billboard clarity and consumer trust.",
+                "priority_interpretation": "Keep legal credibility while reducing literal descriptor weight.",
+                "hard_constraints": ["Do not return offensive or competitor-confusing names."],
+                "soft_preferences": ["Less literal", "Trustworthy", "Advertising-ready"],
+                "anti_patterns": ["Vague names that could fit any business"],
+                "naming_territories": [
+                    {
+                        "label": "credible-abstract",
+                        "description": "Names that feel less literal but still signal accident support.",
+                        "example_style": "ClaimBridge",
+                        "risk": "Can become too generic if the legal job disappears.",
+                    }
+                ],
+                "candidate_rubric": [
+                    {
+                        "criterion": "trustworthy abstraction",
+                        "weight": 0.5,
+                        "what_good_looks_like": "Less literal while still commercially clear.",
+                    }
+                ],
+                "diversity_plan": "Mix ownable compound names with clearer legal-adjacent names.",
+            }
+        )
+        candidate_names = ["ClaimBridge", "CivicRecover", "Roadwise Legal", "MetroClaim", "RecoveryMark", "InjuryBridge"]
+        candidate_response = json.dumps(
+            {
+                "candidate_pool": [
+                    {
+                        "name": name,
+                        "pronunciation": name,
+                        "territory": "credible-abstract",
+                        "rationale": "Less literal but still tied to accident recovery trust.",
+                        "strengths": ["credible", "memorable"],
+                        "risks": ["Needs legal and domain checks."],
+                        "tags": ["business", "legal", "credible"],
+                        "scores": {"taste_fit": 0.88, "usability": 0.86, "distinctiveness": 0.78},
+                    }
+                    for name in candidate_names
+                ]
+            }
+        )
+        recovery_response = json.dumps(
+            {
+                "rejected_candidates": [],
+                "names": [
+                    {
+                        "name": name,
+                        "pronunciation": name,
+                        "tagline": "Credible accident recovery support.",
+                        "origin": "Business compound",
+                        "meaning": "A less literal name that still points toward recovery and legal help.",
+                        "why_this_name": f"{name} keeps the accident-recovery promise credible while moving away from a plain descriptor.",
+                        "fit_note": "Best for a consumer legal-support brand that needs billboard clarity without sounding generic.",
+                        "matched_preferences": [
+                            {"preference": "less literal", "evidence": name, "fit": "Keeps the service implied rather than over-explained."}
+                        ],
+                        "risks": ["Needs trademark, domain, and local competitor review before launch."],
+                        "tags": ["business", "legal", "launch-ready"],
+                        "scores": {"memorability": 0.8, "category_fit": 0.78, "launch_readiness": 0.77},
+                    }
+                    for name in candidate_names[:6]
+                ],
+            }
+        )
+        fake_client = FakeClient(strategy_response, candidate_response, "not json", recovery_response)
+
+        with patch.dict(os.environ, {"OPENAI_API_KEY": "test-key"}):
+            results = generate_ai_names(BUSINESS, brief, round_number=2, client_factory=lambda: fake_client)
+
+        self.assertEqual([item.name for item in results], candidate_names[:6])
+        self.assertEqual(len(fake_client.responses.calls), 4)
+        recovery_prompt = json.loads(fake_client.responses.calls[3]["input"][1]["content"])
+        self.assertEqual(recovery_prompt["engine_stage"], "business_recovery_finalizer_v1")
+        self.assertTrue(recovery_prompt["recovery_rules"]["llm_only_no_local_fallback"])
+        self.assertTrue(recovery_prompt["recovery_rules"]["excellent_names_over_quantity"])
+        self.assertIn("move less literal", recovery_prompt["brief"]["notes"].lower())
+        self.assertEqual(results[0].metadata["engine_recovery"], "business_recovery_finalizer_v1")
+        self.assertEqual(results[0].metadata["ai_calls"][2]["stage"], "business_recovery_finalizer_v1")
+
+    def test_business_recovery_prompt_preserves_quality_over_quantity(self):
+        brief = build_brief(BUSINESS, {"business_description": "Law support", "audience": "Consumers", "style": "Clear"})
+        brief.notes = "Less specific names and more abstract"
+        prompt = build_business_recovery_finalizer_prompt(
+            vertical=BUSINESS,
+            brief=brief,
+            round_number=2,
+            taste_profile=None,
+            previous_names=["Citywide Accident Claims"],
+            count=8,
+            taste_strategy=parse_taste_strategy_response(STRATEGY_RESPONSE),
+            candidate_pool=parse_candidate_pool_response(CANDIDATE_RESPONSE),
+            failure_reason="parse failed",
+        )
+
+        self.assertEqual(prompt["count"], 6)
+        self.assertTrue(prompt["recovery_rules"]["only_choose_from_candidate_pool"])
+        self.assertTrue(prompt["recovery_rules"]["excellent_names_over_quantity"])
+        self.assertIn("Do not drift into vague names", prompt["brief"]["notes"])
+
+    def test_non_business_finalizer_failure_does_not_retry_or_fallback(self):
+        brief = build_brief(PET, {"species": "Dog", "style": "Warm"})
+        fake_client = FakeClient(STRATEGY_RESPONSE, CANDIDATE_RESPONSE, "not json")
+
+        with patch.dict(os.environ, {"OPENAI_API_KEY": "test-key"}):
+            with self.assertRaises(AIGenerationError) as captured:
+                generate_ai_names(PET, brief, round_number=1, client_factory=lambda: fake_client)
+
+        self.assertIn("critic_ranker_finalizer_v1", str(captured.exception))
+        self.assertEqual(len(fake_client.responses.calls), 3)
 
     def test_generate_names_falls_back_without_api_key(self):
         brief = build_brief(PET, {"species": "Dog", "style": "Warm"})

@@ -181,10 +181,13 @@ class OpenAITimeoutFallbackTest(unittest.TestCase):
         brief = build_brief(business, {"business_description": "Test studio", "style": "Clear"})
         with patch.object(platform_app, "is_ai_generation_configured", return_value=True), patch.object(
             model_router, "_openai_provider", side_effect=_openai_timeout
-        ), patch.dict("os.environ", {"NAMENGINE_AI_PRIMARY_VERTICALS": "business"}):
+        ), patch.object(
+            model_router, "_fallback_provider", wraps=model_router._fallback_provider
+        ) as fallback_provider, patch.dict("os.environ", {"NAMENGINE_AI_PRIMARY_VERTICALS": "business"}):
             with self.assertRaises(NameGenerationUnavailable):
                 platform_app._generate_names_for_route(business, brief)
 
+        fallback_provider.assert_not_called()
         self.assertEqual(get_failed_generation_audits("business")[0]["exception_type"], "AIGenerationError")
 
     def test_user_sees_unavailable_only_when_both_providers_fail(self):

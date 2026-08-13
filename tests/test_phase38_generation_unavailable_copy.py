@@ -22,6 +22,19 @@ class PhaseThirtyEightGenerationUnavailableCopyTest(unittest.TestCase):
         self.assertNotIn("No fallback list was shown", html)
         self.assertNotIn("real engine", html)
 
+    def test_business_unavailable_page_is_honest_about_quality_preserving_retry(self):
+        with self.app.test_request_context("/"):
+            html = self.app.jinja_env.get_template("generation_unavailable.html").render(
+                message="We’re having trouble generating this list right now. Please try again shortly.",
+                vertical=get_vertical("business"),
+            )
+
+        self.assertIn("Quality over filler", html)
+        self.assertIn("We need a clean AI pass before showing business names.", html)
+        self.assertIn("Rather than show generic fallback names as premium output", html)
+        self.assertIn("Go back and try again", html)
+        self.assertNotIn("We’re having trouble generating this list right now. Please try again shortly.", html)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -2153,7 +2153,7 @@ def _generate_names_for_route(
                     prompt_version=prompt_version_for(vertical.slug),
                     latency_ms=int((time.perf_counter() - started_at) * 1000),
                     customer_intake=_audit_customer_intake(brief),
-                    exception_type=type(exc).__name__,
+                    exception_type=_generation_exception_type(exc),
                     safe_error_message=safe_message,
                 )
             except Exception:  # pragma: no cover - audit failure must not replace product response
@@ -2226,6 +2226,13 @@ def _record_provider_failures_from_fallback(vertical, brief: NamingBrief, names:
         name.metadata.pop("provider_failures", None)
 
 
+def _generation_exception_type(exc: Exception) -> str:
+    stage = getattr(exc, "stage", "")
+    if stage:
+        return f"{type(exc).__name__}:{stage}"
+    return type(exc).__name__
+
+
 def _audit_customer_intake(brief: NamingBrief) -> dict:
     """Keep the existing audit payload without duplicating canonical context."""
     payload = to_plain_data(brief)
@@ -2263,14 +2270,20 @@ def _cached_names_match_current_rules(
 ) -> bool:
     if _should_use_ai_for_vertical(vertical):
         all_ai = all(_result_is_ai_sourced(name) for name in names)
-        all_current_failure_fallback = all(
-            not _result_is_ai_sourced(name)
-            and name.metadata.get("ai_primary_requested") is True
-            and name.metadata.get("ai_primary_fallback") is True
-            for name in names
-        )
-        if not (all_ai or all_current_failure_fallback):
-            return False
+        if vertical.slug == "business":
+            # Business is premium-positioning work. Never silently reuse deterministic
+            # fallback Business names as if they were successful AI output.
+            if not all_ai:
+                return False
+        else:
+            all_current_failure_fallback = all(
+                not _result_is_ai_sourced(name)
+                and name.metadata.get("ai_primary_requested") is True
+                and name.metadata.get("ai_primary_fallback") is True
+                for name in names
+            )
+            if not (all_ai or all_current_failure_fallback):
+                return False
     if vertical.slug == "baby":
         if len(filter_results_for_brief(vertical, brief, names)) != len(names):
             return False
