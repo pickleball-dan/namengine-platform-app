@@ -100,7 +100,7 @@ class PhaseThreePetResultsTest(unittest.TestCase):
         self.assertIn("<dt>Pet</dt>", body)
         self.assertIn("<dt>Personality</dt>", body)
         self.assertIn("Open full detail", body)
-        self.assertIn("/pet/name/", body)
+        self.assertIn("/pet/access", body)
         self.assertNotIn("<dt>Species</dt>", body)
 
     def test_baby_results_route_renders_name_cards(self):
@@ -119,8 +119,8 @@ class PhaseThreePetResultsTest(unittest.TestCase):
         self.assertIn("Your direction", body)
         self.assertIn("<dt>Gender</dt>", body)
         self.assertIn("<dt>Style</dt>", body)
-        self.assertIn("Explore <", body)
-        self.assertIn("/baby/name/", body)
+        self.assertIn("View meaning <", body)
+        self.assertIn("/baby/access", body)
 
     def test_baby_generator_returns_shared_name_results(self):
         brief = build_brief(
