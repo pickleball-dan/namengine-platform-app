@@ -65,8 +65,9 @@ class ApprovedBrandingAssetsTest(unittest.TestCase):
         header = body.split("</header>", 1)[0]
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn('/static/images/namengine.svg', header)
-        self.assertIn('alt="NamEngine"', header)
+        self.assertIn('brand-home-link', header)
+        self.assertIn('aria-label="Home"', header)
+        self.assertIn('class="brand-home-text">Home</span>', header)
         self.assertIn('/static/images/baby/namengine-baby-share.png', body)
         welcome = body.split('<div class="baby-welcome">', 1)[1].split('<div class="hero-actions">', 1)[0]
         self.assertIn('/static/images/namengine-baby.svg', welcome)
@@ -82,7 +83,7 @@ class ApprovedBrandingAssetsTest(unittest.TestCase):
         self.assertIn("images/namengine-pets.svg", pet)
         self.assertNotIn("images/namengine-pets-icon.svg", pet)
         self.assertNotIn("images/pet/namengine-pet-logo-transparent.png", pet)
-        self.assertNotIn("images/pet/namengine-pet-card-share-v3.jpg", pet)
+        self.assertIn("images/pet/namengine-pet-card-share-v3.jpg", pet)
         self.assertIn("images/namengine-biz.svg", business)
         self.assertNotIn("images/namengine-biz-icon.svg", business)
 
