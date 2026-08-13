@@ -55,7 +55,7 @@ class PhaseTwentyThreeEvalReportViewTest(unittest.TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_eval_report_renders_fixture_summary_and_contrasts(self):
-        response = self.client.get("/dev/eval-report?ai=0", headers=self.auth_headers)
+        response = self.client.get("/dev/eval-report", headers=self.auth_headers)
 
         self.assertEqual(response.status_code, 200)
         body = response.get_data(as_text=True)
@@ -66,24 +66,23 @@ class PhaseTwentyThreeEvalReportViewTest(unittest.TestCase):
         self.assertIn("Contrast groups", body)
         self.assertIn("Final names", body)
 
-    def test_eval_report_defaults_to_ai_engine(self):
+    def test_eval_report_defaults_to_fallback_engine(self):
         with patch("app.run_taste_engine_fixture_set", return_value=[]) as run_fixture_set:
             response = self.client.get("/dev/eval-report", headers=self.auth_headers)
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(run_fixture_set.call_args.kwargs["use_ai"], True)
-        self.assertIn("AI", response.get_data(as_text=True))
-
-    def test_eval_report_allows_explicit_fallback_opt_out(self):
-        with patch("app.run_taste_engine_fixture_set", return_value=[]) as run_fixture_set:
-            response = self.client.get("/dev/eval-report?ai=0", headers=self.auth_headers)
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(run_fixture_set.call_args.kwargs["use_ai"], False)
         self.assertIn("Fallback", response.get_data(as_text=True))
 
+    def test_eval_report_allows_explicit_ai_opt_in(self):
+        with patch("app.run_taste_engine_fixture_set", return_value=[]) as run_fixture_set:
+            response = self.client.get("/dev/eval-report?ai=1", headers=self.auth_headers)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(run_fixture_set.call_args.kwargs["use_ai"], True)
+
     def test_eval_report_limit_keeps_ai_smoke_route_safe(self):
-        response = self.client.get("/dev/eval-report?ai=0&limit=2", headers=self.auth_headers)
+        response = self.client.get("/dev/eval-report?limit=2", headers=self.auth_headers)
 
         self.assertEqual(response.status_code, 200)
         body = response.get_data(as_text=True)
