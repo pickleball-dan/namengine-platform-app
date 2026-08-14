@@ -233,7 +233,14 @@
         visual.classList.add("is-pulsing");
       }
       if (patienceIndex >= longWaitMessages.length && patienceMeter) {
-        patienceMeter.classList.add("is-holding");
+        if (!patienceMeter.classList.contains("is-holding")) {
+          const fill = patienceMeter.querySelector(".progress-patience-fill");
+          if (fill) {
+            fill.style.width = window.getComputedStyle(fill).width;
+          }
+          patienceMeter.classList.remove("is-filling");
+          patienceMeter.classList.add("is-holding");
+        }
       }
     }, 6500);
   }
