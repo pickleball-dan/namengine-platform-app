@@ -1288,7 +1288,12 @@ def create_app() -> Flask:
         )
         beta_continue_url = _beta_paid_continue_url(vertical, return_session, beta_usage)
         if (paid or checkout_return) and paid_session_id:
-            response = redirect(url_for("session_results", session_id=paid_session_id))
+            if get_session_snapshot(paid_session_id) is not None:
+                response = redirect(url_for("session_results", session_id=paid_session_id))
+            else:
+                # Session no longer exists (e.g. expired, different device).
+                # Fall back to intake rather than letting session_results abort(404).
+                response = redirect(url_for("intake", vertical_slug=vertical.slug))
         else:
             response = make_response(
                 render_template(
