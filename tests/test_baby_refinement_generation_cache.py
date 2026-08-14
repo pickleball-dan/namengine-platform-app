@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 import app as platform_app
 import namengine.core.model_router as model_router
-from access_helpers import unlock_beta_access
+from access_helpers import csrf_token, unlock_beta_access
 from app import create_app
 from namengine.core.ai_generation import AIGenerationError
 from namengine.core.briefs import build_brief
@@ -91,7 +91,7 @@ class BabyRefinementGenerationCacheTest(unittest.TestCase):
         ) as generate:
             response = self.client.post(
                 "/refine",
-                data={"session_id": parent_id, "instruction": "a little lighter"},
+                data={"session_id": parent_id, "instruction": "a little lighter", "csrf_token": csrf_token(self.client)},
                 headers={"X-NamEngine-Progress": "1"},
             )
 
@@ -124,7 +124,7 @@ class BabyRefinementGenerationCacheTest(unittest.TestCase):
         ) as openai:
             response = self.client.post(
                 "/refine",
-                data={"session_id": parent_id, "instruction": "keep it classic"},
+                data={"session_id": parent_id, "instruction": "keep it classic", "csrf_token": csrf_token(self.client)},
                 headers={"X-NamEngine-Progress": "1"},
             )
 

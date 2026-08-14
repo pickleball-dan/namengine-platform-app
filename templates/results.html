@@ -263,6 +263,7 @@
             <div class="result-card-actions">
               {% if vertical.slug != "baby" %}<a class="button-link detail-link{% if not beta_unlocked %} premium-locked-action{% endif %}" href="{{ detail_url if beta_unlocked else '/%s/access?return_session=%s'|format(vertical.slug, session_id) }}"{% if not beta_unlocked %} data-premium-action{% endif %}>Open full detail</a>{% endif %}
               <form action="/choose" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="session_id" value="{{ session_id }}">
                 <input type="hidden" name="result_id" value="{{ item.id }}">
                 <button class="choose-button{% if not beta_unlocked %} premium-locked-action{% endif %}" type="{{ 'submit' if beta_unlocked else 'button' }}"{% if not beta_unlocked %} data-premium-action{% endif %}>Choose {{ item.name }}</button>
@@ -301,6 +302,7 @@
           data-min-reactions="{{ min_reactions_for_refinement }}"
           data-reaction-total="{{ reaction_total }}"
         >
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <input type="hidden" name="session_id" value="{{ session_id }}">
           <label for="bottom-instruction">Optional direction</label>
           <input id="bottom-instruction" name="instruction" maxlength="{{ refinement_instruction_max_length }}" placeholder="Shorter, softer, bolder, less cute...">

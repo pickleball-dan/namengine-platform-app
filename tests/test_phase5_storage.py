@@ -5,6 +5,7 @@ from contextlib import closing
 from unittest.mock import patch
 
 import app as platform_app
+from access_helpers import csrf_token
 from app import create_app, make_session_id
 from namengine.core import (
     build_brief,
@@ -134,6 +135,7 @@ class PhaseFiveStorageTest(unittest.TestCase):
                     "session_id": session_id,
                     "result_id": "pet-1",
                     "value": "love",
+                    "csrf_token": csrf_token(self.client),
                 },
             )
 
@@ -143,12 +145,14 @@ class PhaseFiveStorageTest(unittest.TestCase):
         self.assertEqual(get_reaction_counts(session_id), {"love": 1, "maybe": 0, "no": 0})
 
     def test_react_api_rejects_unknown_session_result(self):
+        self.client.get("/")
         response = self.client.post(
             "/api/react",
             json={
                 "session_id": "missing-session",
                 "result_id": "pet-1",
                 "value": "love",
+                "csrf_token": csrf_token(self.client),
             },
         )
 

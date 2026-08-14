@@ -1,4 +1,5 @@
 import os
+import shutil
 import sqlite3
 import tempfile
 import unittest
@@ -6,6 +7,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from unittest.mock import patch
 
+from access_helpers import csrf_token
 from app import create_app, make_session_id
 from namengine.core.storage import get_beta_usage, get_session_snapshot
 from namengine.verticals import get_vertical
@@ -30,11 +32,11 @@ class BetaUsageLimitsTest(unittest.TestCase):
             os.environ.pop("NAMENGINE_BETA_FREE_ACCESS_HOURS", None)
         else:
             os.environ["NAMENGINE_BETA_FREE_ACCESS_HOURS"] = self._previous_free_hours
-        try:
-            Path(os.path.join(self._tmp, "beta-usage.sqlite3")).unlink(missing_ok=True)
-            Path(self._tmp).rmdir()
-        except PermissionError:
-            pass
+        # SQLite WAL mode (see storage.py) leaves -wal/-shm sidecar files
+        # alongside the main db file; a single unlink + rmdir leaves those
+        # behind and fails with "Directory not empty". rmtree handles any
+        # sidecar files regardless of what storage.py creates.
+        shutil.rmtree(self._tmp, ignore_errors=True)
 
     def _baby_first_query(self) -> str:
         return "gender=Girl&style=Classic&sound=Soft"

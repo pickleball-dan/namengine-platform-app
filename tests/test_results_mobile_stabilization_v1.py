@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from access_helpers import unlock_beta_access
+from access_helpers import csrf_token, unlock_beta_access
 from app import collapsed_result_meaning, compact_card_text, create_app
 from namengine.core import (
     build_reaction,
@@ -235,11 +235,11 @@ class ResultsMobileStabilizationTest(unittest.TestCase):
         unlock_beta_access(self.client, "pet")
         accepted = self.client.post(
             "/api/react",
-            json={"session_id": session_id, "result_id": "pet-1", "value": "love"},
+            json={"session_id": session_id, "result_id": "pet-1", "value": "love", "csrf_token": csrf_token(self.client)},
         )
         rejected = self.client.post(
             "/api/react",
-            json={"session_id": session_id, "result_id": "pet-2", "value": "maybe"},
+            json={"session_id": session_id, "result_id": "pet-2", "value": "maybe", "csrf_token": csrf_token(self.client)},
         )
         body = self.client.get(f"/results/session/{session_id}").get_data(as_text=True)
 
@@ -266,7 +266,7 @@ class ResultsMobileStabilizationTest(unittest.TestCase):
         unlock_beta_access(self.client, "pet")
         response = self.client.post(
             "/refine",
-            data={"session_id": session_id, "instruction": "shorter"},
+            data={"session_id": session_id, "instruction": "shorter", "csrf_token": csrf_token(self.client)},
         )
 
         self.assertEqual(response.status_code, 400)

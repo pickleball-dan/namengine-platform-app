@@ -79,6 +79,7 @@
 
           <a class="button-link detail-link" href="{{ url_for('name_detail', vertical_slug=vertical.slug, session_id=session.id, result_id=item.id) }}">{% if vertical.slug == "baby" %}Explore {{ item.name }}{% else %}Open detail{% endif %}</a>
           <form action="/choose" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="hidden" name="session_id" value="{{ session.id }}">
             <input type="hidden" name="result_id" value="{{ item.id }}">
             <button class="choose-button" type="submit">Choose {{ item.name }}</button>

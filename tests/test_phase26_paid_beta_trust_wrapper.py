@@ -3,6 +3,7 @@ import unittest
 from unittest.mock import patch
 
 import app as namengine_app
+from access_helpers import csrf_token
 from app import create_app, _beta_access_secret, _stripe_checkout_session_paid, make_session_id
 from namengine.core import get_session_snapshot
 from namengine.verticals import get_vertical
@@ -576,7 +577,9 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         end = session_text.index('"', start)
         session_id = session_text[start:end]
 
-        response = self.app.post("/refine", data={"session_id": session_id})
+        response = self.app.post(
+            "/refine", data={"session_id": session_id, "csrf_token": csrf_token(self.app)}
+        )
         text = response.get_data(as_text=True)
 
         self.assertEqual(response.status_code, 402)
@@ -646,7 +649,7 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
                 "choose",
                 self.app.post(
                     "/choose",
-                    data={"session_id": session_id, "result_id": result_id},
+                    data={"session_id": session_id, "result_id": result_id, "csrf_token": csrf_token(self.app)},
                     follow_redirects=False,
                 ),
             ),
@@ -675,7 +678,10 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
             end = session_text.index('"', start)
             session_id = session_text[start:end]
             self.app.get(f"/pet/access/checkout?return_session={session_id}")
-            response = self.app.post("/refine", data={"session_id": session_id, "instruction": "warmer"})
+            response = self.app.post(
+                "/refine",
+                data={"session_id": session_id, "instruction": "warmer", "csrf_token": csrf_token(self.app)},
+            )
             text = response.get_data(as_text=True)
         finally:
             if previous is None:

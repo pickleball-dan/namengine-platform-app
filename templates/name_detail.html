@@ -44,6 +44,7 @@
 
     {% if vertical.slug != "baby" %}<div class="detail-actions">
       <form action="/choose" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="session_id" value="{{ session.id }}">
         <input type="hidden" name="result_id" value="{{ result.id }}">
         <button class="choose-button" type="submit">Choose {{ result.name }}</button>
@@ -161,6 +162,7 @@
         {{ baby_reactions("next-decision") }}
         <div class="baby-next-links">
           <form action="/choose" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="hidden" name="session_id" value="{{ session.id }}">
             <input type="hidden" name="result_id" value="{{ result.id }}">
             <button class="choose-button" type="submit">Choose {{ result.name }}</button>

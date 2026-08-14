@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from access_helpers import unlock_beta_access
+from access_helpers import csrf_token, unlock_beta_access
 from app import create_app
 from namengine.core.name_facts import build_name_fact_card
 
@@ -92,7 +92,7 @@ class PhaseTwentyEightBabyNameFactCardTest(unittest.TestCase):
         unlock_beta_access(self.client, "baby")
         chosen_response = self.client.post(
             "/choose",
-            data={"session_id": session_id, "result_id": "baby-1"},
+            data={"session_id": session_id, "result_id": "baby-1", "csrf_token": csrf_token(self.client)},
             follow_redirects=True,
         )
         chosen_text = chosen_response.get_data(as_text=True)

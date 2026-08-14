@@ -2,6 +2,11 @@
   const shell = document.querySelector("[data-session-id]");
   if (!shell) return;
 
+  function readCsrfCookie() {
+    const match = document.cookie.match(/(?:^|; )namengine_csrf=([^;]*)/);
+    return match ? decodeURIComponent(match[1]) : "";
+  }
+
   const sessionId = shell.dataset.sessionId;
   const refineForm = document.querySelector("[data-min-reactions]");
   const refineButton = refineForm ? refineForm.querySelector("[data-refine-submit]") : null;
@@ -72,6 +77,7 @@
           session_id: sessionId,
           result_id: resultId,
           value,
+          csrf_token: readCsrfCookie(),
         }),
       });
 

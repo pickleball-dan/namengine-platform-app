@@ -2,6 +2,18 @@ import os
 from unittest.mock import patch
 
 
+def csrf_token(client):
+    """Return the CSRF token currently set on the test client's cookie jar.
+
+    The app sets this cookie on every page render (see base.html). Call this
+    after any GET request in the test (or after unlock_beta_access, which
+    itself follows a GET) and include the result as "csrf_token" in POST
+    payloads to /choose, /refine, and /api/react.
+    """
+    cookie = client.get_cookie("namengine_csrf")
+    return cookie.value if cookie else ""
+
+
 def unlock_beta_access(client, vertical_slug="baby"):
     """Simulate the verified checkout return used by paid refinement tests.
 

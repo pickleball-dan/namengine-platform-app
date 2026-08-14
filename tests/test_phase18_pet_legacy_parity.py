@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from access_helpers import unlock_beta_access
+from access_helpers import csrf_token, unlock_beta_access
 from app import _query_string_from_mapping, _sanitize_intake_source, create_app, make_session_id
 from namengine.core import build_brief, get_chosen_snapshot, get_session_snapshot
 from namengine.verticals import PET
@@ -242,7 +242,7 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
         share = self.client.get(f"/share/{session_id}")
         choose = self.client.post(
             "/choose",
-            data={"session_id": session_id, "result_id": result_id},
+            data={"session_id": session_id, "result_id": result_id, "csrf_token": csrf_token(self.client)},
             follow_redirects=False,
         )
         chosen_id = get_session_snapshot(session_id)["chosen_names"][0]["id"]
@@ -298,7 +298,7 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
         for result, value in zip(parent_results[:3], ("love", "love", "no")):
             response = self.client.post(
                 "/api/react",
-                json={"session_id": session_id, "result_id": result["id"], "value": value},
+                json={"session_id": session_id, "result_id": result["id"], "value": value, "csrf_token": csrf_token(self.client)},
             )
             self.assertEqual(response.status_code, 201)
 
@@ -321,7 +321,7 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
 
         refined = self.client.post(
             "/refine",
-            data={"session_id": session_id, "instruction": "warmer but still easy to call"},
+            data={"session_id": session_id, "instruction": "warmer but still easy to call", "csrf_token": csrf_token(self.client)},
         )
         refined_body = refined.get_data(as_text=True)
         child_session_id = f"{session_id}-r2"

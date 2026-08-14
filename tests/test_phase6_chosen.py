@@ -4,7 +4,7 @@ import unittest
 from unittest.mock import patch
 
 from app import _query_string_from_mapping, _sanitize_intake_source, create_app, make_session_id
-from access_helpers import unlock_beta_access
+from access_helpers import csrf_token, unlock_beta_access
 from namengine.core import (
     build_brief,
     build_baby_keepsake_prompt,
@@ -85,7 +85,7 @@ class PhaseSixChosenNameTest(unittest.TestCase):
 
         response = self.client.post(
             "/choose",
-            data={"session_id": session_id, "result_id": "pet-1"},
+            data={"session_id": session_id, "result_id": "pet-1", "csrf_token": csrf_token(self.client)},
             follow_redirects=False,
         )
 
@@ -107,7 +107,7 @@ class PhaseSixChosenNameTest(unittest.TestCase):
         ), patch("app.Thread") as thread:
             response = self.client.post(
                 "/choose",
-                data={"session_id": session_id, "result_id": "pet-1"},
+                data={"session_id": session_id, "result_id": "pet-1", "csrf_token": csrf_token(self.client)},
                 follow_redirects=False,
             )
 
@@ -136,7 +136,7 @@ class PhaseSixChosenNameTest(unittest.TestCase):
             unlock_beta_access(self.client, "pet")
             choose_response = self.client.post(
                 "/choose",
-                data={"session_id": session_id, "result_id": "pet-1"},
+                data={"session_id": session_id, "result_id": "pet-1", "csrf_token": csrf_token(self.client)},
                 follow_redirects=True,
             )
 
@@ -158,7 +158,7 @@ class PhaseSixChosenNameTest(unittest.TestCase):
         unlock_beta_access(self.client, "pet")
         response = self.client.post(
             "/choose",
-            data={"session_id": session_id, "result_id": "pet-1"},
+            data={"session_id": session_id, "result_id": "pet-1", "csrf_token": csrf_token(self.client)},
             follow_redirects=True,
         )
 
@@ -195,7 +195,7 @@ class PhaseSixChosenNameTest(unittest.TestCase):
         unlock_beta_access(self.client, "pet")
         response = self.client.post(
             "/choose",
-            data={"session_id": session_id, "result_id": "pet-1"},
+            data={"session_id": session_id, "result_id": "pet-1", "csrf_token": csrf_token(self.client)},
             follow_redirects=True,
         )
         chosen_id = get_session_snapshot(session_id)["chosen_names"][0]["id"]
@@ -228,7 +228,7 @@ class PhaseSixChosenNameTest(unittest.TestCase):
         unlock_beta_access(self.client, "pet")
         self.client.post(
             "/choose",
-            data={"session_id": session_id, "result_id": "pet-1"},
+            data={"session_id": session_id, "result_id": "pet-1", "csrf_token": csrf_token(self.client)},
             follow_redirects=True,
         )
         chosen_id = get_session_snapshot(session_id)["chosen_names"][0]["id"]
@@ -253,7 +253,7 @@ class PhaseSixChosenNameTest(unittest.TestCase):
         unlock_beta_access(self.client, "pet")
         self.client.post(
             "/choose",
-            data={"session_id": session_id, "result_id": "pet-1"},
+            data={"session_id": session_id, "result_id": "pet-1", "csrf_token": csrf_token(self.client)},
             follow_redirects=True,
         )
         chosen_id = get_session_snapshot(session_id)["chosen_names"][0]["id"]
@@ -295,7 +295,7 @@ class PhaseSixChosenNameTest(unittest.TestCase):
         unlock_beta_access(self.client, "pet")
         chosen_response = self.client.post(
             "/choose",
-            data={"session_id": session_id, "result_id": "pet-1"},
+            data={"session_id": session_id, "result_id": "pet-1", "csrf_token": csrf_token(self.client)},
             follow_redirects=True,
         )
         chosen_body = chosen_response.get_data(as_text=True)
@@ -341,7 +341,7 @@ class PhaseSixChosenNameTest(unittest.TestCase):
         unlock_beta_access(self.client, "baby")
         response = self.client.post(
             "/choose",
-            data={"session_id": session_id, "result_id": "baby-1"},
+            data={"session_id": session_id, "result_id": "baby-1", "csrf_token": csrf_token(self.client)},
             follow_redirects=True,
         )
         chosen_id = get_session_snapshot(session_id)["chosen_names"][0]["id"]

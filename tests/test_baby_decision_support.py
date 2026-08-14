@@ -5,7 +5,7 @@ import unittest
 from dataclasses import asdict
 
 from app import create_app
-from access_helpers import unlock_beta_access
+from access_helpers import csrf_token, unlock_beta_access
 from namengine.core import (
     build_reaction,
     build_taste_profile,
@@ -220,7 +220,7 @@ class BabyDecisionSupportTest(unittest.TestCase):
         unlock_beta_access(self.client, "baby")
         response = self.client.post(
             "/api/react",
-            json={"session_id": "baby-maybe", "result_id": "baby-1", "value": "maybe"},
+            json={"session_id": "baby-maybe", "result_id": "baby-1", "value": "maybe", "csrf_token": csrf_token(self.client)},
         )
         self.assertEqual(response.status_code, 400)
         body = self.client.get("/baby/name/baby-maybe/baby-1").get_data(as_text=True)
@@ -231,7 +231,7 @@ class BabyDecisionSupportTest(unittest.TestCase):
         unlock_beta_access(self.client, "pet")
         rejected = self.client.post(
             "/api/react",
-            json={"session_id": "pet-no-maybe", "result_id": "pet-1", "value": "maybe"},
+            json={"session_id": "pet-no-maybe", "result_id": "pet-1", "value": "maybe", "csrf_token": csrf_token(self.client)},
         )
         self.assertEqual(rejected.status_code, 400)
 

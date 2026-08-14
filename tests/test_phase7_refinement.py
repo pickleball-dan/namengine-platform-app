@@ -3,6 +3,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
+from access_helpers import csrf_token
 from app import create_app, make_session_id
 from namengine.core import (
     build_reaction,
@@ -102,7 +103,7 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         self._unlock_access("pet")
         response = self.client.post(
             "/refine",
-            data={"session_id": session_id, "instruction": "shorter"},
+            data={"session_id": session_id, "instruction": "shorter", "csrf_token": csrf_token(self.client)},
         )
 
         self.assertEqual(response.status_code, 200)
@@ -118,7 +119,7 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         self._unlock_access("pet")
         response = self.client.post(
             "/refine",
-            data={"session_id": session_id, "instruction": "shorter"},
+            data={"session_id": session_id, "instruction": "shorter", "csrf_token": csrf_token(self.client)},
             headers={"X-NamEngine-Progress": "1"},
         )
 
@@ -167,7 +168,7 @@ class PhaseSevenRefinementTest(unittest.TestCase):
 
         response = self.client.post(
             "/refine",
-            data={"session_id": session_id, "instruction": "shorter"},
+            data={"session_id": session_id, "instruction": "shorter", "csrf_token": csrf_token(self.client)},
         )
         body = response.get_data(as_text=True)
 
@@ -192,7 +193,7 @@ class PhaseSevenRefinementTest(unittest.TestCase):
 
         response = self.client.post(
             "/refine",
-            data={"session_id": session_id, "instruction": "shorter"},
+            data={"session_id": session_id, "instruction": "shorter", "csrf_token": csrf_token(self.client)},
         )
         body = response.get_data(as_text=True)
 
@@ -279,7 +280,10 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         )
 
     def test_refine_route_rejects_missing_session(self):
-        response = self.client.post("/refine", data={"session_id": "missing"})
+        self.client.get("/")
+        response = self.client.post(
+            "/refine", data={"session_id": "missing", "csrf_token": csrf_token(self.client)}
+        )
 
         self.assertEqual(response.status_code, 404)
 

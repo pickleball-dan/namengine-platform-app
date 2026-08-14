@@ -3,6 +3,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
+from access_helpers import csrf_token
 from app import create_app, make_session_id
 from namengine.core import (
     NameResult,
@@ -143,7 +144,7 @@ class PhaseNineTasteProfileTest(unittest.TestCase):
         with patch("app.beta_unlocked_from_request", return_value=True):
             response = self.client.post(
                 "/api/react",
-                json={"session_id": session_id, "result_id": "pet-1", "value": "love"},
+                json={"session_id": session_id, "result_id": "pet-1", "value": "love", "csrf_token": csrf_token(self.client)},
             )
 
         self.assertEqual(response.status_code, 201)

@@ -58,6 +58,7 @@
             </details>
 
             <form action="/choose" method="post">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <input type="hidden" name="session_id" value="{{ item.session_id }}">
               <input type="hidden" name="result_id" value="{{ item.result_id }}">
               <button class="choose-button" type="submit">Choose {{ item.name }}</button>

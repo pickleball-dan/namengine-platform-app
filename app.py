@@ -16,7 +16,7 @@ from threading import Lock, Thread
 from hashlib import sha1
 from urllib.parse import urlencode, urlparse, urljoin
 
-from flask import Flask, abort, jsonify, make_response, redirect, render_template, request, send_from_directory, url_for
+from flask import Flask, abort, g, jsonify, make_response, redirect, render_template, request, send_from_directory, url_for
 
 try:
     from dotenv import load_dotenv
@@ -524,6 +524,37 @@ def _beta_visitor_id(create: bool = False) -> str:
     if visitor_id:
         return visitor_id[:96]
     return token_urlsafe(24) if create else ""
+
+
+CSRF_COOKIE_NAME = "namengine_csrf"
+
+
+def csrf_token() -> str:
+    """Return the current visitor's CSRF token, generating one if needed.
+
+    Uses the double-submit cookie pattern: the token is a high-entropy random
+    value (token_urlsafe(32), 256 bits) stored in a cookie. State-changing
+    forms/requests must echo the same value back; a forged cross-site request
+    cannot read the cookie (same-origin policy) so cannot supply a matching
+    value. No server-side secret is required since the token itself has full
+    cryptographic entropy -- unlike the paid-access tokens, this isn't signed
+    against reuse across trust boundaries because there's nothing to sign;
+    the raw random value is the whole security property.
+    """
+    existing = request.cookies.get(CSRF_COOKIE_NAME, "").strip()
+    if existing:
+        return existing
+    if getattr(g, "csrf_token_to_set", None):
+        return g.csrf_token_to_set
+    token = token_urlsafe(32)
+    g.csrf_token_to_set = token
+    return token
+
+
+def _valid_csrf_token(submitted) -> bool:
+    cookie_value = request.cookies.get(CSRF_COOKIE_NAME, "").strip()
+    submitted = str(submitted or "").strip()
+    return bool(cookie_value) and compare_digest(cookie_value, submitted)
 
 
 def _attach_beta_visitor_cookie(response, visitor_id: str):
@@ -1197,7 +1228,22 @@ def create_app() -> Flask:
             "refinement_instruction_max_length": REFINEMENT_INSTRUCTION_MAX_LENGTH,
             "beta_unlocked_from_request": beta_unlocked_from_request,
             "beta_cta_label": beta_cta_label,
+            "csrf_token": csrf_token,
         }
+
+    @app.after_request
+    def _attach_pending_csrf_cookie(response):
+        token = getattr(g, "csrf_token_to_set", None)
+        if token:
+            response.set_cookie(
+                CSRF_COOKIE_NAME,
+                token,
+                max_age=60 * 60 * 24 * 180,
+                httponly=False,
+                samesite="Lax",
+                secure=request.is_secure,
+            )
+        return response
 
     app.add_template_filter(brief_query_string, "brief_query_string")
     app.add_template_filter(brief_value, "brief_value")
@@ -1577,6 +1623,8 @@ def create_app() -> Flask:
     @app.post("/api/react")
     def react():
         payload = request.get_json(silent=True) or request.form
+        if not _valid_csrf_token(payload.get("csrf_token")):
+            return jsonify({"error": "csrf_token_invalid"}), 403
         session_id = str(payload.get("session_id", ""))
         result_id = str(payload.get("result_id", ""))
         value = str(payload.get("value", ""))
@@ -1612,6 +1660,8 @@ def create_app() -> Flask:
 
     @app.post("/choose")
     def choose():
+        if not _valid_csrf_token(request.form.get("csrf_token")):
+            abort(403)
         session_id = str(request.form.get("session_id", ""))
         result_id = str(request.form.get("result_id", ""))
         if not session_id or not result_id:
@@ -1634,6 +1684,8 @@ def create_app() -> Flask:
 
     @app.post("/refine")
     def refine():
+        if not _valid_csrf_token(request.form.get("csrf_token")):
+            abort(403)
         session_id = str(request.form.get("session_id", ""))
         instruction = str(request.form.get("instruction", ""))[:REFINEMENT_INSTRUCTION_MAX_LENGTH]
         if not session_id:

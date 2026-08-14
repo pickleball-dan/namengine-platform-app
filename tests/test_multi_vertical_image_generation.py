@@ -7,7 +7,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
-from access_helpers import unlock_beta_access
+from access_helpers import csrf_token, unlock_beta_access
 import app as app_module
 from app import create_app
 from namengine.core import (
@@ -250,7 +250,7 @@ class MultiVerticalImageGenerationTest(unittest.TestCase):
         unlock_beta_access(self.client, "pet")
         reaction = self.client.post(
             "/api/react",
-            json={"session_id": session_id, "result_id": result_id, "value": "love"},
+            json={"session_id": session_id, "result_id": result_id, "value": "love", "csrf_token": csrf_token(self.client)},
         )
         self.assertEqual(reaction.status_code, 201)
         update_chosen_metadata(

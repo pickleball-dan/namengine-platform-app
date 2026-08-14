@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from urllib.parse import urlencode, unquote_plus
 
-from access_helpers import unlock_beta_access
+from access_helpers import csrf_token, unlock_beta_access
 from app import create_app, make_session_id, _sanitize_intake_source, _query_string_from_mapping
 from namengine.core import (
     build_brief,
@@ -88,6 +88,7 @@ class PhaseNineteenBabySmokeValidationTest(unittest.TestCase):
             data={
                 "session_id": session_id,
                 "instruction": "broaden the horizon but keep it soft",
+                "csrf_token": csrf_token(self.client),
             },
         )
         self.assertEqual(round_two_response.status_code, 200)
@@ -106,6 +107,7 @@ class PhaseNineteenBabySmokeValidationTest(unittest.TestCase):
             data={
                 "session_id": round_two_id,
                 "instruction": "finalists with no repeats",
+                "csrf_token": csrf_token(self.client),
             },
         )
         self.assertEqual(round_three_response.status_code, 200)
@@ -124,7 +126,7 @@ class PhaseNineteenBabySmokeValidationTest(unittest.TestCase):
 
         chosen = self.client.post(
             "/choose",
-            data={"session_id": round_three_id, "result_id": "baby-1"},
+            data={"session_id": round_three_id, "result_id": "baby-1", "csrf_token": csrf_token(self.client)},
             follow_redirects=True,
         )
         self.assertEqual(chosen.status_code, 200)
