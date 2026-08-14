@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Generation QA Control{% endblock %}
+
+{% block content %}
+<section class="beta-hero">
+  <div class="beta-hero-copy">
+    <p class="eyebrow">Mission Control</p>
+    <h1>Generation QA</h1>
+    <p>Manually run the NamEngine generation quality simulator. Fallback runs are local and cost-free. AI runs require an explicit API call with confirmation.</p>
+
+    <div class="beta-price-card">
+      <span>Latest run</span>
+      {% if status.available and status.summary %}
+        <strong>{{ status.summary.run_id }}</strong>
+        <small>{{ status.summary.scenario_count }} scenarios · {{ status.summary.round_count }} rounds · {{ status.summary.anomaly_count }} anomalies · {{ status.summary.mode }}</small>
+      {% else %}
+        <strong>No run found</strong>
+        <small>Use the Mission Control API actions to run a fast or full simulator pass.</small>
+      {% endif %}
+    </div>
+
+    <p class="form-help">Trigger runs from Mission Control using the protected API actions below. The page intentionally does not embed bearer tokens in browser JavaScript.</p>
+
+    <p class="form-help">Protected API actions:</p>
+    <pre><code>GET /api/internal/mission-control/generation-qa
+POST /api/internal/mission-control/generation-qa/run {"mode":"fast"}
+POST /api/internal/mission-control/generation-qa/run {"mode":"full"}
+POST /api/internal/mission-control/generation-qa/run {"mode":"fast","use_ai":true,"confirm_ai":true}</code></pre>
+  </div>
+
+  <aside class="beta-trust-card" aria-label="Generation QA summary">
+    <h2>Status</h2>
+    {% if status.available and status.summary %}
+      <ul class="beta-includes-list">
+        <li><span class="beta-include-icon" aria-hidden="true">✦</span><span class="beta-include-copy"><strong>Passed</strong> {{ status.summary.passed_count }} / {{ status.summary.scenario_count }}</span></li>
+        <li><span class="beta-include-icon" aria-hidden="true">✦</span><span class="beta-include-copy"><strong>Anomalies</strong> {{ status.summary.anomaly_count }}</span></li>
+        <li><span class="beta-include-icon" aria-hidden="true">✦</span><span class="beta-include-copy"><strong>Verticals</strong> {{ status.summary.verticals|join(', ') }}</span></li>
+        <li><span class="beta-include-icon" aria-hidden="true">✦</span><span class="beta-include-copy"><strong>Report</strong> {{ status.report_path }}</span></li>
+      </ul>
+    {% else %}
+      <p>No simulator summary has been written yet.</p>
+    {% endif %}
+  </aside>
+</section>
+{% endblock %}

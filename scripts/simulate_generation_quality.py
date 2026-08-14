@@ -401,15 +401,58 @@ def _normalize_name(name: str) -> str:
     return re.sub(r"[^a-z0-9]+", "", name.lower())
 
 
-def main() -> int:
-    args = parse_args()
+def run_generation_quality(
+    *,
+    mode: str = "fast",
+    use_ai: bool = False,
+    scenario_file: Path | str = DEFAULT_SCENARIO_PATH,
+    out_dir: Path | str = DEFAULT_OUTPUT_ROOT,
+    scenario_ids: list[str] | None = None,
+    verticals: list[str] | None = None,
+    include_under_development: bool = False,
+    rounds_override: int = 0,
+    write_outputs: bool = True,
+) -> dict[str, Any]:
+    """Run simulator scenarios and return the Mission Control-ready summary."""
+    if mode not in {"fast", "full"}:
+        raise ValueError("mode must be fast or full")
+    args = argparse.Namespace(
+        fast=mode == "fast",
+        full=mode == "full",
+        scenario_file=str(scenario_file),
+        scenario=scenario_ids or [],
+        vertical=verticals or [],
+        include_under_development=include_under_development,
+        rounds=rounds_override,
+        use_ai=use_ai,
+        out_dir=str(out_dir),
+        no_write=not write_outputs,
+    )
     scenarios = select_scenarios(load_scenarios(args.scenario_file), args)
     run_id = "generation-qa-" + datetime.now().strftime("%Y%m%d-%H%M%S")
-    results = [run_scenario(scenario, use_ai=args.use_ai, rounds_override=args.rounds) for scenario in scenarios]
-    summary = summarize_run(results, run_id=run_id, use_ai=args.use_ai)
-    if not args.no_write:
-        run_dir = write_artifacts(results, summary, Path(args.out_dir))
+    results = [run_scenario(scenario, use_ai=use_ai, rounds_override=rounds_override) for scenario in scenarios]
+    summary = summarize_run(results, run_id=run_id, use_ai=use_ai)
+    if write_outputs:
+        run_dir = write_artifacts(results, summary, Path(out_dir))
         summary["artifact_dir"] = str(run_dir)
+        summary["report_path"] = str(run_dir / "report.md")
+        summary["summary_path"] = str(run_dir / "summary.json")
+    return summary
+
+
+def main() -> int:
+    args = parse_args()
+    summary = run_generation_quality(
+        mode="fast" if args.fast else "full",
+        use_ai=args.use_ai,
+        scenario_file=args.scenario_file,
+        out_dir=args.out_dir,
+        scenario_ids=args.scenario,
+        verticals=args.vertical,
+        include_under_development=args.include_under_development,
+        rounds_override=args.rounds,
+        write_outputs=not args.no_write,
+    )
     print(json.dumps(summary, ensure_ascii=False, indent=2))
     return 0 if summary["critical_anomaly_count"] == 0 and summary["major_anomaly_count"] == 0 else 1
 

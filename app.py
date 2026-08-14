@@ -9,6 +9,7 @@ import time
 from secrets import token_urlsafe
 from datetime import datetime, timedelta, timezone
 from base64 import b64encode
+from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 from hmac import compare_digest, new as hmac_new
@@ -83,6 +84,7 @@ from namengine.core.cost_estimates import estimate_ai_calls_cost_usd
 from namengine.core.domain_availability import enrich_business_domain_info
 from namengine.core.mission_control_telemetry import build_openai_usage_report
 from namengine.core.prompt_versions import prompt_version_for
+from scripts.simulate_generation_quality import DEFAULT_OUTPUT_ROOT as GENERATION_QA_OUTPUT_ROOT, run_generation_quality
 from namengine.core.schemas import NameResult, NamingBrief, ValidationResult, to_plain_data
 from namengine.core.validation import filter_results_for_brief
 from namengine.verticals import VERTICALS, get_vertical
@@ -1631,6 +1633,41 @@ def create_app() -> Flask:
             return jsonify({"error": "invalid_query"}), 400
         return jsonify(report)
 
+    @app.get("/api/internal/mission-control/generation-qa")
+    def mission_control_generation_qa_status():
+        if not _mission_control_authorized(request.headers.get("Authorization", "")):
+            return jsonify({"error": "unauthorized"}), 401
+        return jsonify(_mission_control_generation_qa_status_payload())
+
+    @app.post("/api/internal/mission-control/generation-qa/run")
+    def mission_control_generation_qa_run():
+        if not _mission_control_authorized(request.headers.get("Authorization", "")):
+            return jsonify({"error": "unauthorized"}), 401
+        payload = request.get_json(silent=True) or request.form or request.args
+        mode = str(payload.get("mode") or "fast").strip().lower()
+        try:
+            use_ai = _parse_bool_arg(str(payload.get("use_ai") or "0")) or False
+            confirm_ai = _parse_bool_arg(str(payload.get("confirm_ai") or "0")) or False
+        except ValueError:
+            return jsonify({"error": "invalid_boolean"}), 400
+        if mode not in {"fast", "full"}:
+            return jsonify({"error": "invalid_mode", "allowed_modes": ["fast", "full"]}), 400
+        if use_ai and not confirm_ai:
+            return jsonify({"error": "ai_confirmation_required"}), 400
+        try:
+            summary = run_generation_quality(
+                mode=mode,
+                use_ai=use_ai,
+                out_dir=_generation_qa_output_root(),
+                write_outputs=True,
+            )
+        except ValueError as exc:
+            return jsonify({"error": "invalid_request", "message": str(exc)}), 400
+        except Exception as exc:  # pragma: no cover - defensive Mission Control reporting path
+            logger.exception("Generation QA simulator failed")
+            return jsonify({"error": "generation_qa_failed", "message": str(exc)[:500]}), 500
+        return jsonify({"status": "completed", "summary": summary})
+
     @app.post("/api/react")
     def react():
         payload = request.get_json(silent=True) or request.form
@@ -1862,6 +1899,14 @@ def create_app() -> Flask:
             parent_session=parent_snapshot["session"],
             evolution=build_taste_evolution(parent_snapshot, snapshot),
         )
+
+    @app.get("/dev/generation-qa")
+    def generation_qa_control():
+        if not _engine_audit_enabled():
+            abort(404)
+        if not _mission_control_authorized(request.headers.get("Authorization", "")):
+            abort(404)
+        return render_template("generation_qa_control.html", status=_mission_control_generation_qa_status_payload())
 
     @app.get("/dev/eval-report")
     def eval_report():
@@ -2166,6 +2211,30 @@ def _mission_control_authorized(authorization_header: str) -> bool:
         return False
     supplied = authorization_header[len(prefix):].strip()
     return bool(supplied) and compare_digest(supplied, expected)
+
+
+def _generation_qa_output_root() -> Path:
+    return Path(os.getenv("NAMENGINE_GENERATION_QA_OUTPUT_ROOT", str(GENERATION_QA_OUTPUT_ROOT)))
+
+
+def _mission_control_generation_qa_status_payload() -> dict:
+    latest_summary_path = _generation_qa_output_root() / "latest" / "summary.json"
+    latest_report_path = _generation_qa_output_root() / "latest" / "report.md"
+    payload = {
+        "available": latest_summary_path.exists(),
+        "summary_path": str(latest_summary_path),
+        "report_path": str(latest_report_path),
+        "summary": None,
+    }
+    if not latest_summary_path.exists():
+        return payload
+    try:
+        payload["summary"] = json_loads(latest_summary_path.read_text(encoding="utf-8"))
+    except Exception as exc:  # pragma: no cover - corrupted local artifact defensive path
+        payload["available"] = False
+        payload["error"] = "summary_unreadable"
+        payload["message"] = str(exc)[:500]
+    return payload
 
 
 def _parse_iso_datetime_arg(value: str | None) -> datetime | None:
