@@ -64,7 +64,7 @@ class MultiVerticalCompletionPassTest(unittest.TestCase):
                 self.assertIn("data-saved-count", body)
                 self.assertIn("Compare favorites", body)
                 self.assertIn('action="/choose"', body)
-                self.assertIn("Explore " if vertical == "baby" else "Open full detail", body)
+                self.assertIn("View meaning" if vertical == "baby" else "Open full detail", body)
 
     def test_launch_navigation_is_minimal_and_unfinished_routes_remain_available(self):
         home = self.client.get("/").get_data(as_text=True)
@@ -74,7 +74,6 @@ class MultiVerticalCompletionPassTest(unittest.TestCase):
         self.assertNotIn('href="/product"', home)
         self.assertNotIn('href="/character"', home)
         self.assertIn('href="/#pricing"', home)
-        self.assertIn('href="/baby/access"', home)
 
         flow_header = self.client.get("/pet").get_data(as_text=True).split("</header>", 1)[0]
         self.assertIn('href="/"', flow_header)

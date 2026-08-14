@@ -3,6 +3,7 @@ import re
 import tempfile
 import unittest
 
+from access_helpers import unlock_beta_access
 from app import create_app
 from namengine.core import build_brief, save_session
 from namengine.core.name_facts import build_name_fact_card
@@ -67,6 +68,7 @@ class PhaseThirtyBabyPopularitySnapshotTest(unittest.TestCase):
         )
         session_id = "baby-popularity-zuri"
         save_session(session_id, "baby", brief, [result])
+        unlock_beta_access(self.client, "baby")
         chosen_response = self.client.post(
             "/choose",
             data={"session_id": session_id, "result_id": "baby-1"},

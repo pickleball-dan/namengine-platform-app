@@ -298,7 +298,7 @@ class ResultsMobileStabilizationTest(unittest.TestCase):
         self.assertIn("main > .home-hero", css[hotfix:])
         self.assertIn("main > .home-verticals > .home-vertical-grid", css[hotfix:])
         self.assertIn("grid-template-columns: minmax(0, 1fr);", css[hotfix:])
-        self.assertIn("20260731-premium-access-palette-v1", body)
+        self.assertIn("20260731-homepage-pricing-link-contract-v1", body)
         self.assertIn("landing-demo-card", body)
         self.assertIn("landing-demo-carousel", body)
         self.assertNotIn("home-system-panel", body)

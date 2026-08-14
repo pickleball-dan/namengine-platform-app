@@ -4,6 +4,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
+from access_helpers import unlock_beta_access
 from app import create_app
 from namengine.core.name_facts import build_name_fact_card
 
@@ -88,6 +89,7 @@ class PhaseTwentyEightBabyNameFactCardTest(unittest.TestCase):
         self.assertIn("Choose", text)
 
         session_id = re.search(r'data-session-id="([^"]+)"', text).group(1)
+        unlock_beta_access(self.client, "baby")
         chosen_response = self.client.post(
             "/choose",
             data={"session_id": session_id, "result_id": "baby-1"},
@@ -117,6 +119,7 @@ class PhaseTwentyEightBabyNameFactCardTest(unittest.TestCase):
     def test_name_detail_page_renders_name_fact_card(self):
         results_response = self._create_baby_results_page()
         session_id = re.search(r'data-session-id="([^"]+)"', results_response.get_data(as_text=True)).group(1)
+        unlock_beta_access(self.client, "baby")
         response = self.client.get(f"/baby/name/{session_id}/baby-1")
         text = response.get_data(as_text=True)
 

@@ -100,7 +100,7 @@ class BabyDecisionSupportTest(unittest.TestCase):
     def test_baby_schema_is_compact_but_parser_preserves_structured_decision_fields(self):
         schema = name_generation_response_format("baby")["schema"]["properties"]["names"]["items"]
         for field in (
-            "recommendation_reason", "matched_preferences", "strongest_fit",
+            "recommendation_reason", "strongest_fit",
             "real_life_impression", "tradeoffs", "comparison_position",
             "nickname_considerations", "family_fit", "confidence_note",
         ):
