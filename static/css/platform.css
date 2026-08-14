@@ -2932,8 +2932,22 @@ button {
     width: 8%;
   }
   to {
-    width: var(--progress-patience-fill, 92%);
+    width: var(--progress-patience-fill, 100%);
   }
+}
+
+.progress-patience-meter.is-sparkling .progress-patience-fill {
+  width: 100%;
+  animation: progress-patience-sparkle 1.9s ease-in-out infinite;
+  background:
+    linear-gradient(105deg, transparent 28%, rgba(255, 255, 255, 0.5) 50%, transparent 72%) no-repeat,
+    linear-gradient(90deg, #f2b84b 0%, #f08f66 54%, #5fb481 100%);
+  background-size: 55% 100%, 100% 100%;
+}
+
+@keyframes progress-patience-sparkle {
+  0%   { background-position: -55% 0, 0 0; }
+  100% { background-position: 155% 0, 0 0; }
 }
 
 @keyframes progress-patience-hold {

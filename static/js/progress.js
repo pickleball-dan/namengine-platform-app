@@ -207,8 +207,8 @@
     }
     if (patienceMeter) {
       patienceMeter.classList.remove("is-holding");
-      patienceMeter.style.setProperty("--progress-patience-duration", "110s");
-      patienceMeter.style.setProperty("--progress-patience-fill", "92%");
+      patienceMeter.style.setProperty("--progress-patience-duration", "50s");
+      patienceMeter.style.setProperty("--progress-patience-fill", "100%");
       void patienceMeter.offsetWidth;
       patienceMeter.classList.add("is-filling");
     }
@@ -233,13 +233,22 @@
         visual.classList.add("is-pulsing");
       }
       if (patienceIndex >= longWaitMessages.length && patienceMeter) {
-        if (!patienceMeter.classList.contains("is-holding")) {
+        if (!patienceMeter.classList.contains("is-sparkling") && !patienceMeter.classList.contains("is-holding")) {
           const fill = patienceMeter.querySelector(".progress-patience-fill");
           if (fill) {
-            fill.style.width = window.getComputedStyle(fill).width;
+            // Freeze at current animated position, then smooth-transition to 100%
+            const currentWidth = window.getComputedStyle(fill).width;
+            fill.style.transition = "none";
+            fill.style.width = currentWidth;
+            void fill.offsetWidth;
+            patienceMeter.classList.remove("is-filling");
+            void fill.offsetWidth;
+            fill.style.transition = "";
+            fill.style.width = "100%";
           }
-          patienceMeter.classList.remove("is-filling");
-          patienceMeter.classList.add("is-holding");
+          window.setTimeout(function () {
+            patienceMeter.classList.add("is-sparkling");
+          }, 420);
         }
       }
     }, 6500);
