@@ -7,3 +7,4 @@ docs/visual-qa/
 node_modules/
 .pytest_cache/
 .coverage
+qa-artifacts/generation-runs/

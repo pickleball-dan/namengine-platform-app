@@ -1,0 +1,135 @@
+[
+  {
+    "id": "baby-classic-soft-free-preview",
+    "label": "Baby · classic soft free preview",
+    "mode": "fast",
+    "vertical": "baby",
+    "rounds": 1,
+    "expected_count": 8,
+    "inputs": {
+      "gender": "Girl",
+      "family_context": "Last name Miller, sibling Henry.",
+      "discovery_style": "Classic favorites",
+      "style": "Classic",
+      "timeless_vs_distinctive": "More timeless",
+      "familiarity_preference": "Familiar but not overused",
+      "sound": "Soft and lyrical",
+      "notes": "Warm, gentle, easy to love, not trendy.",
+      "avoid": "Olivia, Sophia"
+    },
+    "expected_signals": ["classic", "soft", "warm", "gentle", "familiar"],
+    "avoid_names": ["Olivia", "Sophia"]
+  },
+  {
+    "id": "pet-playful-dog-callable",
+    "label": "Pet · playful dog callable",
+    "mode": "fast",
+    "vertical": "pet",
+    "rounds": 1,
+    "expected_count": 8,
+    "inputs": {
+      "pet_type": "Dog",
+      "pet_color": "Golden with white paws",
+      "pet_life_stage": "Young",
+      "pet_gender": "Male",
+      "pet_breed": "Retriever mix",
+      "style": "Uncommon but usable",
+      "familiarity_surprise": "Balanced",
+      "callability": "Very important",
+      "vibe": "Playful",
+      "cultural_context": "Nature",
+      "notes": "Sunny, goofy, affectionate, easy to call at the park.",
+      "avoid": "Buddy, Max"
+    },
+    "expected_signals": ["playful", "sunny", "call", "nature", "warm"],
+    "avoid_names": ["Buddy", "Max"]
+  },
+  {
+    "id": "business-premium-studio-founders",
+    "label": "Business · premium studio for founders",
+    "mode": "fast",
+    "vertical": "business",
+    "rounds": 1,
+    "expected_count": 8,
+    "inputs": {
+      "business_description": "A naming and brand strategy studio for early-stage founders who need a sharper market position.",
+      "industry": "Brand strategy",
+      "stage": "Launching soon",
+      "audience": "B2B buyers",
+      "style": "Premium and refined",
+      "name_shape": "Real word",
+      "timeless_vs_distinctive": "Balanced",
+      "cultural_context": "Customer outcome",
+      "domain_preference": "Open to modifiers",
+      "partner_alignment": "Needs to feel expert without sounding corporate or cold.",
+      "avoid": "Labs, AI, Agency"
+    },
+    "expected_signals": ["premium", "founder", "strategy", "clear", "credible"],
+    "avoid_names": ["Labs", "AI", "Agency"]
+  },
+  {
+    "id": "baby-rare-strong-distinctive",
+    "label": "Baby · rare strong distinctive",
+    "mode": "full",
+    "vertical": "baby",
+    "rounds": 2,
+    "expected_count": 8,
+    "inputs": {
+      "gender": "Boy",
+      "discovery_style": "Unexpected finds",
+      "style": "Strong and tailored",
+      "timeless_vs_distinctive": "Strongly distinctive",
+      "familiarity_preference": "Memorable and rarer",
+      "sound": "Strong",
+      "family_context": "Needs to stand apart from common family names.",
+      "notes": "Bold, rare, distinctive, confident, not frilly."
+    },
+    "expected_signals": ["rare", "strong", "distinctive", "confident", "bold"],
+    "avoid_names": []
+  },
+  {
+    "id": "pet-elegant-cat-vintage",
+    "label": "Pet · elegant cat vintage",
+    "mode": "full",
+    "vertical": "pet",
+    "rounds": 2,
+    "expected_count": 8,
+    "inputs": {
+      "pet_type": "Cat",
+      "pet_color": "Gray tabby with green eyes",
+      "pet_life_stage": "Mature",
+      "pet_gender": "Female",
+      "style": "Soft and romantic",
+      "familiarity_surprise": "Distinctive",
+      "callability": "Helpful but not absolute",
+      "vibe": "Elegant",
+      "cultural_context": "Vintage",
+      "notes": "Quiet, graceful, a little mysterious."
+    },
+    "expected_signals": ["elegant", "vintage", "graceful", "soft", "distinctive"],
+    "avoid_names": []
+  },
+  {
+    "id": "business-local-warm-service",
+    "label": "Business · local warm service",
+    "mode": "full",
+    "vertical": "business",
+    "rounds": 2,
+    "expected_count": 8,
+    "inputs": {
+      "business_description": "A local home organizing service that helps busy families reset cluttered spaces.",
+      "industry": "Home services",
+      "stage": "Idea stage",
+      "audience": "Local customers",
+      "style": "Friendly and approachable",
+      "name_shape": "Compound",
+      "timeless_vs_distinctive": "Mostly clear",
+      "cultural_context": "Customer outcome",
+      "domain_preference": "Domain can come later",
+      "notes": "Should feel calming, trustworthy, practical, and human.",
+      "avoid": "Zen, Minimalist"
+    },
+    "expected_signals": ["calm", "home", "friendly", "trust", "clear"],
+    "avoid_names": ["Zen", "Minimalist"]
+  }
+]
