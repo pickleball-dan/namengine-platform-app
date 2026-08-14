@@ -5,13 +5,23 @@ from unittest.mock import patch
 import app as namengine_app
 from access_helpers import csrf_token
 from app import create_app, _beta_access_secret, _stripe_checkout_session_paid, make_session_id
-from namengine.core import get_session_snapshot
+from namengine.core import NameResult, build_brief, get_session_snapshot, save_session
 from namengine.verticals import get_vertical
 
 
 class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
     def setUp(self):
         self.app = create_app().test_client()
+
+    def _seed_minimal_session(self, vertical_slug: str, session_id: str):
+        vertical = get_vertical(vertical_slug)
+        brief = build_brief(vertical, {"style": "Classic", "gender": "Girl", "pet_type": "Dog", "business_description": "Design studio", "audience": "Founders"})
+        save_session(
+            session_id,
+            vertical_slug,
+            brief,
+            [NameResult(id=f"{vertical_slug}-1", name="Testname", slug="testname")],
+        )
 
     def test_access_secret_does_not_fall_back_to_public_constant(self):
         previous_access = os.environ.pop("NAMENGINE_ACCESS_TOKEN_SECRET", None)
@@ -229,6 +239,7 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         previous = os.environ.get("NAMENGINE_PET_BETA_PAYMENT_LINK")
         os.environ["NAMENGINE_PET_BETA_PAYMENT_LINK"] = "https://buy.stripe.com/pet_test"
         try:
+            self._seed_minimal_session("pet", "pet-testsession")
             response = self.app.get("/pet/access?return_session=pet-testsession")
             text = response.get_data(as_text=True)
         finally:
@@ -322,6 +333,7 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         previous = os.environ.get("NAMENGINE_BABY_BETA_PAYMENT_LINK")
         os.environ["NAMENGINE_BABY_BETA_PAYMENT_LINK"] = "https://buy.stripe.com/test_example"
         try:
+            self._seed_minimal_session("baby", "baby-testsession")
             self.app.get("/baby/access/checkout?return_session=baby-testsession")
             with patch("app._stripe_checkout_session_paid", return_value=True):
                 response = self.app.get("/baby/access?checkout_session_id=cs_test_paid&return_session=baby-testsession")
@@ -364,6 +376,58 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.assertIn("/disclaimers", text)
 
 
+    def test_canceled_checkout_returns_access_page_for_all_verticals(self):
+        configured_links = {
+            "baby": "NAMENGINE_BABY_BETA_PAYMENT_LINK",
+            "pet": "NAMENGINE_PET_BETA_PAYMENT_LINK",
+            "business": "NAMENGINE_BUSINESS_BETA_PAYMENT_LINK",
+        }
+        for vertical_slug, env_key in configured_links.items():
+            with self.subTest(vertical=vertical_slug):
+                session_id = f"{vertical_slug}-testsession"
+                previous = os.environ.get(env_key)
+                os.environ[env_key] = f"https://buy.stripe.com/{vertical_slug}_test"
+                try:
+                    self._seed_minimal_session(vertical_slug, session_id)
+                    response = self.app.get(f"/{vertical_slug}/access?checkout_canceled=1&return_session={session_id}")
+                    text = response.get_data(as_text=True)
+                finally:
+                    if previous is None:
+                        os.environ.pop(env_key, None)
+                    else:
+                        os.environ[env_key] = previous
+
+                self.assertEqual(response.status_code, 200)
+                self.assertIn("Payment not completed", text)
+                self.assertIn("Return to preview list", text)
+                self.assertIn("Try checkout again", text)
+                self.assertIn(f'/{vertical_slug}/access/checkout?return_session={session_id}', text)
+                self.assertIn(f'/results/session/{session_id}', text)
+
+    def test_verified_checkout_with_missing_session_preserves_access_without_404(self):
+        previous = os.environ.get("NAMENGINE_BABY_BETA_PAYMENT_LINK")
+        os.environ["NAMENGINE_BABY_BETA_PAYMENT_LINK"] = "https://buy.stripe.com/test_example"
+        try:
+            self.app.get("/baby/access/checkout?return_session=baby-missing")
+            with patch("app._stripe_checkout_session_paid", return_value=True):
+                response = self.app.get("/baby/access?checkout_session_id=cs_test_paid&return_session=baby-missing")
+            text = response.get_data(as_text=True)
+            unlocked_response = self.app.get("/baby/results?gender=Girl&style=Classic&sound=Soft")
+            unlocked_text = unlocked_response.get_data(as_text=True)
+        finally:
+            if previous is None:
+                os.environ.pop("NAMENGINE_BABY_BETA_PAYMENT_LINK", None)
+            else:
+                os.environ["NAMENGINE_BABY_BETA_PAYMENT_LINK"] = previous
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Payment received", text)
+        self.assertIn("We couldn’t find that preview list", text)
+        self.assertIn('href="/baby"', text)
+        self.assertEqual(unlocked_response.status_code, 200)
+        self.assertIn('action="/refine"', unlocked_text)
+        self.assertNotIn("Unlock Baby Access", unlocked_text)
+
     def test_baby_paid_success_continue_link_goes_to_free_first_round_without_paid_query(self):
         previous = os.environ.get("NAMENGINE_BABY_BETA_PAYMENT_LINK")
         os.environ["NAMENGINE_BABY_BETA_PAYMENT_LINK"] = "https://buy.stripe.com/test_example"
@@ -386,6 +450,7 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         previous = os.environ.get("NAMENGINE_BABY_BETA_PAYMENT_LINK")
         os.environ["NAMENGINE_BABY_BETA_PAYMENT_LINK"] = "https://buy.stripe.com/test_example"
         try:
+            self._seed_minimal_session("baby", "baby-testsession")
             self.app.get("/baby/access/checkout?return_session=baby-testsession")
             with patch("app._stripe_checkout_session_paid", return_value=True):
                 response = self.app.get("/baby/access?checkout_session_id=cs_test_paid")
@@ -403,6 +468,7 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         previous = os.environ.get("NAMENGINE_BABY_BETA_PAYMENT_LINK")
         os.environ["NAMENGINE_BABY_BETA_PAYMENT_LINK"] = "https://buy.stripe.com/test_example"
         try:
+            self._seed_minimal_session("baby", "baby-testsession")
             checkout = self.app.get("/baby/access/checkout?return_session=baby-testsession")
             with patch("app._stripe_checkout_session_paid", return_value=True):
                 paid_return = self.app.get("/baby/access?checkout_session_id=cs_test_paid")
@@ -469,7 +535,7 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         )
         self.assertEqual(
             posted["data"]["cancel_url"],
-            "https://nam-engine.com/baby/access?return_session=baby-testsession",
+            "https://nam-engine.com/baby/access?checkout_canceled=1&return_session=baby-testsession",
         )
         self.assertEqual(posted["data"]["metadata[namengine_vertical]"], "baby")
         self.assertEqual(posted["data"]["metadata[namengine_return_session]"], "baby-testsession")

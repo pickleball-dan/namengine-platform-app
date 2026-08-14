@@ -3,11 +3,19 @@
 {% block title %}NamEngine {{ vertical.display_name }} Access{% endblock %}
 
 {% block content %}
-{% if paid %}
+{% if beta_payment_state in ["canceled", "incomplete"] %}
+<section class="paid-success-panel" aria-label="Payment incomplete">
+  <p class="eyebrow">Payment not completed</p>
+  <h1>Your NamEngine {{ vertical.display_name }} access was not unlocked yet.</h1>
+  <p>{% if beta_preview_url %}Your preview list is still available. You can return to it, or try checkout again when you’re ready.{% else %}You can keep exploring with your free first list, or try checkout again when you’re ready.{% endif %}</p>
+  {% if beta_preview_url %}<a class="button-link secondary-button" href="{{ beta_preview_url }}">Return to preview list</a>{% endif %}
+  {% if beta_checkout_url %}<a class="button-link" href="{{ beta_checkout_url }}">Try checkout again</a>{% endif %}
+</section>
+{% elif paid %}
 <section class="paid-success-panel" aria-label="Payment success">
   <p class="eyebrow">Payment received</p>
   <h1>You’ve unlocked NamEngine {{ vertical.display_name }} access.</h1>
-  <p>{% if beta_has_prior_round %}Return to your unlocked {{ vertical.display_name|lower }} report below. Keep your Stripe receipt for your records.{% else %}Start your {{ vertical.display_name|lower }} name discovery below. Keep your Stripe receipt for your records.{% endif %}</p>
+  <p>{% if beta_has_prior_round %}Return to your unlocked {{ vertical.display_name|lower }} report below. Keep your Stripe receipt for your records.{% elif beta_missing_return_session %}We couldn’t find that preview list, but your {{ vertical.display_name|lower }} access is unlocked. Start a fresh list below.{% else %}Start your {{ vertical.display_name|lower }} name discovery below. Keep your Stripe receipt for your records.{% endif %}</p>
   <a class="button-link" href="{{ beta_continue_url }}">{% if beta_has_prior_round %}Return to Full Report{% else %}Start {{ vertical.display_name }} name discovery{% endif %}</a>
 </section>
 {% endif %}
@@ -16,7 +24,9 @@
   <div class="beta-hero-copy">
     <p class="eyebrow">NamEngine Access</p>
     <h1>NamEngine {{ vertical.display_name }} — find the name that feels right.</h1>
-    {% if paid %}
+    {% if beta_payment_state in ["canceled", "incomplete"] %}
+      <p>Payment wasn’t completed. Your free preview list remains available, and you can try checkout again whenever you’re ready.</p>
+    {% elif paid %}
       <p>You have unlocked deeper taste discovery, fresh rounds, saved-name support, and a clearer final direction.</p>
     {% elif beta_has_prior_round %}
       <p>Unlock {{ vertical.display_name }} Access to return to this report, explore every detail, react, compare, choose, share, and generate refined rounds shaped by your first list.</p>
@@ -33,6 +43,9 @@
     <div class="hero-actions">
       {% if paid %}
         <a class="button-link" href="{{ beta_continue_url }}">{% if beta_has_prior_round %}Return to Full Report{% else %}Start {{ vertical.display_name }} name discovery{% endif %}</a>
+      {% elif beta_payment_state in ["canceled", "incomplete"] %}
+        {% if beta_preview_url %}<a class="button-link secondary-button" href="{{ beta_preview_url }}">Return to preview list</a>{% endif %}
+        {% if stripe_payment_link %}<a class="button-link" href="{{ beta_checkout_url }}">Try checkout again</a>{% endif %}
       {% elif stripe_payment_link %}
         <a class="button-link" href="{{ beta_checkout_url }}">{{ beta_cta_label(vertical) }}</a>
       {% endif %}

@@ -826,8 +826,10 @@ def _stripe_checkout_success_url(vertical, return_session: str) -> str:
 
 def _stripe_checkout_cancel_url(vertical, return_session: str) -> str:
     access_path = url_for("beta_landing", vertical_slug=vertical.slug)
+    cancel_params = {"checkout_canceled": "1"}
     if return_session:
-        access_path = f"{access_path}?{urlencode({'return_session': return_session})}"
+        cancel_params["return_session"] = return_session
+    access_path = f"{access_path}?{urlencode(cancel_params)}"
     return _absolute_url(access_path)
 
 
@@ -1100,7 +1102,7 @@ def _beta_usage_session_id(vertical, beta_usage: dict | None) -> str:
 
 def _beta_paid_continue_url(vertical, return_session: str, beta_usage: dict | None) -> str:
     session_id = return_session or _beta_usage_session_id(vertical, beta_usage)
-    if session_id:
+    if session_id and get_session_snapshot(session_id) is not None:
         return url_for("session_results", session_id=session_id)
     return url_for("intake", vertical_slug=vertical.slug)
 
@@ -1280,6 +1282,7 @@ def create_app() -> Flask:
         stripe_payment_link = beta_payment_link_for(vertical)
         beta_usage = get_beta_usage(visitor_id, vertical.slug) if visitor_id else None
         paid_session_id = return_session or _beta_usage_session_id(vertical, beta_usage)
+        paid_session_exists = bool(paid_session_id and get_session_snapshot(paid_session_id) is not None)
         checkout_return_session = return_session or _beta_usage_session_id(vertical, beta_usage)
         beta_checkout_url = (
             url_for("beta_checkout", vertical_slug=vertical.slug, return_session=checkout_return_session)
@@ -1287,13 +1290,13 @@ def create_app() -> Flask:
             else ""
         )
         beta_continue_url = _beta_paid_continue_url(vertical, return_session, beta_usage)
-        if (paid or checkout_return) and paid_session_id:
-            if get_session_snapshot(paid_session_id) is not None:
-                response = redirect(url_for("session_results", session_id=paid_session_id))
-            else:
-                # Session no longer exists (e.g. expired, different device).
-                # Fall back to intake rather than letting session_results abort(404).
-                response = redirect(url_for("intake", vertical_slug=vertical.slug))
+        beta_payment_state = ""
+        if request.args.get("checkout_canceled") == "1":
+            beta_payment_state = "canceled"
+        elif checkout_session_id and not checkout_return:
+            beta_payment_state = "incomplete"
+        if (paid or checkout_return) and paid_session_id and paid_session_exists:
+            response = redirect(url_for("session_results", session_id=paid_session_id))
         else:
             response = make_response(
                 render_template(
@@ -1303,9 +1306,12 @@ def create_app() -> Flask:
                     beta_checkout_url=beta_checkout_url,
                     beta_price=beta_price_for(vertical),
                     paid=paid or checkout_return,
-                    beta_return_session=return_session if paid else "",
-                    beta_has_prior_round=bool(paid_session_id),
+                    beta_return_session=return_session if (paid or checkout_return) else "",
+                    beta_has_prior_round=paid_session_exists,
                     beta_continue_url=beta_continue_url,
+                    beta_preview_url=url_for("session_results", session_id=paid_session_id) if paid_session_exists else "",
+                    beta_missing_return_session=bool((paid or checkout_return) and paid_session_id and not paid_session_exists),
+                    beta_payment_state=beta_payment_state,
                     focused_access_return=bool(return_session) and not (paid or checkout_return),
                     beta_usage=beta_usage,
                     beta_email_captured=bool((beta_usage or {}).get("email")),
