@@ -67,6 +67,25 @@ class MissionControlGenerationQATest(unittest.TestCase):
         self.assertEqual(payload["summary"]["run_id"], "generation-qa-test")
         self.assertIn("summary.json", payload["summary_path"])
         self.assertIn("report.md", payload["report_path"])
+        self.assertIn("results.json", payload["results_path"])
+
+    def test_generation_qa_report_returns_latest_report_and_results(self):
+        latest = Path(os.environ["NAMENGINE_GENERATION_QA_OUTPUT_ROOT"]) / "latest"
+        latest.mkdir(parents=True)
+        summary = {"schema_version": "generation-simulator-v1", "run_id": "generation-qa-test"}
+        results = [{"id": "baby-test", "rounds": []}]
+        (latest / "summary.json").write_text(json.dumps(summary), encoding="utf-8")
+        (latest / "report.md").write_text("# QA report", encoding="utf-8")
+        (latest / "results.json").write_text(json.dumps(results), encoding="utf-8")
+
+        response = self.client.get("/api/internal/mission-control/generation-qa/report", headers=self.auth_headers)
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.get_json()
+        self.assertTrue(payload["available"])
+        self.assertEqual(payload["summary"]["run_id"], "generation-qa-test")
+        self.assertEqual(payload["report_markdown"], "# QA report")
+        self.assertEqual(payload["results"], results)
 
     def test_generation_qa_run_triggers_fast_fallback_and_writes_artifacts(self):
         response = self.client.post(
@@ -84,6 +103,10 @@ class MissionControlGenerationQATest(unittest.TestCase):
         self.assertEqual(summary["anomaly_count"], 0)
         self.assertTrue(Path(summary["summary_path"]).exists())
         self.assertTrue(Path(summary["report_path"]).exists())
+        self.assertTrue(Path(summary["results_path"]).exists())
+        latest = Path(os.environ["NAMENGINE_GENERATION_QA_OUTPUT_ROOT"]) / "latest"
+        self.assertTrue((latest / "results.json").exists())
+        self.assertEqual(payload["results_path"], summary["results_path"])
 
     def test_generation_qa_run_validates_mode_and_ai_confirmation(self):
         bad_mode = self.client.post(

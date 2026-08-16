@@ -331,16 +331,22 @@ def scenario_summary(result: ScenarioRunResult) -> dict[str, Any]:
 def write_artifacts(results: list[ScenarioRunResult], summary: dict[str, Any], output_root: Path) -> Path:
     run_dir = output_root / str(summary["run_id"])
     run_dir.mkdir(parents=True, exist_ok=True)
-    (run_dir / "summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
-    (run_dir / "results.json").write_text(
-        json.dumps([to_plain_data(asdict(result)) for result in results], ensure_ascii=False, indent=2),
-        encoding="utf-8",
-    )
-    (run_dir / "report.md").write_text(render_markdown_report(summary), encoding="utf-8")
+    results_payload = [to_plain_data(asdict(result)) for result in results]
+    summary["artifact_dir"] = str(run_dir)
+    summary["report_path"] = str(run_dir / "report.md")
+    summary["summary_path"] = str(run_dir / "summary.json")
+    summary["results_path"] = str(run_dir / "results.json")
+    report = render_markdown_report(summary)
+    summary_json = json.dumps(summary, ensure_ascii=False, indent=2)
+    results_json = json.dumps(results_payload, ensure_ascii=False, indent=2)
+    (run_dir / "summary.json").write_text(summary_json, encoding="utf-8")
+    (run_dir / "results.json").write_text(results_json, encoding="utf-8")
+    (run_dir / "report.md").write_text(report, encoding="utf-8")
     latest_dir = output_root / "latest"
     latest_dir.mkdir(parents=True, exist_ok=True)
-    (latest_dir / "summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
-    (latest_dir / "report.md").write_text(render_markdown_report(summary), encoding="utf-8")
+    (latest_dir / "summary.json").write_text(summary_json, encoding="utf-8")
+    (latest_dir / "results.json").write_text(results_json, encoding="utf-8")
+    (latest_dir / "report.md").write_text(report, encoding="utf-8")
     return run_dir
 
 

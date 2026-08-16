@@ -1639,6 +1639,12 @@ def create_app() -> Flask:
             return jsonify({"error": "unauthorized"}), 401
         return jsonify(_mission_control_generation_qa_status_payload())
 
+    @app.get("/api/internal/mission-control/generation-qa/report")
+    def mission_control_generation_qa_report():
+        if not _mission_control_authorized(request.headers.get("Authorization", "")):
+            return jsonify({"error": "unauthorized"}), 401
+        return jsonify(_mission_control_generation_qa_report_payload())
+
     @app.post("/api/internal/mission-control/generation-qa/run")
     def mission_control_generation_qa_run():
         if not _mission_control_authorized(request.headers.get("Authorization", "")):
@@ -1666,7 +1672,13 @@ def create_app() -> Flask:
         except Exception as exc:  # pragma: no cover - defensive Mission Control reporting path
             logger.exception("Generation QA simulator failed")
             return jsonify({"error": "generation_qa_failed", "message": str(exc)[:500]}), 500
-        return jsonify({"status": "completed", "summary": summary})
+        return jsonify({
+            "status": "completed",
+            "summary": summary,
+            "summary_path": summary.get("summary_path"),
+            "report_path": summary.get("report_path"),
+            "results_path": summary.get("results_path"),
+        })
 
     @app.post("/api/react")
     def react():
@@ -2220,10 +2232,12 @@ def _generation_qa_output_root() -> Path:
 def _mission_control_generation_qa_status_payload() -> dict:
     latest_summary_path = _generation_qa_output_root() / "latest" / "summary.json"
     latest_report_path = _generation_qa_output_root() / "latest" / "report.md"
+    latest_results_path = _generation_qa_output_root() / "latest" / "results.json"
     payload = {
         "available": latest_summary_path.exists(),
         "summary_path": str(latest_summary_path),
         "report_path": str(latest_report_path),
+        "results_path": str(latest_results_path),
         "summary": None,
     }
     if not latest_summary_path.exists():
@@ -2233,6 +2247,25 @@ def _mission_control_generation_qa_status_payload() -> dict:
     except Exception as exc:  # pragma: no cover - corrupted local artifact defensive path
         payload["available"] = False
         payload["error"] = "summary_unreadable"
+        payload["message"] = str(exc)[:500]
+    return payload
+
+
+def _mission_control_generation_qa_report_payload() -> dict:
+    status = _mission_control_generation_qa_status_payload()
+    if not status.get("available"):
+        return {**status, "report_markdown": None, "results": None}
+    report_path = Path(str(status["report_path"]))
+    results_path = Path(str(status["results_path"]))
+    payload = {**status, "report_markdown": None, "results": None}
+    try:
+        if report_path.exists():
+            payload["report_markdown"] = report_path.read_text(encoding="utf-8")
+        if results_path.exists():
+            payload["results"] = json_loads(results_path.read_text(encoding="utf-8"))
+    except Exception as exc:  # pragma: no cover - corrupted local artifact defensive path
+        payload["available"] = False
+        payload["error"] = "report_unreadable"
         payload["message"] = str(exc)[:500]
     return payload
 
