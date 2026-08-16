@@ -66,7 +66,8 @@ def build_business_taste_thesis(brief: NamingBrief, weighting: dict[str, Any]) -
             f"Business: {_input(inputs, 'business_description')}",
             f"Industry/category: {_input(inputs, 'industry')}",
             f"Stage: {_input(inputs, 'stage')}",
-            f"Audience: {_input(inputs, 'audience')}",
+            f"Buyer type: {_input(inputs, 'audience')}",
+            f"Market scope: {_input(inputs, 'market_scope')}",
             f"Style signal: {_input(inputs, 'style')}",
             f"Name shape: {_input(inputs, 'name_shape')}",
             f"Distinctiveness: {_input(inputs, 'timeless_vs_distinctive')}",
@@ -84,7 +85,7 @@ def improve_business_explanations(results: list[NameResult], brief: NamingBrief)
     inputs = brief.inputs
     offer = _direction(inputs, "business_description", "the core offer")
     industry = _direction(inputs, "industry", "the category")
-    audience = _direction(inputs, "audience", "the target audience")
+    audience = _business_market_direction(inputs)
     style = _direction(inputs, "style", "credible and launch-ready").lower()
     domain = _direction(inputs, "domain_preference", "practical domain and handle testing").lower()
 
@@ -121,7 +122,10 @@ def score_business_dimensions(result: NameResult, brief: NamingBrief) -> tuple[d
     explanation = f"{result.why_this_name} {result.fit_note}".lower()
     inputs = brief.inputs
     style_score = _text_alignment(str(inputs.get("style") or ""), f"{facts} {explanation}")
-    audience_score = _text_alignment(str(inputs.get("audience") or ""), f"{facts} {explanation}")
+    audience_score = _text_alignment(
+        _joined_values(inputs.get("audience"), inputs.get("market_scope")),
+        f"{facts} {explanation}",
+    )
     context_score = _text_alignment(
         _joined_values(inputs.get("business_description"), inputs.get("industry")),
         f"{facts} {explanation}",
@@ -248,6 +252,14 @@ def _input(inputs: dict[str, Any], key: str) -> str:
 
 def _direction(inputs: dict[str, Any], key: str, default: str) -> str:
     return str(inputs.get(key) or default).strip()
+
+
+def _business_market_direction(inputs: dict[str, Any]) -> str:
+    buyer_type = str(inputs.get("audience") or "the target audience").strip()
+    market_scope = str(inputs.get("market_scope") or "").strip()
+    if market_scope and market_scope != "Not sure yet":
+        return f"{buyer_type} in a {market_scope.lower()} market"
+    return buyer_type
 
 
 def _joined_values(*values: Any) -> str:

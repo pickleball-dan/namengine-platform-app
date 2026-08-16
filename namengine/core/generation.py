@@ -923,6 +923,7 @@ def _field_section_key(key: str, vertical: str) -> str:
             "industry": "about_the_business",
             "stage": "about_the_business",
             "audience": "about_the_business",
+            "market_scope": "about_the_business",
             "notes": "about_the_business",
             "style": "name_style",
             "name_shape": "name_style",
@@ -1464,6 +1465,7 @@ def _generate_business_fallback_names(
     business_description = _brief_text(brief, "business_description")
     industry = _brief_text(brief, "industry", "business")
     audience = _brief_text(brief, "audience", "customers")
+    market_scope = _brief_text(brief, "market_scope")
     style = _brief_text(brief, "style", "credible and launch-ready")
     domain_preference = _brief_text(brief, "domain_preference")
     avoid_text = ", ".join(brief.avoid)
@@ -1500,9 +1502,7 @@ def _generate_business_fallback_names(
             name,
             "balances memorability, category flexibility, and a credible launch feel",
         )
-        context = (
-            f" for {audience.lower()}" if audience and audience != "Other" else ""
-        )
+        context = _business_market_context(audience, market_scope)
         why = (
             f"{name} works because it {insight}. It stays in the "
             f"{style.lower()} lane while giving a {industry.lower()} brand room to grow{context}."
@@ -1526,7 +1526,7 @@ def _generate_business_fallback_names(
                     "brand stretch, and practical launch review."
                 ),
                 why_this_name=why,
-                fit_note=_business_fit_note(industry, audience, style),
+                fit_note=_business_fit_note(industry, audience, style, market_scope),
                 risks=risks,
                 tags=["brandable", "launch-ready", "business"],
                 scores={
@@ -1632,11 +1632,17 @@ def _generate_product_fallback_names(
     return validate_results(vertical, brief, results)[:result_count]
 
 
-def _business_fit_note(industry: str, audience: str, style: str) -> str:
-    audience_note = f" for {audience.lower()}" if audience and audience != "Other" else ""
+def _business_market_context(audience: str, market_scope: str) -> str:
+    audience_note = f" for {audience.lower()}" if audience and audience not in {"Other", "Not sure yet"} else ""
+    market_note = f" in a {market_scope.lower()} market" if market_scope and market_scope != "Not sure yet" else ""
+    return f"{audience_note}{market_note}"
+
+
+def _business_fit_note(industry: str, audience: str, style: str, market_scope: str = "") -> str:
+    market_context = _business_market_context(audience, market_scope)
     return (
         f"Best if you want a {style.lower()} name that can signal "
-        f"{industry.lower()} credibility{audience_note} without boxing in future growth."
+        f"{industry.lower()} credibility{market_context} without boxing in future growth."
     )
 
 

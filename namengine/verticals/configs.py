@@ -70,14 +70,15 @@ BUSINESS_STAGE_OPTIONS = (
     "Rebrand or rename",
 )
 BUSINESS_AUDIENCE_OPTIONS = (
-    "Consumers",
-    "Local customers",
-    "B2B buyers",
-    "Creators or fans",
-    "Premium clients",
-    "Families",
-    "Technical users",
-    "Other",
+    "Individual consumers",
+    "Businesses / organizations",
+    "Both consumers and businesses",
+)
+BUSINESS_MARKET_SCOPE_OPTIONS = (
+    "Local",
+    "Regional",
+    "National",
+    "Global",
 )
 BUSINESS_STYLE_OPTIONS = (
     "Clear and credible",
@@ -484,9 +485,15 @@ BUSINESS = VerticalConfig(
         ),
         Question(
             "audience",
-            "Primary audience",
+            "Who buys from you?",
             required=True,
             choices=BUSINESS_AUDIENCE_OPTIONS,
+            section="About the business",
+        ),
+        Question(
+            "market_scope",
+            "What market are you naming for?",
+            choices=BUSINESS_MARKET_SCOPE_OPTIONS,
             section="About the business",
         ),
         Question(

@@ -531,7 +531,8 @@ class EngineQualityV1Test(unittest.TestCase):
                 "business_description": "Fractional operations support for growing service businesses",
                 "industry": "Operations consulting",
                 "stage": "Launching soon",
-                "audience": "B2B buyers",
+                "audience": "Businesses / organizations",
+                "market_scope": "Regional",
                 "style": "Clear and credible",
                 "name_shape": "Compound",
                 "timeless_vs_distinctive": "Mostly distinctive",
@@ -566,7 +567,8 @@ class EngineQualityV1Test(unittest.TestCase):
         thesis = build_quality_taste_thesis("business", brief, {})
         self.assertIn("Business: Fractional operations support", thesis)
         self.assertIn("Industry/category: Operations consulting", thesis)
-        self.assertIn("Audience: B2B buyers", thesis)
+        self.assertIn("Buyer type: Businesses / organizations", thesis)
+        self.assertIn("Market scope: Regional", thesis)
         self.assertIn("Domain/handle priority: Open to modifiers", thesis)
 
 

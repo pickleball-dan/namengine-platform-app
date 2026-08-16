@@ -421,6 +421,7 @@ def keepsake_details_from_brief(
             "business_description": _clean(inputs.get("business_description")),
             "industry": _clean(inputs.get("industry")),
             "audience": _clean(inputs.get("audience")),
+            "market_scope": _clean(inputs.get("market_scope")),
             "style": _clean(inputs.get("style")),
         }
     else:

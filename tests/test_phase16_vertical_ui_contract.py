@@ -714,29 +714,35 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         self.assertIn('class="business-native-control"', body)
         self.assertIn('data-choice-card-list', body)
         self.assertIn('data-choice-target="audience"', body)
+        self.assertIn('data-choice-target="market_scope"', body)
         self.assertIn('data-choice-target="style"', body)
         self.assertIn('data-choice-target="stage"', body)
-        self.assertIn('data-choice-value="B2B buyers"', body)
+        self.assertIn('data-choice-value="Businesses / organizations"', body)
+        self.assertIn('data-choice-value="Global"', body)
         self.assertIn('data-choice-value="Premium and refined"', body)
         self.assertIn('id="audience" name="audience" value="" required', body)
+        self.assertIn('id="market_scope" name="market_scope" value=""', body)
         self.assertIn('id="style" name="style" value="" required', body)
-        self.assertIn('data-other-select="audience_other"', body)
-        self.assertIn('id="audience_other"', body)
+        self.assertNotIn('data-other-select="audience_other"', body)
+        self.assertNotIn('id="audience_other"', body)
         self.assertIn('pet-choice-cards.js?v=20260727-business-choice-cards-v1', body)
         business_form = body.split('id="business-intake-form"', 1)[1].split('</form>', 1)[0]
         self.assertNotIn('<select', business_form)
 
     def test_business_intake_prefills_choice_card_values_for_editing(self):
         response = self.client.get(
-            "/business?audience=Premium+clients&style=Premium+and+refined&stage=Launching+soon&edit=audience"
+            "/business?audience=Businesses+%2F+organizations&market_scope=Regional&style=Premium+and+refined&stage=Launching+soon&edit=audience"
         )
         body = response.get_data(as_text=True)
 
         self.assertEqual(response.status_code, 200)
         self.assertIn('data-choice-target="audience"', body)
-        self.assertIn('data-choice-value="Premium clients"', body)
+        self.assertIn('data-choice-target="market_scope"', body)
+        self.assertIn('data-choice-value="Businesses / organizations"', body)
+        self.assertIn('data-choice-value="Regional"', body)
         self.assertIn('class="business-choice-card is-selected"', body)
-        self.assertIn('id="audience" name="audience" value="Premium clients" required', body)
+        self.assertIn('id="audience" name="audience" value="Businesses / organizations" required', body)
+        self.assertIn('id="market_scope" name="market_scope" value="Regional"', body)
         self.assertIn('id="style" name="style" value="Premium and refined" required', body)
         self.assertIn('id="stage" name="stage" value="Launching soon"', body)
         business_form = body.split('id="business-intake-form"', 1)[1].split('</form>', 1)[0]
