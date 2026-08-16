@@ -326,7 +326,15 @@
       {% endif %}
       <div class="bottom-next-actions">
         <a class="button-link compare-link{% if not beta_unlocked %} premium-locked-action{% endif %}" href="{{ '/compare/%s'|format(session_id) if beta_unlocked else '/%s/access?return_session=%s'|format(vertical.slug, session_id) }}"{% if not beta_unlocked %} data-premium-action{% endif %}>Compare favorites</a>
-        <a class="button-link secondary-button{% if not beta_unlocked %} premium-locked-action{% endif %}" href="{{ '/share/%s'|format(session_id) if beta_unlocked else '/%s/access?return_session=%s'|format(vertical.slug, session_id) }}"{% if not beta_unlocked %} data-premium-action{% endif %}>Share list</a>
+        <a
+          class="button-link secondary-button"
+          href="/share/{{ session_id }}"
+          data-share-list
+          data-share-url="/share/{{ session_id }}"
+          data-share-title="NamEngine {{ vertical.display_name }} list"
+          data-share-text="Here is a NamEngine {{ vertical.display_name|lower }} name list to review."
+          data-share-copied-label="Link copied"
+        >Share list</a>
 
       </div>
     </section>
@@ -343,5 +351,6 @@
   <script src="{{ url_for('static', filename='js/taste-history.js') }}"></script>
   <script src="{{ url_for('static', filename='js/reactions.js') }}?v=20260716-results-mobile-stabilization-v1"></script>
   <script src="{{ url_for('static', filename='js/results-accordion.js') }}?v=20260731-launch-card-contract-v1"></script>
+  <script src="{{ url_for('static', filename='js/share-list.js') }}?v=20260815-share-sheet-v1"></script>
   {% if not beta_unlocked %}<script src="{{ url_for('static', filename='js/access-gate.js') }}?v=20260731-results-paywall-v1"></script>{% endif %}
 {% endblock %}

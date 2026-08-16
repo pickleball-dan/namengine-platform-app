@@ -83,8 +83,9 @@ class ApprovedBrandingAssetsTest(unittest.TestCase):
         self.assertIn("images/namengine-pets.svg", pet)
         self.assertNotIn("images/namengine-pets-icon.svg", pet)
         self.assertNotIn("images/pet/namengine-pet-logo-transparent.png", pet)
-        self.assertIn("images/pet/namengine-pet-card-share-v3.jpg", pet)
+        self.assertIn("images/pet/namengine-pet-share-current.png", pet)
         self.assertIn("images/namengine-biz.svg", business)
+        self.assertIn("images/business/namengine-business-share-current.png", business)
         self.assertNotIn("images/namengine-biz-icon.svg", business)
 
 

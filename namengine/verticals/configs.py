@@ -293,7 +293,7 @@ PET = VerticalConfig(
     },
     assets={
         "logo": "images/namengine-pets.svg",
-        "share_image": "images/pet/namengine-pet-card-share-v3.jpg",
+        "share_image": "images/pet/namengine-pet-share-current.png",
     },
     visual=VerticalVisualConfig(
         audience=("pet parents", "families choosing an everyday call name"),
@@ -568,7 +568,7 @@ BUSINESS = VerticalConfig(
     },
     assets={
         "logo": "images/namengine-biz.svg",
-        "share_image": "images/business/namengine-business-share.png",
+        "share_image": "images/business/namengine-business-share-current.png",
     },
     visual=VerticalVisualConfig(
         audience=("founders", "operators", "small business owners"),
@@ -703,7 +703,7 @@ PRODUCT = VerticalConfig(
     },
     assets={
         "logo": "images/product/namengine-product-logo.png",
-        "share_image": "images/product/namengine-product-share.png",
+        "share_image": "images/baby/namengine-baby-share.png",
     },
     visual=VerticalVisualConfig(
         audience=("makers", "founders", "product teams"),
@@ -763,7 +763,7 @@ CHARACTER = VerticalConfig(
     },
     assets={
         "logo": "images/character-logo.svg",
-        "share_image": "images/character-share.svg",
+        "share_image": "images/baby/namengine-baby-share.png",
     },
     visual=VerticalVisualConfig(
         audience=("writers", "game creators", "worldbuilders"),

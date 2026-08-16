@@ -10,10 +10,10 @@
     {% set social_title = social_title|default(self.title()|striptags|trim) %}
     {% if vertical is defined %}
       {% set social_description = social_description|default(vertical.visual.hero_support or vertical.prompt_context) %}
-      {% set social_image = social_image|default(url_for('static', filename=vertical.assets.get('share_image', 'images/namengine-share.png'), _external=True)) %}
+      {% set social_image = social_image|default(url_for('static', filename=vertical.assets.get('share_image', 'images/baby/namengine-baby-share.png'), _external=True)) %}
     {% else %}
       {% set social_description = social_description|default("Thoughtful name discovery for babies, pets, businesses, products, books, games, and more.") %}
-      {% set social_image = social_image|default(url_for('static', filename='images/namengine-share.png', _external=True)) %}
+      {% set social_image = social_image|default(url_for('static', filename='images/baby/namengine-baby-share.png', _external=True)) %}
     {% endif %}
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="NamEngine">

@@ -100,7 +100,7 @@ class PhaseEightCompareTest(unittest.TestCase):
         self.assertIn("finalist", {item["reaction"] for item in items})
         self.assertLessEqual(len(items), 6)
 
-    def test_results_page_links_to_compare(self):
+    def test_results_page_links_to_compare_and_share_sheet(self):
         query = b"species=Dog&personality=Gentle&style=Warm"
         session_id = self._pet_session_id_for_query(query)
         response = self.client.get(f"/pet/results?{query.decode('utf-8')}")
@@ -109,6 +109,12 @@ class PhaseEightCompareTest(unittest.TestCase):
         body = response.get_data(as_text=True)
         self.assertIn(f"/pet/access?return_session={session_id}", body)
         self.assertIn("data-premium-action", body)
+        self.assertIn(f'href="/share/{session_id}"', body)
+        self.assertIn("data-share-list", body)
+        self.assertIn("js/share-list.js", body)
+        share_link = body.split("data-share-list", 1)[0].rsplit("<a", 1)[1]
+        self.assertNotIn("premium-locked-action", share_link)
+        self.assertNotIn("data-premium-action", share_link)
 
     def test_free_compare_route_requires_paid_access(self):
         query = b"species=Dog&personality=Gentle&style=Warm"

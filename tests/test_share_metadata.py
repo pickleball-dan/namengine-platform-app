@@ -69,8 +69,8 @@ class ShareMetadataTest(unittest.TestCase):
     def test_vertical_share_images_use_existing_raster_cards(self):
         expected = {
             "baby": "/static/images/baby/namengine-baby-share.png",
-            "pet": "/static/images/pet/namengine-pet-card-share-v3.jpg",
-            "business": "/static/images/business/namengine-business-share.png",
+            "pet": "/static/images/pet/namengine-pet-share-current.png",
+            "business": "/static/images/business/namengine-business-share-current.png",
         }
         for slug, path in expected.items():
             with self.subTest(slug=slug):
