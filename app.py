@@ -2001,6 +2001,7 @@ def create_app() -> Flask:
             name_fact_card=build_name_fact_card(str(snapshot["chosen"]["vertical"]), result),
             session=snapshot["session"],
             portrait=portrait,
+            business_palette=business_brand_palette_index(str(snapshot["chosen"].get("name") or "")),
         )
 
     @app.get("/generated/pet-portraits/<filename>")
@@ -2479,6 +2480,11 @@ def _cached_names_match_current_rules(
             for name in names
         )
     return True
+
+
+def business_brand_palette_index(name: str) -> int:
+    digest = sha1(name.strip().lower().encode("utf-8")).hexdigest()
+    return int(digest[:8], 16) % 6
 
 
 def _try_generate_keepsake(chosen_id: str):

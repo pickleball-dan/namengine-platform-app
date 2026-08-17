@@ -32,26 +32,46 @@
       {% if portrait %}data-portrait-retry-url="{{ url_for('retry_chosen_portrait', chosen_id=chosen.id) }}"{% endif %}
     >
       {% if vertical.slug == "business" %}
-        <figure class="business-brand-card" aria-label="Clear brand card preview for {{ chosen.name }}">
-          <div class="business-brand-card-mark" aria-hidden="true"><span>{{ chosen.name[:1] }}</span></div>
+        <figure class="business-brand-card palette-{{ business_palette }}" aria-label="Brand preview for {{ chosen.name }}">
+          <div class="business-brand-browser" aria-hidden="true">
+            <div class="business-brand-browser-bar">
+              <span></span><span></span><span></span>
+            </div>
+            <div class="business-brand-site-header">
+              <div class="business-brand-card-mark"><span>{{ chosen.name[:1] }}</span></div>
+              <strong>{{ chosen.name }}</strong>
+              <small>{{ business_industry }}</small>
+            </div>
+            <div class="business-brand-hero-lines">
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+          <div class="business-brand-letterhead" aria-hidden="true">
+            <div class="business-brand-card-mark small"><span>{{ chosen.name[:1] }}</span></div>
+            <div>
+              <strong>{{ chosen.name }}</strong>
+              {% if result.tagline %}<span>{{ result.tagline }}</span>{% endif %}
+            </div>
+          </div>
           <div class="business-brand-card-copy">
-            <p class="business-brand-card-kicker">Brand card</p>
+            <p class="business-brand-card-kicker">Brand preview</p>
             <h2>{{ chosen.name }}</h2>
             {% if result.tagline %}
               <p>{{ result.tagline }}</p>
             {% endif %}
           </div>
           <div class="business-brand-palette" aria-label="Suggested Business palette">
-            <span class="business-brand-swatch navy"></span>
-            <span class="business-brand-swatch teal"></span>
-            <span class="business-brand-swatch gold"></span>
+            <span class="business-brand-swatch primary"></span>
+            <span class="business-brand-swatch accent"></span>
+            <span class="business-brand-swatch warm"></span>
           </div>
           <div class="business-brand-checks" aria-label="Business brand fit checks">
             <span>{{ business_industry }}</span>
             <span>{{ business_audience }}</span>
             <span>{{ business_style }}</span>
           </div>
-          <figcaption>Clear brand card</figcaption>
+          <figcaption>Website header + letterhead mock</figcaption>
         </figure>
       {% elif portrait %}
         <figure class="pet-portrait-frame{% if vertical.slug == 'baby' %} baby-keepsake-frame{% elif vertical.slug == 'business' %} business-image-frame{% endif %}" data-pet-portrait-frame>

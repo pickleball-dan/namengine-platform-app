@@ -11686,3 +11686,247 @@ body.vertical-business {
     font-size: clamp(28px, 8vw, 36px);
   }
 }
+
+/* Local review: Business chosen-page brand preview refresh. */
+.share-preview.has-brand-card {
+  grid-template-columns: minmax(250px, 330px) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(28px, 5vw, 64px);
+}
+
+.share-preview.has-brand-card .share-preview-label {
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  z-index: 2;
+  margin: 0;
+}
+
+.business-brand-card.palette-0 {
+  --brand-primary: #0d2540;
+  --brand-secondary: #3fa6a0;
+  --brand-warm: #d9a441;
+  --brand-paper: #f7fbfa;
+  --brand-tint: rgba(63, 166, 160, 0.12);
+}
+
+.business-brand-card.palette-1 {
+  --brand-primary: #24272e;
+  --brand-secondary: #e36f58;
+  --brand-warm: #f3d7b9;
+  --brand-paper: #fff8f2;
+  --brand-tint: rgba(227, 111, 88, 0.12);
+}
+
+.business-brand-card.palette-2 {
+  --brand-primary: #17392f;
+  --brand-secondary: #8fb89a;
+  --brand-warm: #b88945;
+  --brand-paper: #f4f8ef;
+  --brand-tint: rgba(143, 184, 154, 0.16);
+}
+
+.business-brand-card.palette-3 {
+  --brand-primary: #26316f;
+  --brand-secondary: #63a7d8;
+  --brand-warm: #f0b84b;
+  --brand-paper: #f4f7ff;
+  --brand-tint: rgba(99, 167, 216, 0.14);
+}
+
+.business-brand-card.palette-4 {
+  --brand-primary: #44224e;
+  --brand-secondary: #bf7899;
+  --brand-warm: #ead0a9;
+  --brand-paper: #fbf5fb;
+  --brand-tint: rgba(191, 120, 153, 0.14);
+}
+
+.business-brand-card.palette-5 {
+  --brand-primary: #26323f;
+  --brand-secondary: #2670ca;
+  --brand-warm: #a7c957;
+  --brand-paper: #f3f8ff;
+  --brand-tint: rgba(38, 112, 202, 0.13);
+}
+
+.business-brand-card {
+  gap: 12px;
+  max-width: 330px;
+  padding: 16px;
+  color: var(--brand-primary, #0d2540);
+  background:
+    radial-gradient(circle at 86% 12%, color-mix(in srgb, var(--brand-warm, #d9a441) 22%, transparent), transparent 30%),
+    linear-gradient(145deg, #ffffff 0%, var(--brand-paper, #f7fbfa) 100%);
+  border-color: color-mix(in srgb, var(--brand-secondary, #3fa6a0) 32%, transparent);
+  box-shadow: 0 18px 36px color-mix(in srgb, var(--brand-primary, #0d2540) 15%, transparent);
+}
+
+.business-brand-browser {
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid color-mix(in srgb, var(--brand-secondary, #3fa6a0) 22%, transparent);
+  border-radius: 14px;
+  box-shadow: 0 12px 24px color-mix(in srgb, var(--brand-primary, #0d2540) 10%, transparent);
+}
+
+.business-brand-browser-bar {
+  display: flex;
+  gap: 5px;
+  padding: 8px 10px;
+  background: color-mix(in srgb, var(--brand-paper, #f7fbfa) 86%, #ffffff);
+  border-bottom: 1px solid color-mix(in srgb, var(--brand-secondary, #3fa6a0) 16%, transparent);
+}
+
+.business-brand-browser-bar span {
+  width: 7px;
+  height: 7px;
+  background: var(--brand-secondary, #3fa6a0);
+  border-radius: 999px;
+  opacity: 0.72;
+}
+
+.business-brand-site-header,
+.business-brand-letterhead {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+}
+
+.business-brand-site-header {
+  padding: 12px;
+  background: linear-gradient(135deg, var(--brand-primary, #0d2540), color-mix(in srgb, var(--brand-primary, #0d2540) 72%, var(--brand-secondary, #3fa6a0)));
+  color: #ffffff;
+}
+
+.business-brand-site-header strong,
+.business-brand-letterhead strong {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1.05;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.business-brand-site-header small {
+  grid-column: 2;
+  min-width: 0;
+  overflow: hidden;
+  color: color-mix(in srgb, #ffffff 78%, var(--brand-warm, #d9a441));
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.business-brand-hero-lines {
+  display: grid;
+  gap: 8px;
+  padding: 14px 12px 18px;
+  background:
+    radial-gradient(circle at 86% 72%, var(--brand-tint, rgba(63, 166, 160, 0.12)) 0 38px, transparent 40px),
+    #ffffff;
+}
+
+.business-brand-hero-lines span {
+  display: block;
+  height: 10px;
+  background: color-mix(in srgb, var(--brand-secondary, #3fa6a0) 28%, transparent);
+  border-radius: 999px;
+}
+
+.business-brand-hero-lines span:first-child {
+  width: 76%;
+  height: 14px;
+  background: color-mix(in srgb, var(--brand-primary, #0d2540) 18%, transparent);
+}
+
+.business-brand-letterhead {
+  padding: 11px 12px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid color-mix(in srgb, var(--brand-secondary, #3fa6a0) 20%, transparent);
+  border-radius: 12px;
+}
+
+.business-brand-letterhead span {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.business-brand-card-mark {
+  width: 46px;
+  height: 46px;
+  background: linear-gradient(145deg, var(--brand-primary, #0d2540), color-mix(in srgb, var(--brand-primary, #0d2540) 70%, var(--brand-secondary, #3fa6a0)));
+  border-color: color-mix(in srgb, var(--brand-warm, #d9a441) 78%, #ffffff);
+  border-radius: 14px;
+}
+
+.business-brand-card-mark.small {
+  width: 38px;
+  height: 38px;
+  border-width: 2px;
+  border-radius: 12px;
+}
+
+.business-brand-card-mark span {
+  font-size: 27px;
+}
+
+.business-brand-card-mark.small span {
+  font-size: 22px;
+}
+
+.business-brand-card-kicker {
+  color: color-mix(in srgb, var(--brand-secondary, #3fa6a0) 72%, var(--brand-primary, #0d2540));
+}
+
+.business-brand-card h2 {
+  color: var(--brand-primary, #0d2540);
+  font-size: clamp(26px, 4.2vw, 36px);
+  line-height: 0.98;
+  white-space: normal;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+.business-brand-palette {
+  grid-template-columns: 1.2fr 1fr 0.85fr;
+}
+
+.business-brand-swatch.primary { background: var(--brand-primary, #0d2540); }
+.business-brand-swatch.accent { background: var(--brand-secondary, #3fa6a0); }
+.business-brand-swatch.warm { background: var(--brand-warm, #d9a441); }
+
+.business-brand-checks span {
+  color: var(--brand-primary, #0d2540);
+  background: var(--brand-tint, rgba(63, 166, 160, 0.1));
+  border-color: color-mix(in srgb, var(--brand-secondary, #3fa6a0) 22%, transparent);
+}
+
+@media (max-width: 760px) {
+  .share-preview.has-brand-card {
+    grid-template-columns: 1fr;
+  }
+
+  .share-preview.has-brand-card .share-preview-label {
+    position: relative;
+    top: auto;
+    right: auto;
+    margin-bottom: 6px;
+  }
+
+  .business-brand-card {
+    max-width: none;
+  }
+}
