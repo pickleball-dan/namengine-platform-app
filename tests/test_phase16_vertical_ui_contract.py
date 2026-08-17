@@ -565,7 +565,7 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
         )
 
     def test_business_results_use_business_validation_and_labels(self):
-        with patch.dict(os.environ, {"GODADDY_API_KEY": "", "GODADDY_API_SECRET": ""}):
+        with patch.dict(os.environ, {"GODADDY_PAT": ""}):
             response = self.client.get(
                 "/business/results?business_description=AI+operations+consulting"
                 "&industry=Consulting&audience=B2B+buyers&style=Clear+and+credible"
@@ -655,7 +655,7 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
             },
         )
 
-        with patch.dict(os.environ, {"GODADDY_API_KEY": "", "GODADDY_API_SECRET": ""}):
+        with patch.dict(os.environ, {"GODADDY_PAT": ""}):
             names = generate_names(VERTICALS["business"], brief, use_ai=False)
 
         domain_info = names[0].metadata["domain_info"]
@@ -693,31 +693,12 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
             "premium",
         )
 
-    def test_godaddy_credentials_prefer_pat_but_keep_legacy_fallback(self):
-        with patch.dict(
-            os.environ,
-            {
-                "GODADDY_PAT": "pat-token",
-                "GODADDY_API_KEY": "legacy-key",
-                "GODADDY_API_SECRET": "legacy-secret",
-            },
-            clear=False,
-        ):
-            self.assertEqual(godaddy_credentials(), {"auth_type": "bearer", "token": "pat-token"})
+    def test_godaddy_credentials_use_pat_only(self):
+        with patch.dict(os.environ, {"GODADDY_PAT": "pat-token"}, clear=False):
+            self.assertEqual(godaddy_credentials(), {"token": "pat-token"})
 
-        with patch.dict(
-            os.environ,
-            {
-                "GODADDY_PAT": "",
-                "GODADDY_API_KEY": "legacy-key",
-                "GODADDY_API_SECRET": "legacy-secret",
-            },
-            clear=False,
-        ):
-            self.assertEqual(
-                godaddy_credentials(),
-                {"auth_type": "sso-key", "api_key": "legacy-key", "api_secret": "legacy-secret"},
-            )
+        with patch.dict(os.environ, {"GODADDY_PAT": ""}, clear=False):
+            self.assertIsNone(godaddy_credentials())
 
     def test_godaddy_price_minor_units_reads_v1_and_v3_payloads(self):
         self.assertEqual(godaddy_price_minor_units({"price": 1299}), 1299)

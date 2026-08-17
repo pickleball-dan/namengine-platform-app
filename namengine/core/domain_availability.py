@@ -196,34 +196,21 @@ def check_domain_availability(domains: list[str]) -> dict[str, dict[str, str]]:
 
 def godaddy_credentials() -> dict[str, str] | None:
     pat = os.getenv("GODADDY_PAT", "").strip()
-    if pat:
-        return {"auth_type": "bearer", "token": pat}
-
-    api_key = os.getenv("GODADDY_API_KEY", "").strip()
-    api_secret = os.getenv("GODADDY_API_SECRET", "").strip()
-    if api_key and api_secret:
-        return {"auth_type": "sso-key", "api_key": api_key, "api_secret": api_secret}
-    return None
+    if not pat:
+        return None
+    return {"token": pat}
 
 
 def godaddy_domain_available(domain: str, credentials: dict[str, str]) -> dict[str, str]:
     base_url = os.getenv("GODADDY_API_BASE", "https://api.godaddy.com").rstrip("/")
     timeout = float(os.getenv("GODADDY_TIMEOUT_SECONDS", "4"))
-    auth_type = credentials.get("auth_type")
-    if auth_type == "bearer":
-        path = "/v3/domains/check-availability"
-        query = urlencode({"domain": domain})
-        authorization = f"Bearer {credentials['token']}"
-    else:
-        path = "/v1/domains/available"
-        query = urlencode({"domain": domain})
-        authorization = f"sso-key {credentials['api_key']}:{credentials['api_secret']}"
-    url = f"{base_url}{path}?{query}"
+    query = urlencode({"domain": domain})
+    url = f"{base_url}/v3/domains/check-availability?{query}"
     request = Request(
         url,
         headers={
             "Accept": "application/json",
-            "Authorization": authorization,
+            "Authorization": f"Bearer {credentials['token']}",
         },
     )
     try:
