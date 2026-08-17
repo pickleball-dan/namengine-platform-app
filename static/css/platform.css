@@ -11670,3 +11670,19 @@ body.vertical-business {
     transform: none !important;
   }
 }
+
+/* Business result names: keep generated brand names intact in desktop cards. */
+.vertical-business .result-card h2 {
+  font-size: clamp(24px, 2vw, 30px);
+  line-height: 1.08;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+  text-wrap: balance;
+}
+
+@media (max-width: 760px) {
+  .vertical-business .result-card h2 {
+    font-size: clamp(28px, 8vw, 36px);
+  }
+}
