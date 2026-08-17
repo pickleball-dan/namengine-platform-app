@@ -15,7 +15,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any
 from urllib.error import HTTPError, URLError
-from urllib.parse import quote
+from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
 from namengine.core.schemas import NameResult
@@ -57,7 +57,7 @@ def domain_status(domain: str, status: str = "unknown", label: str = "") -> dict
 def domain_status_from_godaddy(domain: str, payload: dict[str, Any] | None) -> dict[str, str]:
     available = payload.get("available") if isinstance(payload, dict) else None
     premium_threshold = int(os.getenv("GODADDY_PREMIUM_PRICE_THRESHOLD", "100000000"))
-    price = payload.get("price") if isinstance(payload, dict) else None
+    price = godaddy_price_minor_units(payload)
     is_premium = bool(payload.get("premium")) if isinstance(payload, dict) else False
     if isinstance(price, int) and price >= premium_threshold:
         is_premium = True
@@ -69,6 +69,32 @@ def domain_status_from_godaddy(domain: str, payload: dict[str, Any] | None) -> d
     if available is False:
         return domain_status(domain, "taken", "Taken")
     return domain_status(domain)
+
+
+def godaddy_price_minor_units(payload: dict[str, Any] | None) -> int | None:
+    """Return the indicative GoDaddy price in minor units for v1 or v3 payloads."""
+    if not isinstance(payload, dict):
+        return None
+
+    price = payload.get("price")
+    if isinstance(price, int):
+        return price
+    if isinstance(price, dict):
+        value = price.get("value")
+        if isinstance(value, int):
+            return value
+
+    prices = payload.get("prices")
+    if isinstance(prices, list):
+        for item in prices:
+            if not isinstance(item, dict):
+                continue
+            item_price = item.get("price")
+            if isinstance(item_price, dict) and isinstance(item_price.get("value"), int):
+                return item_price["value"]
+            if isinstance(item_price, int):
+                return item_price
+    return None
 
 
 def build_domain_info(name: str) -> dict[str, Any]:
@@ -168,24 +194,36 @@ def check_domain_availability(domains: list[str]) -> dict[str, dict[str, str]]:
     return results
 
 
-def godaddy_credentials() -> tuple[str, str] | None:
+def godaddy_credentials() -> dict[str, str] | None:
+    pat = os.getenv("GODADDY_PAT", "").strip()
+    if pat:
+        return {"auth_type": "bearer", "token": pat}
+
     api_key = os.getenv("GODADDY_API_KEY", "").strip()
     api_secret = os.getenv("GODADDY_API_SECRET", "").strip()
-    if not api_key or not api_secret:
-        return None
-    return api_key, api_secret
+    if api_key and api_secret:
+        return {"auth_type": "sso-key", "api_key": api_key, "api_secret": api_secret}
+    return None
 
 
-def godaddy_domain_available(domain: str, credentials: tuple[str, str]) -> dict[str, str]:
-    api_key, api_secret = credentials
+def godaddy_domain_available(domain: str, credentials: dict[str, str]) -> dict[str, str]:
     base_url = os.getenv("GODADDY_API_BASE", "https://api.godaddy.com").rstrip("/")
     timeout = float(os.getenv("GODADDY_TIMEOUT_SECONDS", "4"))
-    url = f"{base_url}/v1/domains/available?domain={quote(domain)}"
+    auth_type = credentials.get("auth_type")
+    if auth_type == "bearer":
+        path = "/v3/domains/check-availability"
+        query = urlencode({"domain": domain})
+        authorization = f"Bearer {credentials['token']}"
+    else:
+        path = "/v1/domains/available"
+        query = urlencode({"domain": domain})
+        authorization = f"sso-key {credentials['api_key']}:{credentials['api_secret']}"
+    url = f"{base_url}{path}?{query}"
     request = Request(
         url,
         headers={
             "Accept": "application/json",
-            "Authorization": f"sso-key {api_key}:{api_secret}",
+            "Authorization": authorization,
         },
     )
     try:

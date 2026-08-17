@@ -19,6 +19,8 @@ from namengine.core.domain_availability import (
     build_domain_info,
     domain_slug,
     domain_status_from_godaddy,
+    godaddy_credentials,
+    godaddy_price_minor_units,
 )
 from namengine.verticals import VERTICALS
 
@@ -673,6 +675,57 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
                 {"available": True, "premium": True},
             )["status"],
             "premium",
+        )
+        self.assertEqual(
+            domain_status_from_godaddy(
+                "signalhouse.com",
+                {
+                    "available": True,
+                    "prices": [
+                        {
+                            "term": "YEAR",
+                            "period": 1,
+                            "price": {"currencyCode": "USD", "value": 100000000},
+                        }
+                    ],
+                },
+            )["status"],
+            "premium",
+        )
+
+    def test_godaddy_credentials_prefer_pat_but_keep_legacy_fallback(self):
+        with patch.dict(
+            os.environ,
+            {
+                "GODADDY_PAT": "pat-token",
+                "GODADDY_API_KEY": "legacy-key",
+                "GODADDY_API_SECRET": "legacy-secret",
+            },
+            clear=False,
+        ):
+            self.assertEqual(godaddy_credentials(), {"auth_type": "bearer", "token": "pat-token"})
+
+        with patch.dict(
+            os.environ,
+            {
+                "GODADDY_PAT": "",
+                "GODADDY_API_KEY": "legacy-key",
+                "GODADDY_API_SECRET": "legacy-secret",
+            },
+            clear=False,
+        ):
+            self.assertEqual(
+                godaddy_credentials(),
+                {"auth_type": "sso-key", "api_key": "legacy-key", "api_secret": "legacy-secret"},
+            )
+
+    def test_godaddy_price_minor_units_reads_v1_and_v3_payloads(self):
+        self.assertEqual(godaddy_price_minor_units({"price": 1299}), 1299)
+        self.assertEqual(
+            godaddy_price_minor_units(
+                {"prices": [{"price": {"currencyCode": "USD", "value": 1199}}]}
+            ),
+            1199,
         )
 
     def test_pet_intake_uses_choice_cards_with_custom_entry_field(self):
