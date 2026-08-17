@@ -22,7 +22,8 @@
       savedCount.textContent = `You loved ${loved} ${loved === 1 ? "name" : "names"} in Round ${round}.`;
       return;
     }
-    savedCount.textContent = `Saved ${loved} ${loved === 1 ? "name" : "names"}`;
+    const businessResults = document.body.classList.contains("vertical-business");
+    savedCount.textContent = `Saved ${loved} ${loved === 1 ? "name" : "names"}${businessResults ? " this round" : ""}`;
   }
 
   function updateRefineGate(counts) {

@@ -58,11 +58,13 @@
       </p>
       {% if launch_results %}
         <p class="baby-results-framing">{{ result_framing.get(vertical.slug, "Based on your brief, these names best match your direction, practical needs, and taste signals.") }}</p>
-        <div class="baby-saved-progress" aria-live="polite" data-learning-round="{{ round_number }}">
-          <span aria-hidden="true">♥</span>
-          <strong data-saved-count>{% if vertical.slug == "baby" %}You loved {{ reaction_counts.love }} {{ "name" if reaction_counts.love == 1 else "names" }} in Round {{ round_number }}.{% else %}Saved {{ reaction_counts.love }} {{ "name" if reaction_counts.love == 1 else "names" }}{% endif %}</strong>
-          <small>{{ saved_notes.get(vertical.slug, "Your favorites help us understand the direction with the strongest fit.") }}</small>
-        </div>
+        {% if vertical.slug != "business" %}
+          <div class="baby-saved-progress" aria-live="polite" data-learning-round="{{ round_number }}">
+            <span aria-hidden="true">♥</span>
+            <strong data-saved-count>{% if vertical.slug == "baby" %}You loved {{ reaction_counts.love }} {{ "name" if reaction_counts.love == 1 else "names" }} in Round {{ round_number }}.{% else %}Saved {{ reaction_counts.love }} {{ "name" if reaction_counts.love == 1 else "names" }}{% endif %}</strong>
+            <small>{{ saved_notes.get(vertical.slug, "Your favorites help us understand the direction with the strongest fit.") }}</small>
+          </div>
+        {% endif %}
       {% endif %}
       {% if vertical.slug == "pet" %}
         <section class="pet-premium-panel" aria-label="Pet naming quality checks">
@@ -80,6 +82,9 @@
         <div class="trust-cue" aria-label="Generation summary">
           <strong>{{ names|length }} names checked for fit, sound, and distinctiveness.</strong>
           <span>React to the names below, then use the next-step panel at the bottom.</span>
+          {% if vertical.slug == "business" %}
+            <span aria-live="polite"><span aria-hidden="true">♥</span> <strong data-saved-count>Saved {{ reaction_counts.love }} {{ "name" if reaction_counts.love == 1 else "names" }} this round</strong> {{ saved_notes.get(vertical.slug, "Your favorites help us understand the direction with the strongest fit.") }}</span>
+          {% endif %}
         </div>
       {% endif %}
     </div>
