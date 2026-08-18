@@ -180,7 +180,7 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn('/baby/access/checkout', text)
         self.assertNotIn('href="https://buy.stripe.com/test_example"', text)
-        self.assertIn("Unlock Baby Access", text)
+        self.assertIn("Unlock Full Access", text)
         self.assertIn("100% money-back guarantee", text)
 
     def test_beta_checkout_uses_current_vertical_stripe_payment_links(self):
@@ -255,7 +255,7 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.assertIn("return to this report", text)
         self.assertNotIn("Generate your first preview list", text)
         self.assertNotIn("Naming Experiences", text)
-        self.assertIn("Unlock Pet Access", text)
+        self.assertIn("Unlock Full Access", text)
         self.assertIn('/pet/access/checkout?return_session=pet-testsession', text)
 
     def test_cross_vertical_return_session_is_ignored_on_access_page(self):
@@ -304,7 +304,7 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotIn("Payment received", text)
         self.assertIn("Generate your first preview list", text)
-        self.assertIn("Unlock Baby Access", text)
+        self.assertIn("Unlock Full Access", text)
 
     def test_baby_beta_paid_success_state_requires_verified_checkout(self):
         previous = os.environ.get("NAMENGINE_BABY_BETA_PAYMENT_LINK")
@@ -326,7 +326,7 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.assertIn("You have unlocked deeper taste discovery", text)
         self.assertIn("Start Baby name discovery", text)
         self.assertNotIn("Start with a free first round", text)
-        self.assertNotIn("Unlock Baby Access", text)
+        self.assertNotIn("Unlock Full Access", text)
         self.assertNotIn("https://buy.stripe.com/test_example", text)
 
     def test_paid_return_session_success_page_points_back_to_full_report(self):
@@ -370,7 +370,7 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         text = response.get_data(as_text=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn("Unlock Baby Access", text)
+        self.assertIn("Unlock Full Access", text)
         self.assertIn("100% money-back guarantee", text)
         self.assertIn("NamEngine suggestions are exploratory", text)
         self.assertIn("/disclaimers", text)
@@ -426,7 +426,7 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.assertIn('href="/baby"', text)
         self.assertEqual(unlocked_response.status_code, 200)
         self.assertIn('action="/refine"', unlocked_text)
-        self.assertNotIn("Unlock Baby Access", unlocked_text)
+        self.assertNotIn("Unlock Full Access", unlocked_text)
 
     def test_baby_paid_success_continue_link_goes_to_free_first_round_without_paid_query(self):
         previous = os.environ.get("NAMENGINE_BABY_BETA_PAYMENT_LINK")
@@ -579,7 +579,7 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         text = response.get_data(as_text=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn("Unlock Baby Access", text)
+        self.assertIn("Unlock Full Access", text)
         self.assertIn("Your first list is free", text)
         self.assertIn("100% money-back guarantee", text)
         self.assertNotIn('action="/refine"', text)
@@ -597,7 +597,7 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         text = response.get_data(as_text=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn("Unlock Baby Access", text)
+        self.assertIn("Unlock Full Access", text)
         self.assertNotIn('action="/refine"', text)
         self.assertNotIn('name="paid" value="1"', text)
 
@@ -626,7 +626,7 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn('action="/refine"', text)
         self.assertNotIn('name="paid" value="1"', text)
-        self.assertNotIn("Unlock Baby Access", text)
+        self.assertNotIn("Unlock Full Access", text)
 
     def test_free_baby_refine_is_blocked_server_side(self):
         session_response = self.app.get(
@@ -649,7 +649,7 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         text = response.get_data(as_text=True)
 
         self.assertEqual(response.status_code, 402)
-        self.assertIn("Unlock Baby access", text)
+        self.assertIn("Unlock full access", text)
 
     def test_free_user_cannot_generate_second_first_round_list_by_changing_intake(self):
         first_query = b"gender=Girl&style=Classic&sound=Soft"
@@ -756,7 +756,7 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
                 os.environ["NAMENGINE_PET_BETA_PAYMENT_LINK"] = previous
 
         self.assertEqual(response.status_code, 402)
-        self.assertIn("Unlock Pet access", text)
+        self.assertIn("Unlock full access", text)
         self.assertNotIn('action="/refine"', text)
 
     def test_pet_and_business_beta_pages_render_paid_offers(self):
@@ -807,7 +807,7 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.assertNotIn('href="https://buy.stripe.com/pet_test"', text)
         self.assertNotIn("$7", text)
         self.assertIn("$9.99", text)
-        self.assertIn("Unlock Pet Access", text)
+        self.assertIn("Unlock Full Access", text)
 
     def test_free_business_results_lock_refinement_behind_vertical_beta(self):
         response = self.app.get(
@@ -821,7 +821,7 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         text = response.get_data(as_text=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn("Unlock Business Access", text)
+        self.assertIn("Unlock Full Access", text)
         self.assertIn("Your first list is free", text)
         self.assertIn("100% money-back guarantee", text)
         self.assertIn('/business/access?return_session=', text)

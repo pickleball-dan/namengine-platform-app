@@ -4,7 +4,7 @@
 
   const accessUrl = shell.dataset.accessGateUrl;
   const modalTitle = shell.dataset.accessGateTitle || "Unlock this list";
-  const modalBody = shell.dataset.accessGateBody || "Unlock NamEngine Access to explore, react, compare, choose, share, and generate refined rounds.";
+  const modalBody = shell.dataset.accessGateBody || "Unlock Full Access to explore, react, compare, choose, share, and generate refined rounds.";
   let modal = null;
   let priorFocus = null;
 

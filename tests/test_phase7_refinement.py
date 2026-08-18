@@ -182,7 +182,7 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         body = response.get_data(as_text=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn("Unlock Pet Access", body)
+        self.assertIn("Unlock Full Access", body)
         self.assertIn("Your first list is free", body)
         self.assertIn("100% money-back guarantee", body)
         self.assertIn('/pet/access?return_session=', body)
@@ -198,7 +198,7 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         body = response.get_data(as_text=True)
 
         self.assertEqual(response.status_code, 402)
-        self.assertIn("Unlock Pet access", body)
+        self.assertIn("Unlock full access", body)
 
     def test_round_three_returns_finalists(self):
         session_id = self._seed_round_one()

@@ -36,7 +36,7 @@
     {% if not beta_unlocked %}
     data-access-gate-url="/{{ vertical.slug }}/access?return_session={{ session_id }}"
     data-access-gate-title="Unlock this list"
-    data-access-gate-body="Your first {{ vertical.display_name|lower }} list is free to view. Unlock NamEngine Access to explore details, react, compare, choose, share, and generate refined rounds shaped by your taste."
+    data-access-gate-body="Your first {{ vertical.display_name|lower }} list is free to view. Unlock Full Access to explore details, react, compare, choose, share, and generate refined rounds shaped by your taste."
     {% endif %}
     data-taste-vertical="{{ vertical.slug }}"
     data-taste-session-id="{{ session_id }}"
@@ -301,7 +301,14 @@
         <div class="bottom-refine-form beta-refine-lock" aria-label="{{ beta_cta_label(vertical) }}">
           <p class="eyebrow">Paid access</p>
           <h3>{% if vertical.slug == "baby" %}Want a smarter second list?{% else %}Want a sharper next list?{% endif %}</h3>
-          <p>Your first list is free to view. Unlock {{ vertical.display_name }} access for Full Reports, Love / No reactions, refined follow-up rounds, side-by-side comparison, final-choice support, shareable name views, saved taste signals, and plain-English risks and fit notes — backed by a 100% money-back guarantee if NamEngine doesn’t feel useful.</p>
+          <p>Your first list is free to view. Unlock full access to continue with:</p>
+          <ul class="paid-access-benefits" aria-label="What paid access includes">
+            <li>Full Reports for every name</li>
+            <li>Refined follow-up rounds shaped by Love / No reactions</li>
+            <li>Compare favorites and choose with confidence</li>
+            <li>Shareable name views and saved taste signals</li>
+          </ul>
+          <p class="paid-access-guarantee">100% money-back guarantee if NamEngine doesn’t feel useful.</p>
           <a class="button-link" href="/{{ vertical.slug }}/access?return_session={{ session_id }}">{{ beta_cta_label(vertical) }}</a>
           {% if refinement_error %}
             <p class="refine-reaction-gate is-error" aria-live="polite">{{ refinement_error }}</p>

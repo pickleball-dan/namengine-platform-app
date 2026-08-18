@@ -993,11 +993,11 @@ def beta_price_for(vertical) -> str:
 
 
 def beta_cta_label(vertical) -> str:
-    return f"Unlock {vertical.display_name} Access"
+    return "Unlock Full Access"
 
 
 def beta_unlock_error(vertical) -> str:
-    return f"Unlock {vertical.display_name} access to explore, react, compare, choose, share, and generate refined lists."
+    return "Unlock full access to explore, react, compare, choose, share, and generate refined lists."
 
 
 def _access_required_response(vertical, session_id: str, *, wants_json: bool = False):

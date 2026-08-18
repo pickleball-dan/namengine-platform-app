@@ -1164,6 +1164,45 @@ button {
   border-radius: 999px;
 }
 
+.paid-access-benefits {
+  display: grid;
+  gap: 8px;
+  width: min(100%, 420px);
+  margin: 12px 0 14px;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+}
+
+.paid-access-benefits li {
+  position: relative;
+  padding: 9px 12px 9px 34px;
+  color: #253246;
+  font-size: 14px;
+  font-weight: 850;
+  line-height: 1.28;
+  background: rgba(255, 255, 255, 0.74);
+  border: 1px solid rgba(41, 52, 79, 0.12);
+  border-radius: 14px;
+}
+
+.paid-access-benefits li::before {
+  position: absolute;
+  top: 9px;
+  left: 12px;
+  color: var(--accent);
+  font-weight: 950;
+  content: "✓";
+}
+
+.paid-access-guarantee {
+  max-width: 420px;
+  margin: 0 0 14px;
+  color: var(--accent-deep);
+  font-size: 13px;
+  font-weight: 900;
+}
+
 .bottom-next-actions .premium-locked-action {
   min-height: 44px;
   padding: 10px 16px;
@@ -1344,9 +1383,11 @@ button {
 }
 
 .result-card {
+  position: relative;
   display: grid;
   gap: 16px;
   padding: 20px;
+  overflow: hidden;
   background: var(--card);
   border: 1px solid #dde3ec;
   border-radius: 8px;
