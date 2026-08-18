@@ -37,7 +37,7 @@ class BabyFlowPolishV1Test(unittest.TestCase):
         self.assertIn("A child’s name is one of the few gifts that lasts a lifetime.", body)
         self.assertIn("Take as much time as you need. Every thoughtful answer helps us recommend names that truly feel right.", body)
         self.assertNotIn("Most parents finish in about 3–5 minutes.", body)
-        self.assertIn('class="button-link baby-begin-button" href="#baby-intake-form">Begin</a>', body)
+        self.assertIn('class="button-link baby-begin-button" href="#baby-intake-form">Begin guided questions</a>', body)
         self.assertIn('id="baby-intake-form"', body)
         self.assertIn('action="/baby/feelings"', body)
         welcome = body.split('<div class="baby-welcome">', 1)[1].split('<div class="hero-actions">', 1)[0]
