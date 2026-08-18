@@ -18,6 +18,7 @@ from hashlib import sha1
 from urllib.parse import urlencode, urlparse, urljoin
 
 from flask import Flask, abort, g, jsonify, make_response, redirect, render_template, request, send_from_directory, url_for
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 try:
     from dotenv import load_dotenv
@@ -1196,6 +1197,7 @@ def create_app() -> Flask:
     if load_dotenv is not None:
         load_dotenv()
     app = Flask(__name__)
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1)
 
     @app.errorhandler(NameGenerationUnavailable)
     def generation_unavailable(exc: NameGenerationUnavailable):
