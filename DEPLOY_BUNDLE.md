@@ -422,3 +422,30 @@ Validation to run before push:
 Not included:
 - Copy changes away from `Full Report →`.
 - Reopening locked `Quick view` behavior.
+
+## Engine audit auth + results contract cleanup
+
+Status: validated locally / held for next combined deploy
+Branch: current working tree / next local-first release batch
+
+Included intent:
+- Protect enabled `/dev/engine-audit` and `/dev/taste-evolution/<session_id>` routes with the existing Mission Control bearer-token authorization path.
+- Keep the audit feature flag behavior intact: flag off returns 404; flag on requires bearer auth.
+- Add the trailing-slash `/dev/engine-audit/` route variant for consistency.
+- Restore Baby results saved-progress contract/copy after the broad gate found the missing `baby-saved-progress` block.
+- Show refinement gate errors inside the completion-state panel so short/completed lists still explain why refinement is blocked.
+- Keep Business chosen pages on the deterministic clear brand-card path and include the clear-card label contract.
+
+Expected effect:
+- Internal audit routes are not exposed merely by turning on `NAMENGINE_ENABLE_ENGINE_AUDIT=1`.
+- Baby/Pet/Business result and chosen-page contracts match the current tests and user-facing flows.
+- The previous broad-gate failures are cleared without pushing or deploying.
+
+Validation run:
+- `python -m pytest --ignore=temp -q`
+- Result: `507 passed, 300 subtests passed in 46.10s`
+
+Not included:
+- Push/deploy.
+- Mission Control frontend changes.
+- Cleanup of pre-existing untracked audit/tmp artifacts.

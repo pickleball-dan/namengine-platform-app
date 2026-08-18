@@ -20,11 +20,14 @@ class TasteEvolutionV1Test(unittest.TestCase):
         self.tempdir = tempfile.TemporaryDirectory()
         self.previous_db_path = os.environ.get("NAMENGINE_DB_PATH")
         self.previous_engine_audit_enabled = os.environ.get("NAMENGINE_ENABLE_ENGINE_AUDIT")
+        self.previous_telemetry_token = os.environ.get("NAMENGINE_TELEMETRY_TOKEN")
         os.environ["NAMENGINE_DB_PATH"] = os.path.join(self.tempdir.name, "taste-evolution.sqlite3")
         os.environ["NAMENGINE_ENABLE_ENGINE_AUDIT"] = "1"
+        os.environ["NAMENGINE_TELEMETRY_TOKEN"] = "test-telemetry-token"
         self.app = create_app()
         self.app.testing = True
         self.client = self.app.test_client()
+        self.auth_headers = {"Authorization": "Bearer test-telemetry-token"}
         self._seed_rounds()
 
     def tearDown(self):
@@ -36,6 +39,10 @@ class TasteEvolutionV1Test(unittest.TestCase):
             os.environ.pop("NAMENGINE_ENABLE_ENGINE_AUDIT", None)
         else:
             os.environ["NAMENGINE_ENABLE_ENGINE_AUDIT"] = self.previous_engine_audit_enabled
+        if self.previous_telemetry_token is None:
+            os.environ.pop("NAMENGINE_TELEMETRY_TOKEN", None)
+        else:
+            os.environ["NAMENGINE_TELEMETRY_TOKEN"] = self.previous_telemetry_token
         self.tempdir.cleanup()
 
     def _seed_rounds(self):
@@ -157,12 +164,19 @@ class TasteEvolutionV1Test(unittest.TestCase):
                     os.environ.pop("NAMENGINE_ENABLE_ENGINE_AUDIT", None)
                 else:
                     os.environ["NAMENGINE_ENABLE_ENGINE_AUDIT"] = value
-                response = self.client.get("/dev/taste-evolution/taste-child")
+                response = self.client.get("/dev/taste-evolution/taste-child", headers=self.auth_headers)
                 self.assertEqual(response.status_code, 404)
         os.environ["NAMENGINE_ENABLE_ENGINE_AUDIT"] = "1"
 
-    def test_route_works_when_enabled(self):
-        response = self.client.get("/dev/taste-evolution/taste-child")
+    def test_route_requires_valid_bearer_token_when_enabled(self):
+        self.assertEqual(self.client.get("/dev/taste-evolution/taste-child").status_code, 401)
+        self.assertEqual(
+            self.client.get("/dev/taste-evolution/taste-child", headers={"Authorization": "Bearer wrong-token"}).status_code,
+            403,
+        )
+
+    def test_route_works_when_enabled_and_authorized(self):
+        response = self.client.get("/dev/taste-evolution/taste-child", headers=self.auth_headers)
 
         self.assertEqual(response.status_code, 200)
         body = response.get_data(as_text=True)
@@ -176,7 +190,7 @@ class TasteEvolutionV1Test(unittest.TestCase):
             self.assertIn(section, body)
 
     def test_parent_and_child_rounds_are_compared_correctly(self):
-        body = self.client.get("/dev/taste-evolution/taste-child").get_data(as_text=True)
+        body = self.client.get("/dev/taste-evolution/taste-child", headers=self.auth_headers).get_data(as_text=True)
 
         self.assertIn("Round 1", body)
         self.assertIn("Round 2", body)
@@ -188,7 +202,7 @@ class TasteEvolutionV1Test(unittest.TestCase):
         self.assertIn("Astrid, Olivia, Freya, Clara, Elise, Nora, Sophie, Vera", body)
 
     def test_reactions_and_carried_names_appear_correctly(self):
-        body = self.client.get("/dev/taste-evolution/taste-child").get_data(as_text=True)
+        body = self.client.get("/dev/taste-evolution/taste-child", headers=self.auth_headers).get_data(as_text=True)
 
         self.assertIn("Love reactions", body)
         self.assertIn("Maybe reactions", body)
@@ -200,7 +214,7 @@ class TasteEvolutionV1Test(unittest.TestCase):
         self.assertIn("Olivia · carried forward", body)
 
     def test_slider_and_intake_differences_are_labeled(self):
-        body = self.client.get("/dev/taste-evolution/taste-child").get_data(as_text=True)
+        body = self.client.get("/dev/taste-evolution/taste-child", headers=self.auth_headers).get_data(as_text=True)
 
         self.assertIn("Name Style", body)
         self.assertIn("40 → 65", body)
@@ -215,14 +229,14 @@ class TasteEvolutionV1Test(unittest.TestCase):
         self.assertIn("More Nordic and distinctive, with crisper sounds.", body)
 
     def test_summary_does_not_treat_shared_tags_as_opposite_directions(self):
-        body = self.client.get("/dev/taste-evolution/taste-child").get_data(as_text=True)
+        body = self.client.get("/dev/taste-evolution/taste-child", headers=self.auth_headers).get_data(as_text=True)
 
         self.assertNotIn("increased shared-signal", body)
         self.assertNotIn("moved away from shared-signal", body)
 
     def test_audit_detail_links_only_child_session_to_taste_evolution(self):
-        child_body = self.client.get("/dev/engine-audit/taste-child").get_data(as_text=True)
-        parent_body = self.client.get("/dev/engine-audit/taste-parent").get_data(as_text=True)
+        child_body = self.client.get("/dev/engine-audit/taste-child", headers=self.auth_headers).get_data(as_text=True)
+        parent_body = self.client.get("/dev/engine-audit/taste-parent", headers=self.auth_headers).get_data(as_text=True)
 
         self.assertIn('/dev/taste-evolution/taste-child', child_body)
         self.assertNotIn('/dev/taste-evolution/taste-parent', parent_body)

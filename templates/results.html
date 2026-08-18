@@ -83,10 +83,10 @@
           {% endif %}
         </div>
       {% elif launch_results and vertical.slug == "baby" %}
-        <div class="trust-cue" aria-label="Generation summary">
-          <strong>{{ names|length }} names checked for fit, sound, and distinctiveness.</strong>
-          <span>React to the names below, then use the next-step panel at the bottom.</span>
-          <span aria-live="polite"><span aria-hidden="true">♥</span> <strong data-saved-count>Saved {{ reaction_counts.love }} {{ "name" if reaction_counts.love == 1 else "names" }} this round</strong> {{ saved_notes.get(vertical.slug, "Your favorites help us understand the direction with the strongest fit.") }}</span>
+        <div class="baby-saved-progress" aria-label="Generation summary">
+          <span aria-hidden="true">♥</span>
+          <strong data-saved-count>You loved {{ reaction_counts.love }} {{ "name" if reaction_counts.love == 1 else "names" }} in Round {{ round_number }}</strong>
+          <small>{{ names|length }} names checked for fit, sound, and distinctiveness. React to the names below; {{ saved_notes.get(vertical.slug, "your favorites help us understand the direction with the strongest fit.")|lower }}</small>
         </div>
       {% endif %}
     </div>
@@ -311,8 +311,11 @@
         {% if project_complete %}
           <div class="bottom-refine-form" aria-label="Guided project complete">
             <p class="eyebrow">Curated finish</p>
-            <h3>This naming project has reached its strongest shortlist.</h3>
-            <p>No more list-chasing needed — open a name for the full “why it works,” compare your favorites, choose one, or share this shortlist.</p>
+            <h3>This naming project has reached its strongest final set.</h3>
+            <p>No more list-chasing needed — open a name for the full “why it works,” compare your favorites, choose one, or share this list.</p>
+            {% if refinement_error %}
+              <p class="refine-reaction-gate is-error" aria-live="polite">{{ refinement_error }}</p>
+            {% endif %}
           </div>
         {% else %}
           <form

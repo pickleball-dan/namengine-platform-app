@@ -137,12 +137,15 @@ class EngineQualityV1Test(unittest.TestCase):
         self.tempdir = tempfile.TemporaryDirectory()
         self.previous_db_path = os.environ.get("NAMENGINE_DB_PATH")
         self.previous_engine_audit_enabled = os.environ.get("NAMENGINE_ENABLE_ENGINE_AUDIT")
+        self.previous_telemetry_token = os.environ.get("NAMENGINE_TELEMETRY_TOKEN")
         os.environ["NAMENGINE_DB_PATH"] = os.path.join(self.tempdir.name, "quality.sqlite3")
         os.environ["NAMENGINE_ENABLE_ENGINE_AUDIT"] = "1"
+        os.environ["NAMENGINE_TELEMETRY_TOKEN"] = "test-telemetry-token"
         self.vertical = get_vertical("baby")
         self.app = create_app()
         self.app.testing = True
         self.client = self.app.test_client()
+        self.auth_headers = {"Authorization": "Bearer test-telemetry-token"}
 
     def tearDown(self):
         if self.previous_db_path is None:
@@ -153,6 +156,10 @@ class EngineQualityV1Test(unittest.TestCase):
             os.environ.pop("NAMENGINE_ENABLE_ENGINE_AUDIT", None)
         else:
             os.environ["NAMENGINE_ENABLE_ENGINE_AUDIT"] = self.previous_engine_audit_enabled
+        if self.previous_telemetry_token is None:
+            os.environ.pop("NAMENGINE_TELEMETRY_TOKEN", None)
+        else:
+            os.environ["NAMENGINE_TELEMETRY_TOKEN"] = self.previous_telemetry_token
         self.tempdir.cleanup()
 
     def _quality_brief(self):
@@ -193,7 +200,7 @@ class EngineQualityV1Test(unittest.TestCase):
             BABY_PROMPT_VERSION,
         )
         save_session("baby-quality-prompt", "baby", brief, results)
-        response = self.client.get("/dev/engine-audit/baby-quality-prompt")
+        response = self.client.get("/dev/engine-audit/baby-quality-prompt", headers=self.auth_headers)
         self.assertEqual(response.status_code, 200)
         self.assertIn(BABY_PROMPT_VERSION, response.get_data(as_text=True))
 

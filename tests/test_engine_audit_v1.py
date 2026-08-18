@@ -23,11 +23,14 @@ class EngineAuditV1Test(unittest.TestCase):
         self.tempdir = tempfile.TemporaryDirectory()
         self.previous_db_path = os.environ.get("NAMENGINE_DB_PATH")
         self.previous_engine_audit_enabled = os.environ.get("NAMENGINE_ENABLE_ENGINE_AUDIT")
+        self.previous_telemetry_token = os.environ.get("NAMENGINE_TELEMETRY_TOKEN")
         os.environ["NAMENGINE_DB_PATH"] = os.path.join(self.tempdir.name, "audit.sqlite3")
         os.environ["NAMENGINE_ENABLE_ENGINE_AUDIT"] = "1"
+        os.environ["NAMENGINE_TELEMETRY_TOKEN"] = "test-telemetry-token"
         self.app = create_app()
         self.app.testing = True
         self.client = self.app.test_client()
+        self.auth_headers = {"Authorization": "Bearer test-telemetry-token"}
 
     def tearDown(self):
         if self.previous_db_path is None:
@@ -38,6 +41,10 @@ class EngineAuditV1Test(unittest.TestCase):
             os.environ.pop("NAMENGINE_ENABLE_ENGINE_AUDIT", None)
         else:
             os.environ["NAMENGINE_ENABLE_ENGINE_AUDIT"] = self.previous_engine_audit_enabled
+        if self.previous_telemetry_token is None:
+            os.environ.pop("NAMENGINE_TELEMETRY_TOKEN", None)
+        else:
+            os.environ["NAMENGINE_TELEMETRY_TOKEN"] = self.previous_telemetry_token
         self.tempdir.cleanup()
 
     def _seed_session(self, session_id="baby-audit-session", vertical_slug="baby"):
@@ -67,7 +74,7 @@ class EngineAuditV1Test(unittest.TestCase):
         save_reaction(build_reaction("baby-audit-session", names[1].id, "maybe"))
         save_chosen_name("baby-audit-session", names[0].id)
 
-        response = self.client.get("/dev/engine-audit")
+        response = self.client.get("/dev/engine-audit", headers=self.auth_headers)
 
         self.assertEqual(response.status_code, 200)
         body = response.get_data(as_text=True)
@@ -91,20 +98,31 @@ class EngineAuditV1Test(unittest.TestCase):
                 else:
                     os.environ["NAMENGINE_ENABLE_ENGINE_AUDIT"] = configured_value
 
-                self.assertEqual(self.client.get("/dev/engine-audit").status_code, 404)
+                self.assertEqual(self.client.get("/dev/engine-audit", headers=self.auth_headers).status_code, 404)
                 self.assertEqual(
-                    self.client.get("/dev/engine-audit/baby-audit-session").status_code,
+                    self.client.get("/dev/engine-audit/baby-audit-session", headers=self.auth_headers).status_code,
                     404,
                 )
 
         os.environ["NAMENGINE_ENABLE_ENGINE_AUDIT"] = "1"
 
-    def test_audit_routes_work_when_explicitly_enabled(self):
+    def test_audit_routes_require_valid_bearer_token_when_enabled(self):
         self._seed_session()
 
-        self.assertEqual(self.client.get("/dev/engine-audit").status_code, 200)
+        self.assertEqual(self.client.get("/dev/engine-audit").status_code, 401)
+        self.assertEqual(self.client.get("/dev/engine-audit", headers={"Authorization": "Bearer "}).status_code, 401)
         self.assertEqual(
-            self.client.get("/dev/engine-audit/baby-audit-session").status_code,
+            self.client.get("/dev/engine-audit", headers={"Authorization": "Bearer wrong-token"}).status_code,
+            403,
+        )
+
+    def test_audit_routes_work_when_explicitly_enabled_and_authorized(self):
+        self._seed_session()
+
+        self.assertEqual(self.client.get("/dev/engine-audit", headers=self.auth_headers).status_code, 200)
+        self.assertEqual(self.client.get("/dev/engine-audit/", headers=self.auth_headers).status_code, 200)
+        self.assertEqual(
+            self.client.get("/dev/engine-audit/baby-audit-session", headers=self.auth_headers).status_code,
             200,
         )
 
@@ -112,7 +130,7 @@ class EngineAuditV1Test(unittest.TestCase):
         self._seed_session("pet-audit-a", "pet")
         self._seed_session("pet-audit-b", "pet")
 
-        response = self.client.get("/dev/engine-audit?vertical=pet&limit=1")
+        response = self.client.get("/dev/engine-audit?vertical=pet&limit=1", headers=self.auth_headers)
 
         self.assertEqual(response.status_code, 200)
         body = response.get_data(as_text=True)
@@ -148,7 +166,7 @@ class EngineAuditV1Test(unittest.TestCase):
         save_session("baby-audit-session", "baby", brief, names)
         save_chosen_name("baby-audit-session", names[0].id)
 
-        response = self.client.get("/dev/engine-audit/baby-audit-session")
+        response = self.client.get("/dev/engine-audit/baby-audit-session", headers=self.auth_headers)
 
         self.assertEqual(response.status_code, 200)
         body = response.get_data(as_text=True)
@@ -179,7 +197,7 @@ class EngineAuditV1Test(unittest.TestCase):
         self.assertEqual(failure["customer_intake"]["inputs"]["gender"], "Girl")
         self.assertNotIn("provider secret", failure["safe_error_message"])
 
-        audit_response = self.client.get("/dev/engine-audit")
+        audit_response = self.client.get("/dev/engine-audit", headers=self.auth_headers)
         body = audit_response.get_data(as_text=True)
         self.assertIn("Failed generations", body)
         self.assertIn("RuntimeError", body)

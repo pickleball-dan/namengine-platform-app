@@ -1862,9 +1862,11 @@ def create_app() -> Flask:
         )
 
     @app.get("/dev/engine-audit")
+    @app.get("/dev/engine-audit/")
     def engine_audit_index():
         if not _engine_audit_enabled():
             abort(404)
+        _require_engine_audit_authorized()
         vertical_slug = str(request.args.get("vertical") or "baby").strip().lower()
         if vertical_slug not in VERTICALS:
             abort(400)
@@ -1882,6 +1884,7 @@ def create_app() -> Flask:
     def engine_audit(session_id: str):
         if not _engine_audit_enabled():
             abort(404)
+        _require_engine_audit_authorized()
         snapshot = get_session_snapshot(session_id)
         if snapshot is None:
             abort(404)
@@ -1902,6 +1905,7 @@ def create_app() -> Flask:
     def taste_evolution(session_id: str):
         if not _engine_audit_enabled():
             abort(404)
+        _require_engine_audit_authorized()
         snapshot = get_session_snapshot(session_id)
         if snapshot is None:
             abort(404)
@@ -2221,6 +2225,15 @@ def _positive_int(value) -> int | None:
 
 def _engine_audit_enabled() -> bool:
     return os.getenv("NAMENGINE_ENABLE_ENGINE_AUDIT") == "1"
+
+
+def _require_engine_audit_authorized() -> None:
+    authorization_header = request.headers.get("Authorization", "")
+    prefix = "Bearer "
+    if not authorization_header.startswith(prefix) or not authorization_header[len(prefix):].strip():
+        abort(401)
+    if not _mission_control_authorized(authorization_header):
+        abort(403)
 
 
 def _mission_control_authorized(authorization_header: str) -> bool:

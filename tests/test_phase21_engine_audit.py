@@ -109,11 +109,14 @@ class PhaseTwentyOneEngineAuditTest(unittest.TestCase):
         self.tempdir = tempfile.TemporaryDirectory()
         self.previous_db_path = os.environ.get("NAMENGINE_DB_PATH")
         self.previous_engine_audit_enabled = os.environ.get("NAMENGINE_ENABLE_ENGINE_AUDIT")
+        self.previous_telemetry_token = os.environ.get("NAMENGINE_TELEMETRY_TOKEN")
         os.environ["NAMENGINE_DB_PATH"] = os.path.join(self.tempdir.name, "test.sqlite3")
         os.environ["NAMENGINE_ENABLE_ENGINE_AUDIT"] = "1"
+        os.environ["NAMENGINE_TELEMETRY_TOKEN"] = "test-telemetry-token"
         self.app = create_app()
         self.app.testing = True
         self.client = self.app.test_client()
+        self.auth_headers = {"Authorization": "Bearer test-telemetry-token"}
 
     def tearDown(self):
         if self.previous_db_path is None:
@@ -124,6 +127,10 @@ class PhaseTwentyOneEngineAuditTest(unittest.TestCase):
             os.environ.pop("NAMENGINE_ENABLE_ENGINE_AUDIT", None)
         else:
             os.environ["NAMENGINE_ENABLE_ENGINE_AUDIT"] = self.previous_engine_audit_enabled
+        if self.previous_telemetry_token is None:
+            os.environ.pop("NAMENGINE_TELEMETRY_TOKEN", None)
+        else:
+            os.environ["NAMENGINE_TELEMETRY_TOKEN"] = self.previous_telemetry_token
         self.tempdir.cleanup()
 
     def test_engine_audit_renders_pipeline_metadata(self):
@@ -134,7 +141,7 @@ class PhaseTwentyOneEngineAuditTest(unittest.TestCase):
         session_id = make_session_id("pet", b"pet_type=Dog&style=Warm&notes=gentle+rescue")
         save_session(session_id, PET.slug, brief, names)
 
-        response = self.client.get(f"/dev/engine-audit/{session_id}")
+        response = self.client.get(f"/dev/engine-audit/{session_id}", headers=self.auth_headers)
 
         self.assertEqual(response.status_code, 200)
         body = response.get_data(as_text=True)
