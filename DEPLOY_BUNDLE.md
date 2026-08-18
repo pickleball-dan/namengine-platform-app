@@ -1,5 +1,29 @@
 # Deploy Bucket
 
+## Progress overlay label removal
+
+Status: local-only review approved for deploy bucket / included in next release batch
+Branch: current working tree / next local-first release batch
+
+Included intent:
+- Remove the small progress-visual label pill below the orb on the non-Pet progress overlay (`Identity fit`; Baby previously rendered `Family fit` in the same element).
+- Keep the animated graphic, progress copy, patience meter, and loading behavior unchanged.
+- Scope the implementation to `templates/progress_overlay.html` only.
+
+Expected customer-facing effect:
+- The progress overlay graphic no longer shows the extra button-like label under the orb.
+- The loading panel feels cleaner and avoids the mistaken impression that the label is an actionable button.
+
+Validation run:
+- Local Playwright mobile capture against `/business` with overlay forced visible.
+- Review screenshot saved under `qa-artifacts/progress-overlay-label-removal-20260818-1048/`.
+- Capture diagnostics reported `hasProgressVisualLabel: false`, `hasIdentityFitText: false`, no console errors, and no horizontal overflow.
+
+Not included:
+- Progress copy changes.
+- Pet paw progress visual changes.
+- CSS/layout redesign beyond removing the template label element.
+
 ## Baby rejected-candidate audit trail
 
 Status: validated locally / included in next release batch
