@@ -50,9 +50,12 @@ def refine_session(
         raise StorageError("parent session not found")
 
     parent = snapshot["session"]
-    next_round = min(int(parent["round_number"]) + 1, 4)
-    if next_round > 4:
-        raise StorageError("maximum refinement rounds reached")
+    current_round = int(parent["round_number"])
+    if current_round >= 5:
+        raise StorageError("guided naming project is complete")
+    if len(snapshot.get("results", [])) < 3:
+        raise StorageError("guided naming project is complete")
+    next_round = current_round + 1
 
     brief_data = json.loads(parent["brief_json"])
     brief = build_brief(vertical, brief_data.get("inputs", {}))

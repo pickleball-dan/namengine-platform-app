@@ -1780,7 +1780,13 @@ def create_app() -> Flask:
                 instruction=instruction,
                 generator=_generate_names_for_route,
             )
-        except StorageError:
+        except StorageError as exc:
+            if "guided naming project is complete" in str(exc):
+                return _render_results_snapshot(
+                    session_id,
+                    status=400,
+                    refinement_error="Congratulations — your list is complete.",
+                )
             abort(404)
 
         child_snapshot = get_session_snapshot(child_session_id)
