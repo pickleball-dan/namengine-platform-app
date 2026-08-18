@@ -31,8 +31,8 @@ class MultiVerticalCompletionPassTest(unittest.TestCase):
     def test_three_launch_intakes_share_polish_without_sharing_voice(self):
         expected = {
             "baby": ("Let’s discover your child’s name together.", "A child’s name is one of the few gifts that lasts a lifetime.", "Thoughtful AI guidance"),
-            "pet": ("Let’s find the name that feels like them.", "Most pet parents finish in about 3–5 minutes.", "Personality-led suggestions"),
-            "business": ("Let’s find a name your business can grow into.", "Most founders finish in about 5–7 minutes.", "Strategic AI guidance"),
+            "pet": ("Let’s find the name that feels like them.", "Most finish in 3–5 min.", "Personality-led suggestions"),
+            "business": ("Let’s find a name your business can grow into.", "Most finish in 5–7 min.", "Strategic AI guidance"),
         }
         for vertical, phrases in expected.items():
             with self.subTest(vertical=vertical):

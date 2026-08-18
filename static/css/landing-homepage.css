@@ -927,3 +927,60 @@ main {
     radial-gradient(circle at 50% 0%, rgba(39, 71, 110, 0.18), transparent 60%),
     linear-gradient(180deg, #dce8f8 0%, #c8d8f0 100%);
 }
+
+/* Scoped homepage vertical-card differentiation pass 2026-08-18. */
+.landing-vertical-card {
+  position: relative;
+  overflow: hidden;
+  grid-template-rows: auto auto 1fr auto;
+}
+
+.landing-vertical-card::before {
+  display: inline-flex;
+  width: fit-content;
+  min-height: 24px;
+  align-items: center;
+  padding: 4px 9px;
+  color: color-mix(in srgb, var(--card-accent) 70%, #18212f);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.58);
+  border: 1px solid color-mix(in srgb, var(--card-accent) 24%, rgba(255, 255, 255, 0.7));
+  border-radius: 999px;
+  content: "Guided fit";
+}
+
+.landing-vertical-card.baby::before { content: "For families"; }
+.landing-vertical-card.pet::before { content: "For companions"; }
+.landing-vertical-card.business::before { content: "For brands"; }
+
+.landing-vertical-card h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.landing-vertical-card h3::after {
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 17px;
+  line-height: 1;
+  background: var(--card-accent);
+  border-radius: 50%;
+}
+
+.landing-vertical-card.baby h3::after { content: "♡"; background: #ff6b57; }
+.landing-vertical-card.pet h3::after { content: "•"; background: #2f9486; }
+.landing-vertical-card.business h3::after { content: "↗"; background: #29344f; }
+
+.landing-vertical-card > span {
+  width: fit-content;
+  margin-top: 2px;
+}

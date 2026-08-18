@@ -7,8 +7,8 @@
   {% set is_polished_flow = vertical.slug in polished_verticals %}
   {% set flow_copy = {
     "baby": ["A thoughtful place to begin", "Let’s discover your child’s name together.", "We’ll learn about your family’s story, your style, and the names that resonate with you.", "Take as much time as you need.", "Your naming direction", "Tell us what matters to your family.", "There are no perfect answers. Choose what feels closest, and we’ll help you refine from there."],
-    "pet": ["A joyful place to begin", "Let’s find the name that feels like them.", "Tell us about their personality, their story, and the names that make you smile.", "Most pet parents finish in about 3–5 minutes.", "Their naming direction", "Tell us who they are.", "Follow your instinct. The little details that make them themselves are often the best naming clues."],
-    "business": ["A strategic place to begin", "Let’s find a name your business can grow into.", "We’ll connect your positioning, audience, and commercial goals to names built for the real market.", "Most founders finish in about 5–7 minutes.", "Your brand direction", "Define the business behind the name.", "Clear inputs create sharper options. Share the commercial signals that matter most right now."]
+    "pet": ["A joyful place to begin", "Let’s find the name that feels like them.", "Tell us about their personality, their story, and the names that make you smile.", "Most finish in 3–5 min.", "Their naming direction", "Tell us who they are.", "Follow your instinct. The little details that make them themselves are often the best naming clues."],
+    "business": ["A strategic place to begin", "Let’s find a name your business can grow into.", "We’ll connect your positioning, audience, and commercial goals to names built for the real market.", "Most finish in 5–7 min.", "Your brand direction", "Define the business behind the name.", "Clear inputs create sharper options. Share the commercial signals that matter most right now."]
   } %}
   {% set copy = flow_copy.get(vertical.slug, []) %}
   {% set benefits = {
@@ -63,9 +63,10 @@
             <p class="baby-welcome-time"><span aria-hidden="true">◷</span> {{ copy[3] }}</p>
           {% endif %}
           <div class="hero-actions">
-            <a class="button-link baby-begin-button" href="#{{ vertical.slug }}-intake-form">Begin</a>
+            <a class="button-link baby-begin-button" href="#{{ vertical.slug }}-intake-form">Begin guided questions</a>
             {% if vertical.slug == "pet" %}<a class="button-link secondary-button" href="/pet/original">Create an original pet name</a>{% endif %}
           </div>
+          <p class="hero-action-note">Start with a few focused questions. Your first preview list is free.</p>
         </div>
       {% else %}
         {% if page_logo %}
@@ -75,11 +76,12 @@
         <h1>{{ vertical.visual.hero_message or ("Let’s shape the right " ~ vertical.object_label ~ ".") }}</h1>
         <p>{{ vertical.visual.hero_support or vertical.prompt_context }}</p>
         <div class="hero-actions">
-          <a class="button-link" href="#{{ vertical.slug }}-intake-form">Start discovering names</a>
+          <a class="button-link" href="#{{ vertical.slug }}-intake-form">Start guided questions</a>
           {% if vertical.slug == "pet" %}
             <a class="button-link secondary-button" href="/pet/original">Create an original pet name</a>
           {% endif %}
         </div>
+        <p class="hero-action-note">Start with a few focused questions. Your first preview list is free.</p>
       {% endif %}
       <div class="trust-strip intake-trust-strip" aria-label="Trust notes">
         <div>

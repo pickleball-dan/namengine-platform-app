@@ -12108,3 +12108,109 @@ body.vertical-business {
   }
 }
 
+
+/* Scoped UI/UX polish pass 2026-08-18: no broad redesign beyond review list. */
+.hero-action-note {
+  max-width: 520px;
+  margin: 10px 0 0;
+  color: #536176;
+  font-size: 14px;
+  font-weight: 750;
+}
+
+@media (max-width: 600px) {
+  .hero-action-note {
+    text-align: center;
+  }
+}
+
+/* Balance the paid access panel: align both sides as one decision block. */
+.bottom-next-panel {
+  align-items: center;
+}
+
+.bottom-next-panel > div:first-child {
+  align-self: center;
+}
+
+.beta-refine-lock {
+  align-items: stretch;
+  justify-content: center;
+  text-align: left;
+}
+
+.beta-refine-lock .eyebrow,
+.beta-refine-lock h3,
+.beta-refine-lock > p:not(.paid-access-guarantee) {
+  text-align: left;
+}
+
+.beta-refine-lock .button-link {
+  align-self: start;
+}
+
+.paid-access-benefits li {
+  font-weight: 760;
+  line-height: 1.36;
+}
+
+/* Mobile results density: make collapsed cards easier to scan without changing content. */
+@media (max-width: 600px) {
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .results-grid {
+    gap: 16px;
+  }
+
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-card {
+    gap: 14px;
+    padding: 22px 18px 18px;
+    border-radius: 24px;
+  }
+
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-card-main {
+    gap: 8px;
+  }
+
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-card h2 {
+    margin-bottom: 1px;
+  }
+
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-card-meaning {
+    font-size: 12.5px;
+    line-height: 1.35;
+    -webkit-line-clamp: 1;
+  }
+
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-card .tagline {
+    font-size: 14px;
+    line-height: 1.38;
+    -webkit-line-clamp: 2;
+  }
+
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-tags {
+    gap: 5px;
+    margin-top: 1px;
+  }
+
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-tags span {
+    padding: 4px 9px;
+    font-size: 11.5px;
+  }
+
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-card .reaction-row button,
+  .vertical-baby .result-card .reaction-row button {
+    min-height: 58px;
+  }
+
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-card .reaction-icon,
+  .vertical-baby .result-card .reaction-icon {
+    width: 44px;
+    height: 44px;
+  }
+
+  :is(.vertical-baby, .vertical-pet, .vertical-business) .result-card > .result-explore-link,
+  .vertical-baby .result-card > .result-explore-link {
+    min-height: 46px;
+    padding: 11px 15px;
+  }
+}
+
