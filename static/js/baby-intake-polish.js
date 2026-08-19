@@ -133,6 +133,20 @@
     return control.value.trim();
   }
 
+  function syncTextActionState(question) {
+    if (!question || question.dataset.questionKind === "choice") return;
+    const skip = question.querySelector("[data-baby-skip]");
+    if (!skip) return;
+    const hasAnswer = Boolean(valueFor(question));
+    skip.textContent = hasAnswer ? "Next" : "Skip";
+    skip.dataset.actionState = hasAnswer ? "next" : "skip";
+    skip.setAttribute("aria-label", hasAnswer ? "Save this answer and continue" : "Skip this optional question");
+  }
+
+  function syncAllTextActionStates() {
+    questions.forEach(syncTextActionState);
+  }
+
   function isApplicable(question) {
     const dependency = question.dataset.conditionField;
     if (!dependency) return true;
@@ -262,6 +276,7 @@
     completePanel.hidden = true;
     renderHistory(question);
     updateProgress(question);
+    syncTextActionState(question);
     if (options?.focus !== false) window.requestAnimationFrame(() => focusQuestion(question));
   }
 
@@ -450,7 +465,8 @@
     if (!question) return;
     if (event.target.closest("[data-baby-continue]")) continueText(question);
     if (event.target.closest("[data-baby-skip]")) {
-      skipQuestion(question);
+      if (question.dataset.questionKind !== "choice" && valueFor(question)) continueText(question);
+      else skipQuestion(question);
     }
     if (event.target.closest("[data-baby-other-continue]")) {
       const other = question.querySelector("[data-other-input]");
@@ -461,6 +477,11 @@
         confirmAndAdvance(question, other.value.trim());
       }
     }
+  });
+
+  form.addEventListener("input", (event) => {
+    const question = event.target.closest("[data-baby-question]");
+    if (question) syncTextActionState(question);
   });
 
   form.addEventListener("keydown", (event) => {
@@ -499,5 +520,6 @@
   renderCheckInConfiguration();
   syncInitialSelections();
   syncConditions();
+  syncAllTextActionStates();
   if (form.dataset.editQuestion || window.location.hash === "#baby-intake-form") startInterview();
 })();

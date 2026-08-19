@@ -115,7 +115,7 @@ class BabyConversationalIntakeV1Test(unittest.TestCase):
             "function clearDependentConditionOverrides", 1
         )[0]
         skip_question = intake_js.split("function skipQuestion(question)", 1)[1].split(
-            "function syncInitialSelections", 1
+            "function selectCheckInResponse", 1
         )[0]
         select_choice = intake_js.split("function selectChoice(question, button)", 1)[1].split(
             "function continueText", 1
@@ -128,6 +128,23 @@ class BabyConversationalIntakeV1Test(unittest.TestCase):
         self.assertIn("skipped.add(question.dataset.questionId)", skip_question)
         self.assertIn('confirmAndAdvance(question, "Skipped")', skip_question)
         self.assertIn("skipped.delete(question.dataset.questionId)", select_choice)
+
+    def test_optional_text_skip_button_becomes_next_after_input(self):
+        intake_js = (self.root / "static" / "js" / "baby-intake-polish.js").read_text(encoding="utf-8")
+        sync_text_action = intake_js.split("function syncTextActionState(question)", 1)[1].split(
+            "function syncAllTextActionStates", 1
+        )[0]
+        click_handler = intake_js.split('form.addEventListener("click"', 1)[1].split(
+            'form.addEventListener("input"', 1
+        )[0]
+
+        self.assertIn('skip.textContent = hasAnswer ? "Next" : "Skip"', sync_text_action)
+        self.assertIn('skip.dataset.actionState = hasAnswer ? "next" : "skip"', sync_text_action)
+        self.assertIn('"Save this answer and continue"', sync_text_action)
+        self.assertIn('"Skip this optional question"', sync_text_action)
+        self.assertIn('if (question.dataset.questionKind !== "choice" && valueFor(question)) continueText(question)', click_handler)
+        self.assertIn('form.addEventListener("input"', intake_js)
+        self.assertIn("syncAllTextActionStates()", intake_js)
 
     def test_heritage_question_is_visible_independent_of_inspiration_choice(self):
         body = self.client.get("/baby").get_data(as_text=True)
