@@ -12283,8 +12283,7 @@ body.vertical-business {
   }
 
   .result-explore-link,
-  .result-card .button-link,
-  .result-card a[href*="/name/"] {
+  .result-card .button-link {
     min-height: 40px !important;
     padding: 0.55rem 0.72rem !important;
     font-size: 0.82rem !important;

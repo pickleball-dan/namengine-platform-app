@@ -203,6 +203,15 @@ class ResultsMobileStabilizationTest(unittest.TestCase):
                 self.assertEqual(body.count(f">{expected_cta} <"), card_count)
                 self.assertIn("It matches a warm, affectionate direction.", body)
 
+    def test_mobile_css_does_not_shrink_result_name_links_like_buttons(self):
+        css = Path("static/css/platform.css").read_text(encoding="utf-8")
+
+        self.assertIn(".result-name-link", css)
+        self.assertIn(".result-card h2", css)
+        self.assertNotIn('.result-card a[href*="/name/"]', css)
+        self.assertNotIn(".result-name-link {\n    min-height: 40px !important", css)
+        self.assertNotIn(".result-name-link {\n    font-size: 0.82rem !important", css)
+
     def test_compact_card_text_shortens_long_visible_snippets(self):
         text = "A timeless classic embraced across cultures with a soft sound and modern warmth"
 
