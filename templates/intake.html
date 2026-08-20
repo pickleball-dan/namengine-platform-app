@@ -126,7 +126,7 @@
       {% endif %}
     </div>
 
-    <form id="{{ vertical.slug }}-intake-form" class="intake-form{% if is_polished_flow %} baby-intake-form polished-intake-form{% endif %}{% if vertical.slug == 'baby' %} baby-conversation{% endif %}{% if vertical.slug == 'pet' %} pet-conversation{% endif %}" action="{% if feelings_scale_enabled(vertical) %}{{ vertical.route_prefix }}/feelings{% else %}{{ vertical.route_prefix }}/results{% endif %}" method="{% if feelings_scale_enabled(vertical) %}get{% else %}post{% endif %}"{% if not feelings_scale_enabled(vertical) %} data-progress-form{% endif %}{% if vertical.slug == 'baby' %} data-journey-vertical="baby"{% endif %}{% if vertical.slug == 'baby' and request.args.get('edit') %} data-edit-question="{{ request.args.get('edit') }}"{% endif %} novalidate>
+    <form id="{{ vertical.slug }}-intake-form" class="intake-form{% if is_polished_flow %} baby-intake-form polished-intake-form{% endif %}{% if vertical.slug == 'baby' %} baby-conversation{% endif %}{% if vertical.slug == 'pet' %} pet-conversation{% endif %}{% if vertical.slug == 'pet' and is_polished_flow %} pet-guided{% endif %}{% if vertical.slug == 'business' and is_polished_flow %} business-conversation business-guided{% endif %}" action="{% if feelings_scale_enabled(vertical) %}{{ vertical.route_prefix }}/feelings{% else %}{{ vertical.route_prefix }}/results{% endif %}" method="{% if feelings_scale_enabled(vertical) %}get{% else %}post{% endif %}"{% if not feelings_scale_enabled(vertical) %} data-progress-form{% endif %}{% if vertical.slug == 'baby' %} data-journey-vertical="baby"{% endif %}{% if vertical.slug == 'baby' and request.args.get('edit') %} data-edit-question="{{ request.args.get('edit') }}"{% endif %} novalidate>
       {% if vertical.slug == "baby" %}
         {% set gender_descriptions = {
           "Girl": "We’re expecting a baby girl.",
@@ -279,8 +279,7 @@
         </div>
 
         <button class="baby-native-submit" type="submit" tabindex="-1">Continue</button>
-      {% else %}
-      {% if vertical.slug == "pet" %}
+      {% elif vertical.slug == "pet" and is_polished_flow %}
         <div class="pet-play-scene" aria-hidden="true">
           <span class="pet-play-art pet-play-paw pet-play-paw-one"></span>
           <span class="pet-play-art pet-play-paw pet-play-paw-two"></span>
@@ -288,7 +287,262 @@
           <span class="pet-play-art pet-play-bone"></span>
           <span class="pet-play-art pet-play-tag"></span>
         </div>
-      {% endif %}
+
+        <div class="pet-interview-header" data-pet-interview-header>
+          <nav class="pet-interview-nav" aria-label="Pet name discovery navigation">
+            <button type="button" class="pet-interview-back" data-pet-nav-back>Back</button>
+            <a class="pet-interview-exit" href="/pet">Save &amp; exit</a>
+          </nav>
+          <div class="pet-question-progress" aria-live="polite">
+            <div class="pet-progress-track" role="progressbar"
+                 aria-label="Interview progress"
+                 aria-valuemin="1" aria-valuenow="1"
+                 aria-valuemax="{{ vertical.intake_questions | length }}"
+                 data-pet-progressbar>
+              <span data-pet-progress-fill></span>
+            </div>
+            <span class="pet-progress-count" data-pet-progress-copy>Question 1 of {{ vertical.intake_questions | length }}</span>
+          </div>
+        </div>
+
+        <div class="pet-question-stage" data-pet-question-stage>
+          {% for question in vertical.intake_questions %}
+            {% set current_value = request.args.get(question.id, "") %}
+            {% set has_other_choice = question.choices and "Other" in question.choices %}
+            {% set other_value = current_value if has_other_choice and current_value and current_value not in question.choices else request.args.get(question.id ~ "_other", "") %}
+            <section class="pet-question"
+                     data-pet-question
+                     data-question-id="{{ question.id }}"
+                     data-question-kind="{% if question.choices %}choice{% else %}{{ question.kind }}{% endif %}"
+                     data-question-section="{{ question.section }}"
+                     data-required="{{ 'true' if question.required else 'false' }}"
+                     hidden>
+              <p class="pet-question-kicker">{{ question.section }}</p>
+              <div class="pet-question-heading">
+                <h2 id="pet-question-{{ question.id }}">{{ question.label }}</h2>
+                <span class="pet-question-status">{{ "Required" if question.required else "Optional" }}</span>
+              </div>
+              {% if not question.required %}
+                <p class="pet-optional-hint">Optional — a little more detail helps us find a better fit.</p>
+              {% endif %}
+              {% if question.help_text %}
+                <p class="pet-question-help">{{ question.help_text }}</p>
+              {% endif %}
+              {% if question.choices %}
+                <div class="pet-choice-list"
+                     role="radiogroup"
+                     aria-labelledby="pet-question-{{ question.id }}"
+                     data-choice-card-list
+                     data-choice-target="{{ question.id }}">
+                  {% for choice in question.choices %}
+                    <button class="pet-choice-card{% if current_value == choice or (choice == 'Other' and other_value) %} is-selected{% endif %}"
+                            type="button" role="radio"
+                            aria-checked="{{ 'true' if current_value == choice or (choice == 'Other' and other_value) else 'false' }}"
+                            data-choice-value="{{ choice }}">
+                      <span class="pet-choice-copy"><strong>{{ choice }}</strong></span>
+                      <span class="pet-choice-mark" aria-hidden="true">✓</span>
+                    </button>
+                  {% endfor %}
+                </div>
+                <input class="pet-native-control"
+                       id="{{ question.id }}" name="{{ question.id }}"
+                       value="{{ 'Other' if has_other_choice and other_value else current_value }}"
+                       {% if question.required %} required{% endif %}
+                       {% if has_other_choice %} data-other-select="{{ question.id }}_other"{% endif %}
+                       tabindex="-1" aria-hidden="true">
+                {% if has_other_choice %}
+                  <input class="other-choice-input pet-other-input"
+                         id="{{ question.id }}_other" name="{{ question.id }}_other"
+                         data-other-input
+                         maxlength="{{ other_choice_max_length }}"
+                         placeholder="Enter your own"
+                         value="{{ other_value }}"
+                         {% if not other_value and current_value != "Other" %} hidden disabled{% endif %}>
+                {% endif %}
+                {% if not question.required %}
+                  <div class="pet-question-actions">
+                    <button type="button" class="pet-next-button" data-pet-next>Next</button>
+                  </div>
+                {% endif %}
+              {% elif question.kind == "textarea" %}
+                <textarea id="{{ question.id }}" name="{{ question.id }}"
+                          maxlength="{{ intake_field_max_length(question) }}"
+                          {% if question.required %} required{% endif %}
+                          placeholder="{{ question.placeholder }}"
+                          aria-labelledby="pet-question-{{ question.id }}">{{ current_value }}</textarea>
+                <div class="pet-question-actions">
+                  <button type="button" class="pet-next-button" data-pet-next>Next</button>
+                </div>
+              {% else %}
+                <input id="{{ question.id }}" name="{{ question.id }}"
+                       maxlength="{{ intake_field_max_length(question) }}"
+                       {% if question.required %} required{% endif %}
+                       placeholder="{{ question.placeholder }}"
+                       value="{{ current_value }}"
+                       aria-labelledby="pet-question-{{ question.id }}">
+                <div class="pet-question-actions">
+                  <button type="button" class="pet-next-button" data-pet-next>Next</button>
+                </div>
+              {% endif %}
+            </section>
+          {% endfor %}
+        </div>
+
+        <div class="pet-answer-confirmation" role="status" aria-live="polite" data-pet-confirmation></div>
+
+        <div class="pet-direction-review" data-pet-direction-review hidden>
+          <p class="eyebrow">Your direction</p>
+          <h2>Here&#8217;s what we&#8217;ll use to find their name.</h2>
+          <p class="pet-direction-intro">Everything look right? Edit anything before we begin.</p>
+          <dl class="pet-direction-list" data-pet-direction-list></dl>
+          <div class="pet-direction-actions">
+            <button type="button" class="button-link pet-direction-find" data-pet-direction-find>
+              Find names that feel right
+            </button>
+          </div>
+        </div>
+
+        <div class="pet-interview-complete" data-pet-complete hidden>
+          <span aria-hidden="true">✓</span>
+          <h2>Perfect &#8212; let&#8217;s find their name.</h2>
+          <p>Finding names that fit their personality&#8230;</p>
+        </div>
+
+        <button class="pet-native-submit" type="submit" tabindex="-1">Find names</button>
+
+      {% elif vertical.slug == "business" and is_polished_flow %}
+
+        <div class="business-interview-header" data-business-interview-header>
+          <nav class="business-interview-nav" aria-label="Business name discovery navigation">
+            <button type="button" class="business-interview-back" data-business-nav-back>Back</button>
+            <a class="business-interview-exit" href="/business">Save &amp; exit</a>
+          </nav>
+          <div class="business-question-progress" aria-live="polite">
+            <div class="business-progress-track" role="progressbar"
+                 aria-label="Interview progress"
+                 aria-valuemin="1" aria-valuenow="1"
+                 aria-valuemax="{{ vertical.intake_questions | length }}"
+                 data-business-progressbar>
+              <span data-business-progress-fill></span>
+            </div>
+            <span class="business-progress-count" data-business-progress-copy>Question 1 of {{ vertical.intake_questions | length }}</span>
+          </div>
+        </div>
+
+        <div class="business-question-stage" data-business-question-stage>
+          {% for question in vertical.intake_questions %}
+            {% set current_value = request.args.get(question.id, "") %}
+            {% set has_other_choice = question.choices and "Other" in question.choices %}
+            {% set other_value = current_value if has_other_choice and current_value and current_value not in question.choices else request.args.get(question.id ~ "_other", "") %}
+            {% set tooltip_examples = textarea_tooltips.get(vertical.slug, {}).get(question.id, []) %}
+            <section class="business-question"
+                     data-business-question
+                     data-question-id="{{ question.id }}"
+                     data-question-kind="{% if question.choices %}choice{% else %}{{ question.kind }}{% endif %}"
+                     data-question-section="{{ question.section }}"
+                     data-required="{{ 'true' if question.required else 'false' }}"
+                     hidden>
+              <p class="business-question-kicker">{{ question.section }}</p>
+              <div class="business-question-heading">
+                <h2 id="business-question-{{ question.id }}">{{ question.label }}</h2>
+                {% if question.kind == "textarea" and tooltip_examples %}
+                  <details class="intake-tooltip" data-intake-tooltip>
+                    <summary aria-label="Show examples for {{ question.label }}"><span aria-hidden="true">?</span></summary>
+                    <div class="intake-tooltip-panel" role="note">
+                      <strong>Try examples like:</strong>
+                      <ul>{% for example in tooltip_examples %}<li>{{ example }}</li>{% endfor %}</ul>
+                    </div>
+                  </details>
+                {% endif %}
+                <span class="business-question-status">{{ "Required" if question.required else "Optional" }}</span>
+              </div>
+              {% if not question.required %}
+                <p class="business-optional-hint">Optional &#8212; the more context you share, the sharper your names.</p>
+              {% endif %}
+              {% if question.help_text %}
+                <p class="business-question-help">{{ question.help_text }}</p>
+              {% endif %}
+              {% if question.choices %}
+                <div class="business-choice-list"
+                     role="radiogroup"
+                     aria-labelledby="business-question-{{ question.id }}"
+                     data-choice-card-list
+                     data-choice-target="{{ question.id }}">
+                  {% for choice in question.choices %}
+                    <button class="business-choice-card{% if current_value == choice or (choice == 'Other' and other_value) %} is-selected{% endif %}"
+                            type="button" role="radio"
+                            aria-checked="{{ 'true' if current_value == choice or (choice == 'Other' and other_value) else 'false' }}"
+                            data-choice-value="{{ choice }}">
+                      <span class="business-choice-copy"><strong>{{ choice }}</strong></span>
+                      <span class="business-choice-mark" aria-hidden="true">✓</span>
+                    </button>
+                  {% endfor %}
+                </div>
+                <input class="business-native-control"
+                       id="{{ question.id }}" name="{{ question.id }}"
+                       value="{{ 'Other' if has_other_choice and other_value else current_value }}"
+                       {% if question.required %} required{% endif %}
+                       {% if has_other_choice %} data-other-select="{{ question.id }}_other"{% endif %}
+                       tabindex="-1" aria-hidden="true">
+                {% if has_other_choice %}
+                  <input class="other-choice-input business-other-input"
+                         id="{{ question.id }}_other" name="{{ question.id }}_other"
+                         data-other-input maxlength="{{ other_choice_max_length }}"
+                         placeholder="Enter your own" value="{{ other_value }}"
+                         {% if not other_value and current_value != "Other" %} hidden disabled{% endif %}>
+                {% endif %}
+                {% if not question.required %}
+                  <div class="business-question-actions">
+                    <button type="button" class="business-next-button" data-business-next>Next</button>
+                  </div>
+                {% endif %}
+              {% elif question.kind == "textarea" %}
+                <textarea id="{{ question.id }}" name="{{ question.id }}"
+                          maxlength="{{ intake_field_max_length(question) }}"
+                          {% if question.required %} required{% endif %}
+                          placeholder="{{ question.placeholder }}"
+                          aria-labelledby="business-question-{{ question.id }}">{{ current_value }}</textarea>
+                <div class="business-question-actions">
+                  <button type="button" class="business-next-button" data-business-next>Next</button>
+                </div>
+              {% else %}
+                <input id="{{ question.id }}" name="{{ question.id }}"
+                       maxlength="{{ intake_field_max_length(question) }}"
+                       {% if question.required %} required{% endif %}
+                       placeholder="{{ question.placeholder }}"
+                       value="{{ current_value }}"
+                       aria-labelledby="business-question-{{ question.id }}">
+                <div class="business-question-actions">
+                  <button type="button" class="business-next-button" data-business-next>Next</button>
+                </div>
+              {% endif %}
+            </section>
+          {% endfor %}
+        </div>
+
+        <div class="business-answer-confirmation" role="status" aria-live="polite" data-business-confirmation></div>
+
+        <div class="business-direction-review" data-business-direction-review hidden>
+          <p class="eyebrow">Your brand direction</p>
+          <h2>Here&#8217;s what we&#8217;ll use to find your names.</h2>
+          <p class="business-direction-intro">Review everything before we begin. Edit anything that needs adjusting.</p>
+          <dl class="business-direction-list" data-business-direction-list></dl>
+          <div class="business-direction-actions">
+            <button type="button" class="button-link business-direction-find" data-business-direction-find>
+              Find names that fit
+            </button>
+          </div>
+        </div>
+
+        <div class="business-interview-complete" data-business-complete hidden>
+          <span aria-hidden="true">✓</span>
+          <h2>Building your brief now.</h2>
+          <p>Connecting your positioning, audience, and goals to names built for the real market&#8230;</p>
+        </div>
+
+        <button class="business-native-submit" type="submit" tabindex="-1">Find names</button>
+
+      {% else %}
       {% if is_polished_flow %}
         {% set baby_field_icons = {
           "gender": "○", "family_context": "◇", "cultural_heritage": "✦", "notes": "♡",
@@ -424,6 +678,12 @@
   {% endif %}
   {% if vertical.slug in ["pet", "business"] %}
     <script src="{{ url_for('static', filename='js/pet-choice-cards.js') }}?v=20260727-business-choice-cards-v1"></script>
+  {% endif %}
+  {% if vertical.slug == "pet" and is_polished_flow %}
+    <script src="{{ url_for('static', filename='js/pet-intake-guided.js') }}?v=20260819-pet-guided-v1"></script>
+  {% endif %}
+  {% if vertical.slug == "business" and is_polished_flow %}
+    <script src="{{ url_for('static', filename='js/business-intake-guided.js') }}?v=20260819-business-guided-v1"></script>
   {% endif %}
   {% if vertical.slug in ["pet", "baby", "business", "product"] %}
     <script src="{{ url_for('static', filename='js/taste-history.js') }}"></script>

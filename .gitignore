@@ -2,6 +2,7 @@ __pycache__/
 *.py[cod]
 flask-*.log
 .env
+.canva-connect-token.json
 data/
 docs/visual-qa/
 node_modules/

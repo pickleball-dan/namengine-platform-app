@@ -43,9 +43,18 @@ class MultiVerticalCompletionPassTest(unittest.TestCase):
                 if vertical == "baby":
                     self.assertNotIn("About your baby. Step 1 of 3", body)
                     self.assertEqual(body.count("data-baby-journey-stage"), 3)
+                elif vertical == "pet":
+                    # Pet now uses guided one-question flow
+                    self.assertIn("pet-guided", body)
+                    self.assertIn("data-pet-question", body)
+                    self.assertIn("data-pet-progressbar", body)
+                    self.assertNotIn("Step 1 of 3", body)
                 else:
-                    self.assertIn("Step 1 of 3", body)
-                    self.assertIn("data-baby-intake-section", body)
+                    # Business now uses guided one-question flow
+                    self.assertIn("business-guided", body)
+                    self.assertIn("data-business-question", body)
+                    self.assertIn("data-business-progressbar", body)
+                    self.assertNotIn("Step 1 of 3", body)
                 self.assertIn("baby-intake-polish.js?v=20260819-text-skip-next-v1", body)
                 if vertical in {"pet", "business"}:
                     self.assertNotIn("data-baby-skip", body)
