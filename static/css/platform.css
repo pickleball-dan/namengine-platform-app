@@ -10710,7 +10710,13 @@ body.vertical-business {
 
 .vertical-business.business-interview-started .baby-flow-shell {
   padding: 0 20px 48px;
-  max-width: 580px;
+  max-width: none;
+  margin: 0 auto;
+}
+
+.vertical-business.business-interview-started .business-question-stage {
+  width: 100%;
+  max-width: 940px;
   margin: 0 auto;
 }
 
@@ -11063,6 +11069,8 @@ body.vertical-business {
   .vertical-business .business-question-heading h2 { font-size: 0.98rem; }
 }
 
+
+
 /* ─── Pet Guided Interview Flow ─────────────────────────────────────────── */
 
 .vertical-pet.pet-interview-started .site-footer,
@@ -11073,10 +11081,17 @@ body.vertical-business {
 
 .vertical-pet.pet-interview-started .baby-flow-shell {
   padding: 0 20px 48px;
-  max-width: 580px;
+  max-width: none;
   margin: 0 auto;
 }
 
+.vertical-pet.pet-interview-started .pet-question-stage {
+  width: 100%;
+  max-width: 940px;
+  margin: 0 auto;
+}
+
+.vertical-pet .pet-interview-header[hidden] { display: none; }
 .vertical-pet .pet-interview-header {
   display: flex;
   flex-direction: column;

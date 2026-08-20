@@ -64,7 +64,7 @@
           {% endif %}
           <div class="hero-actions">
             <a class="button-link baby-begin-button" href="#{{ vertical.slug }}-intake-form">Begin guided questions</a>
-            {% if vertical.slug == "pet" %}<a class="button-link secondary-button" href="/pet/original">Create an original pet name</a>{% endif %}
+
           </div>
           <p class="hero-action-note">Start with a few focused questions. Your first preview list is free.</p>
         </div>
@@ -229,7 +229,7 @@
                 {% endif %}
                 {% if not question.required %}
                   <div class="baby-question-actions">
-                    <button type="button" class="baby-text-continue" data-baby-skip>Skip</button>
+                    <button type="button" class="baby-text-continue" data-baby-skip>Next</button>
                   </div>
                 {% endif %}
               {% elif question.kind == "textarea" %}
@@ -243,7 +243,7 @@
                   {% if question.required %}
                     <button type="button" class="baby-text-continue" data-baby-continue>Continue</button>
                   {% else %}
-                    <button type="button" class="baby-text-continue" data-baby-skip>Skip</button>
+                    <button type="button" class="baby-text-continue" data-baby-skip>Next</button>
                   {% endif %}
                 </div>
               {% endif %}
@@ -288,7 +288,7 @@
           <span class="pet-play-art pet-play-tag"></span>
         </div>
 
-        <div class="pet-interview-header" data-pet-interview-header>
+        <div class="pet-interview-header" data-pet-interview-header hidden>
           <nav class="pet-interview-nav" aria-label="Pet name discovery navigation">
             <button type="button" class="pet-interview-back" data-pet-nav-back>Back</button>
             <a class="pet-interview-exit" href="/pet">Save &amp; exit</a>
@@ -305,7 +305,7 @@
           </div>
         </div>
 
-        <div class="pet-question-stage" data-pet-question-stage>
+        <div class="pet-question-stage" data-pet-question-stage hidden>
           {% for question in vertical.intake_questions %}
             {% set current_value = request.args.get(question.id, "") %}
             {% set has_other_choice = question.choices and "Other" in question.choices %}

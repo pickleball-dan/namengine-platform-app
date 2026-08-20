@@ -138,9 +138,9 @@
     const skip = question.querySelector("[data-baby-skip]");
     if (!skip) return;
     const hasAnswer = Boolean(valueFor(question));
-    skip.textContent = hasAnswer ? "Next" : "Skip";
+    skip.textContent = "Next";
     skip.dataset.actionState = hasAnswer ? "next" : "skip";
-    skip.setAttribute("aria-label", hasAnswer ? "Save this answer and continue" : "Skip this optional question");
+    skip.setAttribute("aria-label", hasAnswer ? "Save this answer and continue" : "Continue to next question");
   }
 
   function syncAllTextActionStates() {
