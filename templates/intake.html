@@ -427,7 +427,7 @@
           </div>
         </div>
 
-        <div class="business-question-stage" data-business-question-stage>
+        <div class="business-question-stage" data-business-question-stage hidden>
           {% for question in vertical.intake_questions %}
             {% set current_value = request.args.get(question.id, "") %}
             {% set has_other_choice = question.choices and "Other" in question.choices %}
