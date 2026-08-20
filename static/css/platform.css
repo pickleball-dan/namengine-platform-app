@@ -10714,6 +10714,7 @@ body.vertical-business {
   margin: 0 auto;
 }
 
+.vertical-business .business-interview-header[hidden] { display: none; }
 .vertical-business .business-interview-header {
   display: flex;
   flex-direction: column;
