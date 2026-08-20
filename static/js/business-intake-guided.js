@@ -214,7 +214,12 @@
     if (header) header.hidden = false;
     if (progressFill) progressFill.style.width = "100%";
     window.setTimeout(function () {
-      HTMLFormElement.prototype.submit.call(form);
+      var nativeSubmit = form.querySelector(".business-native-submit");
+      if (nativeSubmit) {
+        nativeSubmit.click();
+      } else {
+        HTMLFormElement.prototype.submit.call(form);
+      }
     }, motionQuery.matches ? 100 : loadingHandoff.delay);
   }
 
