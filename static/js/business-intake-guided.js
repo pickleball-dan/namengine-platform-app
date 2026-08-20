@@ -45,6 +45,11 @@
   }
 
   function valueFor(question) {
+    if (question.dataset.questionKind === "priority") {
+      const selected = question.querySelector("[data-choice-value].is-selected");
+      if (!selected) return "";
+      return selected.querySelector("strong")?.textContent?.trim() || selected.dataset.choiceValue || "";
+    }
     if (question.dataset.questionKind === "choice") {
       const control = question.querySelector("input.business-native-control");
       if (!control) return "";
@@ -219,7 +224,27 @@
     const kind = question.dataset.questionKind;
     const required = question.dataset.required === "true";
 
+    if (kind === "priority") {
+      advanceFrom(question, copy.textBlank);
+      return;
+    }
+
     if (kind === "choice") {
+      const nativeControl = question.querySelector("input.business-native-control");
+      const nativeValue = nativeControl ? nativeControl.value : "";
+      if (required && !nativeValue) {
+        if (confirmation) confirmation.textContent = "Please make a selection to continue.";
+        return;
+      }
+      if (nativeValue === "Other") {
+        const otherVal = (question.querySelector("[data-other-input]") ? question.querySelector("[data-other-input]").value : "").trim();
+        if (!otherVal) {
+          if (confirmation) confirmation.textContent = "Please enter your answer to continue.";
+          const oi = question.querySelector("[data-other-input]");
+          if (oi) oi.focus();
+          return;
+        }
+      }
       const val = valueFor(question);
       advanceFrom(question, val ? copy.choiceOptional : copy.textBlank);
       return;
@@ -266,8 +291,8 @@
     const question = control.closest("[data-business-question]");
     if (!question || question.dataset.questionKind !== "choice") return;
     const value = control.value;
-    if (question.dataset.required === "true" && value && value !== "Other") {
-      advanceFrom(question, copy.choiceRequired);
+    if (value && value !== "Other") {
+      advanceFrom(question, question.dataset.required === "true" ? copy.choiceRequired : copy.choiceOptional);
     }
   });
 
@@ -300,6 +325,25 @@
       return;
     }
 
+    // Priority question choice (no native control — handled here directly)
+    const priorityChoice = event.target.closest("[data-priority-weights]");
+    if (priorityChoice) {
+      const question = priorityChoice.closest("[data-business-question]");
+      if (question && question.dataset.questionKind === "priority") {
+        question.querySelectorAll("[data-choice-value]").forEach(function (c) {
+          const sel = c === priorityChoice;
+          c.classList.toggle("is-selected", sel);
+          c.setAttribute("aria-checked", String(sel));
+        });
+        const weights = (priorityChoice.dataset.priorityWeights || "34,33,33").split(",");
+        form.querySelectorAll("[data-business-priority-field]").forEach(function (field, i) {
+          if (i < weights.length) field.value = weights[i].trim();
+        });
+        advanceFrom(question, copy.choiceRequired);
+        return;
+      }
+    }
+
     // Edit from direction review
     const editBtn = event.target.closest("[data-edit-question]");
     if (editBtn) {
@@ -327,7 +371,7 @@
     if (
       event.key === "Enter" &&
       event.target.matches(
-        "input:not([type='hidden']):not(.business-native-control):not([data-other-input])"
+        "input:not([type='hidden']):not(.business-native-control), textarea"
       )
     ) {
       event.preventDefault();

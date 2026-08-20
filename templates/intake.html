@@ -126,7 +126,7 @@
       {% endif %}
     </div>
 
-    <form id="{{ vertical.slug }}-intake-form" class="intake-form{% if is_polished_flow %} baby-intake-form polished-intake-form{% endif %}{% if vertical.slug == 'baby' %} baby-conversation{% endif %}{% if vertical.slug == 'pet' %} pet-conversation{% endif %}{% if vertical.slug == 'pet' and is_polished_flow %} pet-guided{% endif %}{% if vertical.slug == 'business' and is_polished_flow %} business-conversation business-guided{% endif %}" action="{% if feelings_scale_enabled(vertical) %}{{ vertical.route_prefix }}/feelings{% else %}{{ vertical.route_prefix }}/results{% endif %}" method="{% if feelings_scale_enabled(vertical) %}get{% else %}post{% endif %}"{% if not feelings_scale_enabled(vertical) %} data-progress-form{% endif %}{% if vertical.slug == 'baby' %} data-journey-vertical="baby"{% endif %}{% if vertical.slug == 'baby' and request.args.get('edit') %} data-edit-question="{{ request.args.get('edit') }}"{% endif %} novalidate>
+    <form id="{{ vertical.slug }}-intake-form" class="intake-form{% if is_polished_flow %} baby-intake-form polished-intake-form{% endif %}{% if vertical.slug == 'baby' %} baby-conversation{% endif %}{% if vertical.slug == 'pet' %} pet-conversation{% endif %}{% if vertical.slug == 'pet' and is_polished_flow %} pet-guided{% endif %}{% if vertical.slug == 'business' and is_polished_flow %} business-conversation business-guided{% endif %}" action="{% if vertical.slug == 'business' and is_polished_flow %}{{ vertical.route_prefix }}/results{% elif feelings_scale_enabled(vertical) %}{{ vertical.route_prefix }}/feelings{% else %}{{ vertical.route_prefix }}/results{% endif %}" method="{% if vertical.slug == 'business' and is_polished_flow %}post{% elif feelings_scale_enabled(vertical) %}get{% else %}post{% endif %}"{% if not feelings_scale_enabled(vertical) or (vertical.slug == 'business' and is_polished_flow) %} data-progress-form{% endif %}{% if vertical.slug == 'baby' %} data-journey-vertical="baby"{% endif %}{% if vertical.slug == 'baby' and request.args.get('edit') %} data-edit-question="{{ request.args.get('edit') }}"{% endif %} novalidate>
       {% if vertical.slug == "baby" %}
         {% set gender_descriptions = {
           "Girl": "We’re expecting a baby girl.",
@@ -359,11 +359,9 @@
                          value="{{ other_value }}"
                          {% if not other_value and current_value != "Other" %} hidden disabled{% endif %}>
                 {% endif %}
-                {% if not question.required %}
-                  <div class="pet-question-actions">
-                    <button type="button" class="pet-next-button" data-pet-next>Next</button>
-                  </div>
-                {% endif %}
+                <div class="pet-question-actions">
+                  <button type="button" class="pet-next-button" data-pet-next>Next</button>
+                </div>
               {% elif question.kind == "textarea" %}
                 <textarea id="{{ question.id }}" name="{{ question.id }}"
                           maxlength="{{ intake_field_max_length(question) }}"
@@ -491,11 +489,9 @@
                          placeholder="Enter your own" value="{{ other_value }}"
                          {% if not other_value and current_value != "Other" %} hidden disabled{% endif %}>
                 {% endif %}
-                {% if not question.required %}
-                  <div class="business-question-actions">
-                    <button type="button" class="business-next-button" data-business-next>Next</button>
-                  </div>
-                {% endif %}
+                <div class="business-question-actions">
+                  <button type="button" class="business-next-button" data-business-next>Next</button>
+                </div>
               {% elif question.kind == "textarea" %}
                 <textarea id="{{ question.id }}" name="{{ question.id }}"
                           maxlength="{{ intake_field_max_length(question) }}"
@@ -519,6 +515,52 @@
             </section>
           {% endfor %}
         </div>
+
+        <!-- Priority focus question: last before direction review -->
+        <section class="business-question"
+                 data-business-question
+                 data-question-id="priority_focus"
+                 data-question-kind="priority"
+                 data-question-section="Your focus"
+                 data-required="false"
+                 hidden>
+          <p class="business-question-kicker">Your focus</p>
+          <div class="business-question-heading">
+            <h2 id="business-question-priority_focus">Where should we focus most?</h2>
+            <span class="business-question-status">Optional</span>
+          </div>
+          <p class="business-optional-hint">This helps us weight the search toward what matters most to you.</p>
+          <div class="business-choice-list" role="radiogroup" aria-labelledby="business-question-priority_focus">
+            <button class="business-choice-card" type="button" role="radio" aria-checked="false"
+                    data-choice-value="story" data-priority-weights="60,20,20">
+              <span class="business-choice-copy"><strong>The business story and audience</strong></span>
+              <span class="business-choice-mark" aria-hidden="true">✓</span>
+            </button>
+            <button class="business-choice-card" type="button" role="radio" aria-checked="false"
+                    data-choice-value="style" data-priority-weights="20,60,20">
+              <span class="business-choice-copy"><strong>The name&#8217;s style and signal</strong></span>
+              <span class="business-choice-mark" aria-hidden="true">✓</span>
+            </button>
+            <button class="business-choice-card" type="button" role="radio" aria-checked="false"
+                    data-choice-value="launch" data-priority-weights="20,20,60">
+              <span class="business-choice-copy"><strong>Launch fit and practicality</strong></span>
+              <span class="business-choice-mark" aria-hidden="true">✓</span>
+            </button>
+            <button class="business-choice-card" type="button" role="radio" aria-checked="false"
+                    data-choice-value="balanced" data-priority-weights="34,33,33">
+              <span class="business-choice-copy"><strong>Give everything equal weight</strong></span>
+              <span class="business-choice-mark" aria-hidden="true">✓</span>
+            </button>
+          </div>
+          <div class="business-question-actions">
+            <button type="button" class="business-next-button" data-business-next>Next</button>
+          </div>
+        </section>
+
+        <!-- Taste strength hidden fields — updated by priority question JS -->
+        <input type="hidden" name="taste_strength_about_the_business" value="34" data-business-priority-field="0">
+        <input type="hidden" name="taste_strength_name_style" value="33" data-business-priority-field="1">
+        <input type="hidden" name="taste_strength_launch_fit" value="33" data-business-priority-field="2">
 
         <div class="business-answer-confirmation" role="status" aria-live="polite" data-business-confirmation></div>
 
@@ -680,10 +722,10 @@
     <script src="{{ url_for('static', filename='js/pet-choice-cards.js') }}?v=20260727-business-choice-cards-v1"></script>
   {% endif %}
   {% if vertical.slug == "pet" and is_polished_flow %}
-    <script src="{{ url_for('static', filename='js/pet-intake-guided.js') }}?v=20260819-pet-guided-v1"></script>
+    <script src="{{ url_for('static', filename='js/pet-intake-guided.js') }}?v=20260819-pet-guided-v2"></script>
   {% endif %}
   {% if vertical.slug == "business" and is_polished_flow %}
-    <script src="{{ url_for('static', filename='js/business-intake-guided.js') }}?v=20260819-business-guided-v1"></script>
+    <script src="{{ url_for('static', filename='js/business-intake-guided.js') }}?v=20260819-business-guided-v2"></script>
   {% endif %}
   {% if vertical.slug in ["pet", "baby", "business", "product"] %}
     <script src="{{ url_for('static', filename='js/taste-history.js') }}"></script>

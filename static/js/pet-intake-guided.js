@@ -231,7 +231,23 @@
     const required = question.dataset.required === "true";
 
     if (kind === "choice") {
-      // Optional choice — advance with or without selection
+      const nativeControl = question.querySelector("input.pet-native-control");
+      const nativeValue = nativeControl ? nativeControl.value : "";
+      // Required with no selection at all
+      if (required && !nativeValue) {
+        if (confirmation) confirmation.textContent = "Please make a selection to continue.";
+        return;
+      }
+      // Other selected but nothing typed
+      if (nativeValue === "Other") {
+        const otherVal = (question.querySelector("[data-other-input]") ? question.querySelector("[data-other-input]").value : "").trim();
+        if (!otherVal) {
+          if (confirmation) confirmation.textContent = "Please enter your answer to continue.";
+          const oi = question.querySelector("[data-other-input]");
+          if (oi) oi.focus();
+          return;
+        }
+      }
       const val = valueFor(question);
       advanceFrom(question, val ? copy.choiceOptional : copy.textBlank);
       return;
@@ -279,9 +295,9 @@
     const question = control.closest("[data-pet-question]");
     if (!question || question.dataset.questionKind !== "choice") return;
     const value = control.value;
-    // Auto-advance only for required questions and only when a real value (not Other) is selected
-    if (question.dataset.required === "true" && value && value !== "Other") {
-      advanceFrom(question, copy.choiceRequired);
+    // Auto-advance for all choice questions (required and optional) when a real value is selected
+    if (value && value !== "Other") {
+      advanceFrom(question, question.dataset.required === "true" ? copy.choiceRequired : copy.choiceOptional);
     }
   });
 
@@ -343,7 +359,7 @@
     if (
       event.key === "Enter" &&
       event.target.matches(
-        "input:not([type='hidden']):not(.pet-native-control):not([data-other-input]), textarea"
+        "input:not([type='hidden']):not(.pet-native-control), textarea"
       )
     ) {
       event.preventDefault();
