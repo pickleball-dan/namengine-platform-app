@@ -25,12 +25,12 @@ class BabyConversationalIntakeV1Test(unittest.TestCase):
     def test_baby_intake_keeps_original_route_and_field_contract(self):
         body = self.client.get("/baby").get_data(as_text=True)
 
-        self.assertIn('action="/baby/feelings"', body)
+        self.assertIn('action="/baby/results"', body)  # Polished flow now posts directly to results
         for field in (
             "gender", "family_context", "cultural_heritage", "notes",
             "discovery_style", "style", "timeless_vs_distinctive",
             "familiarity_preference", "sound", "cultural_context",
-            "partner_alignment", "avoid",
+            "partner_alignment", "avoid", "priority_focus",
         ):
             self.assertIn(f'name="{field}"', body)
 

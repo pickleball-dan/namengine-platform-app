@@ -39,7 +39,7 @@ class BabyFlowPolishV1Test(unittest.TestCase):
         self.assertNotIn("Most parents finish in about 3–5 minutes.", body)
         self.assertIn('class="button-link baby-begin-button" href="#baby-intake-form">Begin guided questions</a>', body)
         self.assertIn('id="baby-intake-form"', body)
-        self.assertIn('action="/baby/feelings"', body)
+        self.assertIn('action="/baby/results"', body)  # Polished flow now posts directly to results, bypassing feelings page
         welcome = body.split('<div class="baby-welcome">', 1)[1].split('<div class="hero-actions">', 1)[0]
         self.assertIn("vertical-page-logo", welcome)
 
@@ -65,7 +65,7 @@ class BabyFlowPolishV1Test(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("Do you want us to prioritize anything?", body)
-        self.assertIn(">Skip</button>", body)
+        self.assertNotIn(">Skip</button>", body)  # Skip removed; button now says Next
         self.assertNotIn("Skip for now", body)
         self.assertIn('data-baby-final-skip', body)
         self.assertIn('action="/baby/results"', body)

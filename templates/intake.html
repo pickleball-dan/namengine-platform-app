@@ -126,7 +126,7 @@
       {% endif %}
     </div>
 
-    <form id="{{ vertical.slug }}-intake-form" class="intake-form{% if is_polished_flow %} baby-intake-form polished-intake-form{% endif %}{% if vertical.slug == 'baby' %} baby-conversation{% endif %}{% if vertical.slug == 'pet' %} pet-conversation{% endif %}{% if vertical.slug == 'pet' and is_polished_flow %} pet-guided{% endif %}{% if vertical.slug == 'business' and is_polished_flow %} business-conversation business-guided{% endif %}" action="{% if vertical.slug == 'business' and is_polished_flow %}{{ vertical.route_prefix }}/results{% elif feelings_scale_enabled(vertical) %}{{ vertical.route_prefix }}/feelings{% else %}{{ vertical.route_prefix }}/results{% endif %}" method="{% if vertical.slug == 'business' and is_polished_flow %}post{% elif feelings_scale_enabled(vertical) %}get{% else %}post{% endif %}"{% if not feelings_scale_enabled(vertical) or (vertical.slug == 'business' and is_polished_flow) %} data-progress-form{% endif %}{% if vertical.slug == 'baby' %} data-journey-vertical="baby"{% endif %}{% if vertical.slug == 'baby' and request.args.get('edit') %} data-edit-question="{{ request.args.get('edit') }}"{% endif %} novalidate>
+    <form id="{{ vertical.slug }}-intake-form" class="intake-form{% if is_polished_flow %} baby-intake-form polished-intake-form{% endif %}{% if vertical.slug == 'baby' %} baby-conversation{% endif %}{% if vertical.slug == 'pet' %} pet-conversation{% endif %}{% if vertical.slug == 'pet' and is_polished_flow %} pet-guided{% endif %}{% if vertical.slug == 'business' and is_polished_flow %} business-conversation business-guided{% endif %}" action="{% if (vertical.slug == 'business' or vertical.slug == 'baby') and is_polished_flow %}{{ vertical.route_prefix }}/results{% elif feelings_scale_enabled(vertical) %}{{ vertical.route_prefix }}/feelings{% else %}{{ vertical.route_prefix }}/results{% endif %}" method="{% if (vertical.slug == 'business' or vertical.slug == 'baby') and is_polished_flow %}post{% elif feelings_scale_enabled(vertical) %}get{% else %}post{% endif %}"{% if not feelings_scale_enabled(vertical) or ((vertical.slug == 'business' or vertical.slug == 'baby') and is_polished_flow) %} data-progress-form{% endif %}{% if vertical.slug == 'baby' %} data-journey-vertical="baby"{% endif %}{% if vertical.slug == 'baby' and request.args.get('edit') %} data-edit-question="{{ request.args.get('edit') }}"{% endif %} novalidate>
       {% if vertical.slug == "baby" %}
         {% set gender_descriptions = {
           "Girl": "We’re expecting a baby girl.",
@@ -244,7 +244,56 @@
               {% endif %}
             </section>
           {% endfor %}
-          <section class="baby-checkin" data-intake-checkin hidden>
+          <!-- Priority focus: last guided question before direction review; not in vertical.intake_questions -->
+        <section class="baby-question"
+                 data-baby-question
+                 data-question-id="priority_focus"
+                 data-question-kind="choice"
+                 data-question-section="Fit and feeling"
+                 data-required="false"
+                 hidden>
+          <p class="baby-question-kicker">Your naming direction <span class="baby-kicker-heart" aria-hidden="true"></span></p>
+          <div class="baby-question-heading">
+            <h2 id="baby-question-priority_focus">Do you want us to prioritize anything?</h2>
+            <span class="baby-question-status">Optional</span>
+          </div>
+          <p class="baby-optional-help">We'll honor everything you shared. This simply tells us where to listen most closely.</p>
+          <div class="baby-choice-list" role="radiogroup" aria-labelledby="baby-question-priority_focus" data-baby-choices>
+            <button class="baby-choice" type="button" role="radio" aria-checked="false" data-choice-value="Your family story" data-baby-priority-weights="60,20,20">
+              <span class="baby-choice-copy"><strong>Your family story</strong><small>Heritage, meaning, and the people this name belongs with.</small></span>
+              <span class="baby-choice-chevron" aria-hidden="true">›</span>
+              <span class="baby-choice-mark" aria-hidden="true">✓</span>
+            </button>
+            <button class="baby-choice" type="button" role="radio" aria-checked="false" data-choice-value="The name style" data-baby-priority-weights="20,60,20">
+              <span class="baby-choice-copy"><strong>The name style</strong><small>Classic, modern, playful, gentle, bold — the lane that feels right.</small></span>
+              <span class="baby-choice-chevron" aria-hidden="true">›</span>
+              <span class="baby-choice-mark" aria-hidden="true">✓</span>
+            </button>
+            <button class="baby-choice" type="button" role="radio" aria-checked="false" data-choice-value="Sound and feeling" data-baby-priority-weights="20,20,60">
+              <span class="baby-choice-copy"><strong>Sound and feeling</strong><small>How it sounds out loud, softens, sings, and lives every day.</small></span>
+              <span class="baby-choice-chevron" aria-hidden="true">›</span>
+              <span class="baby-choice-mark" aria-hidden="true">✓</span>
+            </button>
+            <button class="baby-choice" type="button" role="radio" aria-checked="false" data-choice-value="A thoughtful balance" data-baby-priority-weights="34,33,33">
+              <span class="baby-choice-copy"><strong>A thoughtful balance</strong><small>Let NamEngine weigh everything evenly before choosing finalists.</small></span>
+              <span class="baby-choice-chevron" aria-hidden="true">›</span>
+              <span class="baby-choice-mark" aria-hidden="true">✓</span>
+            </button>
+          </div>
+          <select class="baby-native-control" id="priority_focus" name="priority_focus" tabindex="-1" aria-hidden="true">
+            <option value="">Choose one</option>
+            <option value="Your family story">Your family story</option>
+            <option value="The name style">The name style</option>
+            <option value="Sound and feeling">Sound and feeling</option>
+            <option value="A thoughtful balance">A thoughtful balance</option>
+          </select>
+          <div class="baby-question-actions">
+            <button type="button" class="baby-back-inline" data-baby-nav-back hidden>← Back</button>
+            <button type="button" class="baby-text-continue" data-baby-skip>Next</button>
+          </div>
+        </section>
+
+        <section class="baby-checkin" data-intake-checkin hidden>
             <p class="baby-question-kicker">A quick check-in <span class="baby-kicker-heart" aria-hidden="true"></span></p>
             <h2 data-checkin-heading></h2>
             <p class="baby-checkin-copy" data-checkin-copy></p>
@@ -291,6 +340,11 @@
           <h2>Finding names that feel like yours.</h2>
           <p>Weaving together your family&#8217;s story, style, and everything that matters&hellip;</p>
         </div>
+
+        <!-- Taste-strength fields updated by JS when priority_focus question is answered -->
+        <input type="hidden" name="taste_strength_about_your_baby" value="34" data-baby-priority-field="0">
+        <input type="hidden" name="taste_strength_name_style" value="33" data-baby-priority-field="1">
+        <input type="hidden" name="taste_strength_fit_and_feeling" value="33" data-baby-priority-field="2">
 
         <button class="baby-native-submit" type="submit" tabindex="-1">Continue</button>
       {% elif vertical.slug == "pet" and is_polished_flow %}
@@ -738,7 +792,7 @@
   {% include "progress_overlay.html" %}
   <script src="{{ url_for('static', filename='js/progress.js') }}"></script>
   {% if is_polished_flow %}
-    <script src="{{ url_for('static', filename='js/baby-intake-polish.js') }}?v=20260820-skip-next-fix-v1"></script>
+    <script src="{{ url_for('static', filename='js/baby-intake-polish.js') }}?v=20260821-priority-inline-v1"></script>
   {% endif %}
   {% if vertical.slug in ["pet", "business"] %}
     <script src="{{ url_for('static', filename='js/pet-choice-cards.js') }}?v=20260727-business-choice-cards-v1"></script>

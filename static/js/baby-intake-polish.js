@@ -14,7 +14,7 @@
   const questionOrder = [
     "gender", "style", "familiarity_preference", "discovery_style",
     "timeless_vs_distinctive", "sound", "cultural_context", "cultural_heritage",
-    "family_context", "notes", "partner_alignment", "avoid"
+    "family_context", "notes", "partner_alignment", "avoid", "priority_focus"
   ];
   const orderIndex = new Map(questionOrder.map((id, index) => [id, index]));
   const questions = Array.from(form.querySelectorAll("[data-baby-question]"))
@@ -53,7 +53,8 @@
         family_context: "We're refining your best-fit names.",
         partner_alignment: "We're refining your best-fit names.",
         avoid: "We're refining your best-fit names.",
-        notes: "Almost there."
+        notes: "Almost there.",
+        priority_focus: "Almost there."
       }
     }
   };
@@ -464,6 +465,13 @@
       control.dispatchEvent(new Event("change", { bubbles: true }));
       skipped.delete(question.dataset.questionId);
       clearDependentConditionOverrides(question);
+      // Reset taste-strength to defaults when priority focus is deselected.
+      if (question.dataset.questionId === "priority_focus") {
+        [34, 33, 33].forEach((val, idx) => {
+          const field = form.querySelector(`[data-baby-priority-field="${idx}"]`);
+          if (field) field.value = val;
+        });
+      }
       const otherWrapD = question.querySelector("[data-baby-other-wrap]");
       const otherInputD = question.querySelector("[data-other-input]");
       if (otherWrapD) otherWrapD.hidden = true;
@@ -489,6 +497,14 @@
     if (value === "Other" && otherInput) {
       otherInput.focus();
       return;
+    }
+    // When the priority focus question is answered, propagate weights to hidden taste-strength inputs.
+    if (question.dataset.questionId === "priority_focus") {
+      const weights = (button.dataset.babyPriorityWeights || "34,33,33").split(",").map(Number);
+      form.querySelectorAll("[data-baby-priority-field]").forEach((field) => {
+        const idx = parseInt(field.dataset.babyPriorityField, 10);
+        if (!isNaN(idx) && idx < weights.length) field.value = weights[idx];
+      });
     }
     confirmAndAdvance(question, value);
   }
