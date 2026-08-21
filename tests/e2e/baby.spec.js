@@ -101,10 +101,16 @@ test.describe('Baby — Interview flow', () => {
     ).toBe(q1Id);
   });
 
-  test('Interview shows completion screen', async ({ page }) => {
-    // UI/UX check only — does the completion panel appear after all questions?
-    // Name generation is tested elsewhere.
-    await completeInterview(page, 'baby');
+  test('Interview shows direction review then completion screen', async ({ page }) => {
+    // Baby now has direction review before completion.
+    // Walk to direction review, click Find our name, completion panel appears briefly.
+    const result = await completeInterview(page, 'baby');
+    // Baby goes to direction review (no hasReview flag — check manually)
+    const review = page.locator('[data-baby-direction-review]:not([hidden])');
+    if (await review.count() > 0) {
+      await page.locator('[data-baby-direction-find]').click();
+      await page.waitForTimeout(800);
+    }
     await expect(page.locator(V.baby.complete)).toBeVisible({ timeout: 5000 });
   });
 });

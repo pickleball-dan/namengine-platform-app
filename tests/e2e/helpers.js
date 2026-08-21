@@ -9,7 +9,8 @@ const V = {
   baby: {
     url:         '/baby',
     q:           '[data-baby-question]',
-    back:        '[data-baby-nav-back]',
+    // Back is now inside each question — target only the visible one
+    back:        '[data-baby-question]:not([hidden]) [data-baby-nav-back]',
     skipNext:    '[data-baby-skip]',       // text questions: shows "Skip" (empty) or "Next" (filled)
     complete:    '[data-baby-complete]',
     bodyClass:   'baby-interview-started',
@@ -22,7 +23,7 @@ const V = {
   pet: {
     url:         '/pet',
     q:           '[data-pet-question]',
-    back:        '[data-pet-nav-back]',
+    back:        '[data-pet-question]:not([hidden]) [data-pet-nav-back]',
     next:        '[data-pet-next]',
     review:      '[data-pet-direction-review]',
     find:        '[data-pet-direction-find]',
@@ -37,7 +38,7 @@ const V = {
   business: {
     url:         '/business',
     q:           '[data-business-question]',
-    back:        '[data-business-nav-back]',
+    back:        '[data-business-question]:not([hidden]) [data-business-nav-back]',
     next:        '[data-business-next]',
     review:      '[data-business-direction-review]',
     find:        '[data-business-direction-find]',
