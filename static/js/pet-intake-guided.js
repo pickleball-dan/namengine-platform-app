@@ -389,9 +389,51 @@
     });
   }
 
+  // ── Pet-type choice enrichment: emoji icon + personality descriptor ────────
+
+  const petTypeEmoji = {
+    "Dog":     { emoji: "🐕", descriptor: "Loyal, playful, full of personality" },
+    "Cat":     { emoji: "🐈", descriptor: "Independent, curious, a little mysterious" },
+    "Horse":   { emoji: "🐴", descriptor: "Majestic, powerful, deeply bonded" },
+    "Bird":    { emoji: "🦜", descriptor: "Feathered, expressive, vocal" },
+    "Rabbit":  { emoji: "🐰", descriptor: "Soft, curious, unexpectedly funny" },
+    "Reptile": { emoji: "🦎", descriptor: "Cool, calm, their own kind of personality" },
+    "Other":   { emoji: "🐾", descriptor: "Every companion deserves a great name" },
+  };
+
+  function enrichPetTypeChoices() {
+    const petTypeQ = questions.find(function (q) {
+      return q.dataset.questionId === "pet_type";
+    });
+    if (!petTypeQ) return;
+    petTypeQ.querySelectorAll("[data-choice-value]").forEach(function (card) {
+      const value = card.dataset.choiceValue;
+      const meta = petTypeEmoji[value];
+      if (!meta) return;
+      // Avoid double-enrichment
+      if (card.querySelector(".pet-choice-icon")) return;
+      // Build icon tile
+      const icon = document.createElement("span");
+      icon.className = "pet-choice-icon";
+      icon.setAttribute("aria-hidden", "true");
+      icon.textContent = meta.emoji;
+      // Add descriptor under the strong label
+      const copyEl = card.querySelector(".pet-choice-copy");
+      if (copyEl) {
+        const descriptor = document.createElement("small");
+        descriptor.className = "pet-choice-descriptor";
+        descriptor.textContent = meta.descriptor;
+        copyEl.appendChild(descriptor);
+      }
+      // Prepend icon before copy
+      card.insertBefore(icon, card.firstChild);
+    });
+  }
+
   // ── Init ───────────────────────────────────────────────────────────────────
 
   document.body.classList.add("pet-interview-enhanced");
   syncInitialSelections();
+  enrichPetTypeChoices();
   if (window.location.hash === "#pet-intake-form") startInterview();
 })();

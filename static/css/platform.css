@@ -14135,3 +14135,253 @@ body.vertical-business {
   border-color: rgba(213, 92, 50, 0.30);
   background: rgba(213, 92, 50, 0.08);
 }
+
+
+/* ══════════════════════════════════════════════════════════════════
+   PET VERTICAL: Graphical voice pass — concept-pet-v2 direction.
+   — Warm cream page, paw-blob decorations in stage corners
+   — Question card: white rounded panel with warm shadow + paw watermark
+   — Section kicker: 🐾 paw bullet
+   — pet_type choice cards: emoji icon tile + personality descriptor
+   — Unified Back/Next: same small pill, neither dominant
+   2026-08-21
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Question card: white rounded panel, warm shadow, inner paw ── */
+.vertical-pet .pet-question {
+  position: relative;
+  padding: 22px 20px 20px;
+  background: rgba(255, 252, 247, 0.96);
+  border: 1.5px solid rgba(242, 184, 75, 0.26);
+  border-radius: 20px;
+  box-shadow:
+    0 2px 8px rgba(69, 48, 34, 0.06),
+    0 12px 32px rgba(69, 48, 34, 0.10),
+    0 32px 64px rgba(69, 48, 34, 0.06);
+  overflow: hidden;
+}
+
+/* Faint paw watermark — top-right, decorative only */
+.vertical-pet .pet-question::before {
+  content: "🐾";
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  font-size: 52px;
+  line-height: 1;
+  opacity: 0.06;
+  pointer-events: none;
+  user-select: none;
+  transform: rotate(10deg);
+  z-index: 0;
+}
+
+/* All question content sits above the paw watermark */
+.vertical-pet .pet-question > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Section kicker: paw bullet before text ── */
+.vertical-pet .pet-question-kicker {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #2f9486;
+  margin: 0 0 12px;
+}
+
+.vertical-pet .pet-question-kicker::before {
+  content: "🐾";
+  font-size: 13px;
+  line-height: 1;
+  display: inline-block;
+  flex: 0 0 auto;
+  opacity: 0.82;
+}
+
+/* ── pet_type choice cards: emoji icon tile + personality descriptor ── */
+/* Icon tile */
+.vertical-pet .pet-choice-icon {
+  display: inline-grid;
+  flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  font-size: 22px;
+  line-height: 1;
+  background: rgba(255, 248, 235, 0.90);
+  border: 1px solid rgba(242, 184, 75, 0.28);
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(69, 48, 34, 0.08);
+}
+
+/* Make choice copy area flex-column so descriptor sits below label */
+.vertical-pet .pet-choice-card .pet-choice-copy {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+/* Personality descriptor text */
+.vertical-pet .pet-choice-descriptor {
+  display: block;
+  color: #8a7060;
+  font-size: 0.72rem;
+  font-weight: 600;
+  font-style: italic;
+  line-height: 1.3;
+}
+
+/* Horizontally reflow card to: icon | copy | check */
+.vertical-pet .pet-choice-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ── Play-scene: warm paw blob in stage corners ── */
+/* Large decorative paw shapes behind the question stage */
+.vertical-pet .pet-question-stage::before {
+  content: "🐾";
+  position: absolute;
+  top: -22px;
+  right: -18px;
+  font-size: 96px;
+  line-height: 1;
+  opacity: 0.055;
+  transform: rotate(18deg);
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+
+.vertical-pet .pet-question-stage::after {
+  content: "🐾";
+  position: absolute;
+  bottom: 40px;
+  left: -28px;
+  font-size: 80px;
+  line-height: 1;
+  opacity: 0.045;
+  transform: rotate(-14deg);
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+
+/* Keep actual question cards above decorations */
+.vertical-pet .pet-question-stage > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Unified Back/Next: same small pill, neither dominant ── */
+.vertical-pet .pet-question-actions {
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.vertical-pet .pet-back-inline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 5px 16px;
+  background: transparent;
+  border: 1px solid rgba(47, 148, 134, 0.28);
+  border-radius: 999px;
+  color: rgba(47, 148, 134, 0.72);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: border-color 130ms ease, color 130ms ease;
+}
+
+.vertical-pet .pet-back-inline:hover {
+  border-color: rgba(47, 148, 134, 0.52);
+  color: #2f9486;
+}
+
+.vertical-pet .pet-next-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 5px 18px;
+  background: rgba(47, 148, 134, 0.12);
+  border: 1px solid rgba(47, 148, 134, 0.38);
+  border-radius: 999px;
+  color: #2f9486;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 130ms ease, border-color 130ms ease, color 130ms ease;
+}
+
+.vertical-pet .pet-next-button:hover {
+  background: rgba(47, 148, 134, 0.22);
+  border-color: rgba(47, 148, 134, 0.58);
+  color: #236f67;
+}
+
+.vertical-pet .pet-next-button:focus-visible {
+  outline: 2px solid rgba(47, 148, 134, 0.45);
+  outline-offset: 3px;
+}
+
+/* Nav back pill: same unified treatment */
+.vertical-pet .pet-interview-back {
+  min-height: 32px;
+  padding: 5px 16px;
+  background: rgba(47, 148, 134, 0.10);
+  border: 1px solid rgba(47, 148, 134, 0.30);
+  border-radius: 999px;
+  color: #2f9486;
+  font-size: 0.78rem;
+  font-weight: 700;
+  box-shadow: none;
+}
+
+.vertical-pet .pet-interview-back:hover {
+  background: rgba(47, 148, 134, 0.20);
+  border-color: rgba(47, 148, 134, 0.52);
+  color: #236f67;
+}
+
+/* Direction find button: warm rounded, teal — keeps prominence appropriate for CTA */
+.vertical-pet .pet-direction-find {
+  background: #2f9486;
+  border: none;
+  color: #fff;
+  border-radius: 999px;
+  padding: 12px 28px;
+  font-weight: 800;
+  box-shadow: 0 8px 22px rgba(47, 148, 134, 0.28);
+}
+
+.vertical-pet .pet-direction-find:hover {
+  background: #236f67;
+}
+
+/* ── Mobile: clip oversized stage paw decorations ── */
+@media (max-width: 760px) {
+  .vertical-pet .pet-question-stage::before,
+  .vertical-pet .pet-question-stage::after {
+    font-size: 64px;
+    opacity: 0.04;
+  }
+  .vertical-pet .pet-question::before {
+    font-size: 40px;
+  }
+}
