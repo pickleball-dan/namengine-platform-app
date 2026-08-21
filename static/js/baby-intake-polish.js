@@ -35,6 +35,8 @@
   const checkInOptions = form.querySelector("[data-checkin-options]");
   const checkInBack = form.querySelector("[data-checkin-back]");
   const checkInReturn = form.querySelector("[data-checkin-return]");
+  const directionReview = form.querySelector("[data-baby-direction-review]");
+  const directionList = form.querySelector("[data-baby-direction-list]");
   const journeyCopyConfigurations = {
     baby: {
       fallback: "Let’s get to know your family.",
@@ -79,6 +81,7 @@
   let activeId = null;
   let transitionTimer = null;
   let completing = false;
+  let editingFromReview = false;
   let checkInResponse = readCheckInResponse();
   let checkInAdvancing = false;
 
@@ -274,10 +277,32 @@
     progressCopy.hidden = false;
     stage.hidden = false;
     completePanel.hidden = true;
+    if (directionReview) directionReview.hidden = true;
     renderHistory(question);
     updateProgress(question);
     syncTextActionState(question);
+    // Show inline Back on Q2+, hide on Q1
+    const isFirstQ = applicableQuestions().indexOf(question) === 0;
+    form.querySelectorAll('[data-baby-nav-back]').forEach((btn) => { btn.hidden = isFirstQ; });
+    // Move progress gauge into active question — ONE element in DOM, JS moves it on each change.
+    // For Baby: place ABOVE the choice list / input so it’s always visible regardless of choice count.
+    const progressEl = form.querySelector('.baby-question-progress');
+    if (progressEl) {
+      const insertBefore = question.querySelector('.baby-choice-list') ||
+                           question.querySelector('textarea') ||
+                           question.querySelector('input:not([type="hidden"]):not([data-other-input])') ||
+                           question.querySelector('.baby-question-actions');
+      if (insertBefore) insertBefore.before(progressEl);
+      else question.appendChild(progressEl);
+    }
     if (options?.focus !== false) window.requestAnimationFrame(() => focusQuestion(question));
+  }
+
+  function moveProgressToRoot() {
+    // Move progress back to its DOM root position (before baby-journey nav) when not in a question.
+    const progressEl = form.querySelector('.baby-question-progress');
+    const journeyNav = form.querySelector('.baby-journey');
+    if (progressEl && journeyNav) journeyNav.before(progressEl);
   }
 
   function showCheckIn() {
@@ -289,12 +314,14 @@
       question.hidden = true;
       question.classList.remove("is-active");
     });
+    moveProgressToRoot();
     renderCheckInConfiguration();
     checkIn.hidden = false;
     checkIn.classList.add("is-active");
     checkInReturn.hidden = true;
     stage.hidden = false;
     completePanel.hidden = true;
+    if (directionReview) directionReview.hidden = true;
     progressTitle.textContent = checkInConfiguration.journeyTitle;
     progressCopy.hidden = true;
     const anchor = checkInAnchorQuestion();
@@ -319,14 +346,71 @@
     return index > 0 ? applicable[index - 1] : null;
   }
 
+  function labelFor(question) {
+    return question.querySelector("h2")?.textContent?.trim() || question.dataset.questionId;
+  }
+
+  function renderDirectionReview() {
+    if (!directionList) return;
+    directionList.replaceChildren();
+    applicableQuestions().forEach((question) => {
+      const value = valueFor(question);
+      const display = value ? (value.length > 60 ? value.slice(0, 57) + "\u2026" : value) : "";
+      const dt = document.createElement("dt");
+      dt.textContent = labelFor(question);
+      const dd = document.createElement("dd");
+      const answerSpan = document.createElement("span");
+      answerSpan.textContent = display || "Not answered";
+      answerSpan.className = display ? "baby-direction-answer" : "baby-direction-blank";
+      const editBtn = document.createElement("button");
+      editBtn.type = "button";
+      editBtn.className = "baby-direction-edit";
+      editBtn.dataset.editQuestion = question.dataset.questionId;
+      editBtn.textContent = "Edit";
+      dd.appendChild(answerSpan);
+      dd.appendChild(editBtn);
+      directionList.appendChild(dt);
+      directionList.appendChild(dd);
+    });
+  }
+
+  function showDirectionReview() {
+    window.clearTimeout(transitionTimer);
+    form.classList.remove("is-checkin-active");
+    questions.forEach((q) => { q.hidden = true; q.classList.remove("is-active"); });
+    moveProgressToRoot();
+    if (checkIn) checkIn.hidden = true;
+    if (history) history.hidden = true;
+    stage.hidden = true;
+    completePanel.hidden = true;
+    renderDirectionReview();
+    if (directionReview) directionReview.hidden = false;
+    progressTitle.textContent = "Your naming direction";
+    progressCopy.textContent = "Ready to find your name";
+    progressCopy.hidden = false;
+    progressFill.style.width = "100%";
+    progressBar.setAttribute("aria-valuenow", progressBar.getAttribute("aria-valuemax"));
+    window.requestAnimationFrame(() => {
+      const findBtn = directionReview ? directionReview.querySelector("[data-baby-direction-find]") : null;
+      if (findBtn) findBtn.focus({ preventScroll: true });
+    });
+  }
+
   function goBackOneStep(event) {
     if (!document.body.classList.contains("baby-interview-started")) return;
-    const activeQuestion = questions.find((question) => question.dataset.questionId === activeId && !question.hidden);
-    const previous = activeQuestion ? previousQuestion(activeQuestion) : (checkIn && !checkIn.hidden ? checkInAnchorQuestion() : null);
-    if (!previous) return;
     event.preventDefault();
     window.clearTimeout(transitionTimer);
     confirmation.textContent = "";
+    if (directionReview && !directionReview.hidden) {
+      editingFromReview = false;
+      const applicable = applicableQuestions();
+      const lastQuestion = applicable[applicable.length - 1];
+      if (lastQuestion) showQuestion(lastQuestion);
+      return;
+    }
+    const activeQuestion = questions.find((question) => question.dataset.questionId === activeId && !question.hidden);
+    const previous = activeQuestion ? previousQuestion(activeQuestion) : (checkIn && !checkIn.hidden ? checkInAnchorQuestion() : null);
+    if (!previous) return;
     showQuestion(previous);
   }
 
@@ -336,10 +420,15 @@
     transitionTimer = window.setTimeout(() => {
       question.classList.remove("is-confirmed");
       confirmation.textContent = "";
+      if (editingFromReview) {
+        editingFromReview = false;
+        showDirectionReview();
+        return;
+      }
       const next = nextQuestion(question);
       if (checkInConfiguration && question.dataset.questionId === checkInConfiguration.insertAfter && !checkInResponse) showCheckIn();
       else if (next) showQuestion(next);
-      else finishInterview();
+      else showDirectionReview();
     }, motionQuery.matches ? 0 : 260);
   }
 
@@ -347,6 +436,7 @@
     completing = true;
     form.classList.remove("is-checkin-active");
     questions.forEach((question) => { question.hidden = true; });
+    moveProgressToRoot();
     history.hidden = true;
     stage.hidden = true;
     progressTitle.textContent = journeyCopy.completion;
@@ -354,12 +444,34 @@
     progressFill.style.width = "100%";
     progressBar.setAttribute("aria-valuenow", progressBar.getAttribute("aria-valuemax"));
     completePanel.hidden = false;
-    window.setTimeout(() => HTMLFormElement.prototype.submit.call(form), motionQuery.matches ? 100 : loadingHandoff.delay);
+    // Dispatch the canonical finish-interview event so progress.js
+    // can show the overlay before submitting. Never call .submit() directly.
+    // See contract comment at top of progress.js.
+    window.setTimeout(() => form.dispatchEvent(new CustomEvent("namengine:finish-interview", { bubbles: true })), motionQuery.matches ? 100 : loadingHandoff.delay);
   }
 
   function selectChoice(question, button) {
     const control = controlFor(question);
     const value = button.dataset.choiceValue;
+
+    // Toggle: clicking an already-selected card on an optional question deselects it.
+    if (button.classList.contains("is-selected") && question.dataset.required !== "true") {
+      question.querySelectorAll("[data-choice-value]").forEach((choice) => {
+        choice.classList.remove("is-selected");
+        choice.setAttribute("aria-checked", "false");
+      });
+      control.value = "";
+      control.dispatchEvent(new Event("change", { bubbles: true }));
+      skipped.delete(question.dataset.questionId);
+      clearDependentConditionOverrides(question);
+      const otherWrapD = question.querySelector("[data-baby-other-wrap]");
+      const otherInputD = question.querySelector("[data-other-input]");
+      if (otherWrapD) otherWrapD.hidden = true;
+      if (otherInputD) otherInputD.disabled = true;
+      syncTextActionState(question);
+      return;
+    }
+
     question.querySelectorAll("[data-choice-value]").forEach((choice) => {
       const selected = choice === button;
       choice.classList.toggle("is-selected", selected);
@@ -414,7 +526,7 @@
       confirmation.textContent = "";
       const following = checkInFollowingQuestion();
       if (following) showQuestion(following);
-      else finishInterview();
+      else showDirectionReview();
     }, motionQuery.matches ? 0 : 260);
   }
 
@@ -459,6 +571,21 @@
     if (edit) {
       const question = questions.find((item) => item.dataset.questionId === edit.dataset.editAnswer);
       if (question) showQuestion(question);
+      return;
+    }
+    if (event.target.closest("[data-baby-direction-find]")) {
+      finishInterview();
+      return;
+    }
+    const dirEdit = event.target.closest("[data-edit-question]");
+    if (dirEdit) {
+      const editTarget = questions.find((q) => q.dataset.questionId === dirEdit.dataset.editQuestion);
+      if (editTarget) {
+        editingFromReview = true;
+        if (directionReview) directionReview.hidden = true;
+        stage.hidden = false;
+        showQuestion(editTarget);
+      }
       return;
     }
     const question = event.target.closest("[data-baby-question]");
@@ -509,7 +636,7 @@
     const editQuestion = questions.find((question) => question.dataset.questionId === requested && isApplicable(question));
     const firstUnanswered = applicableQuestions().find((question) => !valueFor(question));
     showQuestion(editQuestion || firstUnanswered || applicableQuestions()[0]);
-    form.scrollIntoView({ behavior: motionQuery.matches ? "auto" : "smooth", block: "start" });
+    window.scrollTo({ top: 0, behavior: motionQuery.matches ? "auto" : "smooth" });
   }
   begin?.addEventListener("click", (event) => {
     event.preventDefault();

@@ -21,6 +21,18 @@
     const control = controlId ? document.getElementById(controlId) : null;
     if (!control) return;
 
+    // Toggle: clicking an already-selected card on an optional question deselects it.
+    if (button.classList.contains("is-selected") && !control.required) {
+      group.querySelectorAll("[data-choice-value]").forEach((choice) => {
+        choice.classList.remove("is-selected");
+        choice.setAttribute("aria-checked", "false");
+      });
+      control.value = "";
+      control.dispatchEvent(new Event("change", { bubbles: true }));
+      syncOther(control);
+      return;
+    }
+
     group.querySelectorAll("[data-choice-value]").forEach((choice) => {
       const selected = choice === button;
       choice.classList.toggle("is-selected", selected);

@@ -1,5 +1,57 @@
 # Deploy Bucket
 
+## Interview UX — Progress gauge below question, Back button, header, Save & exit cleanup
+
+Status: local-only / included in next release batch
+Branch: current working tree / next local-first release batch
+
+Included intent:
+- Restore site header visibility during Baby interview (was hidden by CSS; now shows on all three verticals).
+- Remove Back button from Q1 on all three verticals (Baby, Pet, Business); Back now appears below the question, before Next, on Q2+.
+- Remove "Save & exit" from interview nav on all three verticals — Home is already in the site header.
+- Baby header scroll fix: `startInterview()` now scrolls to top of page rather than form, keeping header in view.
+- CSS: question-actions divs now flex-row; inline Back button styled per vertical.
+
+Files changed:
+- `templates/intake.html`
+- `static/js/baby-intake-polish.js`
+- `static/js/pet-intake-guided.js`
+- `static/js/business-intake-guided.js`
+- `static/css/platform.css`
+
+Expected customer-facing effect:
+- All three verticals show the site header during the interview.
+- Back button is absent on Q1; appears below the question (before Next) on Q2+.
+- No "Save & exit" link cluttering the interview nav.
+
+Not included:
+- Direction review or generation loading state changes.
+- Mobile layout changes.
+
+## Pet question card artifact fix + choice deselect
+
+Status: local-only / included in next release batch
+Branch: current working tree / next local-first release batch
+
+Included intent:
+- Move `pet-play-scene` inside `pet-question-stage` so decorative elements (paw, ball, bone) are confined to the question card area and do not bleed below it.
+- Fix `pet-native-submit` and `business-native-submit` — `polished-intake-form > button { min-height: 58px }` was overriding the visually-hidden CSS, making them render as visible 58px elements. Added more-specific rule with `min-height: 0 !important; opacity: 0; clip-path: inset(50%)`.
+- Deselect behavior: clicking an already-selected choice card on an **optional** question now clears the selection. Required questions keep their selection. Applies to Baby, Pet, and Business via `pet-choice-cards.js` (Pet + Business) and `baby-intake-polish.js` (Baby).
+
+Files changed:
+- `templates/intake.html`
+- `static/css/platform.css`
+- `static/js/pet-choice-cards.js`
+- `static/js/baby-intake-polish.js`
+
+Expected customer-facing effect:
+- No visible artifacts or thin black lines below pet question cards.
+- Users can click a selected optional answer to deselect it.
+
+Not included:
+- Business play-scene changes (business has no equivalent play-scene).
+- Required question deselect (intentionally kept selected).
+
 ## Progress overlay label removal
 
 Status: local-only review approved for deploy bucket / included in next release batch

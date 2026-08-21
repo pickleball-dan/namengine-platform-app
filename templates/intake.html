@@ -150,16 +150,9 @@
         </div>
         <div class="baby-interview-header">
           <nav class="baby-interview-nav" aria-label="Baby name discovery navigation">
-            <a class="baby-interview-back" href="{{ vertical.route_prefix }}" data-baby-nav-back>← Back</a>
-            <a class="baby-interview-exit" href="{{ vertical.route_prefix }}">Save & exit</a>
+
           </nav>
-          <div class="baby-question-progress" aria-live="polite">
-            <strong class="baby-progress-title" data-baby-progress-title>Let’s get to know your family.</strong>
-            <div class="baby-progress-track" role="progressbar" aria-label="Interview progress" aria-valuemin="1" aria-valuenow="1" aria-valuemax="1" data-baby-progressbar>
-              <span data-baby-progress-fill></span>
-            </div>
-            <span class="baby-progress-count" data-baby-progress-copy>Question 1</span>
-          </div>
+
         </div>
 
         <div class="baby-answer-history" data-baby-answer-history aria-label="Previous answers" hidden>
@@ -227,11 +220,12 @@
                     <button type="button" class="baby-text-continue" data-baby-other-continue>Continue</button>
                   </div>
                 {% endif %}
-                {% if not question.required %}
-                  <div class="baby-question-actions">
+                <div class="baby-question-actions">
+                  <button type="button" class="baby-back-inline" data-baby-nav-back hidden>← Back</button>
+                  {% if not question.required %}
                     <button type="button" class="baby-text-continue" data-baby-skip>Next</button>
-                  </div>
-                {% endif %}
+                  {% endif %}
+                </div>
               {% elif question.kind == "textarea" %}
                 <textarea id="{{ question.id }}" name="{{ question.id }}" maxlength="{{ intake_field_max_length(question) }}"{% if question.required %} required{% endif %} placeholder="{{ question.placeholder }}" aria-labelledby="baby-question-{{ question.id }}">{{ current_value }}</textarea>
               {% else %}
@@ -240,6 +234,7 @@
 
               {% if not question.choices %}
                 <div class="baby-question-actions">
+                  <button type="button" class="baby-back-inline" data-baby-nav-back hidden>← Back</button>
                   {% if question.required %}
                     <button type="button" class="baby-text-continue" data-baby-continue>Continue</button>
                   {% else %}
@@ -259,6 +254,14 @@
           <button class="baby-checkin-return" type="button" data-checkin-return hidden>Back to check-in</button>
         </div>
 
+        <div class="baby-question-progress" aria-live="polite">
+          <strong class="baby-progress-title" data-baby-progress-title>Let's get to know your family.</strong>
+          <div class="baby-progress-track" role="progressbar" aria-label="Interview progress" aria-valuemin="1" aria-valuenow="1" aria-valuemax="1" data-baby-progressbar>
+            <span data-baby-progress-fill></span>
+          </div>
+          <span class="baby-progress-count" data-baby-progress-copy>Question 1</span>
+        </div>
+
         <nav class="baby-journey" aria-label="Baby intake stages">
           <ol>
             {% for stage in ["About your baby", "Name style", "Fit and feeling"] %}
@@ -272,40 +275,40 @@
         </nav>
 
         <div class="baby-answer-confirmation" role="status" aria-live="polite" data-baby-confirmation></div>
+
+        <div class="baby-direction-review" data-baby-direction-review hidden>
+          <p class="eyebrow baby-direction-eyebrow">Your naming direction</p>
+          <h2 class="baby-direction-heading">Here&#8217;s what feels right for your family.</h2>
+          <p class="baby-direction-intro">Take a moment to look through your answers. Edit anything before we begin searching.</p>
+          <dl class="baby-direction-list" data-baby-direction-list></dl>
+          <div class="baby-direction-actions">
+            <button type="button" class="baby-direction-find" data-baby-direction-find>Find our name</button>
+          </div>
+        </div>
+
         <div class="baby-interview-complete" data-baby-complete hidden>
           <span aria-hidden="true">✓</span>
-          <h2>Wonderful.</h2>
-          <p>One last thought before we create names that feel uniquely yours...</p>
+          <h2>Finding names that feel like yours.</h2>
+          <p>Weaving together your family&#8217;s story, style, and everything that matters&hellip;</p>
         </div>
 
         <button class="baby-native-submit" type="submit" tabindex="-1">Continue</button>
       {% elif vertical.slug == "pet" and is_polished_flow %}
-        <div class="pet-play-scene" aria-hidden="true">
-          <span class="pet-play-art pet-play-paw pet-play-paw-one"></span>
-          <span class="pet-play-art pet-play-paw pet-play-paw-two"></span>
-          <span class="pet-play-art pet-play-ball"></span>
-          <span class="pet-play-art pet-play-bone"></span>
-          <span class="pet-play-art pet-play-tag"></span>
-        </div>
-
         <div class="pet-interview-header" data-pet-interview-header hidden>
           <nav class="pet-interview-nav" aria-label="Pet name discovery navigation">
-            <button type="button" class="pet-interview-back" data-pet-nav-back>Back</button>
-            <a class="pet-interview-exit" href="/pet">Save &amp; exit</a>
+
           </nav>
-          <div class="pet-question-progress" aria-live="polite">
-            <div class="pet-progress-track" role="progressbar"
-                 aria-label="Interview progress"
-                 aria-valuemin="1" aria-valuenow="1"
-                 aria-valuemax="{{ vertical.intake_questions | length }}"
-                 data-pet-progressbar>
-              <span data-pet-progress-fill></span>
-            </div>
-            <span class="pet-progress-count" data-pet-progress-copy>Question 1 of {{ vertical.intake_questions | length }}</span>
-          </div>
+
         </div>
 
         <div class="pet-question-stage" data-pet-question-stage hidden>
+          <div class="pet-play-scene" aria-hidden="true">
+            <span class="pet-play-art pet-play-paw pet-play-paw-one"></span>
+            <span class="pet-play-art pet-play-paw pet-play-paw-two"></span>
+            <span class="pet-play-art pet-play-ball"></span>
+            <span class="pet-play-art pet-play-bone"></span>
+            <span class="pet-play-art pet-play-tag"></span>
+          </div>
           {% for question in vertical.intake_questions %}
             {% set current_value = request.args.get(question.id, "") %}
             {% set has_other_choice = question.choices and "Other" in question.choices %}
@@ -360,6 +363,7 @@
                          {% if not other_value and current_value != "Other" %} hidden disabled{% endif %}>
                 {% endif %}
                 <div class="pet-question-actions">
+                  <button type="button" class="pet-back-inline" data-pet-nav-back hidden>Back</button>
                   <button type="button" class="pet-next-button" data-pet-next>Next</button>
                 </div>
               {% elif question.kind == "textarea" %}
@@ -369,6 +373,7 @@
                           placeholder="{{ question.placeholder }}"
                           aria-labelledby="pet-question-{{ question.id }}">{{ current_value }}</textarea>
                 <div class="pet-question-actions">
+                  <button type="button" class="pet-back-inline" data-pet-nav-back hidden>Back</button>
                   <button type="button" class="pet-next-button" data-pet-next>Next</button>
                 </div>
               {% else %}
@@ -379,11 +384,23 @@
                        value="{{ current_value }}"
                        aria-labelledby="pet-question-{{ question.id }}">
                 <div class="pet-question-actions">
+                  <button type="button" class="pet-back-inline" data-pet-nav-back hidden>Back</button>
                   <button type="button" class="pet-next-button" data-pet-next>Next</button>
                 </div>
               {% endif %}
             </section>
           {% endfor %}
+        </div>
+
+        <div class="pet-question-progress" aria-live="polite">
+          <div class="pet-progress-track" role="progressbar"
+               aria-label="Interview progress"
+               aria-valuemin="1" aria-valuenow="1"
+               aria-valuemax="{{ vertical.intake_questions | length }}"
+               data-pet-progressbar>
+            <span data-pet-progress-fill></span>
+          </div>
+          <span class="pet-progress-count" data-pet-progress-copy>Question 1 of {{ vertical.intake_questions | length }}</span>
         </div>
 
         <div class="pet-answer-confirmation" role="status" aria-live="polite" data-pet-confirmation></div>
@@ -412,19 +429,9 @@
 
         <div class="business-interview-header" data-business-interview-header hidden>
           <nav class="business-interview-nav" aria-label="Business name discovery navigation">
-            <button type="button" class="business-interview-back" data-business-nav-back>Back</button>
-            <a class="business-interview-exit" href="/business">Save &amp; exit</a>
+
           </nav>
-          <div class="business-question-progress" aria-live="polite">
-            <div class="business-progress-track" role="progressbar"
-                 aria-label="Interview progress"
-                 aria-valuemin="1" aria-valuenow="1"
-                 aria-valuemax="{{ vertical.intake_questions | length }}"
-                 data-business-progressbar>
-              <span data-business-progress-fill></span>
-            </div>
-            <span class="business-progress-count" data-business-progress-copy>Question 1 of {{ vertical.intake_questions | length }}</span>
-          </div>
+
         </div>
 
         <div class="business-question-stage" data-business-question-stage hidden>
@@ -490,6 +497,7 @@
                          {% if not other_value and current_value != "Other" %} hidden disabled{% endif %}>
                 {% endif %}
                 <div class="business-question-actions">
+                  <button type="button" class="business-back-inline" data-business-nav-back hidden>Back</button>
                   <button type="button" class="business-next-button" data-business-next>Next</button>
                 </div>
               {% elif question.kind == "textarea" %}
@@ -499,6 +507,7 @@
                           placeholder="{{ question.placeholder }}"
                           aria-labelledby="business-question-{{ question.id }}">{{ current_value }}</textarea>
                 <div class="business-question-actions">
+                  <button type="button" class="business-back-inline" data-business-nav-back hidden>Back</button>
                   <button type="button" class="business-next-button" data-business-next>Next</button>
                 </div>
               {% else %}
@@ -509,6 +518,7 @@
                        value="{{ current_value }}"
                        aria-labelledby="business-question-{{ question.id }}">
                 <div class="business-question-actions">
+                  <button type="button" class="business-back-inline" data-business-nav-back hidden>Back</button>
                   <button type="button" class="business-next-button" data-business-next>Next</button>
                 </div>
               {% endif %}
@@ -553,6 +563,7 @@
             </button>
           </div>
           <div class="business-question-actions">
+            <button type="button" class="business-back-inline" data-business-nav-back hidden>Back</button>
             <button type="button" class="business-next-button" data-business-next>Next</button>
           </div>
         </section>
@@ -561,6 +572,17 @@
         <input type="hidden" name="taste_strength_about_the_business" value="34" data-business-priority-field="0">
         <input type="hidden" name="taste_strength_name_style" value="33" data-business-priority-field="1">
         <input type="hidden" name="taste_strength_launch_fit" value="33" data-business-priority-field="2">
+
+        <div class="business-question-progress" aria-live="polite">
+          <div class="business-progress-track" role="progressbar"
+               aria-label="Interview progress"
+               aria-valuemin="1" aria-valuenow="1"
+               aria-valuemax="{{ vertical.intake_questions | length }}"
+               data-business-progressbar>
+            <span data-business-progress-fill></span>
+          </div>
+          <span class="business-progress-count" data-business-progress-copy>Question 1 of {{ vertical.intake_questions | length }}</span>
+        </div>
 
         <div class="business-answer-confirmation" role="status" aria-live="polite" data-business-confirmation></div>
 

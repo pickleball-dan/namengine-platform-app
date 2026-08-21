@@ -1,4 +1,21 @@
 (function () {
+  // ═══════════════════════════════════════════════════════════════════════════
+  //  SUBMISSION CONTRACT — READ THIS BEFORE ADDING A NEW VERTICAL
+  //
+  //  To trigger the progress overlay and submit the form, dispatch this
+  //  custom event on the form element from your vertical’s JS:
+  //
+  //    form.dispatchEvent(new CustomEvent("namengine:finish-interview", {
+  //      bubbles: true
+  //    }));
+  //
+  //  DO NOT call HTMLFormElement.prototype.submit.call(form) directly —
+  //  that bypasses the submit event and the overlay will never show.
+  //  DO NOT rely on clicking a hidden submit button — use the event above.
+  //
+  //  This handler shows the overlay then navigates to results.
+  //  Your vertical JS only needs to dispatch the event. Nothing else.
+  // ═══════════════════════════════════════════════════════════════════════════
   const overlay = document.querySelector("[data-progress-overlay]");
   const current = document.querySelector("[data-progress-current]");
   const eyebrow = document.querySelector("[data-progress-eyebrow]");
@@ -259,6 +276,29 @@
     if (Number.isInteger(requestedStep)) {
       activateStep(Math.max(0, Math.min(requestedStep, steps.length - 1)));
     }
+  });
+
+  // Canonical finish-interview contract.
+  // All vertical JS must dispatch this event instead of calling .submit() directly.
+  // See contract comment at top of this file.
+  document.addEventListener("namengine:finish-interview", (event) => {
+    const targetForm = event.target.closest("form") || forms[0];
+    if (!targetForm) return;
+    if (timer) window.clearInterval(timer);
+    if (patienceTimer) window.clearInterval(patienceTimer);
+    personalizeProgress(targetForm);
+    showProgress();
+    submittingForm = targetForm;
+    const { navigateUrl, request } = requestForForm(targetForm, null);
+    const minimumWait = wait(minimumProgressMs);
+    Promise.all([request, minimumWait])
+      .then(([response]) => {
+        if (!response.ok) throw new Error(`Progress request failed: ${response.status}`);
+        window.location.assign(response.url || navigateUrl);
+      })
+      .catch(() => {
+        minimumWait.then(() => { HTMLFormElement.prototype.submit.call(targetForm); });
+      });
   });
 
   function requestForForm(form, submitter) {

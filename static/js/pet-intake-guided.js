@@ -119,6 +119,9 @@
     if (header) header.hidden = false;
 
     updateProgress(question);
+    // Show inline Back on Q2+, hide on Q1
+    var isFirstQ = questions.indexOf(question) === 0;
+    form.querySelectorAll('[data-pet-nav-back]').forEach(function(btn) { btn.hidden = isFirstQ; });
     window.requestAnimationFrame(function () { focusQuestion(question); });
   }
 
@@ -219,8 +222,11 @@
     if (completePanel) completePanel.hidden = false;
     if (header) header.hidden = false;
     if (progressFill) progressFill.style.width = "100%";
+    // Dispatch the canonical finish-interview event so progress.js
+    // can show the overlay before submitting. Never call .submit() directly.
+    // See contract comment at top of progress.js.
     window.setTimeout(function () {
-      HTMLFormElement.prototype.submit.call(form);
+      form.dispatchEvent(new CustomEvent("namengine:finish-interview", { bubbles: true }));
     }, motionQuery.matches ? 100 : loadingHandoff.delay);
   }
 
