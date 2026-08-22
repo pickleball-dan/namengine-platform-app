@@ -373,18 +373,16 @@ def build_business_image_prompt(
     tagline = _clean(result.get("tagline"))
 
     return (
-        "Create a commercially useful premium brand-direction moodboard, not a logo, for a business named "
-        f"{name}. Business: {description}. Category: {industry}. Audience: {audience}. "
-        f"Brand direction: {style}. "
-        + (f"Positioning inspiration: {tagline}. " if tagline else "")
-        + "Translate the specific category, audience, and positioning into one coherent visual system. "
-        "Composition: an art-directed square board with four to six coordinated zones showing a concise color palette, "
-        "materials or texture, category-relevant environment or object photography, a distinctive non-letterform graphic motif, "
-        "and a blank real-world application surface such as stationery, packaging, storefront, or social tile. "
-        "It should help a founder evaluate a credible visual direction, not look like generic decorative abstract art. "
-        "Use commercially sophisticated art direction and intentional negative space. "
-        "Do not render the business name or any words, letters, initials, monograms, logo marks, trademarks, "
-        "watermarks, or readable text. The abstract motif must not resemble a letter or typographic character."
+        f"Design a clean, professional logo concept for a business called '{name}'. "
+        f"Business: {description}. Category: {industry}. Brand direction: {style}. "
+        + (f"Brand positioning: {tagline}. " if tagline else "")
+        + "The logo should be a single cohesive mark — either a wordmark rendering the business name in "
+        "distinctive, premium typography, or a lettermark/symbol paired with the name. "
+        "Style: modern, premium, commercially credible, appropriate for the category. "
+        "Background: clean white or very light neutral — no gradients, no textures, no scenes. "
+        "Composition: centered logo mark with generous negative space. "
+        "Do not include product photography, room scenes, color swatches, packaging mockups, "
+        "lifestyle images, or decorative collages. No watermarks. No taglines or extra text beyond the business name."
     )
 
 
