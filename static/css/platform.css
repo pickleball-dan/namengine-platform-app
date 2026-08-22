@@ -13753,6 +13753,13 @@ body.vertical-business {
     0 0 0 24px rgba(63, 166, 160, 0.06),
     0 16px 34px rgba(0, 0, 0, 0.38);
 }
+/* node-three uses accent-deep on the base theme — invisible on the dark Business panel */
+.vertical-business .progress-node-three {
+  background: rgba(185, 218, 245, 0.88);
+  box-shadow:
+    0 0 0 5px rgba(185, 218, 245, 0.20),
+    0 0 16px rgba(185, 218, 245, 0.28);
+}
 .vertical-business .progress-visual-label {
   background: rgba(14, 28, 56, 0.88);
   border-color: rgba(63, 166, 160, 0.52);
