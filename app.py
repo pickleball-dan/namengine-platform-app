@@ -2536,7 +2536,7 @@ def _keepsake_preview(chosen_id: str):
     snapshot = get_chosen_snapshot(chosen_id)
     if snapshot is None or snapshot["result"] is None:
         return None
-    if snapshot["chosen"].get("vertical") not in {"pet", "baby"}:
+    if snapshot["chosen"].get("vertical") not in {"pet", "baby", "business"}:
         return None
 
     return keepsake_preview_for_chosen(snapshot["chosen"], snapshot["session"])
@@ -2546,7 +2546,7 @@ def _queue_keepsake_generation(chosen_id: str, *, force_retry: bool = False):
     snapshot = get_chosen_snapshot(chosen_id)
     if snapshot is None or snapshot["result"] is None:
         return None
-    if snapshot["chosen"].get("vertical") not in {"pet", "baby"}:
+    if snapshot["chosen"].get("vertical") not in {"pet", "baby", "business"}:
         return None
 
     result = to_plain_data(json_loads(snapshot["result"]["result_json"]))

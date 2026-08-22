@@ -12891,6 +12891,101 @@ body.vertical-business {
 .business-brand-swatch.accent { background: var(--brand-secondary, #3fa6a0); }
 .business-brand-swatch.warm { background: var(--brand-warm, #d9a441); }
 
+/* ── A: Circular SVG lettermark ── */
+.business-brand-mark-svg {
+  display: block;
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  overflow: visible;
+}
+.business-brand-mark-svg.small {
+  width: 30px;
+  height: 30px;
+}
+
+/* ── A: Hero tagline replaces grey placeholder bars ── */
+.business-brand-hero-content {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 13px 11px 16px;
+  background:
+    radial-gradient(circle at 86% 70%, var(--brand-tint, rgba(63,166,160,0.12)) 0 40px, transparent 42px),
+    #ffffff;
+}
+.business-brand-hero-tagline {
+  display: block;
+  color: var(--brand-primary, #0d2540);
+  font-size: 10.5px;
+  font-weight: 700;
+  line-height: 1.38;
+  opacity: 0.82;
+}
+.business-brand-hero-ghost {
+  display: block;
+  height: 9px;
+  width: 54%;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--brand-secondary, #3fa6a0) 22%, transparent);
+}
+
+/* ── B: Wordmark strip ── */
+.business-brand-wordmarks {
+  padding: 10px 14px 4px;
+  border-top: 1px solid rgba(13, 37, 64, 0.08);
+}
+.business-brand-wordmarks-label {
+  margin-bottom: 8px;
+  color: rgba(63, 111, 119, 0.80);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+.business-brand-wordmark-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+.business-brand-wordmark-row:last-child {
+  border-bottom: none;
+  padding-bottom: 2px;
+}
+.bwm-sans {
+  font-family: 'Inter', sans-serif;
+  font-size: 11.5px;
+  font-weight: 900;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--brand-primary, #0d2540);
+}
+.bwm-serif {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 18px;
+  font-weight: 700;
+  font-style: italic;
+  color: var(--brand-primary, #0d2540);
+  line-height: 1;
+}
+.bwm-display {
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: var(--brand-secondary, #3fa6a0);
+}
+.bwm-tag {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
 .business-brand-checks span {
   color: var(--brand-primary, #0d2540);
   background: var(--brand-tint, rgba(63, 166, 160, 0.1));
@@ -14619,4 +14714,86 @@ body.vertical-business {
 .vertical-business .baby-welcome .vertical-page-logo-wrap .vertical-page-logo {
   margin: 0;
   display: block;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   BUSINESS: AI brand concept image frame (chosen page)
+   Shown above the static brand card when an AI concept is
+   generating or ready after the user chooses a business name.
+   ══════════════════════════════════════════════════════════════════ */
+
+.business-concept-frame {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 14px 14px 10px;
+  background: #0b1830;
+  border: 1px solid rgba(63, 166, 160, 0.28);
+  border-radius: 16px;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.36), 0 0 0 1px rgba(63, 166, 160, 0.12);
+}
+
+.business-concept-frame img,
+.business-concept-placeholder {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.business-concept-frame img {
+  border: 1px solid rgba(63, 166, 160, 0.18);
+}
+
+.business-concept-frame figcaption {
+  color: rgba(148, 192, 228, 0.55);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.business-concept-placeholder {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: rgba(148, 192, 228, 0.80);
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 72% 24%, rgba(63, 166, 160, 0.14), transparent 38%),
+    radial-gradient(circle at 20% 78%, rgba(217, 164, 65, 0.08), transparent 36%),
+    #0e1c36;
+  border: 1px solid rgba(63, 166, 160, 0.18);
+}
+
+.business-concept-placeholder .portrait-monogram {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 64px;
+  font-weight: 700;
+  color: rgba(217, 164, 65, 0.72);
+  line-height: 1;
+}
+
+.business-concept-placeholder .portrait-status {
+  position: static;
+  color: rgba(148, 192, 228, 0.65);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  max-width: 200px;
+}
+
+.business-concept-placeholder .portrait-progress {
+  border-color: rgba(63, 166, 160, 0.30);
+  border-top-color: #3fa6a0;
+}
+
+.business-concept-placeholder .portrait-retry {
+  background: rgba(63, 166, 160, 0.80);
 }

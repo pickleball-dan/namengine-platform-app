@@ -32,23 +32,59 @@
       {% if portrait %}data-portrait-retry-url="{{ url_for('retry_chosen_portrait', chosen_id=chosen.id) }}"{% endif %}
     >
       {% if vertical.slug == "business" %}
+        {% if portrait %}
+        <figure class="business-concept-frame" data-pet-portrait-frame>
+          {% if portrait.url %}
+            <img data-pet-portrait-image src="{{ portrait.url }}" alt="Brand direction concept for {{ chosen.name }}">
+          {% else %}
+            <div class="business-concept-placeholder{% if portrait.status == 'failed' %} is-failed{% endif %}" data-pet-portrait-placeholder>
+              <span class="portrait-monogram" aria-hidden="true">{{ chosen.name[:1] }}</span>
+              {% if portrait.status == "not_configured" %}
+                <span class="portrait-status">Brand concept preview isn't available right now</span>
+              {% elif portrait.status == "failed" %}
+                <span class="portrait-status" data-pet-portrait-status>{{ keepsake_failed_text }}</span>
+              {% else %}
+                <span class="portrait-progress" aria-hidden="true"></span>
+                <span class="portrait-status" data-pet-portrait-status>{{ keepsake_creating_text }}</span>
+              {% endif %}
+              {% if portrait.status != "not_configured" %}
+                <button class="portrait-retry" type="button" data-portrait-retry{% if portrait.status != "failed" %} hidden{% endif %}>Try again</button>
+              {% endif %}
+            </div>
+          {% endif %}
+          <figcaption>Brand direction concept</figcaption>
+        </figure>
+        {% endif %}
         <figure class="business-brand-card palette-{{ business_palette }}" aria-label="Brand preview for {{ chosen.name }}">
           <div class="business-brand-browser" aria-hidden="true">
             <div class="business-brand-browser-bar">
               <span></span><span></span><span></span>
             </div>
             <div class="business-brand-site-header">
-              <div class="business-brand-card-mark"><span>{{ chosen.name[:1] }}</span></div>
+              <svg class="business-brand-mark-svg" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <circle cx="28" cy="28" r="26" fill="rgba(255,255,255,0.08)"/>
+                <circle cx="28" cy="28" r="23" fill="var(--brand-primary,#0d2540)"/>
+                <circle cx="28" cy="28" r="23" fill="none" stroke="var(--brand-warm,#d9a441)" stroke-width="2" opacity="0.82"/>
+                <circle cx="28" cy="28" r="17" fill="none" stroke="var(--brand-warm,#d9a441)" stroke-width="0.8" opacity="0.30"/>
+                <text x="28" y="37" text-anchor="middle" font-family="Cormorant Garamond,Georgia,serif" font-size="26" font-weight="700" fill="var(--brand-warm,#d9a441)">{{ chosen.name[:1] }}</text>
+              </svg>
               <strong>{{ chosen.name }}</strong>
               <small>{{ business_industry }}</small>
             </div>
-            <div class="business-brand-hero-lines">
-              <span></span>
-              <span></span>
+            <div class="business-brand-hero-content">
+              {% if result.tagline %}
+                <span class="business-brand-hero-tagline">{{ result.tagline }}</span>
+              {% endif %}
+              <span class="business-brand-hero-ghost"></span>
             </div>
           </div>
           <div class="business-brand-letterhead" aria-hidden="true">
-            <div class="business-brand-card-mark small"><span>{{ chosen.name[:1] }}</span></div>
+            <svg class="business-brand-mark-svg small" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <circle cx="28" cy="28" r="25" fill="var(--brand-primary,#0d2540)"/>
+              <circle cx="28" cy="28" r="25" fill="none" stroke="var(--brand-warm,#d9a441)" stroke-width="2.5" opacity="0.80"/>
+              <circle cx="28" cy="28" r="18" fill="none" stroke="var(--brand-warm,#d9a441)" stroke-width="0.8" opacity="0.28"/>
+              <text x="28" y="37" text-anchor="middle" font-family="Cormorant Garamond,Georgia,serif" font-size="26" font-weight="700" fill="var(--brand-warm,#d9a441)">{{ chosen.name[:1] }}</text>
+            </svg>
             <div>
               <strong>{{ chosen.name }}</strong>
               {% if result.tagline %}<span>{{ result.tagline }}</span>{% endif %}
@@ -71,7 +107,22 @@
             <span>{{ business_audience }}</span>
             <span>{{ business_style }}</span>
           </div>
-          <figcaption>Clear brand card · Website header + letterhead mock</figcaption>
+          <div class="business-brand-wordmarks" aria-label="Wordmark directions">
+            <p class="business-brand-wordmarks-label">Wordmark directions</p>
+            <div class="business-brand-wordmark-row">
+              <span class="bwm-sans">{{ chosen.name }}</span>
+              <span class="bwm-tag">Sans · Modern</span>
+            </div>
+            <div class="business-brand-wordmark-row">
+              <span class="bwm-serif">{{ chosen.name }}</span>
+              <span class="bwm-tag">Serif · Classic</span>
+            </div>
+            <div class="business-brand-wordmark-row">
+              <span class="bwm-display">{{ chosen.name }}</span>
+              <span class="bwm-tag">Display · Bold</span>
+            </div>
+          </div>
+          <figcaption>Brand preview · Lettermark · Wordmark directions</figcaption>
         </figure>
       {% elif portrait %}
         <figure class="pet-portrait-frame{% if vertical.slug == 'baby' %} baby-keepsake-frame{% elif vertical.slug == 'business' %} business-image-frame{% endif %}" data-pet-portrait-frame>
@@ -170,7 +221,6 @@
       button.textContent = "Link copied";
     });
 
-    {% if vertical.slug != "business" %}
     const portraitShell = document.querySelector("[data-portrait-retry-url]");
     const portraitFrame = document.querySelector("[data-pet-portrait-frame]");
     const portraitStatus = document.querySelector("[data-pet-portrait-status]");
@@ -264,6 +314,5 @@
         showFailure();
       }
     });
-    {% endif %}
   </script>
 {% endblock %}
