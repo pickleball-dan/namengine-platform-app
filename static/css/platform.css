@@ -13295,20 +13295,30 @@ body.vertical-business {
   color: rgba(145, 190, 225, 0.70);
 }
 .vertical-business .site-footer {
-  color: rgba(110, 160, 205, 0.55);
+  background: #0b1830;
+  border-top-color: rgba(63, 166, 160, 0.22);
+  color: rgba(148, 192, 228, 0.72);
 }
 .vertical-business .site-footer a {
-  color: rgba(110, 160, 205, 0.55);
+  color: rgba(148, 192, 228, 0.72);
+}
+/* Override light-theme divider and body text inside the brand block */
+.vertical-business .site-footer-reference .footer-brand-block {
+  border-right-color: rgba(63, 166, 160, 0.18);
+}
+.vertical-business .site-footer-reference .footer-brand-block p {
+  color: rgba(148, 192, 228, 0.65);
 }
 .vertical-business .footer-column h2 {
-  color: rgba(130, 175, 215, 0.50);
+  color: rgba(100, 160, 210, 0.55);
 }
+/* Invert dark wordmark so it reads on the dark footer background */
 .vertical-business .footer-brand-logo {
-  filter: brightness(1.8) saturate(0.5);
-  opacity: 0.60;
+  filter: brightness(0) invert(1);
+  opacity: 0.72;
 }
 .vertical-business .footer-bottom-line {
-  color: rgba(100, 150, 195, 0.45);
+  color: rgba(100, 150, 195, 0.50);
 }
 
 /* ── Welcome card: dark glassy, teal grid texture ── */
