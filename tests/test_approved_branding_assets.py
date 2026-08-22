@@ -12,7 +12,7 @@ APPROVED_ASSET_HASHES = {
     "namengine-baby-icon.svg": "7cd9d98f601a90ac5d33c7eea77e4f5833357110653e5c6f0715dafb8cd343d1",
     "namengine-baby.svg": "24bbf2b385585f03f2c38521aab963ea00db2faf00d42360d435f4b27fdbbbda",
     "namengine-biz-icon.svg": "521d0795e1d3615df0d89c9bc3d28afc3705d3ceba8dbee70f34711289e288c9",
-    "namengine-biz.svg": "641133ef8f677b9eb412c3a94556bc680b7b68e51d82a936655fb4dd9605af26",
+    "namengine-biz.svg": "98258edc80d7b8c72dc114850a12ad9386964838bbef78c31dbe7409f03a7421",
     "namengine-icon.svg": "7a3a300ea516ae4948e3926c0f27ccf8ca7076d1f5e3c450ef0844c99b30d03c",
     "namengine-pets-icon.svg": "3e778d5d03d189e8595d874583f708533a513066e591277d7501e819e5b55d89",
     "namengine-pets.svg": "4015cd63769a6728263c0dd084813e3fbef735de9f094050d8ae1a8ed2b72218",

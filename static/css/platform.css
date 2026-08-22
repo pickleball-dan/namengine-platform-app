@@ -14511,3 +14511,73 @@ body.vertical-business {
   background: rgba(47, 148, 134, 0.16);
   border-color: rgba(47, 148, 134, 0.42);
 }
+
+
+/* ══════════════════════════════════════════════════════════════════
+   BUSINESS: Header + logo visibility fixes — 2026-08-21
+   The site-header-reference has a white background (rgba(255,255,255,0.98)).
+   Our dark-theme pass painted the header text light-blue, making it
+   invisible on white. Restore to match Baby/Pet (dark text on white header).
+   Also fix the Business logo being dark-on-dark in the welcome card.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Site header: dark text on white, same as other verticals ── */
+.vertical-business .brand-home-text {
+  color: #18212f;
+}
+.vertical-business .naming-menu-trigger {
+  color: #18212f;
+}
+.vertical-business .naming-menu-trigger svg path {
+  stroke: #18212f;
+}
+.vertical-business .site-nav-link,
+.vertical-business .site-nav-signin {
+  color: #566174;
+}
+.vertical-business .site-header-inner {
+  background: transparent; /* header shell itself is white, no override needed */
+}
+
+/* ── Welcome card logo: light box wrapper — dark logo on light box = clear on dark card ── */
+.vertical-business .baby-welcome .vertical-page-logo-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin: 0 0 16px;
+  padding: 10px 24px;
+  background: rgba(220, 236, 250, 0.92);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.36);
+  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.20);
+}
+
+
+/* ══════════════════════════════════════════════════════════════════
+   PET: Remove empty form box on landing page — 2026-08-21
+   Hiding the progress element exposed the polished-intake-form
+   rendering as an empty white box. Strip its box styling before
+   the interview starts; the individual question cards have their
+   own styling so the form shell doesn't need it.
+   ══════════════════════════════════════════════════════════════════ */
+
+.vertical-pet:not(.pet-interview-started) .polished-intake-form {
+  background: transparent;
+  border: none;
+  border-top: none;
+  box-shadow: none;
+  padding: 0;
+  gap: 0;
+  min-height: 0;
+}
+
+/* Also hide the empty confirmation placeholder on landing */
+.vertical-pet:not(.pet-interview-started) .pet-answer-confirmation {
+  display: none;
+}
+
+/* Remove default logo bottom margin inside the business box wrapper */
+.vertical-business .baby-welcome .vertical-page-logo-wrap .vertical-page-logo {
+  margin: 0;
+  display: block;
+}

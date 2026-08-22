@@ -49,7 +49,9 @@
             </div>
           {% endif %}
           {% if page_logo %}
-            <img class="vertical-page-logo" src="{{ url_for('static', filename=page_logo) }}" alt="NamEngine {{ vertical.display_name }} logo">
+            <span class="vertical-page-logo-wrap">
+              <img class="vertical-page-logo" src="{{ url_for('static', filename=page_logo) }}" alt="NamEngine {{ vertical.display_name }} logo">
+            </span>
           {% endif %}
           <p class="eyebrow">{{ copy[0] }}</p>
           <h1>{{ copy[1] }}</h1>
