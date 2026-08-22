@@ -14716,6 +14716,20 @@ body.vertical-business {
   display: block;
 }
 
+/* Invert the dark NamEngineBiz SVG on dark-background pages so it pops */
+.vertical-business :is(
+  .chosen-shell,
+  .results-heading,
+  .results-shell,
+  .compare-shell,
+  .detail-hero,
+  .detail-shell,
+  .feedback-shell
+) > .vertical-page-logo {
+  filter: brightness(0) invert(1);
+  opacity: 0.90;
+}
+
 /* ══════════════════════════════════════════════════════════════════
    BUSINESS: AI brand concept image frame (chosen page)
    Shown above the static brand card when an AI concept is
