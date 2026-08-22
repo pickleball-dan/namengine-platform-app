@@ -117,6 +117,9 @@
     if (completePanel) completePanel.hidden = true;
     if (stage) stage.hidden = false;
     if (header) header.hidden = false;
+    // Restore progress gauge when returning to questions
+    var progressEl = form.querySelector(".pet-question-progress");
+    if (progressEl) progressEl.hidden = false;
 
     updateProgress(question);
     // Show inline Back on Q2+, hide on Q1
@@ -197,11 +200,12 @@
     questions.forEach(function (q) { q.hidden = true; q.classList.remove("is-active"); });
     if (stage) stage.hidden = true;
     if (completePanel) completePanel.hidden = true;
+    // Hide progress gauge — not needed on direction review, was causing blank space
+    var progressEl = form.querySelector(".pet-question-progress");
+    if (progressEl) progressEl.hidden = true;
     renderDirectionReview();
     if (directionReview) directionReview.hidden = false;
     if (header) header.hidden = false;
-    if (progressCopy) progressCopy.textContent = "Your direction";
-    if (progressFill) progressFill.style.width = "100%";
     if (progressBar) {
       progressBar.setAttribute("aria-valuenow", String(questions.length));
       progressBar.setAttribute("aria-valuemax", String(questions.length));
