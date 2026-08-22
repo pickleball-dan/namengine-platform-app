@@ -14770,8 +14770,8 @@ body.vertical-business {
   gap: 10px;
   margin: 0;
   padding: 14px 14px 10px;
-  background: #0b1830;
-  border: 1px solid rgba(63, 166, 160, 0.28);
+  background: #ffffff;
+  border: 1px solid rgba(63, 166, 160, 0.40);
   border-radius: 16px;
   box-shadow: 0 20px 48px rgba(0, 0, 0, 0.36), 0 0 0 1px rgba(63, 166, 160, 0.12);
 }
@@ -14790,7 +14790,7 @@ body.vertical-business {
 }
 
 .business-concept-frame figcaption {
-  color: rgba(148, 192, 228, 0.55);
+  color: #607086;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.12em;
