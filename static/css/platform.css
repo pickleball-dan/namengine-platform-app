@@ -7784,12 +7784,12 @@ button {
     overflow: visible;
   }
 
-  :is(.vertical-pet, .vertical-business) .field-heading .intake-tooltip {
+  :is(.vertical-pet, .vertical-business) :is(.field-heading, .business-question-heading) .intake-tooltip {
     position: static;
     flex-basis: 100%;
   }
 
-  :is(.vertical-pet, .vertical-business) .field-heading .intake-tooltip-panel {
+  :is(.vertical-pet, .vertical-business) :is(.field-heading, .business-question-heading) .intake-tooltip-panel {
     position: static;
     width: 100%;
     min-width: 0;
