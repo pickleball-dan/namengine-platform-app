@@ -1504,8 +1504,7 @@ def create_app() -> Flask:
         if snapshot and snapshot["results"]:
             names = _names_from_snapshot(snapshot)
         else:
-            if _free_generation_blocked(vertical, session_id, needs_generation=True):
-                return _free_generation_access_required_response(vertical, session_id)
+            # Always generate for a new session — user must see names before any paywall.
             names = _generate_names_for_route(vertical, brief)
             save_session(session_id, vertical.slug, brief, names)
             snapshot = get_session_snapshot(session_id)
@@ -1545,8 +1544,7 @@ def create_app() -> Flask:
                 names = _generate_names_for_route(vertical, brief)
                 save_session(session_id, vertical.slug, brief, names)
         else:
-            if _free_generation_blocked(vertical, session_id, needs_generation=True):
-                raise FreeGenerationAccessRequired(session_id)
+            # Always generate for a new session — user must see names before any paywall.
             names = _generate_names_for_route(vertical, brief)
             save_session(session_id, vertical.slug, brief, names)
         return session_id
@@ -1586,8 +1584,7 @@ def create_app() -> Flask:
                 names = _generate_names_for_route(vertical, brief)
                 save_session(session_id, vertical.slug, brief, names)
         else:
-            if _free_generation_blocked(vertical, session_id, needs_generation=True):
-                return _free_generation_access_required_response(vertical, session_id)
+            # Always generate for a new session — user must see names before any paywall.
             names = _generate_names_for_route(vertical, brief)
             save_session(session_id, vertical.slug, brief, names)
             snapshot = get_session_snapshot(session_id)

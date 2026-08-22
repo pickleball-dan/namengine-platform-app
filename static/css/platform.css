@@ -13394,6 +13394,27 @@ body.vertical-business {
 .vertical-business .site-nav-signin {
   color: rgba(145, 190, 225, 0.70);
 }
+
+/* ── Beta landing hero: dark theme text fix ── */
+.vertical-business .beta-hero h1 {
+  color: #e8f0fa;
+}
+.vertical-business .beta-hero-copy > p {
+  color: rgba(172, 210, 240, 0.82);
+}
+.vertical-business .beta-price-card {
+  background:
+    radial-gradient(circle at 92% 8%, rgba(63, 166, 160, 0.18), transparent 40%),
+    linear-gradient(145deg, rgba(14, 28, 56, 0.92), rgba(11, 22, 46, 0.96));
+  border-color: rgba(63, 166, 160, 0.28);
+}
+.vertical-business .beta-price-card span,
+.vertical-business .beta-price-card small {
+  color: rgba(148, 192, 228, 0.72);
+}
+.vertical-business .beta-price-card strong {
+  color: #e8f0fa;
+}
 .vertical-business .site-footer {
   background: #0b1830;
   border-top-color: rgba(63, 166, 160, 0.22);
