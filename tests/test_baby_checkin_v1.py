@@ -66,11 +66,17 @@ class BabyCheckInV1Test(unittest.TestCase):
 
     def test_existing_skip_and_feelings_route_contracts_remain(self):
         body = self.client.get("/baby").get_data(as_text=True)
+        feelings = self.client.get("/baby/feelings?gender=Girl&style=Classic&sound=Soft")
 
-        self.assertIn('action="/baby/feelings"', body)
-        self.assertIn('class="baby-text-continue" data-baby-skip>Skip</button>', body)
+        # Polished flow now posts directly to results; feelings page still reachable standalone
+        self.assertIn('action="/baby/results"', body)
+        self.assertEqual(feelings.status_code, 200)
+        # Skip mechanism preserved via data-baby-skip attribute (text updated to Next)
+        self.assertIn('data-baby-skip', body)
         self.assertIn('confirmAndAdvance(question, "Skipped")', self.js)
-        self.assertIn("HTMLFormElement.prototype.submit.call(form)", self.js)
+        # HTMLFormElement.prototype.submit.call(form) now lives in progress.js, not baby-intake-polish.js
+        progress_js = (self.root / "static" / "js" / "progress.js").read_text(encoding="utf-8")
+        self.assertIn("HTMLFormElement.prototype.submit.call(form)", progress_js)
 
     def test_checkin_is_excluded_from_visible_answer_history(self):
         render_history = self.js.split("function renderHistory(question)", 1)[1].split(

@@ -55,7 +55,7 @@ class MultiVerticalCompletionPassTest(unittest.TestCase):
                     self.assertIn("data-business-question", body)
                     self.assertIn("data-business-progressbar", body)
                     self.assertNotIn("Step 1 of 3", body)
-                self.assertIn("baby-intake-polish.js?v=20260819-text-skip-next-v1", body)
+                self.assertIn("baby-intake-polish.js?v=20260821-priority-inline-v1", body)
                 if vertical in {"pet", "business"}:
                     self.assertNotIn("data-baby-skip", body)
                 for phrase in phrases:

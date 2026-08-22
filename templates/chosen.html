@@ -4,7 +4,7 @@
 
 {% block content %}
   {% set keepsake_label = "keepsake" if vertical.slug == "baby" else ("logo concept" if vertical.slug == "business" else "portrait") %}
-  {% set keepsake_ready_alt = "Baby blanket keepsake for " ~ chosen.name if vertical.slug == "baby" else ("Brand direction board for " ~ chosen.name if vertical.slug == "business" else "Framed portrait of " ~ chosen.name) %}
+  {% set keepsake_ready_alt = "Baby blanket keepsake for " ~ chosen.name if vertical.slug == "baby" else ("Logo concept for " ~ chosen.name if vertical.slug == "business" else "Framed portrait of " ~ chosen.name) %}
   {% set keepsake_setup_text = "Keepsake preview isn’t available right now" if vertical.slug == "baby" else ("Portrait preview will appear here when image creation is available" if vertical.slug == "pet" else "Image preview will appear here when image creation is available") %}
   {% set keepsake_failed_text = "Your " ~ keepsake_label ~ " could not be created" %}
   {% set keepsake_creating_text = "Creating " ~ keepsake_label %}

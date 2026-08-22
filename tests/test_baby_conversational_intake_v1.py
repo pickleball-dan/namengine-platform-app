@@ -58,10 +58,10 @@ class BabyConversationalIntakeV1Test(unittest.TestCase):
         self.assertIn('name="taste_strength_fit_and_feeling" value="33"', body)
         self.assertIn("Wonderful.", body)
         self.assertIn("We’re creating names that feel uniquely yours...", body)
-        self.assertIn('class="baby-text-continue" type="button" data-baby-final-skip>Skip</button>', body)
+        self.assertIn('class="baby-text-continue" type="button" data-baby-final-skip>Next</button>', body)
         self.assertNotIn("Find names that feel right</button>", body)
 
-    def test_optional_multiple_choice_questions_show_skip(self):
+    def test_optional_multiple_choice_questions_show_next(self):
         body = self.client.get("/baby").get_data(as_text=True)
 
         for question_id in (
@@ -73,7 +73,7 @@ class BabyConversationalIntakeV1Test(unittest.TestCase):
         ):
             with self.subTest(question_id=question_id):
                 question = self.question_markup(body, question_id)
-                self.assertIn('class="baby-text-continue" data-baby-skip>Skip</button>', question)
+                self.assertIn('class="baby-text-continue" data-baby-skip>Next</button>', question)
 
     def test_required_multiple_choice_questions_do_not_show_skip(self):
         body = self.client.get("/baby").get_data(as_text=True)
@@ -138,10 +138,10 @@ class BabyConversationalIntakeV1Test(unittest.TestCase):
             'form.addEventListener("input"', 1
         )[0]
 
-        self.assertIn('skip.textContent = hasAnswer ? "Next" : "Skip"', sync_text_action)
+        self.assertIn('skip.textContent = "Next"', sync_text_action)
         self.assertIn('skip.dataset.actionState = hasAnswer ? "next" : "skip"', sync_text_action)
         self.assertIn('"Save this answer and continue"', sync_text_action)
-        self.assertIn('"Skip this optional question"', sync_text_action)
+        self.assertIn('"Continue to next question"', sync_text_action)
         self.assertIn('if (question.dataset.questionKind !== "choice" && valueFor(question)) continueText(question)', click_handler)
         self.assertIn('form.addEventListener("input"', intake_js)
         self.assertIn("syncAllTextActionStates()", intake_js)
@@ -218,7 +218,7 @@ class BabyConversationalIntakeV1Test(unittest.TestCase):
         self.assertIn("data-baby-progress-title", body)
         self.assertIn("data-baby-progress-copy", body)
         self.assertIn("data-journey-vertical=\"baby\"", body)
-        self.assertIn("Let’s get to know your family.", body)
+        self.assertIn("Let's get to know your family.", body)
         self.assertIn("journeyCopyConfigurations", intake_js)
         self.assertIn("progressTitle.textContent = journeyCopy.questions[question.dataset.questionId]", intake_js)
         self.assertIn("progressCopy.textContent = `Question ${number} of ${total}`", intake_js)

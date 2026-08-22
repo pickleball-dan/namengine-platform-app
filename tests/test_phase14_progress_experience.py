@@ -50,7 +50,7 @@ class PhaseFourteenProgressExperienceTest(unittest.TestCase):
         self.assertIn('action="/pet/results"', body)
         self.assertIn('method="post"', body)
         self.assertIn('data-progress-form', body)
-        self.assertIn("Generate Pet Names", body)
+        self.assertIn("Find names", body)
         self.assertIn("Finding names for this identity", body)
         self.assertIn("A few quick checks before the list appears.", body)
         self.assertIn("Finding names for this identity", body)
@@ -223,6 +223,7 @@ class PhaseFourteenProgressExperienceTest(unittest.TestCase):
                 body: {{ classList: classList() }},
                 createElement: element,
                 getElementById() {{ return null; }},
+                addEventListener() {{}},
                 querySelector(selector) {{
                   if (selector === "[data-progress-overlay]") return overlay;
                   if (selector === "[data-progress-current]") return current;

@@ -119,7 +119,7 @@ class MultiVerticalImageGenerationTest(unittest.TestCase):
         body = page.get_data(as_text=True)
         self.assertEqual(page.status_code, 200)
         self.assertIn("business-brand-card", body)
-        self.assertIn("Clear brand card", body)
+        self.assertIn("Brand preview", body)
         self.assertIn("Northwell", body)
         self.assertIn("Premium clients", body)
         self.assertIn("Clear and credible", body)
@@ -130,8 +130,9 @@ class MultiVerticalImageGenerationTest(unittest.TestCase):
         self.assertIn("overflow-wrap: normal;", css)
         self.assertNotIn("Brand direction board for Northwell", body)
         self.assertNotIn("/generated/business-images/", body)
-        self.assertNotIn("data-portrait-status-url", body)
-        thread.assert_not_called()
+        # Business now triggers async logo concept generation on choose
+        self.assertIn("data-portrait-status-url", body)
+        thread.assert_called_once()
 
     def test_failure_is_sanitized_preserves_choice_and_exposes_retry(self):
         snapshot = self._chosen(

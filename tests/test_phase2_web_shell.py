@@ -99,7 +99,7 @@ class PhaseTwoWebShellTest(unittest.TestCase):
         self.assertIn("What personality should the name capture?", body)
         self.assertIn("Fit and feeling", body)
         self.assertIn("Name inspiration", body)
-        self.assertIn("Tell us who they are.", body)
+        self.assertIn("Tell us about their personality", body)
         self.assertIn("Required", body)
         self.assertIn('data-choice-value="Dog"', body)
         self.assertIn('data-choice-value="Cat"', body)
@@ -108,7 +108,7 @@ class PhaseTwoWebShellTest(unittest.TestCase):
         self.assertIn('action="/pet/results"', body)
         self.assertIn('method="post"', body)
         self.assertIn('data-progress-form novalidate', body)
-        self.assertIn("Generate Pet Names", body)
+        self.assertIn("Find names", body)
 
     def test_baby_intake_renders_baby_specific_structure(self):
         response = self.client.get("/baby")
@@ -128,7 +128,7 @@ class PhaseTwoWebShellTest(unittest.TestCase):
         self.assertIn("Fit and feeling", body)
         self.assertIn("Taste history", body)
         self.assertIn('id="baby-intake-form"', body)
-        self.assertIn('action="/baby/feelings"', body)
+        self.assertIn('action="/baby/results"', body)
         self.assertNotIn('data-progress-form novalidate', body)
         self.assertIn("images/baby/namengine-baby-share.png", body)
         self.assertIn('data-taste-vertical="baby"', body)
@@ -138,7 +138,7 @@ class PhaseTwoWebShellTest(unittest.TestCase):
         self.assertIn('id="style" name="style" required', body)
         self.assertIn('id="sound" name="sound" required', body)
         self.assertIn("Optional", body)
-        self.assertIn(">Skip</button>", body)
+        self.assertIn(">Next</button>", body)
         self.assertNotIn("Skip for now", body)
 
     def test_unknown_vertical_404s(self):
