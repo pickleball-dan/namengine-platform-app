@@ -14576,6 +14576,28 @@ body.vertical-business {
   display: none;
 }
 
+/* ══════════════════════════════════════════════════════════════════
+   BUSINESS: Hide progress gauge and strip form box on landing page
+   Same fix applied to Pet on 2026-08-21: the interview hasn't
+   started so the progress element and form shell should be invisible.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* Hide progress gauge on landing page — only visible once interview starts */
+.vertical-business:not(.business-interview-started) .business-question-progress {
+  display: none;
+}
+
+/* Strip box styling from polished-intake-form before interview starts */
+.vertical-business:not(.business-interview-started) .polished-intake-form {
+  background: transparent;
+  border: none;
+  border-top: none;
+  box-shadow: none;
+  padding: 0;
+  gap: 0;
+  min-height: 0;
+}
+
 /* Remove default logo bottom margin inside the business box wrapper */
 .vertical-business .baby-welcome .vertical-page-logo-wrap .vertical-page-logo {
   margin: 0;
