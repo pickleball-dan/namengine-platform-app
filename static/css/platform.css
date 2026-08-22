@@ -2868,6 +2868,7 @@ button {
 
 .progress-copy {
   min-width: 0;
+  min-height: 280px;
 }
 
 .progress-panel h2 {
@@ -6352,7 +6353,7 @@ button {
 .vertical-baby .baby-direction-list dt {
   padding: 14px 0 3px;
   color: #8c7080;
-  font-size: 11px;
+  font-size: 15px;
   font-weight: 700;
   letter-spacing: 0.07em;
   text-transform: uppercase;
@@ -8129,6 +8130,10 @@ body.vertical-business {
   font-family: "Cormorant Garamond", Georgia, serif;
   font-size: 40px;
   line-height: 1.05;
+}
+
+.vertical-baby .progress-copy {
+  min-height: 300px;
 }
 
 .vertical-baby .baby-results-framing {
@@ -11124,7 +11129,7 @@ body.vertical-business {
 }
 
 .vertical-business .business-direction-list dt {
-  font-size: 0.76rem;
+  font-size: 0.88rem;
   font-weight: 700;
   color: #536879;
   text-transform: uppercase;
@@ -11537,7 +11542,7 @@ body.vertical-business {
 }
 
 .vertical-pet .pet-direction-list dt {
-  font-size: 0.76rem;
+  font-size: 0.88rem;
   font-weight: 700;
   color: #656b75;
   text-transform: uppercase;
@@ -13397,6 +13402,9 @@ body.vertical-business {
 .vertical-business .site-footer a {
   color: rgba(148, 192, 228, 0.72);
 }
+.vertical-business .footer-column span {
+  color: rgba(148, 192, 228, 0.72);
+}
 /* Override light-theme divider and body text inside the brand block */
 .vertical-business .site-footer-reference .footer-brand-block {
   border-right-color: rgba(63, 166, 160, 0.18);
@@ -14555,7 +14563,7 @@ body.vertical-business {
 
 /* Label row */
 .vertical-pet .pet-direction-list dt {
-  font-size: 0.62rem;
+  font-size: 0.88rem;
   font-weight: 800;
   color: rgba(47, 148, 134, 0.78);
   text-transform: uppercase;
