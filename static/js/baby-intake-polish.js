@@ -495,7 +495,13 @@
     const otherInput = question.querySelector("[data-other-input]");
     const otherTrigger = question.dataset.otherTrigger || "Other";
     if (otherWrap) otherWrap.hidden = value !== otherTrigger;
-    if (otherInput) otherInput.disabled = value !== otherTrigger;
+    if (otherInput) {
+      // Explicitly clear both hidden and disabled — syncOtherSelect in progress.js
+      // fires on the change event above and sets input.hidden = true when the
+      // select value is not "Other". We override that here for custom triggers.
+      otherInput.hidden = value !== otherTrigger;
+      otherInput.disabled = value !== otherTrigger;
+    }
     if (value === otherTrigger && otherInput) {
       otherInput.focus();
       return;
