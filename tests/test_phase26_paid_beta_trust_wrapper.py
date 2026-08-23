@@ -707,10 +707,14 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.app.get(f"/baby/results?{query.decode('utf-8')}")
         result_id = namengine_app.json_loads(get_session_snapshot(session_id)["results"][0]["result_json"])["id"]
 
+        # Share is intentionally public (commit dad7cfe) — anyone with the link
+        # can view the list read-only. Verify it returns 200 separately.
+        share_response = self.app.get(f"/share/{session_id}")
+        self.assertEqual(share_response.status_code, 200)
+
         routes = (
             ("detail", self.app.get(f"/baby/name/{session_id}/{result_id}")),
             ("compare", self.app.get(f"/compare/{session_id}")),
-            ("share", self.app.get(f"/share/{session_id}")),
             (
                 "choose",
                 self.app.post(

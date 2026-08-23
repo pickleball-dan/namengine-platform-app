@@ -2,6 +2,12 @@
 
 {% block title %}NamEngine {{ vertical.display_name }} Results{% endblock %}
 
+{% block head_extra %}
+  {%- if vertical is defined and vertical.slug == "baby" %}
+    <link rel="preload" as="image" href="{{ url_for('static', filename='images/baby/intake/nursery-sprite-v1.png') }}">
+  {%- endif %}
+{% endblock %}
+
 {% block content %}
   {% set launch_results = true %}
   {% set result_framing = {

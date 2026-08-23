@@ -1584,7 +1584,12 @@ def create_app() -> Flask:
                 names = _generate_names_for_route(vertical, brief)
                 save_session(session_id, vertical.slug, brief, names)
         else:
-            # Always generate for a new session — user must see names before any paywall.
+            # New session: always generate so every visitor sees names before any paywall.
+            # Exception: visitors whose free generation has already expired on a different
+            # session must go through paid access — _free_generation_blocked returns False
+            # for brand-new visitors who have no usage ledger yet, so they still get through.
+            if _free_generation_blocked(vertical, session_id, needs_generation=True):
+                return _free_generation_access_required_response(vertical, session_id)
             names = _generate_names_for_route(vertical, brief)
             save_session(session_id, vertical.slug, brief, names)
             snapshot = get_session_snapshot(session_id)
