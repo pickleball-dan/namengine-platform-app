@@ -131,7 +131,8 @@
   function valueFor(question) {
     const control = controlFor(question);
     if (!control) return "";
-    if (control.value === "Other") {
+    const otherTrigger = question.dataset.otherTrigger || "Other";
+    if (control.value === otherTrigger) {
       return (question.querySelector("[data-other-input]")?.value || "").trim();
     }
     return control.value.trim();
@@ -492,9 +493,10 @@
 
     const otherWrap = question.querySelector("[data-baby-other-wrap]");
     const otherInput = question.querySelector("[data-other-input]");
-    if (otherWrap) otherWrap.hidden = value !== "Other";
-    if (otherInput) otherInput.disabled = value !== "Other";
-    if (value === "Other" && otherInput) {
+    const otherTrigger = question.dataset.otherTrigger || "Other";
+    if (otherWrap) otherWrap.hidden = value !== otherTrigger;
+    if (otherInput) otherInput.disabled = value !== otherTrigger;
+    if (value === otherTrigger && otherInput) {
       otherInput.focus();
       return;
     }

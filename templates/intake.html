@@ -165,9 +165,10 @@
         <div class="baby-question-stage" data-baby-question-stage>
           {% for question in vertical.intake_questions %}
             {% set current_value = request.args.get(question.id, "") %}
-            {% set has_other_choice = "Other" in question.choices %}
+            {% set other_trigger = "Other" if "Other" in question.choices else ("Something else — I'll describe it" if "Something else — I'll describe it" in question.choices else "") %}
+            {% set has_other_choice = other_trigger != "" %}
             {% set other_value = current_value if has_other_choice and current_value and current_value not in question.choices else request.args.get(question.id ~ "_other", "") %}
-            <section class="baby-question{% if question.id == 'gender' %} baby-question-gender{% endif %}" data-baby-question data-question-id="{{ question.id }}" data-question-kind="{% if question.choices %}choice{% else %}{{ question.kind }}{% endif %}" data-question-section="{{ question.section }}" data-required="{{ 'true' if question.required else 'false' }}" hidden>
+            <section class="baby-question{% if question.id == 'gender' %} baby-question-gender{% endif %}" data-baby-question data-question-id="{{ question.id }}" data-question-kind="{% if question.choices %}choice{% else %}{{ question.kind }}{% endif %}" data-question-section="{{ question.section }}" data-required="{{ 'true' if question.required else 'false' }}"{% if other_trigger %} data-other-trigger="{{ other_trigger }}"{% endif %} hidden>
               <p class="baby-question-kicker">
                 {{ question.section }} <span class="baby-kicker-heart" aria-hidden="true"></span>
               </p>
@@ -197,7 +198,7 @@
                 <div class="baby-choice-list" role="radiogroup" aria-labelledby="baby-question-{{ question.id }}" data-baby-choices>
                   {% for choice in question.choices %}
                     {% if not (question.id == "cultural_context" and choice == "Family heritage") %}
-                    <button class="baby-choice{% if question.id == 'gender' %} baby-choice-illustrated baby-choice-{{ gender_art[choice] }}{% endif %}" type="button" role="radio" aria-checked="{{ 'true' if current_value == choice or (choice == 'Other' and other_value) else 'false' }}" data-choice-value="{{ choice }}">
+                    <button class="baby-choice{% if question.id == 'gender' %} baby-choice-illustrated baby-choice-{{ gender_art[choice] }}{% endif %}" type="button" role="radio" aria-checked="{{ 'true' if current_value == choice or (choice == other_trigger and other_value) else 'false' }}" data-choice-value="{{ choice }}">
                       {% if question.id == "gender" %}<span class="baby-choice-art baby-sprite-{{ gender_art[choice] }}" aria-hidden="true"></span>{% endif %}
                       <span class="baby-choice-copy">
                         <strong>{{ choice }}</strong>
@@ -212,13 +213,13 @@
                 <select class="baby-native-control" id="{{ question.id }}" name="{{ question.id }}"{% if question.required %} required{% endif %}{% if has_other_choice %} data-other-select="{{ question.id }}_other"{% endif %} tabindex="-1" aria-hidden="true">
                   <option value="">Choose one</option>
                   {% for choice in question.choices %}
-                    <option value="{{ choice }}"{% if current_value == choice or (not current_value and question.id == 'cultural_heritage' and choice == 'No preference') or (choice == 'Other' and other_value) %} selected{% endif %}>{{ choice }}</option>
+                    <option value="{{ choice }}"{% if current_value == choice or (not current_value and question.id == 'cultural_heritage' and choice == 'No preference') or (choice == other_trigger and other_value) %} selected{% endif %}>{{ choice }}</option>
                   {% endfor %}
                 </select>
                 {% if has_other_choice %}
-                  <div class="baby-other-choice" data-baby-other-wrap{% if not other_value and current_value != "Other" %} hidden{% endif %}>
-                    <label for="{{ question.id }}_other">Tell us what you have in mind</label>
-                    <input id="{{ question.id }}_other" name="{{ question.id }}_other" data-other-input maxlength="{{ other_choice_max_length }}" placeholder="Enter your own" value="{{ other_value }}"{% if not other_value and current_value != "Other" %} disabled{% endif %}>
+                  <div class="baby-other-choice" data-baby-other-wrap{% if not other_value and current_value != other_trigger %} hidden{% endif %}>
+                    <label for="{{ question.id }}_other">{% if question.id == 'cultural_heritage' %}Tell us your heritage{% else %}Tell us what you have in mind{% endif %}</label>
+                    <input id="{{ question.id }}_other" name="{{ question.id }}_other" data-other-input maxlength="{{ other_choice_max_length }}" placeholder="{% if question.id == 'cultural_heritage' %}e.g. Maltese, Cajun, Basque, Yiddish...{% else %}Enter your own{% endif %}" value="{{ other_value }}"{% if not other_value and current_value != other_trigger %} disabled{% endif %}>
                     <button type="button" class="baby-text-continue" data-baby-other-continue>Continue</button>
                   </div>
                 {% endif %}
@@ -794,7 +795,7 @@
   {% include "progress_overlay.html" %}
   <script src="{{ url_for('static', filename='js/progress.js') }}"></script>
   {% if is_polished_flow %}
-    <script src="{{ url_for('static', filename='js/baby-intake-polish.js') }}?v=20260821-priority-inline-v1"></script>
+    <script src="{{ url_for('static', filename='js/baby-intake-polish.js') }}?v=20260823-other-trigger-v1"></script>
   {% endif %}
   {% if vertical.slug in ["pet", "business"] %}
     <script src="{{ url_for('static', filename='js/pet-choice-cards.js') }}?v=20260727-business-choice-cards-v1"></script>
