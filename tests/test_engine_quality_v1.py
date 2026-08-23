@@ -172,7 +172,7 @@ class EngineQualityV1Test(unittest.TestCase):
                 "timeless_vs_distinctive": "Mostly distinctive",
                 "sound": "Playful",
                 "cultural_heritage": "Japanese",
-                "cultural_context": "Family heritage",
+                "cultural_context": "Family honor names",
                 "family_context": "Readable in Japan and the US",
                 "discovery_style": "Balanced mix",
                 "avoid": "Sakura",

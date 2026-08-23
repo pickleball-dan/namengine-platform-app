@@ -11,11 +11,11 @@ class BabyUiConsistencyTest(unittest.TestCase):
         self.app.config.update(TESTING=True)
         self.client = self.app.test_client()
 
-    def test_name_inspiration_removes_family_heritage_card_without_changing_input_contract(self):
+    def test_name_inspiration_family_honor_names_renders_correctly(self):
         body = self.client.get("/baby?edit=cultural_context").get_data(as_text=True)
 
-        self.assertNotIn('data-choice-value="Family heritage"', body)
-        self.assertIn('<option value="Family heritage"', body)
+        self.assertIn('data-choice-value="Family honor names"', body)
+        self.assertIn('<option value="Family honor names"', body)
         self.assertIn("Answering helps us shape more personal names", body)
         self.assertIn(">Next</button>", body)
         self.assertNotIn("Skip for now", body)

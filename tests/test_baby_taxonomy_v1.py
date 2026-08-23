@@ -21,9 +21,8 @@ from namengine.verticals.configs import (
 
 
 CURRENT_CHOICES = {
-    "gender": ("Girl", "Boy", "Gender-neutral", "Surprise me"),
+    "gender": ("Girl", "Boy", "Gender-neutral", "Open to any"),
     "cultural_heritage": (
-        "No preference",
         "African",
         "African American",
         "Arab / Middle Eastern",
@@ -59,7 +58,8 @@ CURRENT_CHOICES = {
         "Vietnamese",
         "Welsh",
         "International / blended",
-        "Something else — I’ll describe it",
+        "Something else — I'll describe it",
+        "No preference",
     ),
     "discovery_style": (
         "Classic favorites",
@@ -74,7 +74,7 @@ CURRENT_CHOICES = {
         "Strong and tailored",
         "Vintage revival",
         "Nature-inspired",
-        "Globally familiar",
+        "Cross-cultural",
     ),
     "timeless_vs_distinctive": (
         "Strongly timeless",
@@ -91,14 +91,14 @@ CURRENT_CHOICES = {
     ),
     "sound": ("Soft", "Bright", "Strong", "Elegant", "Playful", "Calm", "Warm"),
     "cultural_context": (
-        "Family heritage",
+        "Family honor names",
         "Nature",
         "Literature",
         "Saints & classics",
         "Music",
         "Places",
         "Meaning first",
-        "Modern favorites",
+        "Color and nature objects",
     ),
 }
 

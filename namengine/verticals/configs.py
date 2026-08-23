@@ -346,16 +346,17 @@ BABY = VerticalConfig(
         ),
         Question(
             "notes",
-            "Tell us what matters",
+            "What would make this name perfect?",
             kind="textarea",
             placeholder="Meanings you love, family dynamics, cultural notes, names already on your list...",
+            help_text="The more specific you are here, the sharper your names will be.",
             section="About your baby",
         ),
         Question(
             "discovery_style",
             "How adventurous should we be?",
             choices=BABY_DISCOVERY_STYLE_OPTIONS,
-            help_text="Choose the lane for this first pass.",
+            help_text="This is about how we explore — your familiarity preference comes next.",
             section="Name style",
         ),
         Question(
@@ -375,6 +376,7 @@ BABY = VerticalConfig(
             "familiarity_preference",
             "How familiar should the name feel?",
             choices=BABY_FAMILIARITY_OPTIONS,
+            help_text="This controls how common the name should feel — separate from the style.",
             section="Name style",
         ),
         Question(

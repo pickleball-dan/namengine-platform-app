@@ -793,7 +793,7 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
 
     def test_textarea_tooltips_render_examples_for_polished_verticals(self):
         expectations = {
-            "baby": ("Tell us what matters", "something that still feels substantial when they are grown"),
+            "baby": ("What would make this name perfect?", "something that still feels substantial when they are grown"),
             "business": ("What does the business do?", "what happens right before someone needs you"),
         }
 

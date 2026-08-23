@@ -140,14 +140,13 @@ BABY_TAXONOMY = BabyTaxonomy(
     fields=(
         BabyTaxonomyField(
             "gender",
-            current_choices=("Girl", "Boy", "Gender-neutral", "Surprise me"),
+            current_choices=("Girl", "Boy", "Gender-neutral", "Open to any"),
             deprecated_aliases=("baby_gender", "sex"),
         ),
         BabyTaxonomyField("family_context", deprecated_aliases=("family",)),
         BabyTaxonomyField(
             "cultural_heritage",
             current_choices=(
-                "No preference",
                 "African",
                 "African American",
                 "Arab / Middle Eastern",
@@ -183,7 +182,8 @@ BABY_TAXONOMY = BabyTaxonomy(
                 "Vietnamese",
                 "Welsh",
                 "International / blended",
-                "Something else — I’ll describe it",
+                "Something else — I'll describe it",
+                "No preference",
             ),
             deprecated_aliases=("heritage",),
         ),
@@ -209,7 +209,7 @@ BABY_TAXONOMY = BabyTaxonomy(
                 "Strong and tailored",
                 "Vintage revival",
                 "Nature-inspired",
-                "Globally familiar",
+                "Cross-cultural",
             ),
             legacy_choices=("Elegant",),
             deprecated_aliases=("name_style",),
@@ -249,14 +249,14 @@ BABY_TAXONOMY = BabyTaxonomy(
         BabyTaxonomyField(
             "cultural_context",
             current_choices=(
-                "Family heritage",
+                "Family honor names",
                 "Nature",
                 "Literature",
                 "Saints & classics",
                 "Music",
                 "Places",
                 "Meaning first",
-                "Modern favorites",
+                "Color and nature objects",
             ),
             legacy_choices=("Global inspiration", "Honor names"),
             prompt_key="inspiration_direction",

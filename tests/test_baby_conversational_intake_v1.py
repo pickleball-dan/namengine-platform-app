@@ -183,7 +183,7 @@ class BabyConversationalIntakeV1Test(unittest.TestCase):
             "Girl": "We’re expecting a baby girl.",
             "Boy": "We’re expecting a baby boy.",
             "Gender-neutral": "We love names that work for any baby.",
-            "Surprise me": "We’d love a mix of ideas for every possibility.",
+            "Open to any": "Show us names for any gender.",
         }
 
         self.assertIn('id="gender" name="gender" required', question)
