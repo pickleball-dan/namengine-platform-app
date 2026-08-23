@@ -434,6 +434,8 @@ BABY = VerticalConfig(
         "page_logo": "images/namengine-baby.svg",
         "card_logo": "images/namengine-baby-icon.svg",
         "share_image": "images/baby/namengine-baby-share.png",
+        "social_title": "Find a baby name that feels right — NamEngine",
+        "social_description": "Thoughtful name discovery, shaped by your family’s story.",
     },
     visual=VerticalVisualConfig(
         audience=("expecting parents", "naming partners"),
