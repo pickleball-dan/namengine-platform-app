@@ -1842,9 +1842,8 @@ def create_app() -> Flask:
             ), 410
 
         vertical = get_vertical(snapshot["session"]["vertical"])
-        if not beta_unlocked_from_request(vertical):
-            return _access_required_response(vertical, session_id)
-
+        # Share links are publicly viewable — no auth required.
+        # Anyone with the link can see the list (read-only); reactions/refine still require access.
         names = [json_loads(row["result_json"]) for row in snapshot["results"]]
         brief = json_loads(snapshot["session"]["brief_json"])
         taste_profile = _taste_profile_from_snapshot(snapshot)
@@ -1856,6 +1855,7 @@ def create_app() -> Flask:
             names=names,
             reaction_counts=snapshot["reaction_counts"],
             taste_profile=taste_profile,
+            beta_unlocked=beta_unlocked_from_request(vertical),
         )
 
     @app.get("/dev/engine-audit")
