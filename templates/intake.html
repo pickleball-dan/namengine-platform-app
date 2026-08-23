@@ -808,4 +808,7 @@
   {% if vertical.slug in ["pet", "baby", "business", "product"] %}
     <script src="{{ url_for('static', filename='js/taste-history.js') }}"></script>
   {% endif %}
+  {% if vertical.slug in ["pet", "baby", "business"] and is_polished_flow %}
+    <script src="{{ url_for('static', filename='js/intake-textarea-assist.js') }}?v=20260822-starters-v1"></script>
+  {% endif %}
 {% endblock %}

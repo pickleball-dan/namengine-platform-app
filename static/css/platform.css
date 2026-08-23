@@ -14840,3 +14840,69 @@ body.vertical-business {
 .business-concept-placeholder .portrait-retry {
   background: rgba(63, 166, 160, 0.80);
 }
+
+/* ── Intake textarea assist: starter chips + encouragement ── */
+.textarea-starters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 8px 0 4px;
+}
+
+.textarea-starters[hidden] {
+  display: none;
+}
+
+.textarea-starter-chip {
+  min-height: auto;
+  padding: 6px 12px;
+  color: var(--accent-deep);
+  font-size: 13px;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+
+.textarea-starter-chip:hover,
+.textarea-starter-chip:focus-visible {
+  background: var(--accent-warm-soft);
+  border-color: var(--accent);
+  outline: none;
+}
+
+.vertical-business .textarea-starter-chip {
+  color: #e8f0fa;
+  background: rgba(63, 166, 160, 0.12);
+  border-color: rgba(63, 166, 160, 0.28);
+}
+
+.vertical-business .textarea-starter-chip:hover,
+.vertical-business .textarea-starter-chip:focus-visible {
+  background: rgba(63, 166, 160, 0.22);
+  border-color: rgba(63, 166, 160, 0.55);
+}
+
+.textarea-encouragement {
+  min-height: 18px;
+  margin: 4px 0 0;
+  font-size: 12px;
+  font-weight: 800;
+  transition: color 200ms ease, opacity 200ms ease;
+  opacity: 0.82;
+}
+
+.textarea-encouragement[hidden] {
+  display: none;
+}
+
+.textarea-encouragement[data-level="start"] { color: var(--muted); }
+.textarea-encouragement[data-level="good"]  { color: #2f9486; }
+.textarea-encouragement[data-level="strong"] { color: #2f9486; font-weight: 900; }
+
+.vertical-business .textarea-encouragement[data-level="good"],
+.vertical-business .textarea-encouragement[data-level="strong"] {
+  color: rgba(92, 198, 190, 0.90);
+}
