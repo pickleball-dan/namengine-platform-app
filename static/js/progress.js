@@ -346,7 +346,10 @@
     const input = document.getElementById(select.dataset.otherSelect);
     if (!input) return;
 
-    const isOther = select.value === "Other";
+    // Support custom triggers (e.g. "Something else — I'll describe it") via
+    // data-other-trigger on the select; fall back to "Other" for all other verticals.
+    const trigger = select.dataset.otherTrigger || "Other";
+    const isOther = select.value === trigger;
     input.hidden = !isOther;
     input.disabled = !isOther;
     input.required = isOther && select.required;

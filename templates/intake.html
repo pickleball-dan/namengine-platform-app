@@ -210,7 +210,7 @@
                     {% endif %}
                   {% endfor %}
                 </div>
-                <select class="baby-native-control" id="{{ question.id }}" name="{{ question.id }}"{% if question.required %} required{% endif %}{% if has_other_choice %} data-other-select="{{ question.id }}_other"{% endif %} tabindex="-1" aria-hidden="true">
+                <select class="baby-native-control" id="{{ question.id }}" name="{{ question.id }}"{% if question.required %} required{% endif %}{% if has_other_choice %} data-other-select="{{ question.id }}_other"{% if other_trigger %} data-other-trigger="{{ other_trigger }}"{% endif %}{% endif %} tabindex="-1" aria-hidden="true">
                   <option value="">Choose one</option>
                   {% for choice in question.choices %}
                     <option value="{{ choice }}"{% if current_value == choice or (not current_value and question.id == 'cultural_heritage' and choice == 'No preference') or (choice == other_trigger and other_value) %} selected{% endif %}>{{ choice }}</option>
