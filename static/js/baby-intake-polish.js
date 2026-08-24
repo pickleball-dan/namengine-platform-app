@@ -12,8 +12,8 @@
   // Keep the established loading handoff copy/timing contract available to the flow.
   const loadingHandoff = { label: "Building your naming profile", delay: 650 };
   const questionOrder = [
-    "gender", "style", "familiarity_preference", "discovery_style",
-    "timeless_vs_distinctive", "sound", "cultural_context", "cultural_heritage",
+    "gender", "style", "cultural_heritage", "familiarity_preference", "discovery_style",
+    "timeless_vs_distinctive", "sound", "cultural_context",
     "family_context", "notes", "partner_alignment", "avoid", "priority_focus"
   ];
   const orderIndex = new Map(questionOrder.map((id, index) => [id, index]));
@@ -49,7 +49,7 @@
         timeless_vs_distinctive: "We’re narrowing in on the right fit.",
         sound: "We’re narrowing in on the right fit.",
         cultural_context: "We’re narrowing in on the right fit.",
-        cultural_heritage: "We’re narrowing in on the right fit.",
+        cultural_heritage: "We’re discovering the kinds of names you’ll love.",
         family_context: "We're refining your best-fit names.",
         partner_alignment: "We're refining your best-fit names.",
         avoid: "We're refining your best-fit names.",
@@ -643,6 +643,14 @@
       const direction = ["ArrowDown", "ArrowRight"].includes(event.key) ? 1 : -1;
       buttons[(buttons.indexOf(choice) + direction + buttons.length) % buttons.length].focus();
     }
+    // Enter in the "other" free-text input should advance via the Continue
+    // button — not submit the form (which would skip remaining questions).
+    if (event.key === "Enter" && event.target.matches("[data-other-input]")) {
+      event.preventDefault();
+      const continueBtn = event.target.closest("[data-baby-question]")?.querySelector("[data-baby-other-continue]");
+      if (continueBtn) continueBtn.click();
+      return;
+    }
     if (event.key === "Enter" && event.target.matches("textarea, input:not([data-other-input])")) {
       event.preventDefault();
       continueText(event.target.closest("[data-baby-question]"));
@@ -666,6 +674,157 @@
     event.preventDefault();
     startInterview();
   });
+
+  // ── Heritage search UI ────────────────────────────────────────────────────────────
+  // Replaces the standard choice grid for the cultural_heritage question with
+  // a live-filtering search field. Free-form values not in the list are
+  // accepted and submitted directly as the heritage value.
+  (function initHeritageSearch() {
+    const heritageQuestion = questions.find((q) => q.dataset.questionId === "cultural_heritage");
+    if (!heritageQuestion) return;
+    const searchInput  = heritageQuestion.querySelector("[data-heritage-search]");
+    const chipsEl      = heritageQuestion.querySelector("[data-heritage-chips]");
+    const clearBtn     = heritageQuestion.querySelector("[data-heritage-clear]");
+    const showAllBtn   = heritageQuestion.querySelector("[data-heritage-show-all]");
+    const nativeSelect = heritageQuestion.querySelector("select");
+    if (!searchInput || !chipsEl || !nativeSelect) return;
+
+    const ALL = [
+      "African","African American","Arab / Middle Eastern","Argentinian",
+      "Armenian","Australian","Bangladeshi","Brazilian",
+      "Caribbean","Chinese","Cuban","Danish",
+      "Dutch","English","Ethiopian","Filipino",
+      "French","German","Ghanaian","Greek",
+      "Haitian","Indian","Indonesian","International / blended",
+      "Irish","Italian","Jamaican","Japanese",
+      "Jewish","Korean","Mexican","Native American / Indigenous",
+      "Nigerian","Norwegian","Pakistani","Persian / Iranian",
+      "Polish","Portuguese","Puerto Rican","Russian",
+      "Scottish","South African","Spanish","Sri Lankan",
+      "Swedish","Thai","Turkish","Ukrainian",
+      "Vietnamese","Welsh",
+    ];
+    const DEFAULT_SHOW = [
+      "English","Irish","German","Italian","Mexican",
+      "French","African American","Chinese","Indian","Jewish",
+      "Polish","Japanese",
+    ];
+
+    let expanded = false;
+
+    function selectHeritage(val) {
+      // Set the native select. For free-form values not in the options list,
+      // inject a temporary option so the browser submits the value.
+      if (!Array.from(nativeSelect.options).some((o) => o.value === val)) {
+        const opt = document.createElement("option");
+        opt.value = val;
+        opt.textContent = val;
+        nativeSelect.appendChild(opt);
+      }
+      nativeSelect.value = val;
+      nativeSelect.dispatchEvent(new Event("change", { bubbles: true }));
+      searchInput.value = val;
+      searchInput.closest(".heritage-search-wrap")?.classList.add("has-value");
+      renderChips();
+      confirmAndAdvance(heritageQuestion, val);
+    }
+
+    function renderChips() {
+      const q      = searchInput.value.trim();
+      const qLow   = q.toLowerCase();
+      const search = q.length > 0;
+      const cur    = nativeSelect.value;
+
+      let list;
+      if (search) {
+        list = ALL.filter((h) => h.toLowerCase().includes(qLow));
+      } else if (expanded) {
+        list = ALL;
+      } else {
+        list = DEFAULT_SHOW;
+      }
+
+      let html = "";
+
+      if (list.length === 0 && search) {
+        html = `<div class="heritage-no-results">No matches — press Enter or Next to use “<strong>${q}</strong>”</div>`;
+      } else {
+        list.forEach((item) => {
+          const sel = cur === item ? " is-selected" : "";
+          html += `<button class="baby-choice${sel}" type="button" data-heritage-value="${item}">
+            <span class="baby-choice-copy"><strong>${item}</strong></span>
+            <span class="baby-choice-chevron" aria-hidden="true">›</span>
+            <span class="baby-choice-mark" aria-hidden="true">✓</span>
+          </button>`;
+        });
+      }
+
+      // Free-form chip when typed value is not in the list
+      if (search && q && !ALL.some((h) => h.toLowerCase() === qLow)) {
+        const sel = cur === q ? " is-selected" : "";
+        html += `<button class="baby-choice heritage-custom-chip${sel}" type="button" data-heritage-value="${q}">
+          <span class="baby-choice-copy"><strong>Use “${q}”</strong></span>
+          <span class="baby-choice-mark" aria-hidden="true">✓</span>
+        </button>`;
+      }
+
+      chipsEl.innerHTML = html;
+
+      if (showAllBtn) {
+        showAllBtn.style.display = search ? "none" : "inline-block";
+        showAllBtn.textContent = expanded ? "Show fewer ↑" : "Show all 50 →";
+      }
+
+      // Chip click handlers
+      chipsEl.querySelectorAll("[data-heritage-value]").forEach((btn) => {
+        btn.addEventListener("click", () => selectHeritage(btn.dataset.heritageValue));
+      });
+    }
+
+    searchInput.addEventListener("input", () => {
+      searchInput.closest(".heritage-search-wrap")?.classList.toggle("has-value", searchInput.value.trim().length > 0);
+      // Clear native select when user edits the search
+      if (nativeSelect.value && nativeSelect.value !== searchInput.value.trim()) {
+        nativeSelect.value = "";
+      }
+      renderChips();
+    });
+
+    searchInput.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter") return;
+      e.preventDefault();
+      const q = searchInput.value.trim();
+      if (!q) return;
+      const exact  = ALL.find((h) => h.toLowerCase() === q.toLowerCase());
+      const single = ALL.filter((h) => h.toLowerCase().includes(q.toLowerCase()));
+      selectHeritage(exact || (single.length === 1 ? single[0] : q));
+    });
+
+    if (clearBtn) {
+      clearBtn.addEventListener("click", () => {
+        searchInput.value = "";
+        nativeSelect.value = "";
+        searchInput.closest(".heritage-search-wrap")?.classList.remove("has-value");
+        searchInput.focus();
+        renderChips();
+      });
+    }
+
+    if (showAllBtn) {
+      showAllBtn.addEventListener("click", () => {
+        expanded = !expanded;
+        renderChips();
+      });
+    }
+
+    // Pre-fill from existing value on back navigation
+    if (nativeSelect.value && nativeSelect.value !== "No preference") {
+      searchInput.value = nativeSelect.value;
+      searchInput.closest(".heritage-search-wrap")?.classList.add("has-value");
+    }
+
+    renderChips();
+  }());
 
   document.body.classList.add("baby-interview-enhanced");
   renderCheckInConfiguration();

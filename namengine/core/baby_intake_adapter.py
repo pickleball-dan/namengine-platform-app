@@ -112,13 +112,9 @@ BABY_INTAKE_SCHEMA = IntakeSchema(
 
 
 def _build_baby_intent(values: dict[str, Any], schema: IntakeSchema) -> CanonicalNamingIntent:
-    heritage = str(values.get("cultural_heritage") or "")
-    # When the user selected "Something else — I'll describe it" and typed a
-    # custom heritage, the text input is submitted as cultural_heritage_other.
-    # Prefer that value over the raw trigger label.
-    heritage_other = str(values.get("cultural_heritage_other") or "").strip()
-    if heritage_other:
-        heritage = heritage_other
+    # The new heritage search UI submits the value (including free-form entries)
+    # directly as cultural_heritage. No _other field needed.
+    heritage = str(values.get("cultural_heritage") or "").strip()
     inspiration = str(values.get("cultural_context") or "")
     cultural = tuple(
         item for item in (heritage, inspiration) if item and item.casefold() != "no preference"

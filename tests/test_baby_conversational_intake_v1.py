@@ -44,7 +44,7 @@ class BabyConversationalIntakeV1Test(unittest.TestCase):
         heritage = self.question_markup(body, "cultural_heritage")
         self.assertNotIn('data-condition-field="cultural_context"', heritage)
         self.assertIn("Cultural / heritage feel", heritage)
-        self.assertIn('data-choice-value="Italian"', heritage)
+        self.assertIn('value="Italian"', heritage)  # option in native select
         self.assertNotIn('class="baby-native-submit" type="submit">', body)
 
     def test_final_priority_question_preserves_strength_inputs_and_auto_handoff(self):
@@ -156,7 +156,7 @@ class BabyConversationalIntakeV1Test(unittest.TestCase):
 
         self.assertNotIn('data-condition-field="cultural_context"', heritage)
         self.assertIn('name="cultural_heritage"', heritage)
-        self.assertIn('data-choice-value="Irish"', heritage)
+        self.assertIn('value="Irish"', heritage)  # option in native select
         self.assertIn("clearDependentConditionOverrides(question)", skip_question)
         self.assertIn("syncConditions()", intake_js)
 
@@ -235,7 +235,7 @@ class BabyConversationalIntakeV1Test(unittest.TestCase):
             "timeless_vs_distinctive": "We’re narrowing in on the right fit.",
             "sound": "We’re narrowing in on the right fit.",
             "cultural_context": "We’re narrowing in on the right fit.",
-            "cultural_heritage": "We’re narrowing in on the right fit.",
+            "cultural_heritage": "We’re discovering the kinds of names you’ll love.",
             "family_context": "We're refining your best-fit names.",
             "partner_alignment": "We're refining your best-fit names.",
             "avoid": "We're refining your best-fit names.",

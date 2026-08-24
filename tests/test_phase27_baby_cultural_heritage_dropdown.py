@@ -18,10 +18,9 @@ class PhaseTwentySevenBabyCulturalHeritageDropdownTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn('name="cultural_heritage"', text)
         self.assertIn("Cultural / heritage feel", text)
-        self.assertIn('value="No preference" selected', text)
+        self.assertIn('value="No preference"', text)
         self.assertIn("Native American / Indigenous", text)
         self.assertIn("International / blended", text)
-        self.assertIn("Something else", text)
         self.assertIn("specific nation or community", text)
 
     def test_no_preference_is_non_required_and_does_not_create_heritage_bias(self):

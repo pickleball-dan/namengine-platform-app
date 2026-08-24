@@ -195,33 +195,55 @@
               {% if question.help_text %}<p class="baby-question-help">{{ question.help_text }}</p>{% endif %}
 
               {% if question.choices %}
-                <div class="baby-choice-list" role="radiogroup" aria-labelledby="baby-question-{{ question.id }}" data-baby-choices>
-                  {% for choice in question.choices %}
-                    {% if not (question.id == "cultural_context" and choice == "Family heritage") %}
-                    <button class="baby-choice{% if question.id == 'gender' %} baby-choice-illustrated baby-choice-{{ gender_art[choice] }}{% endif %}" type="button" role="radio" aria-checked="{{ 'true' if current_value == choice or (choice == other_trigger and other_value) else 'false' }}" data-choice-value="{{ choice }}">
-                      {% if question.id == "gender" %}<span class="baby-choice-art baby-sprite-{{ gender_art[choice] }}" aria-hidden="true"></span>{% endif %}
-                      <span class="baby-choice-copy">
-                        <strong>{{ choice }}</strong>
-                        {% if question.id == "gender" %}<small>{{ gender_descriptions[choice] }}</small>{% endif %}
-                      </span>
-                      <span class="baby-choice-chevron" aria-hidden="true">›</span>
-                      <span class="baby-choice-mark" aria-hidden="true">✓</span>
-                    </button>
-                    {% endif %}
-                  {% endfor %}
-                </div>
-                <select class="baby-native-control" id="{{ question.id }}" name="{{ question.id }}"{% if question.required %} required{% endif %}{% if has_other_choice %} data-other-select="{{ question.id }}_other"{% if other_trigger %} data-other-trigger="{{ other_trigger }}"{% endif %}{% endif %} tabindex="-1" aria-hidden="true">
-                  <option value="">Choose one</option>
-                  {% for choice in question.choices %}
-                    <option value="{{ choice }}"{% if current_value == choice or (not current_value and question.id == 'cultural_heritage' and choice == 'No preference') or (choice == other_trigger and other_value) %} selected{% endif %}>{{ choice }}</option>
-                  {% endfor %}
-                </select>
-                {% if has_other_choice %}
-                  <div class="baby-other-choice" data-baby-other-wrap{% if not other_value and current_value != other_trigger %} hidden{% endif %}>
-                    <label for="{{ question.id }}_other">{% if question.id == 'cultural_heritage' %}Tell us your heritage{% else %}Tell us what you have in mind{% endif %}</label>
-                    <input id="{{ question.id }}_other" name="{{ question.id }}_other" data-other-input maxlength="{{ other_choice_max_length }}" placeholder="{% if question.id == 'cultural_heritage' %}e.g. Maltese, Cajun, Basque, Yiddish...{% else %}Enter your own{% endif %}" value="{{ other_value }}"{% if not other_value and current_value != other_trigger %} disabled{% endif %}>
-                    <button type="button" class="baby-text-continue" data-baby-other-continue>Continue</button>
+                {% if question.id == 'cultural_heritage' %}
+                  {# ── Heritage search UI ───────────────────────────────────────────── #}
+                  <div class="heritage-search-wrap">
+                    <span class="heritage-search-icon" aria-hidden="true">🔍</span>
+                    <input type="text"
+                           class="heritage-search-input"
+                           data-heritage-search
+                           placeholder="e.g. Irish, Sudanese, Basque…"
+                           autocomplete="off" autocorrect="off" spellcheck="false"
+                           value="{{ '' if not current_value or current_value == 'No preference' else current_value }}">
+                    <button class="heritage-clear-btn" type="button" data-heritage-clear aria-label="Clear">×</button>
                   </div>
+                  <div class="baby-choice-list" data-heritage-chips style="max-height:min(42vh,340px);margin-top:0;"></div>
+                  <button class="heritage-show-all" type="button" data-heritage-show-all>Show all 50 →</button>
+                  <select class="baby-native-control" id="{{ question.id }}" name="{{ question.id }}" tabindex="-1" aria-hidden="true">
+                    <option value="">Choose one</option>
+                    {% for choice in question.choices %}
+                      <option value="{{ choice }}"{% if current_value == choice %} selected{% endif %}>{{ choice }}</option>
+                    {% endfor %}
+                  </select>
+                {% else %}
+                  <div class="baby-choice-list" role="radiogroup" aria-labelledby="baby-question-{{ question.id }}" data-baby-choices>
+                    {% for choice in question.choices %}
+                      {% if not (question.id == "cultural_context" and choice == "Family heritage") %}
+                      <button class="baby-choice{% if question.id == 'gender' %} baby-choice-illustrated baby-choice-{{ gender_art[choice] }}{% endif %}" type="button" role="radio" aria-checked="{{ 'true' if current_value == choice or (choice == other_trigger and other_value) else 'false' }}" data-choice-value="{{ choice }}">
+                        {% if question.id == "gender" %}<span class="baby-choice-art baby-sprite-{{ gender_art[choice] }}" aria-hidden="true"></span>{% endif %}
+                        <span class="baby-choice-copy">
+                          <strong>{{ choice }}</strong>
+                          {% if question.id == "gender" %}<small>{{ gender_descriptions[choice] }}</small>{% endif %}
+                        </span>
+                        <span class="baby-choice-chevron" aria-hidden="true">›</span>
+                        <span class="baby-choice-mark" aria-hidden="true">✓</span>
+                      </button>
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+                  <select class="baby-native-control" id="{{ question.id }}" name="{{ question.id }}"{% if question.required %} required{% endif %}{% if has_other_choice %} data-other-select="{{ question.id }}_other"{% if other_trigger %} data-other-trigger="{{ other_trigger }}"{% endif %}{% endif %} tabindex="-1" aria-hidden="true">
+                    <option value="">Choose one</option>
+                    {% for choice in question.choices %}
+                      <option value="{{ choice }}"{% if current_value == choice or (choice == other_trigger and other_value) %} selected{% endif %}>{{ choice }}</option>
+                    {% endfor %}
+                  </select>
+                  {% if has_other_choice %}
+                    <div class="baby-other-choice" data-baby-other-wrap{% if not other_value and current_value != other_trigger %} hidden{% endif %}>
+                      <label for="{{ question.id }}_other">Tell us what you have in mind</label>
+                      <input id="{{ question.id }}_other" name="{{ question.id }}_other" data-other-input maxlength="{{ other_choice_max_length }}" placeholder="Enter your own" value="{{ other_value }}"{% if not other_value and current_value != other_trigger %} disabled{% endif %}>
+                      <button type="button" class="baby-text-continue" data-baby-other-continue>Continue</button>
+                    </div>
+                  {% endif %}
                 {% endif %}
                 <div class="baby-question-actions">
                   <button type="button" class="baby-back-inline" data-baby-nav-back hidden>← Back</button>
