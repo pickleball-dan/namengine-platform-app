@@ -984,3 +984,587 @@ main {
   width: fit-content;
   margin-top: 2px;
 }
+
+/* ============================================================
+   Option B — Full-bleed photo hero + floating header
+   v=20260824-hero-photo-v1
+   ============================================================ */
+
+/* Reset main constraints on landing page */
+.page-landing main {
+  max-width: 100%;
+  padding-top: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* Re-constrain all sections below the hero */
+.page-landing .landing-section,
+.page-landing .landing-taste-preview {
+  max-width: 1180px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: clamp(20px, 5vw, 58px);
+  padding-right: clamp(20px, 5vw, 58px);
+}
+
+/* ── Floating transparent header ── */
+.page-landing .site-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: transparent;
+  border-bottom: none;
+  box-shadow: none;
+  z-index: 100;
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.page-landing .site-header.scrolled {
+  position: fixed;
+  background: #18212f;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.25);
+}
+
+.page-landing .brand-logo-wordmark {
+  filter: brightness(0) invert(1);
+}
+
+.page-landing .site-nav-link,
+.page-landing .site-nav-signin {
+  color: rgba(255,255,255,0.88) !important;
+}
+
+.page-landing .site-nav-link:hover {
+  color: #ffffff !important;
+}
+
+.page-landing .naming-menu-trigger,
+.page-landing .naming-menu-trigger span {
+  color: rgba(255,255,255,0.88);
+}
+
+.page-landing .naming-menu-trigger:hover,
+.page-landing .naming-menu-trigger:hover span {
+  color: #ffffff;
+}
+
+.page-landing .naming-menu-trigger svg path {
+  stroke: rgba(255,255,255,0.88);
+}
+
+/* ── Hero — full-bleed photo ── */
+.page-landing .landing-hero {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-start;
+  min-height: 100svh;
+  padding: 0 clamp(20px, 6vw, 80px) clamp(40px, 5vw, 64px);
+  background: url('/static/images/namengine-hero.jpg') center / cover no-repeat;
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+  gap: 0;
+}
+
+.landing-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(10, 15, 26, 0.18) 0%,
+    rgba(10, 15, 26, 0.10) 35%,
+    rgba(10, 15, 26, 0.55) 68%,
+    rgba(10, 15, 26, 0.80) 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.page-landing .landing-hero-copy {
+  position: relative;
+  z-index: 1;
+  max-width: 700px;
+  color: #ffffff;
+}
+
+.page-landing .landing-hero-copy h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2.6rem, 7vw, 5rem);
+  font-weight: 700;
+  line-height: 1.06;
+  color: #ffffff;
+  margin: 0 0 0.45rem;
+  letter-spacing: -0.01em;
+}
+
+.page-landing .landing-hero-sub {
+  font-size: clamp(1rem, 2vw, 1.22rem);
+  color: rgba(255,255,255,0.76);
+  margin: 0 0 1.75rem;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+/* Vertical pills */
+.landing-vertical-pills {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 1.4rem;
+}
+
+.landing-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 24px;
+  border-radius: 100px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 2px solid rgba(255,255,255,0.62);
+  background: rgba(255,255,255,0.10);
+  color: #ffffff;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
+  font-family: inherit;
+  letter-spacing: 0.01em;
+}
+
+.landing-pill:hover {
+  background: rgba(255,255,255,0.20);
+  border-color: rgba(255,255,255,0.90);
+  transform: translateY(-1px);
+}
+
+.landing-pill:active {
+  transform: translateY(0);
+}
+
+/* Hero primary CTA */
+.landing-cta-primary {
+  display: inline-flex;
+  align-items: center;
+  padding: 15px 32px;
+  background: #ffffff;
+  color: #18212f;
+  border: none;
+  border-radius: 100px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.01em;
+  margin-bottom: 0.55rem;
+  transition: background 0.15s ease, transform 0.15s ease;
+  font-family: inherit;
+}
+
+.landing-cta-primary:hover {
+  background: #f0ece4;
+  transform: translateY(-2px);
+}
+
+.landing-cta-reassure {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.55);
+  margin: 0 0 1.75rem;
+}
+
+/* Remind strip at base of hero */
+.landing-hero-remind {
+  position: relative;
+  z-index: 1;
+  padding-top: 1.1rem;
+  border-top: 1px solid rgba(255,255,255,0.13);
+}
+
+.landing-hero-remind p {
+  font-size: 0.83rem;
+  color: rgba(255,255,255,0.52);
+  margin: 0 0 3px;
+}
+
+.landing-remind-link {
+  font-size: 0.83rem;
+  color: rgba(255,255,255,0.76);
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: rgba(255,255,255,0.32);
+  transition: color 0.15s ease;
+}
+
+.landing-remind-link:hover {
+  color: #ffffff;
+  text-decoration-color: rgba(255,255,255,0.65);
+}
+
+/* ── Trust badge strip ── */
+.landing-trust-strip {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(14px, 4vw, 40px);
+  flex-wrap: wrap;
+  padding: 16px clamp(20px, 5vw, 48px);
+  background: #18212f;
+  color: rgba(255,255,255,0.80);
+  font-size: 0.87rem;
+}
+
+.landing-trust-strip div {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.landing-trust-strip strong {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* ── Taste preview (demo carousel, now standalone) ── */
+.landing-taste-preview {
+  display: flex;
+  justify-content: center;
+  padding: clamp(40px, 6vw, 72px) 0;
+}
+
+/* ── Popup overlay ── */
+.landing-popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 15, 26, 0.52);
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+.landing-popup-overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* ── Popup — bottom sheet (mobile) ── */
+.landing-popup {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 201;
+  background: #ffffff;
+  border-radius: 20px 20px 0 0;
+  padding: 14px 24px calc(env(safe-area-inset-bottom, 0px) + 30px);
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.landing-popup.active {
+  transform: translateY(0);
+}
+
+.landing-popup-handle {
+  width: 36px;
+  height: 4px;
+  background: #e0ddd8;
+  border-radius: 2px;
+  margin: 0 auto 18px;
+}
+
+.landing-popup-eyebrow {
+  font-size: 0.77rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: #687386;
+  margin: 0 0 5px;
+}
+
+.landing-popup h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.45rem, 4vw, 1.8rem);
+  font-weight: 700;
+  color: #18212f;
+  margin: 0 0 4px;
+  line-height: 1.14;
+}
+
+.landing-popup-sub {
+  font-size: 0.88rem;
+  color: #687386;
+  margin: 0 0 18px;
+}
+
+.landing-popup-email-label {
+  display: block;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #1b1d2a;
+  margin-bottom: 3px;
+}
+
+.landing-popup-email-note {
+  font-size: 0.78rem;
+  color: #687386;
+  margin: 0 0 8px;
+}
+
+.landing-popup-email-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid #e0ddd8;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  color: #1b1d2a;
+  box-sizing: border-box;
+  margin-bottom: 13px;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.15s ease;
+}
+
+.landing-popup-email-input:focus {
+  border-color: #b9860b;
+}
+
+.landing-popup-cta {
+  display: block;
+  width: 100%;
+  padding: 15px;
+  background: #18212f;
+  color: #ffffff;
+  border: none;
+  border-radius: 100px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  margin-bottom: 9px;
+  font-family: inherit;
+  transition: background 0.15s ease;
+}
+
+.landing-popup-cta:hover {
+  background: #0f1620;
+}
+
+.landing-popup-skip {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 9px;
+  font-size: 0.88rem;
+  color: #687386;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: inherit;
+  transition: color 0.15s ease;
+}
+
+.landing-popup-skip:hover {
+  color: #18212f;
+}
+
+/* ── Popup — centered modal on wider screens ── */
+@media (min-width: 600px) {
+  .landing-popup {
+    bottom: auto;
+    top: 50%;
+    left: 50%;
+    right: auto;
+    width: 460px;
+    border-radius: 20px;
+    padding: 26px 32px 30px;
+    transform: translate(-50%, calc(-50% + 18px));
+    opacity: 0;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+  }
+
+  .landing-popup.active {
+    transform: translate(-50%, -50%);
+    opacity: 1;
+  }
+
+  .landing-popup-handle {
+    display: none;
+  }
+}
+
+/* ============================================================
+   Page Landing — Mobile fixes v=20260824-mobile-fix-v1
+   ============================================================ */
+
+/* Prevent horizontal bleed */
+body.page-landing {
+  overflow-x: hidden;
+}
+
+/* Override the mobile breakpoint that reverts hero to grid */
+@media (max-width: 860px) {
+  .page-landing main {
+    padding: 0 !important;
+  }
+
+  .page-landing .landing-hero {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-end !important;
+    min-height: 100svh !important;
+    padding: 0 20px clamp(36px, 8vw, 56px) !important;
+    border-radius: 0 !important;
+    grid-template-columns: unset !important;
+  }
+
+  .page-landing .landing-section {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+  }
+
+  /* Demo card — constrain width when standalone */
+  .landing-taste-preview .landing-demo-card {
+    width: min(380px, 100%);
+    max-width: 100%;
+  }
+
+  /* Pill row wraps neatly */
+  .landing-vertical-pills {
+    gap: 8px;
+  }
+
+  .landing-pill {
+    padding: 9px 18px;
+    font-size: 0.9rem;
+  }
+
+  /* CTA full width on mobile */
+  .landing-cta-primary {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ============================================================
+   Vertical card hover window  v=20260824-hover-v2
+   ============================================================ */
+
+.vc-hover {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 26px 24px 20px;
+  background: linear-gradient(
+    155deg,
+    color-mix(in srgb, var(--card-accent, #b06010) 6%, #ffffff) 0%,
+    color-mix(in srgb, var(--card-accent, #b06010) 14%, #ffffff) 100%
+  );
+  border-radius: inherit;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+  z-index: 4;
+}
+
+/* Desktop + Mobile: shown via JS when hovering "Start naming" or tapping card (adds .vc-active) */
+.landing-vertical-card.vc-active .vc-hover {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* ── "Start Free" badge ── */
+.vc-free {
+  display: inline-flex;
+  align-self: flex-start;
+  margin: 0;
+  padding: 5px 13px;
+  background: color-mix(in srgb, var(--card-accent, #b06010) 18%, transparent);
+  border: 1.5px solid color-mix(in srgb, var(--card-accent, #b06010) 35%, transparent);
+  border-radius: 100px;
+  font-size: 11.5px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--card-accent, #b06010) 65%, #18212f);
+}
+
+/* ── Benefit list ── */
+.vc-list {
+  list-style: none;
+  margin: 2px 0 4px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  flex: 1;
+}
+
+.vc-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: #1f2838;
+  font-weight: 500;
+}
+
+.vc-list li::before {
+  content: '';
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  border-radius: 50%;
+  background:
+    color-mix(in srgb, var(--card-accent, #b06010) 22%, white)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 6l3 3 5-5' stroke='%23ffffff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E")
+    center / 12px no-repeat;
+}
+
+/* ── CTA button ── */
+.vc-nav-btn {
+  display: block;
+  padding: 14px 20px;
+  background: color-mix(in srgb, var(--card-accent, #b06010) 88%, #18212f);
+  color: #ffffff;
+  font-size: 14.5px;
+  font-weight: 800;
+  text-align: center;
+  border-radius: 100px;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition: filter 0.15s ease, transform 0.12s ease;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--card-accent, #b06010) 40%, transparent);
+}
+
+.vc-nav-btn:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+/* ── Remind link ── */
+.vc-remind {
+  display: block;
+  font-size: 11.5px;
+  color: #687386;
+  text-align: center;
+  cursor: pointer;
+  line-height: 1.5;
+}
+
+.vc-remind strong {
+  color: color-mix(in srgb, var(--card-accent, #b06010) 70%, #18212f);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  font-weight: 600;
+}

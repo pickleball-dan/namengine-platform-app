@@ -97,18 +97,45 @@
       <h3>Baby</h3>
       <p>A name that carries meaning, sounds right out loud, and feels theirs for life.</p>
       <span>Start naming <span aria-hidden="true">→</span></span>
+      <div class="vc-hover" aria-hidden="true">
+        <p class="vc-free">Start Free — No Credit Card</p>
+        <ul class="vc-list">
+          <li>Experience a free conversation with our taste engine</li>
+          <li>Generate a first run of names tailored to your taste &amp; feelings</li>
+        </ul>
+        <span class="vc-nav-btn" role="button" tabindex="0">Start naming →</span>
+        <span class="vc-remind">Don’t have 5 minutes right now? <strong>Save your spot — we’ll remind you →</strong></span>
+      </div>
     </a>
     <a class="landing-vertical-card pet" href="/pet" style="--card-accent: #fcba76; --card-soft: rgba(252,186,118,.18);">
       <img src="{{ url_for('static', filename='images/namengine-pets.svg') }}" alt="NamEngine Pet">
       <h3>Pet</h3>
       <p>Playful, memorable names suited to the personality your new companion already has.</p>
       <span>Start naming <span aria-hidden="true">→</span></span>
+      <div class="vc-hover" aria-hidden="true">
+        <p class="vc-free">Start Free — No Credit Card</p>
+        <ul class="vc-list">
+          <li>Experience a free conversation with our taste engine</li>
+          <li>Generate a first run of names tailored to your taste &amp; feelings</li>
+        </ul>
+        <span class="vc-nav-btn" role="button" tabindex="0">Start naming →</span>
+        <span class="vc-remind">Don’t have 5 minutes right now? <strong>Save your spot — we’ll remind you →</strong></span>
+      </div>
     </a>
     <a class="landing-vertical-card business" href="/business" style="--card-accent: #3fa6a0; --card-soft: rgba(63,166,160,.14);">
       <img src="{{ url_for('static', filename='images/namengine-biz.svg') }}" alt="NamEngine Business">
       <h3>Business</h3>
       <p>A name your business can grow into — distinct, ownable, and ready for a domain.</p>
       <span>Start naming <span aria-hidden="true">→</span></span>
+      <div class="vc-hover" aria-hidden="true">
+        <p class="vc-free">Start Free — No Credit Card</p>
+        <ul class="vc-list">
+          <li>Experience a free conversation with our taste engine</li>
+          <li>Generate a first run of names tailored to your taste &amp; feelings</li>
+        </ul>
+        <span class="vc-nav-btn" role="button" tabindex="0">Start naming →</span>
+        <span class="vc-remind">Don’t have 5 minutes right now? <strong>Save your spot — we’ll remind you →</strong></span>
+      </div>
     </a>
   </div>
   <p class="landing-soon-note">More categories are on the way — Product, Book, and Game names.</p>
@@ -240,4 +267,5 @@
     <a class="business" href="/business">Business</a>
   </div>
 </section>
+<script src="{{ url_for('static', filename='js/vc-hover.js') }}?v=20260824-v1" defer></script>
 {% endblock %}
