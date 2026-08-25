@@ -41,9 +41,9 @@ class PhaseTwoWebShellTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         body = response.get_data(as_text=True)
-        self.assertIn("Finding the right name shouldn't begin with a thousand options.", body)
-        self.assertIn("It should begin with understanding what matters to you.", body)
-        self.assertIn("Start naming", body)
+        self.assertIn("Finding the right name should start with what matters", body)
+        self.assertIn("NamEngine learns your taste through a short conversation", body)
+        self.assertIn("Name a baby", body)
         self.assertIn("What are you naming?", body)
         self.assertIn("Love", body)
         self.assertIn("No", body)

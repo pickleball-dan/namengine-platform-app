@@ -308,8 +308,8 @@ class PhaseSixteenVerticalUiContractTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("landing-hero", body)
-        self.assertIn("Finding the right name shouldn't begin with a thousand options.", body)
-        self.assertIn("It should begin with understanding what matters to you.", body)
+        self.assertIn("Finding the right name should start with what matters", body)
+        self.assertIn("NamEngine learns your taste through a short conversation", body)
         self.assertIn("Taste signal preview", body)
         self.assertIn("Love", body)
         self.assertIn("No", body)
