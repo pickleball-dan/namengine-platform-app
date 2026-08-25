@@ -1817,3 +1817,58 @@ body.page-landing {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* ============================================================
+   Hero vertical pill CTAs  v=20260824
+   ============================================================ */
+
+.landing-vertical-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.landing-vertical-actions .landing-button {
+  flex: 1 1 auto;
+  min-width: 140px;
+  text-align: center;
+  justify-content: center;
+  border-radius: 100px;
+  font-weight: 800;
+  font-size: 14.5px;
+  padding: 14px 22px;
+  border-width: 2px;
+  transition: filter 0.15s ease, transform 0.12s ease;
+}
+
+.landing-vertical-actions .landing-button:hover {
+  filter: brightness(1.08);
+  transform: translateY(-2px);
+}
+
+/* Baby — coral */
+.landing-hero-baby {
+  background: #ff6b57;
+  color: #ffffff;
+  border-color: #ff6b57;
+}
+
+/* Pet — amber */
+.landing-hero-pet {
+  background: #f2b84b;
+  color: #3a2800;
+  border-color: #f2b84b;
+}
+
+/* Business — deep slate */
+.landing-hero-business {
+  background: #27476e;
+  color: #ffffff;
+  border-color: #27476e;
+}
+
+@media (max-width: 480px) {
+  .landing-vertical-actions { flex-direction: column; }
+  .landing-vertical-actions .landing-button { min-width: 0; }
+}
