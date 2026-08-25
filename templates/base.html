@@ -6,7 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}NamEngine{% endblock %}</title>
     <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/favicon.svg') }}">
-    <link rel="apple-touch-icon" href="{{ url_for('static', filename='images/app-icon.svg') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='images/pwa-icon-192.png') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <meta name="theme-color" content="#18212f">
     {% if vertical is defined %}
       {% set social_title = social_title|default(vertical.assets.get('social_title') or self.title()|striptags|trim) %}
       {% set social_description = social_description|default(vertical.assets.get('social_description') or vertical.visual.hero_support or vertical.prompt_context) %}
@@ -154,5 +156,10 @@
       <p class="footer-bottom-line">© 2026 NamEngine LLC · Built with AI, guided by people.</p>
     </footer>
     <script src="{{ url_for('static', filename='js/site-nav.js') }}?v=20260720-reference-shell-v1" defer></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/static/sw.js');
+      }
+    </script>
   </body>
 </html>
