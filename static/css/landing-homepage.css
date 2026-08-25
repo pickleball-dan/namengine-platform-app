@@ -1719,3 +1719,73 @@ body.page-landing {
   .lsc-wrap .detail-hero { padding: 20px; }
   .lsc-wrap .chosen-detail { padding: 14px; }
 }
+
+/* ============================================================
+   FAQ section  v=20260824
+   ============================================================ */
+
+.landing-faq-list {
+  display: grid;
+  gap: 8px;
+  max-width: 780px;
+}
+
+.landing-faq-item {
+  background: #ffffff;
+  border: 1px solid #dde3ec;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.landing-faq-item summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #18212f;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  transition: background 0.15s ease;
+}
+
+.landing-faq-item summary::-webkit-details-marker { display: none; }
+
+.landing-faq-item summary::after {
+  content: '';
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 6l4 4 4-4' stroke='%23607086' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E") center / 16px no-repeat;
+  transition: transform 0.2s ease;
+}
+
+.landing-faq-item[open] > summary {
+  border-bottom: 1px solid #dde3ec;
+  background: #f9fafb;
+}
+
+.landing-faq-item[open] > summary::after {
+  transform: rotate(180deg);
+}
+
+.landing-faq-item summary:hover {
+  background: #f9fafb;
+}
+
+.landing-faq-item > p {
+  margin: 0;
+  padding: 16px 20px;
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: #465266;
+}
+
+.landing-faq-item a {
+  color: #18212f;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
