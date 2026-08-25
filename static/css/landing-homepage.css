@@ -317,6 +317,17 @@ main {
   padding: clamp(62px, 8vw, 104px) 0 0;
 }
 
+#naming-experiences {
+  padding-top: clamp(24px, 3vw, 40px);
+}
+
+.landing-experiences-pricing {
+  font-size: 0.95rem;
+  color: var(--landing-muted, #666);
+  margin: 4px 0 16px;
+  font-style: italic;
+}
+
 .landing-section-head {
   max-width: 680px;
   margin-bottom: 28px;
