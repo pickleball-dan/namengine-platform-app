@@ -989,7 +989,7 @@ def beta_price_for(vertical) -> str:
     stripe_price = _stripe_payment_link_price(payment_link_id, secret_key)
     if stripe_price:
         return stripe_price
-    return "$9.99"
+    return "$4.99"
 
 
 def beta_cta_label(vertical) -> str:
@@ -1847,8 +1847,8 @@ def create_app() -> Flask:
             ), 410
 
         vertical = get_vertical(snapshot["session"]["vertical"])
-        # Share links are publicly viewable — no auth required.
-        # Anyone with the link can see the list (read-only); reactions/refine still require access.
+        if not beta_unlocked_from_request(vertical):
+            return _access_required_response(vertical, snapshot["session"]["id"])
         names = [json_loads(row["result_json"]) for row in snapshot["results"]]
         brief = json_loads(snapshot["session"]["brief_json"])
         taste_profile = _taste_profile_from_snapshot(snapshot)

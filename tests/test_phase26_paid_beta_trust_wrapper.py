@@ -128,7 +128,7 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.assertIn("checkout continuity cookie", text)
         self.assertIn("namengine_access_return_*", text)
         self.assertIn("does not contain payment card information", text)
-        self.assertIn("privacy@nam-engine.com", text)
+        self.assertIn("support@nam-engine.com", text)
 
     def test_footer_has_trust_links_and_pricing(self):
         response = self.app.get("/")
@@ -159,7 +159,7 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.assertIn("Saved taste signals", text)
         self.assertIn("Plain-English risks and fit notes", text)
         self.assertNotIn("Save, compare, and share favorite-name tools", text)
-        self.assertIn("$9.99", text)
+        self.assertIn("$4.99", text)
         self.assertNotIn("$19", text)
         self.assertNotIn("Try the first round", text)
         self.assertIn("100% money-back guarantee", text)
@@ -283,7 +283,7 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotIn("Payment received", text)
         self.assertIn("Generate your first preview list", text)
-        self.assertIn("$9.99", text)
+        self.assertIn("$4.99", text)
         self.assertNotIn("$19", text)
         self.assertNotIn("Try the first round", text)
 
@@ -707,10 +707,10 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.app.get(f"/baby/results?{query.decode('utf-8')}")
         result_id = namengine_app.json_loads(get_session_snapshot(session_id)["results"][0]["result_json"])["id"]
 
-        # Share is intentionally public (commit dad7cfe) — anyone with the link
-        # can view the list read-only. Verify it returns 200 separately.
+        # Share is gated — free users are redirected to the access page.
         share_response = self.app.get(f"/share/{session_id}")
-        self.assertEqual(share_response.status_code, 200)
+        self.assertEqual(share_response.status_code, 302)
+        self.assertIn(f"/baby/access?return_session={session_id}", share_response.headers["Location"])
 
         routes = (
             ("detail", self.app.get(f"/baby/name/{session_id}/{result_id}")),
@@ -782,7 +782,7 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
                 self.assertIn("Saved taste signals", text)
                 self.assertIn("Plain-English risks and fit notes", text)
                 self.assertNotIn("Save, compare, and share favorite-name tools", text)
-                self.assertIn("$9.99", text)
+                self.assertIn("$4.99", text)
                 self.assertNotIn("$19", text)
                 self.assertNotIn("Try the first round", text)
                 self.assertIn("100% money-back guarantee", text)
@@ -810,7 +810,7 @@ class PhaseTwentySixPaidBetaTrustWrapperTest(unittest.TestCase):
         self.assertIn('/pet/access/checkout', text)
         self.assertNotIn('href="https://buy.stripe.com/pet_test"', text)
         self.assertNotIn("$7", text)
-        self.assertIn("$9.99", text)
+        self.assertIn("$4.99", text)
         self.assertIn("Unlock Full Access", text)
 
     def test_free_business_results_lock_refinement_behind_vertical_beta(self):
