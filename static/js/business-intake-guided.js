@@ -401,4 +401,17 @@
   document.body.classList.add("business-interview-enhanced");
   syncInitialSelections();
   if (window.location.hash === "#business-intake-form") startInterview();
+
+  // Fix tooltip panel clipping on narrow viewports.
+  // When a tooltip opens, nudge the panel left if it overflows the right edge.
+  form.querySelectorAll(".intake-tooltip").forEach(function (tip) {
+    tip.addEventListener("toggle", function () {
+      const panel = tip.querySelector(".intake-tooltip-panel");
+      if (!panel || !tip.open) return;
+      panel.style.marginLeft = "";
+      const rect = panel.getBoundingClientRect();
+      const overflow = rect.right - (window.innerWidth - 8);
+      if (overflow > 0) panel.style.marginLeft = "-" + overflow + "px";
+    });
+  });
 })();
