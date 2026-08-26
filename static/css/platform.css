@@ -12243,8 +12243,9 @@ body.vertical-business {
   }
 
   .vertical-business .result-card .result-tags span {
-    color: #334155;
-    background: #f1f5f9;
+    color: #e8f0fa;
+    background: rgba(63, 166, 160, 0.50);
+    border: 1px solid rgba(63, 166, 160, 0.85);
   }
 
   .vertical-business .result-card > .reaction-row button {
@@ -12459,9 +12460,9 @@ body.vertical-business {
   }
 
   .vertical-business .result-card .result-tags span {
-    background: rgba(39, 71, 110, 0.18);
-    color: #162c58;
-    border: 1.5px solid rgba(39, 71, 110, 0.36);
+    color: #e8f0fa;
+    background: rgba(63, 166, 160, 0.50);
+    border: 1px solid rgba(63, 166, 160, 0.85);
   }
 
   .vertical-business .result-card > .reaction-row button {
@@ -14034,10 +14035,11 @@ body.vertical-business {
 .vertical-business .result-card .tagline {
   color: rgba(185, 218, 245, 0.78);
 }
+.vertical-business .result-card .result-tags span,
 .vertical-business .result-tags span {
-  color: rgba(185, 218, 245, 0.90);
-  background: rgba(63, 166, 160, 0.22);
-  border: 1px solid rgba(63, 166, 160, 0.55);
+  color: #e8f0fa;
+  background: rgba(63, 166, 160, 0.50);
+  border: 1px solid rgba(63, 166, 160, 0.85);
 }
 /* Result card divider */
 .vertical-business .result-card-main {
