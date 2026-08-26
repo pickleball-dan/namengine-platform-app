@@ -14026,10 +14026,10 @@ body.vertical-business {
   color: #e8f0fa;
 }
 .vertical-business .result-card .pronunciation {
-  color: rgba(148, 192, 228, 0.62);
+  color: rgba(185, 218, 245, 0.82);
 }
 .vertical-business .result-card .result-card-meaning {
-  color: rgba(148, 192, 228, 0.68);
+  color: rgba(185, 218, 245, 0.85);
 }
 .vertical-business .result-card .tagline {
   color: rgba(185, 218, 245, 0.78);
@@ -14084,7 +14084,7 @@ body.vertical-business {
 }
 .vertical-business .result-card-details section p,
 .vertical-business .result-card-details ul {
-  color: rgba(148, 192, 228, 0.72);
+  color: rgba(185, 218, 245, 0.85);
 }
 /* Domain info on dark */
 .vertical-business .domain-info {
@@ -14099,7 +14099,7 @@ body.vertical-business {
   color: #e8f0fa;
 }
 .vertical-business .domain-note {
-  color: rgba(132, 180, 220, 0.55);
+  color: rgba(185, 218, 245, 0.80);
 }
 /* Choose button: dark */
 .vertical-business .choose-button {
@@ -14129,10 +14129,10 @@ body.vertical-business {
   color: #e8f0fa;
 }
 .vertical-business .bottom-next-panel p:not(.eyebrow) {
-  color: rgba(148, 192, 228, 0.70);
+  color: rgba(185, 218, 245, 0.85);
 }
 .vertical-business .bottom-next-panel label {
-  color: rgba(148, 192, 228, 0.70);
+  color: rgba(185, 218, 245, 0.85);
 }
 .vertical-business .bottom-refine-form h3 {
   color: #e8f0fa;
@@ -14143,10 +14143,10 @@ body.vertical-business {
   color: #e8f0fa;
 }
 .vertical-business .bottom-refine-form input::placeholder {
-  color: rgba(132, 180, 222, 0.40);
+  color: rgba(185, 218, 245, 0.60);
 }
 .vertical-business .refine-reaction-gate {
-  color: rgba(140, 192, 228, 0.62);
+  color: rgba(185, 218, 245, 0.85);
 }
 .vertical-business .paid-access-benefits li {
   background: rgba(14, 30, 60, 0.65);
@@ -14157,7 +14157,7 @@ body.vertical-business {
   color: #5ec8c2;
 }
 .vertical-business .paid-access-guarantee {
-  color: rgba(148, 192, 228, 0.62);
+  color: rgba(185, 218, 245, 0.82);
 }
 /* Compare / Share buttons in results */
 .vertical-business .compare-link {
