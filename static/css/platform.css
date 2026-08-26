@@ -10973,14 +10973,14 @@ body.vertical-business {
 
 .vertical-business .business-optional-hint {
   font-size: 0.8rem;
-  color: #536879;
+  color: rgba(185, 218, 245, 0.85);
   font-style: italic;
   margin: 0 0 12px;
 }
 
 .vertical-business .business-question-help {
   font-size: 0.8rem;
-  color: #536879;
+  color: rgba(185, 218, 245, 0.85);
   margin: 0 0 12px;
 }
 
@@ -13402,6 +13402,11 @@ body.vertical-business {
 .vertical-business .beta-hero-copy > p {
   color: rgba(172, 210, 240, 0.82);
 }
+.vertical-business .beta-email-capture h2,
+.vertical-business .beta-email-capture p,
+.vertical-business .beta-email-capture label {
+  color: rgba(185, 218, 245, 0.85);
+}
 .vertical-business .beta-price-card {
   background:
     radial-gradient(circle at 92% 8%, rgba(63, 166, 160, 0.18), transparent 40%),
@@ -13598,11 +13603,11 @@ body.vertical-business {
   color: #e8f0fa;
 }
 .vertical-business .business-question-status {
-  color: rgba(148, 192, 230, 0.62);
+  color: rgba(185, 218, 245, 0.85);
 }
 .vertical-business .business-optional-hint,
 .vertical-business .business-question-help {
-  color: rgba(148, 188, 228, 0.62);
+  color: rgba(185, 218, 245, 0.85);
 }
 
 /* ── Input fields: dark ── */
@@ -13612,7 +13617,7 @@ body.vertical-business {
   color: #e8f0fa;
 }
 .vertical-business .business-question > :is(input:not(.business-native-control):not([data-other-input]), textarea)::placeholder {
-  color: rgba(132, 180, 222, 0.42);
+  color: rgba(185, 218, 245, 0.60);
 }
 .vertical-business .business-question > :is(input:not(.business-native-control):not([data-other-input]), textarea):focus {
   background: rgba(14, 30, 60, 0.90);
@@ -13692,9 +13697,9 @@ body.vertical-business {
   min-height: 34px;
   padding: 5px 16px;
   background: transparent;
-  border: 1px solid rgba(110, 168, 208, 0.28);
+  border: 1px solid rgba(185, 218, 245, 0.35);
   border-radius: 999px;
-  color: rgba(148, 196, 232, 0.68);
+  color: rgba(185, 218, 245, 0.85);
   font: inherit;
   font-size: 0.78rem;
   font-weight: 700;
@@ -13918,7 +13923,7 @@ body.vertical-business {
   background: #5ec8c2;
 }
 .vertical-business .progress-steps li {
-  color: rgba(132, 180, 220, 0.52);
+  color: rgba(185, 218, 245, 0.85);
 }
 
 /* ── Results shell: dark page, heading text ── */
