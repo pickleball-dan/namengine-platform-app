@@ -7794,6 +7794,8 @@ button {
     position: static;
     width: 100%;
     min-width: 0;
+    max-width: calc(100vw - 32px);
+    box-sizing: border-box;
     max-height: none;
     margin-top: 10px;
     overflow: visible;
@@ -14170,10 +14172,10 @@ body.vertical-business {
 }
 /* Disclaimer */
 .vertical-business .results-disclaimer {
-  color: rgba(132, 180, 220, 0.48);
+  color: #2d3a4a;
 }
 .vertical-business .results-disclaimer a {
-  color: rgba(92, 198, 190, 0.60);
+  color: #1e6460;
 }
 
 /* ── Name detail page: dark ── */
