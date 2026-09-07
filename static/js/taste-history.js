@@ -229,9 +229,55 @@
     }
   }
 
+  function injectResumePromptStyles() {
+    if (document.getElementById("intake-resume-prompt-style")) return;
+    var s = document.createElement("style");
+    s.id = "intake-resume-prompt-style";
+    s.textContent =
+      ".intake-resume-prompt{margin-top:.65rem;}" +
+      ".intake-resume-link{" +
+        "display:inline-block;" +
+        "font-size:.78rem;font-weight:500;" +
+        "padding:.35rem 1rem;" +
+        "border-radius:999px;" +
+        "border:1.5px solid rgba(255,255,255,.35);" +
+        "color:rgba(255,255,255,.88);" +
+        "background:rgba(255,255,255,.07);" +
+        "text-decoration:none;" +
+        "white-space:nowrap;" +
+        "transition:background .15s,border-color .15s;" +
+      "}" +
+      ".intake-resume-link:hover{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.55);}";
+    document.head.appendChild(s);
+  }
+
+  function renderResumePrompt(history) {
+    const prompt = document.querySelector("[data-resume-prompt]");
+    if (!prompt) return;
+
+    const withNames = history.filter(function (h) {
+      return Array.isArray(h.lovedNames) && h.lovedNames.length > 0;
+    });
+
+    if (!withNames.length) {
+      prompt.hidden = true;
+      prompt.innerHTML = "";
+      return;
+    }
+
+    injectResumePromptStyles();
+    var latest = withNames[0];
+    prompt.hidden = false;
+    prompt.innerHTML =
+      'Have a previous session? <a class="intake-resume-link" href="' +
+      latest.listUrl +
+      '">Resume where you left off \u2192</a>';
+  }
+
   function render() {
     const history = readHistory();
     renderLovedSummary(history);
+    renderResumePrompt(history);
     renderDrawer(history);
 
     const clearButton = document.querySelector("[data-taste-history-clear]");

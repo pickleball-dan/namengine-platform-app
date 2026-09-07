@@ -81,6 +81,8 @@
   </aside>
 </section>
 
+<div id="homepage-return-hook" hidden></div>
+
 <section class="landing-section" id="naming-experiences" aria-labelledby="naming-experiences-title">
   <div class="landing-section-head">
     <p class="landing-eyebrow">Choose your naming experience</p>
@@ -362,5 +364,6 @@
     <a class="business" href="/business">Business</a>
   </div>
 </section>
+<script src="{{ url_for('static', filename='js/homepage-return.js') }}"></script>
 <script src="{{ url_for('static', filename='js/vc-hover.js') }}?v=20260824-v1" defer></script>
 {% endblock %}

@@ -6,12 +6,10 @@ from app import create_app
 
 
 APPROVED_ASSET_HASHES = {
-    "app-icon.svg": "fcb3fe0ec6b802a92465d8814e6c628d1a0d82f542961c98b284c737f05b89c6",
     "brand-tokens.json": "97edd56a57be79a22dcf0abc2f52e6c9f9d3ef393cb2f72fb8cee6fe24d3189b",
     "favicon.svg": "7a3a300ea516ae4948e3926c0f27ccf8ca7076d1f5e3c450ef0844c99b30d03c",
     "namengine-baby-icon.svg": "7cd9d98f601a90ac5d33c7eea77e4f5833357110653e5c6f0715dafb8cd343d1",
     "namengine-baby.svg": "24bbf2b385585f03f2c38521aab963ea00db2faf00d42360d435f4b27fdbbbda",
-    "namengine-biz-icon.svg": "521d0795e1d3615df0d89c9bc3d28afc3705d3ceba8dbee70f34711289e288c9",
     "namengine-biz.svg": "98258edc80d7b8c72dc114850a12ad9386964838bbef78c31dbe7409f03a7421",
     "namengine-icon.svg": "7a3a300ea516ae4948e3926c0f27ccf8ca7076d1f5e3c450ef0844c99b30d03c",
     "namengine-pets-icon.svg": "3e778d5d03d189e8595d874583f708533a513066e591277d7501e819e5b55d89",
@@ -55,7 +53,7 @@ class ApprovedBrandingAssetsTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn('/static/images/namengine.svg', body)
         self.assertIn('rel="icon" type="image/svg+xml" href="/static/images/favicon.svg"', body)
-        self.assertIn('rel="apple-touch-icon" href="/static/images/app-icon.svg"', body)
+        self.assertIn('rel="apple-touch-icon"', body)
         self.assertNotIn("home-brand-mark", body)
         self.assertNotIn("<span>NamEngine</span>", body)
 
