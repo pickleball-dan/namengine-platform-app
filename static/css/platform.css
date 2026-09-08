@@ -14724,17 +14724,16 @@ body.vertical-business {
   background: transparent; /* header shell itself is white, no override needed */
 }
 
-/* ── Welcome card logo: light box wrapper — dark logo on light box = clear on dark card ── */
+/* ── Welcome card logo wrapper — reversed SVG renders directly on dark card, no box needed ── */
 .vertical-business .baby-welcome .vertical-page-logo-wrap {
   display: flex;
   align-items: center;
   justify-content: flex-start;
   margin: 0 0 16px;
-  padding: 10px 24px;
-  background: rgba(220, 236, 250, 0.92);
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.36);
-  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.20);
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
 
