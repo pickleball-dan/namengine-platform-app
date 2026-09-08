@@ -600,6 +600,7 @@ BUSINESS = VerticalConfig(
         identity_points=("Category fit", "Memorability", "Launch risk"),
         result_card_style="brand decision card with launch risks",
     ),
+    page_dark=True,
 )
 
 

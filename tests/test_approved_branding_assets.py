@@ -74,6 +74,41 @@ class ApprovedBrandingAssetsTest(unittest.TestCase):
         self.assertNotIn("images/baby/namengine-baby-logo.png", body)
         self.assertNotIn("images/baby/namengine-baby-logo.svg", body)
 
+    def test_dark_page_verticals_emit_data_attribute_and_css_rule_exists(self):
+        """Any vertical with page_dark=True must emit data-page-dark on <body>.
+        The CSS filter rule must exist in platform.css.
+        This is the systemic guard against invisible logos on dark backgrounds."""
+        from namengine.verticals.configs import VERTICALS
+        import re
+
+        # Verify CSS rule exists
+        css_path = Path(self.app.static_folder) / "css" / "platform.css"
+        css = css_path.read_text(encoding="utf-8")
+        self.assertIn(
+            "body[data-page-dark] .vertical-page-logo",
+            css,
+            "CSS dark-page logo filter rule missing from platform.css",
+        )
+        self.assertIn(
+            "brightness(0) invert(1)",
+            css,
+            "CSS dark-page inversion filter missing from platform.css",
+        )
+
+        # Verify every page_dark vertical emits data-page-dark on <body>
+        for slug, vertical in VERTICALS.items():
+            if not vertical.page_dark:
+                continue
+            with self.subTest(vertical=slug):
+                route = vertical.route_prefix
+                response = self.client.get(route)
+                body = response.get_data(as_text=True)
+                self.assertIn(
+                    "data-page-dark",
+                    body,
+                    f"Vertical '{slug}' has page_dark=True but <body> is missing data-page-dark attribute",
+                )
+
     def test_pet_uses_approved_pets_mark_and_business_keeps_existing_logo(self):
         pet = self.client.get("/pet").get_data(as_text=True)
         business = self.client.get("/business").get_data(as_text=True)

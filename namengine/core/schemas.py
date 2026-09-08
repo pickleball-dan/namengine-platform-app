@@ -80,6 +80,7 @@ class VerticalConfig:
     assets: dict[str, str] = field(default_factory=dict)
     visual: VerticalVisualConfig = field(default_factory=VerticalVisualConfig)
     default_result_count: int = 8
+    page_dark: bool = False
 
 
 @dataclass(slots=True)

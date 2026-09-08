@@ -48,7 +48,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/platform.css') }}?v=20260822-intake-assist-bear-fix">
     {% block head_extra %}{% endblock %}
   </head>
-  <body {% if vertical is defined %}class="vertical-{{ vertical.slug }}" style="{{ vertical_theme_style(vertical) }}"{% endif %}>
+  <body {% if vertical is defined %}class="vertical-{{ vertical.slug }}" style="{{ vertical_theme_style(vertical) }}"{% if vertical.page_dark %} data-page-dark{% endif %}{% endif %}>
     <header class="site-header site-header-reference" data-site-shell>
       <div class="site-header-inner">
         <a class="brand{% if vertical is defined %} brand-home-link{% endif %}" href="/" aria-label="{% if vertical is defined %}Home{% else %}NamEngine home{% endif %}">

@@ -490,6 +490,12 @@ h1 {
   margin-bottom: 14px;
 }
 
+/* ── Dark-page logo: auto-invert to white for maximum visibility on any dark background.
+   To enable for a new vertical: set page_dark=True in VerticalConfig — no CSS change needed. ── */
+body[data-page-dark] .vertical-page-logo {
+  filter: brightness(0) invert(1);
+}
+
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
