@@ -490,9 +490,12 @@ h1 {
   margin-bottom: 14px;
 }
 
-/* ── Dark-page logo: auto-invert to white for maximum visibility on any dark background.
-   To enable for a new vertical: set page_dark=True in VerticalConfig — no CSS change needed. ── */
-body[data-page-dark] .vertical-page-logo {
+/* ── Dark-page logo visibility system ──
+   Verticals with page_dark=True must define page_logo in their asset config.
+   data-has-dark-logo = proper dark-background SVG is loaded (brand colors preserved).
+   :not([data-has-dark-logo]) = emergency fallback only — visible white > invisible nothing.
+   Tests enforce that page_logo is always defined; this filter should never be the real solution. ── */
+body[data-page-dark]:not([data-has-dark-logo]) .vertical-page-logo {
   filter: brightness(0) invert(1);
 }
 

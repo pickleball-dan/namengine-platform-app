@@ -579,6 +579,7 @@ BUSINESS = VerticalConfig(
     },
     assets={
         "logo": "images/namengine-biz.svg",
+        "page_logo": "images/namengine-biz-reversed.svg",
         "share_image": "images/business/namengine-business-share-current.png",
     },
     visual=VerticalVisualConfig(

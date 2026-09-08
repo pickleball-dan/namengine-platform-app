@@ -7,6 +7,7 @@ from app import create_app
 
 APPROVED_ASSET_HASHES = {
     "brand-tokens.json": "97edd56a57be79a22dcf0abc2f52e6c9f9d3ef393cb2f72fb8cee6fe24d3189b",
+    "namengine-biz-reversed.svg": "c8f39612675b88bd3c8dbf9b2724a7fdb7b3e7d2c282034b887e9fca30cd36cb",
     "favicon.svg": "7a3a300ea516ae4948e3926c0f27ccf8ca7076d1f5e3c450ef0844c99b30d03c",
     "namengine-baby-icon.svg": "7cd9d98f601a90ac5d33c7eea77e4f5833357110653e5c6f0715dafb8cd343d1",
     "namengine-baby.svg": "24bbf2b385585f03f2c38521aab963ea00db2faf00d42360d435f4b27fdbbbda",
@@ -75,19 +76,25 @@ class ApprovedBrandingAssetsTest(unittest.TestCase):
         self.assertNotIn("images/baby/namengine-baby-logo.svg", body)
 
     def test_dark_page_verticals_emit_data_attribute_and_css_rule_exists(self):
-        """Any vertical with page_dark=True must emit data-page-dark on <body>.
-        The CSS filter rule must exist in platform.css.
-        This is the systemic guard against invisible logos on dark backgrounds."""
-        from namengine.verticals.configs import VERTICALS
-        import re
+        """Systemic guard against invisible logos on dark-background verticals.
 
-        # Verify CSS rule exists
+        Rules enforced:
+        1. CSS emergency-fallback rule must exist in platform.css.
+        2. Every page_dark=True vertical MUST define an explicit page_logo asset
+           (a properly designed dark-background logo that preserves brand colors).
+           White-only CSS inversion is unacceptable as the real solution.
+        3. Every page_dark vertical must emit data-page-dark on <body>.
+        4. Every page_dark vertical with page_logo must emit data-has-dark-logo on <body>.
+        """
+        from namengine.verticals.configs import VERTICALS
+
+        # 1. CSS emergency-fallback rule must exist
         css_path = Path(self.app.static_folder) / "css" / "platform.css"
         css = css_path.read_text(encoding="utf-8")
         self.assertIn(
-            "body[data-page-dark] .vertical-page-logo",
+            "body[data-page-dark]:not([data-has-dark-logo]) .vertical-page-logo",
             css,
-            "CSS dark-page logo filter rule missing from platform.css",
+            "CSS dark-page emergency filter rule missing from platform.css",
         )
         self.assertIn(
             "brightness(0) invert(1)",
@@ -95,18 +102,30 @@ class ApprovedBrandingAssetsTest(unittest.TestCase):
             "CSS dark-page inversion filter missing from platform.css",
         )
 
-        # Verify every page_dark vertical emits data-page-dark on <body>
         for slug, vertical in VERTICALS.items():
             if not vertical.page_dark:
                 continue
             with self.subTest(vertical=slug):
-                route = vertical.route_prefix
-                response = self.client.get(route)
+                # 2. Must have an explicit page_logo (brand-correct dark logo, not just CSS filter)
+                page_logo = vertical.assets.get("page_logo")
+                self.assertIsNotNone(
+                    page_logo,
+                    f"Vertical '{slug}' has page_dark=True but no page_logo asset defined. "
+                    f"Create a proper dark-background SVG that preserves brand colors — "
+                    f"do not rely on the white-inversion fallback.",
+                )
+                # 3 & 4. Rendered HTML must have both data attributes
+                response = self.client.get(vertical.route_prefix)
                 body = response.get_data(as_text=True)
                 self.assertIn(
                     "data-page-dark",
                     body,
-                    f"Vertical '{slug}' has page_dark=True but <body> is missing data-page-dark attribute",
+                    f"Vertical '{slug}' missing data-page-dark on <body>",
+                )
+                self.assertIn(
+                    "data-has-dark-logo",
+                    body,
+                    f"Vertical '{slug}' has page_logo but <body> is missing data-has-dark-logo",
                 )
 
     def test_pet_uses_approved_pets_mark_and_business_keeps_existing_logo(self):
