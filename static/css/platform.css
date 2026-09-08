@@ -14788,19 +14788,7 @@ body.vertical-business {
   display: block;
 }
 
-/* Invert the dark NamEngineBiz SVG on dark-background pages so it pops */
-.vertical-business :is(
-  .chosen-shell,
-  .results-heading,
-  .results-shell,
-  .compare-shell,
-  .detail-hero,
-  .detail-shell,
-  .feedback-shell
-) > .vertical-page-logo {
-  filter: brightness(0) invert(1);
-  opacity: 0.90;
-}
+/* reversed SVG (namengine-biz-reversed.svg) renders correctly on dark without any filter */
 
 /* ══════════════════════════════════════════════════════════════════
    BUSINESS: AI brand concept image frame (chosen page)
