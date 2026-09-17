@@ -3,7 +3,7 @@
 {% block title %}NamEngine — Understand what matters, then discover the name.{% endblock %}
 
 {% block head_extra %}
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/landing-homepage.css') }}?v=20260825-homepage-changes-v1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/landing-homepage.css') }}?v=20260917-testimonial-grid-v2">
 {% endblock %}
 
 {% block content %}
@@ -215,6 +215,30 @@
       </section>
     </section>
     <p class="lsc-footer-note">This is the level of reasoning in every preview. Full reports go deeper.</p>
+  </div>
+</section>
+
+<section class="landing-section landing-testimonials" aria-labelledby="testimonials-title">
+  <div class="landing-section-head">
+    <p class="landing-eyebrow">What people are saying</p>
+    <h2 id="testimonials-title">Names that meant something.</h2>
+  </div>
+  <div class="testimonials-track-wrapper" aria-label="Testimonials">
+    <div class="testimonials-track">
+      {% for t in testimonials %}
+      <blockquote class="testimonial-card testimonial-{{ t.vertical }}">
+        <p class="testimonial-quote">{{ t.quote }}</p>
+        <footer class="testimonial-footer">
+          {% if t.avatar %}<img class="testimonial-avatar" src="{{ url_for('static', filename=t.avatar) }}" alt="{{ t.name }}" loading="lazy">{% endif %}
+          <div class="testimonial-byline">
+            <span class="testimonial-name">{{ t.name }}</span>
+            <span class="testimonial-vertical testimonial-vertical--{{ t.vertical }}">{{ t.vertical | capitalize }}</span>
+          </div>
+        </footer>
+      </blockquote>
+      {% endfor %}
+
+    </div>
   </div>
 </section>
 
