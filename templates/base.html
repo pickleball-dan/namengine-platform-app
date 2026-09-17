@@ -24,6 +24,17 @@
     }
     </script>
     {% block structured_data %}{% endblock %}
+    <script type="module">
+      import { analytics } from 'https://esm.sh/@heycatch/sdk@0.7.0';
+      analytics.init({
+        projectKey: 'hck_pk_Ep7rlBF0mleKqdm5Be0o6SokVkgg0kII',
+        install: {
+          framework: 'web',
+          agent: 'claude-code',
+        },
+        requestBatching: false,
+      });
+    </script>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-FWYGCCFP6Q"></script>
     <script>
