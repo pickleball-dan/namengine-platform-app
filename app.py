@@ -1444,6 +1444,45 @@ def create_app() -> Flask:
     def vs_page():
         return render_template("compare.html")
 
+    @app.get("/robots.txt")
+    def robots_txt():
+        content = """User-agent: *
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+Sitemap: https://nam-engine.com/sitemap.xml
+"""
+        return content, 200, {"Content-Type": "text/plain"}
+
+    @app.get("/sitemap.xml")
+    def sitemap_xml():
+        content = """<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://nam-engine.com/</loc><priority>1.0</priority></url>
+  <url><loc>https://nam-engine.com/baby</loc><priority>0.9</priority></url>
+  <url><loc>https://nam-engine.com/pet</loc><priority>0.9</priority></url>
+  <url><loc>https://nam-engine.com/business</loc><priority>0.9</priority></url>
+  <url><loc>https://nam-engine.com/vs</loc><priority>0.7</priority></url>
+  <url><loc>https://nam-engine.com/about</loc><priority>0.6</priority></url>
+  <url><loc>https://nam-engine.com/privacy</loc><priority>0.3</priority></url>
+  <url><loc>https://nam-engine.com/terms</loc><priority>0.3</priority></url>
+  <url><loc>https://nam-engine.com/disclaimers</loc><priority>0.3</priority></url>
+  <url><loc>https://nam-engine.com/data-protection</loc><priority>0.3</priority></url>
+</urlset>
+"""
+        return content, 200, {"Content-Type": "application/xml"}
+
     @app.get("/privacy")
     def privacy_policy():
         return render_template("legal_privacy.html")
