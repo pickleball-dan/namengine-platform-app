@@ -1,78 +1,210 @@
 {% extends "base.html" %}
 
-{% block title %}Compare {{ vertical.display_name }} Names{% endblock %}
+{% block title %}NamEngine vs. the field{% endblock %}
 
 {% block content %}
-  <section class="compare-shell">
-    {% set page_logo = vertical.assets.get("page_logo", vertical.assets.get("logo")) %}
-    {% if page_logo and vertical.slug != "baby" %}
-      <img class="vertical-page-logo small" src="{{ url_for('static', filename=page_logo) }}" alt="NamEngine {{ vertical.display_name }} logo">
-    {% endif %}
-    <p class="eyebrow">{% if vertical.slug == "baby" %}Your favorites{% else %}Compare Favorites{% endif %}</p>
-    <h1>{% if vertical.slug == "baby" %}See how your favorites feel together.{% else %}Choose with confidence.{% endif %}</h1>
-    <p class="compare-lede">Round {{ session.round_number }} · {{ items|length }} names, compared on fit, sound, warmth, and what is worth considering.</p>
-    {% if taste_profile %}
-      <aside class="taste-profile compare-taste">
-        <h2>Taste profile</h2>
-        <p>{{ taste_profile.summary }}</p>
-      </aside>
-    {% endif %}
+<div class="compare-page">
 
-    {% if items %}
-      <div class="compare-grid">
-        {% for item in items %}
-          <article class="compare-card">
-            <p class="result-index">Round {{ item.round_number }} · {{ item.reaction.title() }}</p>
-            <h2>{{ item.name }}</h2>
-            {% if item.pronunciation %}
-              <p class="pronunciation">{{ item.pronunciation }}</p>
-            {% endif %}
-            {% if item.tagline %}
-              <p class="tagline">{{ item.tagline }}</p>
-            {% endif %}
+  <a href="/#why-different" class="compare-back-btn">
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="18" height="18">
+      <path d="M19 12H5M5 12l7-7M5 12l7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Back
+  </a>
 
-            <div class="compare-best-fit">
-              <strong>Best if</strong>
-              <p>{{ item.best_if }}</p>
-            </div>
-            <details class="compare-card-details">
-              <summary>{% if vertical.slug == "baby" %}Compare the details{% else %}Comparison details{% endif %}</summary>
-              <dl class="compare-facts">
-              <div>
-                <dt>Worth noting</dt>
-                <dd>{{ item.watch_out }}</dd>
-              </div>
-              <div>
-                <dt>Callability</dt>
-                <dd>{{ item.callability }}</dd>
-              </div>
-              <div>
-                <dt>Warmth</dt>
-                <dd>{{ item.warmth }}</dd>
-              </div>
-              <div>
-                <dt>Distinctiveness</dt>
-                <dd>{{ item.distinctiveness }}</dd>
-              </div>
-              </dl>
-            </details>
+  <header class="compare-page-header">
+    <p class="compare-eyebrow">How we stack up</p>
+    <h1 style="text-align: center; width: 100%; max-width: 100%;">NamEngine vs. the field</h1>
+    <p class="compare-subhead">Every tool below is genuinely useful. Here's how they differ from NamEngine — and why the approach matters.</p>
+  </header>
 
-            <form action="/choose" method="post">
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-              <input type="hidden" name="session_id" value="{{ item.session_id }}">
-              <input type="hidden" name="result_id" value="{{ item.result_id }}">
-              <button class="choose-button" type="submit">Choose {{ item.name }}</button>
-            </form>
-            <a class="button-link detail-link" href="{{ url_for('name_detail', vertical_slug=vertical.slug, session_id=item.session_id, result_id=item.result_id) }}">Open detail</a>
-          </article>
-        {% endfor %}
-      </div>
-    {% else %}
-      <div class="empty-state">
-        <h2>{% if vertical.slug == "baby" %}Your favorites are waiting.{% else %}No favorites yet{% endif %}</h2>
-        <p>{% if vertical.slug == "baby" %}Choose “Love it” on a few names, and they’ll be ready to compare here.{% else %}Love a few names first. Your saved names will become your comparison set.{% endif %}</p>
-        <a class="button-link" href="/{{ vertical.slug }}">Start a new {{ vertical.display_name|lower }} search</a>
-      </div>
-    {% endif %}
+  <!-- Baby -->
+  <section class="compare-table-section">
+    <h2 class="compare-vertical-title">
+      <span class="compare-vertical-dot compare-vertical-dot--baby"></span>
+      Baby naming
+    </h2>
+    <div class="compare-table-wrap">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th class="compare-th-feature"></th>
+            <th class="compare-th-namengine"><span class="compare-th-badge">NamEngine</span></th>
+            <th>Namina</th>
+            <th>Nameberry</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="compare-feature">How it works</td>
+            <td class="compare-namengine-col">Guided conversation about feeling, style, and story — then names</td>
+            <td>Tell it your family, culture, surname, and style — AI builds a ranked shortlist</td>
+            <td>Search a database of 70,000+ names by letter, origin, theme, popularity</td>
+          </tr>
+          <tr>
+            <td class="compare-feature">Learns your taste</td>
+            <td class="compare-namengine-col"><span class="compare-yes">Yes</span> — Love / No reactions shape every new round</td>
+            <td>Partially — names you like steer the next round</td>
+            <td><span class="compare-no">No</span> — you search and filter yourself</td>
+          </tr>
+          <tr>
+            <td class="compare-feature">Explains each name</td>
+            <td class="compare-namengine-col">Full report: meaning, origin, fit, pronunciation, style notes, watch-outs</td>
+            <td>Each name scored for surname flow, sibling harmony, and style match</td>
+            <td>Standard name meaning and origin — no fit reasoning</td>
+          </tr>
+          <tr>
+            <td class="compare-feature">Co-decision</td>
+            <td class="compare-namengine-col">Share a shortlist with reasoning to your partner</td>
+            <td>Save favorites and share with family</td>
+            <td>Not built in — you screenshot or text links</td>
+          </tr>
+          <tr>
+            <td class="compare-feature">Refined rounds</td>
+            <td class="compare-namengine-col">Generate smarter lists shaped by your reactions</td>
+            <td>Yes — likes steer next round</td>
+            <td>Start a new search from scratch</td>
+          </tr>
+          <tr>
+            <td class="compare-feature">Price</td>
+            <td class="compare-namengine-col">Free first list; $4.99 one-time to unlock full reports</td>
+            <td>Appears free</td>
+            <td>Free</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </section>
+
+  <!-- Pet -->
+  <section class="compare-table-section">
+    <h2 class="compare-vertical-title">
+      <span class="compare-vertical-dot compare-vertical-dot--pet"></span>
+      Pet naming
+    </h2>
+    <div class="compare-table-wrap">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th class="compare-th-feature"></th>
+            <th class="compare-th-namengine">
+              <span class="compare-th-badge">NamEngine</span>
+            </th>
+            <th>Nomello</th>
+            <th>PetNameGenerator.io</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="compare-feature">How it works</td>
+            <td class="compare-namengine-col">Guided conversation about personality, style, and story — then names</td>
+            <td>Upload a photo + take a taste quiz, AI suggests names that fit your pet's features and your taste</td>
+            <td>Pick species, gender, theme, and personality traits — get a filtered list from 12,480+ names</td>
+          </tr>
+          <tr>
+            <td class="compare-feature">Learns your taste</td>
+            <td class="compare-namengine-col">
+              <span class="compare-yes">Yes</span> — Love / No reactions shape every new round
+            </td>
+            <td>Partially — keep asking for names, favorites saved</td>
+            <td><span class="compare-no">No</span> — static filter, no learning loop</td>
+          </tr>
+          <tr>
+            <td class="compare-feature">Explains each name</td>
+            <td class="compare-namengine-col">Full report: meaning, origin, fit, pronunciation, style notes, watch-outs</td>
+            <td>Short reason with each suggestion</td>
+            <td>No per-name reasoning — names matched by category, not explained</td>
+          </tr>
+          <tr>
+            <td class="compare-feature">Co-decision</td>
+            <td class="compare-namengine-col">Share a shortlist with reasoning to family or household</td>
+            <td>Family voting feature — send a link, everyone votes</td>
+            <td>Not built in</td>
+          </tr>
+          <tr>
+            <td class="compare-feature">Refined rounds</td>
+            <td class="compare-namengine-col">Generate smarter lists shaped by your reactions</td>
+            <td>Keep generating fresh suggestions</td>
+            <td>Re-run with different filters</td>
+          </tr>
+          <tr>
+            <td class="compare-feature">Price</td>
+            <td class="compare-namengine-col">Free first list; $4.99 one-time to unlock full reports</td>
+            <td>Free, no signup</td>
+            <td>Free</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Business -->
+  <section class="compare-table-section">
+    <h2 class="compare-vertical-title">
+      <span class="compare-vertical-dot compare-vertical-dot--business"></span>
+      Business naming
+    </h2>
+    <div class="compare-table-wrap">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th class="compare-th-feature"></th>
+            <th class="compare-th-namengine"><span class="compare-th-badge">NamEngine</span></th>
+            <th>Namelix</th>
+            <th>Generic name lists</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="compare-feature">How it works</td>
+            <td class="compare-namengine-col">Guided conversation about feeling, style, and story — then names</td>
+            <td>Enter keywords, AI generates a list, you filter by length / keyword / domain</td>
+            <td>Pick a category, scroll a static list</td>
+          </tr>
+          <tr>
+            <td class="compare-feature">Learns your taste</td>
+            <td class="compare-namengine-col"><span class="compare-yes">Yes</span> — Love / No reactions shape every new round</td>
+            <td>Partially — learns passively when you save names</td>
+            <td><span class="compare-no">No</span></td>
+          </tr>
+          <tr>
+            <td class="compare-feature">Explains each name</td>
+            <td class="compare-namengine-col">Full report: meaning, origin, fit, pronunciation, style notes, practical watch-outs</td>
+            <td>Names only — no reasoning behind any suggestion</td>
+            <td>Name and brief definition, if that</td>
+          </tr>
+          <tr>
+            <td class="compare-feature">Co-decision</td>
+            <td class="compare-namengine-col">Share a shortlist with reasoning to your team or client</td>
+            <td><span class="compare-na">Not available</span></td>
+            <td><span class="compare-na">Not available</span></td>
+          </tr>
+          <tr>
+            <td class="compare-feature">Domain availability</td>
+            <td class="compare-namengine-col">Checked via GoDaddy API alongside full name reasoning</td>
+            <td>Filters by domain extension — but no reasoning behind any name</td>
+            <td>Not checked</td>
+          </tr>
+          <tr>
+            <td class="compare-feature">Refined rounds</td>
+            <td class="compare-namengine-col">Generate smarter lists shaped by your reactions</td>
+            <td>Re-run with different filters</td>
+            <td>Start over from scratch</td>
+          </tr>
+          <tr>
+            <td class="compare-feature">Price</td>
+            <td class="compare-namengine-col">Free first list; $4.99 one-time to unlock full reports</td>
+            <td>Free</td>
+            <td>Free</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="compare-cta-wrap">
+    <a href="/baby" class="compare-cta-btn">Try NamEngine — first list is free</a>
+  </div>
+
+</div>
 {% endblock %}

@@ -594,6 +594,26 @@ main {
   background: linear-gradient(135deg, var(--landing-teal), #0b6654);
 }
 
+.landing-compare-link-wrap {
+  text-align: center;
+  margin-top: 32px;
+}
+
+.landing-compare-link {
+  font-size: 14px;
+  font-weight: 600;
+  color: #6c7482;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(108, 116, 130, 0.3);
+  padding-bottom: 2px;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.landing-compare-link:hover {
+  color: #18212f;
+  border-color: #18212f;
+}
+
 .landing-compare-section {
   padding-left: clamp(4px, 1.4vw, 12px);
   padding-right: clamp(4px, 1.4vw, 12px);

@@ -4946,6 +4946,22 @@ button {
   gap: 16px;
 }
 
+.founders-message-photo-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.founders-message-photo {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center top;
+  border: 3px solid rgba(24, 33, 47, 0.12);
+  display: block;
+}
+
 .founders-message-eyebrow {
   margin: 0;
   font-size: 11px;
@@ -10347,11 +10363,51 @@ body.vertical-business {
 
 .footer-socials {
   display: flex;
-  gap: 24px;
+  flex-direction: column;
+  gap: 12px;
   margin-top: 22px;
   color: #6c7482;
   font-size: 15px;
   font-weight: 800;
+}
+
+.footer-social-link {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #6c7482;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  transition: color 0.18s ease;
+}
+
+.footer-social-link:hover {
+  color: #18212f;
+}
+
+.footer-social-icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  transition: color 0.18s ease;
+}
+
+.footer-social-link--instagram .footer-social-icon {
+  color: #e1306c;
+}
+
+.footer-social-link--instagram:hover .footer-social-icon {
+  color: #c13584;
+}
+
+.footer-social-link--tiktok .footer-social-icon {
+  color: #fe2c55;
+}
+
+.footer-social-link--tiktok:hover .footer-social-icon {
+  color: #010101;
 }
 
 .footer-column {

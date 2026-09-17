@@ -1440,6 +1440,10 @@ def create_app() -> Flask:
     def about():
         return render_template("about.html")
 
+    @app.get("/vs")
+    def vs_page():
+        return render_template("compare.html")
+
     @app.get("/privacy")
     def privacy_policy():
         return render_template("legal_privacy.html")

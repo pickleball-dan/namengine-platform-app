@@ -45,6 +45,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/compare.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/platform.css') }}?v=20260907-biz-logo-dark-fix">
     {% block head_extra %}{% endblock %}
   </head>
@@ -130,11 +131,21 @@
             <img class="footer-brand-logo" src="{{ url_for('static', filename='images/namengine.svg') }}" alt="NamEngine">
           {% endif %}
           <p>{% if vertical is defined %}Helping people discover {{ vertical.display_name|lower }} names they'll love.{% else %}Helping people discover names they'll love for a lifetime.{% endif %}</p>
-          <div class="footer-socials" aria-label="Social links shown in reference design">
-            <span aria-hidden="true">◎</span>
-            <span aria-hidden="true">f</span>
-            <span aria-hidden="true">♥</span>
-            <span aria-hidden="true">p</span>
+          <div class="footer-socials" aria-label="Social links">
+            <a href="https://www.instagram.com/namengine.app" target="_blank" rel="noopener" aria-label="NamEngine on Instagram" class="footer-social-link footer-social-link--instagram">
+              <svg class="footer-social-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <rect x="2" y="2" width="20" height="20" rx="5.5" stroke="currentColor" stroke-width="1.8"/>
+                <circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.8"/>
+                <circle cx="17.5" cy="6.5" r="1" fill="currentColor"/>
+              </svg>
+              <span>namengine.app</span>
+            </a>
+            <a href="https://www.tiktok.com/@namengine.app" target="_blank" rel="noopener" aria-label="NamEngine on TikTok" class="footer-social-link footer-social-link--tiktok">
+              <svg class="footer-social-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>@namengine.app</span>
+            </a>
           </div>
         </div>
         {% if not focused_access_return|default(false) %}<nav class="footer-column" aria-label="Naming experiences">
