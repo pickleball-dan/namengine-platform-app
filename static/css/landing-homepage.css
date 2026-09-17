@@ -1908,13 +1908,20 @@ body.page-landing {
 .testimonials-track {
   display: flex;
   gap: 20px;
-  width: max-content;
-  animation: testimonials-scroll 40s linear infinite;
-  padding: 8px 24px 12px;
+  width: 100%;
+  padding: 8px 16px 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
 }
 
-.testimonials-track:hover {
-  animation-play-state: paused;
+.testimonials-track::-webkit-scrollbar {
+  display: none;
+}
+
+.testimonial-card {
+  scroll-snap-align: start;
 }
 
 @keyframes testimonials-scroll {
