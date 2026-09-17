@@ -6,6 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}NamEngine{% endblock %}</title>
     <meta name="description" content="{% block meta_description %}NamEngine is an AI name generator that learns your taste through a short conversation. Free first list for baby, pet, or business names.{% endblock %}">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "NamEngine",
+      "url": "https://nam-engine.com",
+      "logo": "https://nam-engine.com/static/images/namengine.svg",
+      "founder": {
+        "@type": "Person",
+        "name": "Dan Normand"
+      },
+      "sameAs": [
+        "https://www.instagram.com/namengine",
+        "https://www.tiktok.com/@namengine"
+      ]
+    }
+    </script>
+    {% block structured_data %}{% endblock %}
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-FWYGCCFP6Q"></script>
     <script>
@@ -57,7 +75,7 @@
           {% if vertical is defined %}
             <span class="brand-home-text">Home</span>
           {% else %}
-            <img class="brand-logo brand-logo-wordmark" src="{{ url_for('static', filename='images/namengine.svg') }}" alt="NamEngine">
+            <img class="brand-logo brand-logo-wordmark" src="{{ url_for('static', filename='images/namengine.svg') }}" alt="NamEngine AI name generator logo">
           {% endif %}
         </a>
         {% if not focused_access_return|default(false) %}<nav class="site-nav site-nav-reference" aria-label="Primary navigation">
@@ -127,9 +145,9 @@
         <div class="footer-brand-block">
           {% if vertical is defined %}
             {% set footer_logo = vertical.assets.get('footer_logo', vertical.assets.get('logo', 'images/namengine.svg')) %}
-            <img class="footer-brand-logo" src="{{ url_for('static', filename=footer_logo) }}" alt="NamEngine {{ vertical.display_name }}">
+            <img class="footer-brand-logo" src="{{ url_for('static', filename=footer_logo) }}" alt="NamEngine {{ vertical.display_name }} logo">
           {% else %}
-            <img class="footer-brand-logo" src="{{ url_for('static', filename='images/namengine.svg') }}" alt="NamEngine">
+            <img class="footer-brand-logo" src="{{ url_for('static', filename='images/namengine.svg') }}" alt="NamEngine AI name generator logo">
           {% endif %}
           <p>{% if vertical is defined %}Helping people discover {{ vertical.display_name|lower }} names they'll love.{% else %}Helping people discover names they'll love for a lifetime.{% endif %}</p>
           <div class="footer-socials" aria-label="Social links">

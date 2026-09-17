@@ -1,6 +1,104 @@
 {% extends "base.html" %}
 
 {% block title %}NamEngine - AI Name Generator for Baby, Pet, and Business Names{% endblock %}
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "NamEngine",
+  "description": "An AI name generator that learns your taste through a guided conversation. Free first list for baby, pet, or business names.",
+  "applicationCategory": "UtilitiesApplication",
+  "url": "https://nam-engine.com",
+  "offers": [
+    {
+      "@type": "Offer",
+      "name": "Free preview list",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    {
+      "@type": "Offer",
+      "name": "Full access with reports and refined rounds",
+      "price": "4.99",
+      "priceCurrency": "USD"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is the first list free?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. No credit card. You get a first preview list at no cost. Access is optional — you only pay when you want to go deeper with full reports, reactions, and refined rounds."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What does $4.99 include?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Full reports on every name, Love / No reactions that shape the next round, smarter follow-up lists, side-by-side compare, a clear leading choice, and a shareable view — for that vertical, tied to the list you already generated."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I pay again for baby and business?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Access is per vertical. Baby, pet, and business are each separate. If you need more than one, a bundle is the honest next step."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do you check if a business name is available?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Reports include practical fit notes. They are not a legal clearance, trademark opinion, or confirmation that a domain is registrable. Always verify independently before you commit."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can two people use it together?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. After Access is unlocked, share a view with a partner, co-founder, or family member. They see the same shortlist and the same reasoning — without starting over from scratch."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Will NamEngine invent names?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sometimes. A suggestion may be rare or constructed rather than established. The report will say when a name is coined versus traditional."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why $4.99 when other name generators are free?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Free tools dump lists without reasoning. NamEngine's guided conversation and per-name explanations cost more to run and deliver more value. You're not paying for a list. You're paying for a process that actually works."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What if nothing fits?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "React honestly and run another round shaped by those reactions. If it still does not feel useful, request a refund — the money-back guarantee is real. Email support@nam-engine.com."
+      }
+    }
+  ]
+}
+</script>
+{% endblock %}
 
 {% block head_extra %}
   <link rel="stylesheet" href="{{ url_for('static', filename='css/landing-homepage.css') }}?v=20260917-testimonial-grid-v4">
@@ -10,7 +108,7 @@
 <section class="landing-hero" aria-labelledby="landing-hero-title">
   <div class="landing-atmosphere" aria-hidden="true"></div>
   <div class="landing-hero-copy">
-    <img class="landing-hero-logo" src="{{ url_for('static', filename='images/namengine.svg') }}" alt="NamEngine">
+    <img class="landing-hero-logo" src="{{ url_for('static', filename='images/namengine.svg') }}" alt="NamEngine AI name generator">
     <p class="landing-kicker"><span aria-hidden="true"></span>Naming, done the right way</p>
     <h1 id="landing-hero-title">Finding the right name should start with what matters — not a thousand options.</h1>
     <p class="landing-hero-sub">NamEngine learns your taste through a short conversation, then gives you a small set of names that actually fit. Baby, pet, or business.</p>
@@ -93,7 +191,7 @@
 
   <div class="landing-vertical-grid">
     <a class="landing-vertical-card baby" href="/baby" style="--card-accent: #ff6b6b; --card-soft: rgba(255,107,107,.12);">
-      <img src="{{ url_for('static', filename='images/namengine-baby.svg') }}" alt="NamEngine Baby">
+      <img src="{{ url_for('static', filename='images/namengine-baby.svg') }}" alt="NamEngine Baby logo for guided baby name discoveryby">
       <h3>Baby</h3>
       <p>A name that carries meaning, sounds right out loud, and feels theirs for life.</p>
       <span>Name a baby <span aria-hidden="true">→</span></span>
@@ -108,7 +206,7 @@
       </div>
     </a>
     <a class="landing-vertical-card pet" href="/pet" style="--card-accent: #fcba76; --card-soft: rgba(252,186,118,.18);">
-      <img src="{{ url_for('static', filename='images/namengine-pets.svg') }}" alt="NamEngine Pet">
+      <img src="{{ url_for('static', filename='images/namengine-pets.svg') }}" alt="NamEngine Pet logo for personality-matched pet namest">
       <h3>Pet</h3>
       <p>Playful, memorable names suited to the personality your new companion already has.</p>
       <span>Name a pet <span aria-hidden="true">→</span></span>
@@ -123,7 +221,7 @@
       </div>
     </a>
     <a class="landing-vertical-card business" href="/business" style="--card-accent: #3fa6a0; --card-soft: rgba(63,166,160,.14);">
-      <img src="{{ url_for('static', filename='images/namengine-biz.svg') }}" alt="NamEngine Business">
+      <img src="{{ url_for('static', filename='images/namengine-biz.svg') }}" alt="NamEngine Business logo for brandable business namesiness">
       <h3>Business</h3>
       <p>A name your business can grow into — distinct, ownable, and ready for a domain.</p>
       <span>Name a business <span aria-hidden="true">→</span></span>
