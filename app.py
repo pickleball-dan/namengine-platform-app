@@ -18,6 +18,20 @@ from hashlib import sha1
 from urllib.parse import urlencode, urlparse, urljoin
 
 from flask import Flask, abort, g, jsonify, make_response, redirect, render_template, request, send_from_directory, url_for
+TESTIMONIALS = [
+    {
+        "quote": "So fun to find names for my puppy I would've never thought of! Started off wanting a classic name and ended up with some very cool ideas from modern movies and TV that I love!",
+        "name": "Nancy B.",
+        "vertical": "pet",
+        "avatar": "images/testimonials/nancy-b.jpg",
+    },
+    {
+        "quote": "I have unsuccessfully used AI such as Gemini and ChatGPT to help me name my performing musical groups. NamEngine takes you to a whole new level of extensive, personalized, and fast suggestions that others can't match.",
+        "name": "Robin",
+        "vertical": "business",
+        "avatar": "images/testimonials/robin.jpg",
+    },
+]
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 try:
@@ -1261,6 +1275,7 @@ def create_app() -> Flask:
             "index.html",
             verticals=VERTICALS,
             beta_price=beta_price_for(get_vertical("baby")),
+            testimonials=TESTIMONIALS,
         )
 
     @app.get("/<vertical_slug>/beta")
