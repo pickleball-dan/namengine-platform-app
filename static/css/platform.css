@@ -10594,7 +10594,7 @@ body.vertical-business {
   }
 
   .footer-socials {
-    display: none;
+    display: flex;
   }
 
   .footer-column {
