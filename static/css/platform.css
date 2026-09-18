@@ -12021,6 +12021,16 @@ body.vertical-boat {
   color: #c8963e;
   fill: #c8963e;
 }
+
+/* Social icon vertical colors */
+.vertical-baby .footer-social-link { color: #FF5233; }
+.vertical-baby .footer-social-icon { color: #FF5233; fill: #FF5233; }
+
+.vertical-pet .footer-social-link { color: #F2B84B; }
+.vertical-pet .footer-social-icon { color: #F2B84B; fill: #F2B84B; }
+
+.vertical-business .footer-social-link { color: #0F8F73; }
+.vertical-business .footer-social-icon { color: #0F8F73; fill: #0F8F73; }
 .vertical-boat .footer-bottom-line {
   color: #8a9db8;
   border-top-color: rgba(200, 150, 62, 0.12);
