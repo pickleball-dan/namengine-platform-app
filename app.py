@@ -1912,8 +1912,8 @@ Sitemap: https://nam-engine.com/sitemap.xml
             ), 410
 
         vertical = get_vertical(snapshot["session"]["vertical"])
-        # Share links are always public — recipients see the list regardless of their own access.
-        # beta_unlocked controls whether paid features (reactions, reports, etc.) are available.
+        if not beta_unlocked_from_request(vertical):
+            return _access_required_response(vertical, snapshot["session"]["id"])
         names = [json_loads(row["result_json"]) for row in snapshot["results"]]
         brief = json_loads(snapshot["session"]["brief_json"])
         taste_profile = _taste_profile_from_snapshot(snapshot)
