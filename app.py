@@ -27,7 +27,7 @@ TESTIMONIALS = [
     },
     {
         "quote": "I have unsuccessfully used AI such as Gemini and ChatGPT to help me name my performing musical groups. NamEngine takes you to a whole new level of extensive, personalized, and fast suggestions that others can't match.",
-        "name": "Robin",
+        "name": "Robin M.",
         "vertical": "business",
         "avatar": "images/testimonials/robin.jpg",
     },
