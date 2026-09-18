@@ -11875,6 +11875,73 @@ body.vertical-boat {
   border-color: rgba(200, 150, 62, 0.34);
 }
 
+/* ── Boat bottom panel + paywall: full contrast fix ───────────────────────── */
+
+/* "NEXT LIST" / "PAID ACCESS" eyebrow kickers */
+.vertical-boat .bottom-next-panel .eyebrow {
+  color: #d9b96f;
+  font-weight: 900;
+  letter-spacing: 0.10em;
+}
+
+/* "Ready for a fresh list?" / "List complete" headings */
+.vertical-boat .bottom-next-panel h2,
+.vertical-boat .bottom-next-panel h3 {
+  color: #f0ead8;
+}
+
+/* "We'll use at least 3 reactions..." */
+.vertical-boat .bottom-next-panel > div > p,
+.vertical-boat .bottom-refine-form > p:not(.refine-reaction-gate):not(.paid-access-guarantee) {
+  color: #c6d1dd;
+}
+
+/* "Your first list is free..." */
+.vertical-boat .beta-refine-lock > p {
+  color: #c6d1dd;
+}
+
+/* Paid access bullet list */
+.vertical-boat .paid-access-benefits li {
+  color: #c6d1dd;
+}
+
+/* "100% money-back guarantee" */
+.vertical-boat .paid-access-guarantee {
+  color: #a8bdd4;
+  font-weight: 500;
+}
+
+/* Reaction gate text ("React to X more names") */
+.vertical-boat .refine-reaction-gate {
+  color: #a8bdd4;
+}
+
+/* "Compare favorites" + "Share list" buttons */
+.vertical-boat .bottom-next-actions .button-link {
+  color: #f0ead8;
+  border-color: rgba(200, 150, 62, 0.40);
+  background: rgba(15, 30, 51, 0.60);
+}
+.vertical-boat .bottom-next-actions .button-link:hover {
+  background: rgba(200, 150, 62, 0.15);
+  border-color: #c8963e;
+}
+
+/* Disclaimer box at bottom */
+.vertical-boat .results-disclaimer {
+  color: #a8bdd4;
+  background: rgba(7, 17, 31, 0.70);
+  border-color: rgba(200, 150, 62, 0.18);
+}
+.vertical-boat .results-disclaimer strong {
+  color: #d9b96f;
+}
+.vertical-boat .results-disclaimer a {
+  color: #a8bdd4;
+  text-decoration: underline;
+}
+
 /* ── Boat paywall page overrides ─────────────────────── */
 
 /* Fix 1: paywall hero — dark navy text on dark bg is invisible; force light */
