@@ -12073,24 +12073,41 @@ body.vertical-boat {
 
 /* WHY THIS NAME / VESSEL FIT / RISKS labels — already fixed above in field-labels block */
 
-/* Tags */
-.vertical-boat .result-card .result-tags span {
+/* Tags / pill boxes */
+.vertical-boat .result-card .result-tags span,
+.vertical-boat .result-card [class*="result-tag"] span,
+.vertical-boat .result-card .tag {
   background: rgba(200, 150, 62, 0.18);
   color: #d9b96f;
-  border: 1.5px solid rgba(200, 150, 62, 0.36);
+  border: 1.5px solid rgba(200, 150, 62, 0.45);
 }
 
-/* Reaction row */
-.vertical-boat .result-card > .reaction-row button {
+/* Reaction buttons — override the white base */
+.vertical-boat .reaction-row button,
+.vertical-boat .result-card .reaction-row button {
   color: #c6d1dd;
-  background: rgba(200, 150, 62, 0.09);
-  border-color: rgba(200, 150, 62, 0.26);
+  background: rgba(15, 30, 51, 0.70);
+  border: 1.5px solid rgba(200, 150, 62, 0.35);
 }
-.vertical-boat .result-card > .reaction-row button.is-selected {
-  color: #f0ead8;
-  background: rgba(200, 150, 62, 0.20);
+.vertical-boat .reaction-row button:hover,
+.vertical-boat .reaction-row button:focus-visible,
+.vertical-boat .result-card .reaction-row button:hover,
+.vertical-boat .result-card .reaction-row button:focus-visible {
+  background: rgba(200, 150, 62, 0.15);
   border-color: #c8963e;
-  box-shadow: 0 4px 18px rgba(200, 150, 62, 0.28);
+  color: #f0ead8;
+  box-shadow: 0 0 0 3px rgba(200, 150, 62, 0.15);
+}
+.vertical-boat .reaction-row button.is-selected,
+.vertical-boat .result-card .reaction-row button.is-selected {
+  color: #f0ead8;
+  background: rgba(200, 150, 62, 0.22);
+  border-color: #c8963e;
+  box-shadow: 0 0 0 3px rgba(200, 150, 62, 0.18);
+}
+.vertical-boat .reaction-row button span,
+.vertical-boat .result-card .reaction-row button span {
+  color: #f0ead8;
 }
 
 /* View vessel fit CTA link */
