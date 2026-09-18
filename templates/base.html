@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}NamEngine{% endblock %}</title>
     <meta name="google-site-verification" content="r-ZZjJs-28v_IKscs3F-ywRi3-u_FLSbg2LNfmXWG8I">
-    <meta name="description" content="{% block meta_description %}NamEngine is an AI name generator that learns your taste through a short conversation. Free first list for baby, pet, or business names.{% endblock %}">
+    <meta name="description" content="{% block meta_description %}NamEngine is an AI name generator that learns your taste through a short conversation. Free first list for baby, pet, boat, or business names.{% endblock %}">
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -77,7 +77,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/compare.css') }}">
+<<<<<<< HEAD
     <link rel="stylesheet" href="{{ url_for('static', filename='css/platform.css') }}?v=20260907-biz-logo-dark-fix">
+=======
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/platform.css') }}?v=20260810-baby-mobile-tooltip-v2">
+>>>>>>> origin/staging/current
     {% block head_extra %}{% endblock %}
   </head>
   <body {% if vertical is defined %}class="vertical-{{ vertical.slug }}" style="{{ vertical_theme_style(vertical) }}"{% if vertical.page_dark %} data-page-dark{% if vertical.assets.get('page_logo') %} data-has-dark-logo{% endif %}{% endif %}{% endif %}>
@@ -115,6 +119,11 @@
                 <a class="naming-menu-row naming-menu-row-business" href="/business">
                   <span class="naming-menu-icon naming-menu-wordmark naming-menu-wordmark-biz" aria-hidden="true">Biz</span>
                   <span class="naming-menu-text"><small>Build a name your business can grow into.</small></span>
+                  <span class="naming-menu-arrow" aria-hidden="true">›</span>
+                </a>
+                <a class="naming-menu-row naming-menu-row-boat" href="/boat">
+                  <span class="naming-menu-icon naming-menu-wordmark naming-menu-wordmark-boat" aria-hidden="true">Boat</span>
+                  <span class="naming-menu-text"><small>Find a name worthy of the open water.</small></span>
                   <span class="naming-menu-arrow" aria-hidden="true">›</span>
                 </a>
               </div>
@@ -184,6 +193,7 @@
           <a href="/baby">Baby</a>
           <a href="/pet">Pet</a>
           <a href="/business">Business</a>
+          <a href="/boat">Boat</a>
           <h2 class="footer-subheading">Coming Soon</h2>
           <span aria-disabled="true">Product</span>
           <span aria-disabled="true">Book</span>

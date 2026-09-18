@@ -14,7 +14,13 @@
 {% endblock %}
 
 {% block content %}
-  <section class="results-shell shared-shortlist" data-session-id="{{ session.id }}">
+  <section class="results-shell shared-shortlist" data-session-id="{{ session.id }}"
+    {% if not beta_unlocked %}
+    data-access-gate-url="/{{ vertical.slug }}/access"
+    data-access-gate-title="Unlock {{ vertical.display_name }} Access"
+    data-access-gate-body="Unlock full access to explore each name in depth, react, compare, choose, and refine — backed by a 100% money-back guarantee."
+    {% endif %}
+  >
     <div class="results-heading">
       {% set page_logo = vertical.assets.get("page_logo", vertical.assets.get("logo")) %}
       {% if page_logo and vertical.slug != "baby" %}
@@ -68,35 +74,62 @@
             {% include "_domain_info.html" %}
           {% endif %}
 
-          {% if vertical.slug == "baby" %}
-            <details class="shared-result-details">
-              <summary>Why this name fits</summary>
-              <div class="shared-result-details-body">
+          {% if beta_unlocked %}
+            {% if vertical.slug == "baby" %}
+              <details class="shared-result-details">
+                <summary>Why this name fits</summary>
+                <div class="shared-result-details-body">
+                  <p>{{ item.why_this_name }}</p>
+                  <h3>Style and feeling</h3>
+                  <p>{{ item.fit_note }}</p>
+                </div>
+              </details>
+            {% else %}
+              <section>
+                <h3>{{ vertical.result_field_labels.get("why_this_name", "Why this name?") }}</h3>
                 <p>{{ item.why_this_name }}</p>
-                <h3>Style and feeling</h3>
+              </section>
+              <section>
+                <h3>{{ vertical.result_field_labels.get("fit_note", "Fit") }}</h3>
                 <p>{{ item.fit_note }}</p>
-              </div>
-            </details>
+              </section>
+            {% endif %}
           {% else %}
-            <section>
-              <h3>{{ vertical.result_field_labels.get("why_this_name", "Why this name?") }}</h3>
-              <p>{{ item.why_this_name }}</p>
-            </section>
-            <section>
-              <h3>{{ vertical.result_field_labels.get("fit_note", "Fit") }}</h3>
-              <p>{{ item.fit_note }}</p>
-            </section>
+            <p class="shared-locked-hint">
+              <a class="premium-locked-action" href="/{{ vertical.slug }}/access" data-premium-action>Unlock to see why this name fits ›</a>
+            </p>
           {% endif %}
 
-          <a class="button-link detail-link" href="{{ url_for('name_detail', vertical_slug=vertical.slug, session_id=session.id, result_id=item.id) }}">{% if vertical.slug == "baby" %}Explore {{ item.name }}{% else %}Open detail{% endif %}</a>
+          <a class="button-link detail-link{% if not beta_unlocked %} premium-locked-action{% endif %}"
+             href="{{ url_for('name_detail', vertical_slug=vertical.slug, session_id=session.id, result_id=item.id) if beta_unlocked else '/' + vertical.slug + '/access' }}"
+             {% if not beta_unlocked %}data-premium-action{% endif %}>
+            {% if vertical.slug == "baby" %}Explore {{ item.name }}{% else %}Open detail{% endif %}
+          </a>
           <form action="/choose" method="post">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="hidden" name="session_id" value="{{ session.id }}">
             <input type="hidden" name="result_id" value="{{ item.id }}">
-            <button class="choose-button" type="submit">Choose {{ item.name }}</button>
+            <button class="choose-button{% if not beta_unlocked %} premium-locked-action{% endif %}"
+                    type="{{ 'submit' if beta_unlocked else 'button' }}"
+                    {% if not beta_unlocked %}data-premium-action{% endif %}>
+              Choose {{ item.name }}
+            </button>
           </form>
         </article>
       {% endfor %}
     </div>
+
+    {% if not beta_unlocked %}
+    <section class="bottom-refine-form paid-access-teaser" aria-label="Unlock Full Access">
+      <p class="eyebrow">NamEngine Access</p>
+      <h2>Go deeper with this list</h2>
+      <p>Unlock full access to explore each name in depth, react, compare, choose, share, and generate refined rounds.</p>
+      <a class="button-link" href="/{{ vertical.slug }}/access">{{ beta_cta_label(vertical) }}</a>
+    </section>
+    {% endif %}
   </section>
+
+  {% if not beta_unlocked %}
+  <script src="{{ url_for('static', filename='js/access-gate.js') }}?v=20260825-share-paywall-v1"></script>
+  {% endif %}
 {% endblock %}

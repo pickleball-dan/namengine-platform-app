@@ -4,8 +4,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from access_helpers import csrf_token, unlock_beta_access
-from app import _query_string_from_mapping, _sanitize_intake_source, create_app, make_session_id
+from access_helpers import unlock_beta_access
+from app import create_app, make_session_id
 from namengine.core import build_brief, get_chosen_snapshot, get_session_snapshot
 from namengine.verticals import PET
 
@@ -33,12 +33,6 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
             os.environ["NAMENGINE_AI_PRIMARY_VERTICALS"] = self.previous_ai_verticals
         self.tempdir.cleanup()
 
-    def _session_id_for_query(self, vertical, query: bytes, *, session_vertical: str | None = None) -> str:
-        source = dict(pair.split("=", 1) for pair in query.decode("utf-8").split("&"))
-        source = {key: value.replace("+", " ") for key, value in source.items()}
-        sanitized = _sanitize_intake_source(vertical, source)
-        return make_session_id(session_vertical or vertical.slug, _query_string_from_mapping(sanitized).encode("utf-8"))
-
     def test_pet_uses_approved_active_graphic_assets(self):
         response = self.client.get("/pet")
         body = response.get_data(as_text=True)
@@ -47,7 +41,7 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
         self.assertIn("images/namengine-pets.svg", body)
         self.assertNotIn("images/namengine-pets-icon.svg", body)
         self.assertNotIn("images/pet/namengine-pet-logo-transparent.png", body)
-        self.assertIn("images/pet/namengine-pet-share-current.png", body)
+        self.assertIn("images/pet/namengine-pet-card-share-v3.jpg", body)
         self.assertIn("vertical-page-logo", body)
 
     def test_pet_intake_collects_portrait_details(self):
@@ -189,14 +183,11 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
         query = (
             b"pet_type=Dog&pet_breed=Whippet&pet_color=Blue+gray&pet_life_stage=Mature"
             b"&style=Modern&vibe=Gentle&pronunciation_importance=Very+important"
-            b"&familiarity_preference=A+little+less+common"
-            b"&timeless_vs_distinctive=Mostly+distinctive"
-            b"&partner_alignment=human-name+but+not+too+serious&avoid=Spot"
+            b"&familiarity_preference=Distinctive&avoid=Spot"
         )
-        session_id = self._session_id_for_query(PET, query)
-
         response = self.client.get(f"/pet/results?{query.decode('utf-8')}")
         body = response.get_data(as_text=True)
+        session_id = body.split('data-session-id="', 1)[1].split('"', 1)[0]
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("vertical-pet", body)
@@ -226,12 +217,10 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
         query = (
             b"pet_type=Dog&pet_breed=Whippet&pet_color=Blue+gray&pet_life_stage=Mature"
             b"&style=Modern&vibe=Gentle&pronunciation_importance=Very+important"
-            b"&familiarity_preference=A+little+less+common"
-            b"&timeless_vs_distinctive=Mostly+distinctive"
-            b"&partner_alignment=human-name+but+not+too+serious&avoid=Spot"
+            b"&familiarity_preference=Distinctive&avoid=Spot"
         )
-        session_id = self._session_id_for_query(PET, query)
-        self.client.get(f"/pet/results?{query.decode('utf-8')}")
+        results_page = self.client.get(f"/pet/results?{query.decode('utf-8')}")
+        session_id = results_page.get_data(as_text=True).split('data-session-id="', 1)[1].split('"', 1)[0]
         snapshot = get_session_snapshot(session_id)
         first = json.loads(snapshot["results"][0]["result_json"])
         result_id = first["id"]
@@ -242,7 +231,7 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
         share = self.client.get(f"/share/{session_id}")
         choose = self.client.post(
             "/choose",
-            data={"session_id": session_id, "result_id": result_id, "csrf_token": csrf_token(self.client)},
+            data={"session_id": session_id, "result_id": result_id},
             follow_redirects=False,
         )
         chosen_id = get_session_snapshot(session_id)["chosen_names"][0]["id"]
@@ -285,12 +274,10 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
         query = (
             b"pet_type=Dog&pet_breed=Whippet&pet_color=Blue+gray&pet_life_stage=Mature"
             b"&style=Modern&vibe=Gentle&pronunciation_importance=Very+important"
-            b"&familiarity_preference=A+little+less+common"
-            b"&timeless_vs_distinctive=Mostly+distinctive"
-            b"&partner_alignment=human-name+but+not+too+serious&avoid=Spot"
+            b"&familiarity_preference=Distinctive&avoid=Spot"
         )
-        session_id = self._session_id_for_query(PET, query)
-        self.client.get(f"/pet/results?{query.decode('utf-8')}")
+        results_page = self.client.get(f"/pet/results?{query.decode('utf-8')}")
+        session_id = results_page.get_data(as_text=True).split('data-session-id="', 1)[1].split('"', 1)[0]
         parent_snapshot = get_session_snapshot(session_id)
         parent_results = [json.loads(row["result_json"]) for row in parent_snapshot["results"]]
         unlock_beta_access(self.client, "pet")
@@ -298,7 +285,7 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
         for result, value in zip(parent_results[:3], ("love", "love", "no")):
             response = self.client.post(
                 "/api/react",
-                json={"session_id": session_id, "result_id": result["id"], "value": value, "csrf_token": csrf_token(self.client)},
+                json={"session_id": session_id, "result_id": result["id"], "value": value},
             )
             self.assertEqual(response.status_code, 201)
 
@@ -321,7 +308,7 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
 
         refined = self.client.post(
             "/refine",
-            data={"session_id": session_id, "instruction": "warmer but still easy to call", "csrf_token": csrf_token(self.client)},
+            data={"session_id": session_id, "instruction": "warmer but still easy to call"},
         )
         refined_body = refined.get_data(as_text=True)
         child_session_id = f"{session_id}-r2"
@@ -354,9 +341,9 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
                 self.assertNotIn("dog name", result["why_this_name"].lower())
 
     def test_shared_shortlist_route_renders_saved_session(self):
-        query = b"pet_type=Dog&style=Classic&vibe=Playful"
-        session_id = self._session_id_for_query(PET, query)
-        self.client.get(f"/pet/results?{query.decode('utf-8')}")
+        query = b"pet_type=Dog&pet_color=Golden&pet_life_stage=Young&style=Classic&vibe=Playful"
+        results_page = self.client.get(f"/pet/results?{query.decode('utf-8')}")
+        session_id = results_page.get_data(as_text=True).split('data-session-id="', 1)[1].split('"', 1)[0]
         unlock_beta_access(self.client, "pet")
 
         response = self.client.get(f"/share/{session_id}")
@@ -372,8 +359,8 @@ class PhaseEighteenPetLegacyParityTest(unittest.TestCase):
             b"pet_type=Dog&pet_breed=Whippet&pet_color=Blue+gray"
             b"&pet_life_stage=Mature&style=Modern&vibe=Playful&starting_letter=L"
         )
-        session_id = self._session_id_for_query(PET, query, session_vertical="pet-original")
-        self.client.get(f"/pet/original/results?{query.decode('utf-8')}")
+        results_page = self.client.get(f"/pet/original/results?{query.decode('utf-8')}")
+        session_id = results_page.get_data(as_text=True).split('data-session-id="', 1)[1].split('"', 1)[0]
         unlock_beta_access(self.client, "pet")
 
         response = self.client.get(f"/share/{session_id}")

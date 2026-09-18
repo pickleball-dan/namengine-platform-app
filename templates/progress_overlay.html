@@ -1,6 +1,6 @@
 <div class="progress-overlay" data-progress-overlay{% if vertical is defined %} data-progress-vertical="{{ vertical.slug }}"{% endif %} hidden>
   <div class="progress-panel{% if vertical is defined and vertical.slug == 'baby' %} baby-thinking-panel{% endif %}" role="status" aria-live="polite">
-    <div class="progress-visual{% if vertical is defined and vertical.slug == 'pet' %} pet-progress-visual{% endif %}" aria-hidden="true" data-progress-visual>
+    <div class="progress-visual{% if vertical is defined and vertical.slug == 'pet' %} pet-progress-visual{% elif vertical is defined and vertical.slug == 'boat' %} boat-progress-visual{% endif %}" aria-hidden="true" data-progress-visual>
       {% if vertical is defined and vertical.slug == "pet" %}
         <span class="pet-progress-companion">
           <span class="pet-progress-toe pet-progress-toe-one"></span>
@@ -11,6 +11,15 @@
         <span class="pet-progress-wave pet-progress-wave-one"></span>
         <span class="pet-progress-wave pet-progress-wave-two"></span>
         <span class="pet-progress-wave pet-progress-wave-three"></span>
+      {% elif vertical is defined and vertical.slug == "boat" %}
+        <span class="boat-hull" aria-hidden="true"></span>
+        <span class="boat-sonar-dot" aria-hidden="true"></span>
+        <span class="boat-sonar-out boat-sonar-out-one" aria-hidden="true"></span>
+        <span class="boat-sonar-out boat-sonar-out-two" aria-hidden="true"></span>
+        <span class="boat-sonar-out boat-sonar-out-three" aria-hidden="true"></span>
+        <span class="boat-sonar-in boat-sonar-in-one" aria-hidden="true"></span>
+        <span class="boat-sonar-in boat-sonar-in-two" aria-hidden="true"></span>
+        <span class="progress-visual-label">Finding your boat's name</span>
       {% else %}
         <span class="progress-orbit progress-orbit-one"></span>
         <span class="progress-orbit progress-orbit-two"></span>
@@ -23,22 +32,33 @@
         <span class="progress-node progress-node-four"></span>
         <span class="progress-node progress-node-five"></span>
         <span class="progress-node progress-node-six"></span>
+        <span class="progress-visual-label">{% if vertical is defined and vertical.slug == "baby" %}Family fit{% else %}Identity fit{% endif %}</span>
       {% endif %}
     </div>
     <div class="progress-copy">
-      <p class="eyebrow" data-progress-eyebrow>Finding names for this identity</p>
-      <h2 data-progress-current>Finding names that feel right</h2>
-      <p class="progress-note" data-progress-note>A few quick checks before the list appears.</p>
-      <div class="progress-patience-meter" aria-hidden="true" data-progress-patience-meter>
-        <span class="progress-patience-fill"></span>
-      </div>
-      <ol class="progress-steps{% if vertical is defined and vertical.slug == 'pet' %} pet-progress-steps{% endif %}" hidden>
-        <li data-progress-step data-progress-headline="Reading the details">Reading the details</li>
-        <li data-progress-step data-progress-headline="Finding names for this identity">Finding names for this identity</li>
-        <li data-progress-step data-progress-headline="Matching the feel">Matching the feel</li>
-        <li data-progress-step data-progress-headline="Checking everyday fit">Checking everyday fit</li>
-        <li data-progress-step data-progress-headline="Picking the strongest names">Picking the strongest names</li>
-      </ol>
+      {% if vertical is defined and vertical.slug == "boat" %}
+        <p class="eyebrow" data-progress-eyebrow>Finding names for this vessel</p>
+        <h2 data-progress-current>Reading your vessel's story…</h2>
+        <p class="progress-note" data-progress-note>Checking sound, story, and how each name feels on the transom.</p>
+        <ol class="progress-steps boat-progress-steps" hidden>
+          <li data-progress-step data-progress-headline="Reading your vessel's story…">Reading your vessel's story…</li>
+          <li data-progress-step data-progress-headline="Searching the open water…">Searching the open water…</li>
+          <li data-progress-step data-progress-headline="Checking sound and radio clarity…">Checking sound and radio clarity…</li>
+          <li data-progress-step data-progress-headline="Testing against the transom…">Testing against the transom…</li>
+          <li data-progress-step data-progress-headline="Picking names that feel earned…">Picking names that feel earned…</li>
+        </ol>
+      {% else %}
+        <p class="eyebrow" data-progress-eyebrow>Finding names for this identity</p>
+        <h2 data-progress-current>Finding names that feel right</h2>
+        <p class="progress-note" data-progress-note>A few quick checks before the list appears.</p>
+        <ol class="progress-steps{% if vertical is defined and vertical.slug == 'pet' %} pet-progress-steps{% endif %}" hidden>
+          <li data-progress-step data-progress-headline="Reading the details">Reading the details</li>
+          <li data-progress-step data-progress-headline="Finding names for this identity">Finding names for this identity</li>
+          <li data-progress-step data-progress-headline="Matching the feel">Matching the feel</li>
+          <li data-progress-step data-progress-headline="Checking sound and use">Checking sound and use</li>
+          <li data-progress-step data-progress-headline="Picking the strongest names">Picking the strongest names</li>
+        </ol>
+      {% endif %}
     </div>
   </div>
 </div>

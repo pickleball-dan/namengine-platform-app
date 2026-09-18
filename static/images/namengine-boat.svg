@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="240" viewBox="0 0 1500 240" role="img" aria-label="NamEngine Boat">
+  <rect width="100%" height="100%" fill="none"/>
+
+  <g transform="translate(20,20)">
+    <path d="M110 10
+             C52 10 10 47 10 103
+             C10 153 45 188 92 196
+             L74 224
+             L119 198
+             C177 197 220 160 220 103
+             C220 56 184 20 137 12"
+          fill="none" stroke="currentColor" stroke-width="12"
+          stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="116" y="156" text-anchor="middle"
+          font-family="Georgia, 'Times New Roman', serif"
+          font-size="132" font-weight="700" fill="currentColor">n</text>
+    <g transform="translate(154,30)">
+      <path d="M4 54 C25 35 47 35 68 54 C86 69 105 69 124 54"
+            fill="none" stroke="#c8963e" stroke-width="10"
+            stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M16 44 L54 12 L94 44 Z" fill="none" stroke="currentColor"
+            stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M54 12 L54 72" fill="none" stroke="currentColor"
+            stroke-width="9" stroke-linecap="round"/>
+    </g>
+  </g>
+
+  <text x="275" y="150"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-size="110" font-weight="700">
+    <tspan fill="currentColor">NamEngine</tspan><tspan fill="#2b6cb8">Boat</tspan>
+  </text>
+</svg>

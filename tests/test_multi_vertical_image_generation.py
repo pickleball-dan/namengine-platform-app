@@ -7,7 +7,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
-from access_helpers import csrf_token, unlock_beta_access
+from access_helpers import unlock_beta_access
 import app as app_module
 from app import create_app
 from namengine.core import (
@@ -22,7 +22,7 @@ from namengine.core import (
     update_chosen_metadata,
 )
 from namengine.core.schemas import NameResult
-from namengine.verticals import BABY, BUSINESS, PET
+from namengine.verticals import BABY, BOAT, BUSINESS, PET
 
 
 class MultiVerticalImageGenerationTest(unittest.TestCase):
@@ -100,6 +100,10 @@ class MultiVerticalImageGenerationTest(unittest.TestCase):
                 }[vertical.slug]
                 self.assertTrue((Path(self.tempdir.name) / dirname / image["filename"]).exists())
 
+    def test_boat_vertical_is_registered_without_image_generation_side_effects(self):
+        self.assertEqual(BOAT.slug, "boat")
+        self.assertEqual(BOAT.assets["logo"], "images/namengine-boat.svg")
+
     def test_business_chosen_page_uses_clear_brand_card_without_generated_image(self):
         snapshot = self._chosen(
             BUSINESS,
@@ -119,7 +123,7 @@ class MultiVerticalImageGenerationTest(unittest.TestCase):
         body = page.get_data(as_text=True)
         self.assertEqual(page.status_code, 200)
         self.assertIn("business-brand-card", body)
-        self.assertIn("Brand preview", body)
+        self.assertIn("Clear brand card", body)
         self.assertIn("Northwell", body)
         self.assertIn("Premium clients", body)
         self.assertIn("Clear and credible", body)
@@ -130,9 +134,8 @@ class MultiVerticalImageGenerationTest(unittest.TestCase):
         self.assertIn("overflow-wrap: normal;", css)
         self.assertNotIn("Brand direction board for Northwell", body)
         self.assertNotIn("/generated/business-images/", body)
-        # Business now triggers async logo concept generation on choose
-        self.assertIn("data-portrait-status-url", body)
-        thread.assert_called_once()
+        self.assertNotIn("data-portrait-status-url", body)
+        thread.assert_not_called()
 
     def test_failure_is_sanitized_preserves_choice_and_exposes_retry(self):
         snapshot = self._chosen(
@@ -172,8 +175,8 @@ class MultiVerticalImageGenerationTest(unittest.TestCase):
             snapshot["chosen"]["id"],
             {"baby_keepsake": {"status": "failed", "error_message": "Image creation failed. Please try again."}},
         )
-        unlock_beta_access(self.client, "baby")
 
+        unlock_beta_access(self.client, "baby")
         with patch("app.Thread") as thread:
             response = self.client.post(
                 f"/api/chosen/{snapshot['chosen']['id']}/portrait/retry"
@@ -251,7 +254,7 @@ class MultiVerticalImageGenerationTest(unittest.TestCase):
         unlock_beta_access(self.client, "pet")
         reaction = self.client.post(
             "/api/react",
-            json={"session_id": session_id, "result_id": result_id, "value": "love", "csrf_token": csrf_token(self.client)},
+            json={"session_id": session_id, "result_id": result_id, "value": "love"},
         )
         self.assertEqual(reaction.status_code, 201)
         update_chosen_metadata(

@@ -208,7 +208,7 @@ def feeling_section_titles(vertical) -> list[str]:
 
 
 def feelings_scale_enabled(vertical) -> bool:
-    if vertical.slug == "pet":
+    if vertical.slug in {"pet", "boat"}:
         return False
     return len(feeling_section_titles(vertical)) >= 2
 
@@ -1472,6 +1472,7 @@ Sitemap: https://nam-engine.com/sitemap.xml
   <url><loc>https://nam-engine.com/</loc><priority>1.0</priority></url>
   <url><loc>https://nam-engine.com/baby</loc><priority>0.9</priority></url>
   <url><loc>https://nam-engine.com/pet</loc><priority>0.9</priority></url>
+  <url><loc>https://nam-engine.com/boat</loc><priority>0.9</priority></url>
   <url><loc>https://nam-engine.com/business</loc><priority>0.9</priority></url>
   <url><loc>https://nam-engine.com/vs</loc><priority>0.7</priority></url>
   <url><loc>https://nam-engine.com/about</loc><priority>0.6</priority></url>

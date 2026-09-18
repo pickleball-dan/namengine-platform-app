@@ -235,6 +235,12 @@
         <span class="vc-remind" onclick="event.preventDefault();event.stopPropagation();window.location.href='mailto:support@nam-engine.com?subject=Save%20My%20Spot'" role="link" tabindex="0">Don't have 5 minutes right now? <strong>Save your spot — we'll remind you →</strong></span>
       </div>
     </a>
+    <a class="landing-vertical-card boat" href="/boat" style="--card-accent: #2b6cb8; --card-soft: rgba(43,108,184,.14);">
+      <img src="{{ url_for('static', filename='images/namengine-boat.svg') }}" alt="NamEngine Boat">
+      <h3>Boat</h3>
+      <p>A transom-worthy name with nautical character, story, and radio clarity.</p>
+      <span>Start naming <span aria-hidden="true">→</span></span>
+    </a>
   </div>
   <p class="landing-soon-note">More categories are on the way - Product, Book, and Game names.</p>
 </section>
@@ -492,6 +498,7 @@
     <a class="baby" href="/baby">Baby</a>
     <a class="pet" href="/pet">Pet</a>
     <a class="business" href="/business">Business</a>
+    <a class="boat" href="/boat">Boat</a>
   </div>
 </section>
 <script src="{{ url_for('static', filename='js/homepage-return.js') }}"></script>

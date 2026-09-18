@@ -14,6 +14,7 @@
     "baby": "Based on everything you’ve shared, these names best match your style and preferences.",
     "pet": "Based on everything you shared, we found names that reflect their personality, your preferred sound, and the bond you already feel.",
     "business": "Based on your brief, we found names that balance positioning, audience fit, distinctiveness, and practical launch considerations.",
+    "boat": "Based on your brief, we found names that balance vessel character, story, radio clarity, and transom fit.",
     "product": "Based on your brief, we found names that balance shelf clarity, buyer appeal, distinctiveness, and practical launch considerations.",
     "character": "Based on your brief, we found names that balance story fit, world consistency, memorability, and role clarity."
   } %}
@@ -21,6 +22,7 @@
     "baby": "We’re using those preferences to refine your next recommendations.",
     "pet": "Your favorites help us understand which names feel most like them.",
     "business": "Your favorites reveal the brand direction with the strongest commercial fit.",
+    "boat": "Your favorites reveal the vessel-name direction with the strongest fit.",
     "product": "Your favorites reveal the product direction with the strongest shelf fit.",
     "character": "Your favorites reveal the story direction with the strongest world fit."
   } %}
@@ -28,6 +30,7 @@
     "baby": "View meaning",
     "pet": "Meet this name",
     "business": "View brand analysis",
+    "boat": "View vessel fit",
     "product": "View product analysis",
     "character": "View story fit"
   } %}
@@ -173,6 +176,22 @@
               {% endif %}
               {% if mobile_descriptor %}
                 <p class="tagline">{{ mobile_descriptor }}</p>
+              {% endif %}
+              {% if vertical.slug == "boat" %}
+                <dl class="boat-result-field-labels" aria-label="Boat name fit details">
+                  <div>
+                    <dt>{{ vertical.result_field_labels.get("why_this_name", "Why this name?") }}</dt>
+                    <dd>{{ compact_card_text(item.why_this_name, 96) or "Not specified" }}</dd>
+                  </div>
+                  <div>
+                    <dt>{{ vertical.result_field_labels.get("fit_note", "Fit") }}</dt>
+                    <dd>{{ compact_card_text(item.fit_note, 90) or "Not specified" }}</dd>
+                  </div>
+                  <div>
+                    <dt>{{ vertical.result_field_labels.get("risks", "Risks") }}</dt>
+                    <dd>{{ compact_card_text(item.risks[0] if item.risks else "No obvious concern; still test it out loud and on the transom.", 90) }}</dd>
+                  </div>
+                </dl>
               {% endif %}
             </div>
             {% if launch_results %}

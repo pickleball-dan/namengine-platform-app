@@ -61,11 +61,20 @@ class MultiVerticalCompletionPassTest(unittest.TestCase):
                 for phrase in phrases:
                     self.assertIn(phrase, body)
 
+        boat = self.client.get("/boat")
+        boat_body = boat.get_data(as_text=True)
+        self.assertEqual(boat.status_code, 200)
+        self.assertIn("intake-shell", boat_body)
+        self.assertIn("Find a name worthy of the open water.", boat_body)
+        self.assertIn("Generate boat names that feel earned", boat_body)
+        self.assertIn("Tradition", boat_body)
+
     def test_results_keep_shared_favorites_compare_choose_and_vertical_framing(self):
         routes = {
             "baby": "/baby/results?gender=Girl&style=Classic&sound=Soft",
             "pet": "/pet/results?pet_type=Dog&style=Classic&vibe=Playful",
             "business": "/business/results?business_description=Design+studio&audience=Premium+clients&style=Premium+and+refined",
+            "boat": "/boat/results?boat_type=Sailboat&use=Weekend+adventures&vibe=Adventurous&style=Traditional+nautical",
         }
         for vertical, route in routes.items():
             with self.subTest(vertical=vertical):
@@ -82,6 +91,7 @@ class MultiVerticalCompletionPassTest(unittest.TestCase):
         self.assertIn('href="/baby"', home)
         self.assertIn('href="/pet"', home)
         self.assertIn('href="/business"', home)
+        self.assertIn('href="/boat"', home)
         self.assertNotIn('href="/product"', home)
         self.assertNotIn('href="/character"', home)
         self.assertIn('href="/#pricing"', home)

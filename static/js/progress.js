@@ -1,56 +1,45 @@
 (function () {
-  // ═══════════════════════════════════════════════════════════════════════════
-  //  SUBMISSION CONTRACT — READ THIS BEFORE ADDING A NEW VERTICAL
-  //
-  //  To trigger the progress overlay and submit the form, dispatch this
-  //  custom event on the form element from your vertical’s JS:
-  //
-  //    form.dispatchEvent(new CustomEvent("namengine:finish-interview", {
-  //      bubbles: true
-  //    }));
-  //
-  //  DO NOT call HTMLFormElement.prototype.submit.call(form) directly —
-  //  that bypasses the submit event and the overlay will never show.
-  //  DO NOT rely on clicking a hidden submit button — use the event above.
-  //
-  //  This handler shows the overlay then navigates to results.
-  //  Your vertical JS only needs to dispatch the event. Nothing else.
-  // ═══════════════════════════════════════════════════════════════════════════
   const overlay = document.querySelector("[data-progress-overlay]");
   const current = document.querySelector("[data-progress-current]");
   const eyebrow = document.querySelector("[data-progress-eyebrow]");
   const visual = document.querySelector("[data-progress-visual]");
   const visualLabel = document.querySelector(".progress-visual-label");
   const note = document.querySelector("[data-progress-note]");
-  const patienceMeter = document.querySelector("[data-progress-patience-meter]");
   const steps = Array.from(document.querySelectorAll("[data-progress-step]"));
   const forms = Array.from(document.querySelectorAll("form"));
   const minimumProgressMs = 18000;
   const defaultLongWaitMessages = [
-    "Still working — most lists take about 1–2 minutes.",
-    "Reading your taste profile and exploring name directions.",
+    "Working hard to get your perfect matches.",
+    "Exploring meaning, sound, and cultural fit.",
     "Comparing the strongest names against your taste.",
-    "Almost there — writing the final name explanations."
+    "Almost there — shaping the final names."
   ];
   const babyLongWaitMessages = [
-    "Still working — baby lists usually take about 1–2 minutes.",
-    "Reading your taste profile and family context…",
-    "Exploring names with the right sound, meaning, and feeling…",
-    "Selecting the strongest names before we show you finalists…",
-    "Writing the final explanations — quality matters more than speed…",
-    "Almost there. We’re keeping the page here while NamEngine finishes…"
+    "Interpreting your naming taste…",
+    "Building a broader candidate pool…",
+    "Comparing names against your story and style…",
+    "Rejecting weaker fits before we show you finalists…",
+    "Shaping the final names — quality matters more than speed…",
+    "Still working. We’re keeping the page here while NamEngine thinks…"
   ];
   const petLongWaitMessages = [
-    "Still working — pet lists usually take about 1–2 minutes.",
-    "Reading their personality and your taste profile...",
-    "Exploring names that are joyful to call...",
-    "Selecting the strongest names for everyday fit..."
+    "Getting to know their personality...",
+    "Listening for names that are joyful to call...",
+    "Balancing affection, energy, and everyday fit...",
+    "Finding names that feel unmistakably like them..."
   ];
   const businessLongWaitMessages = [
-    "Still working — business lists usually take about 1–2 minutes.",
-    "Reading your positioning and audience signals...",
-    "Exploring names with clarity, credibility, and distinctiveness...",
-    "Selecting the strongest strategic names for launch..."
+    "Reading the market and positioning signals...",
+    "Testing clarity, credibility, and distinctiveness...",
+    "Considering audience fit and launch practicality...",
+    "Building the strongest strategic names..."
+  ];
+  const boatLongWaitMessages = [
+    "Reading your vessel's story...",
+    "Searching the open water...",
+    "Checking sound and radio clarity...",
+    "Testing names against the transom...",
+    "Picking names that feel earned..."
   ];
   let longWaitMessages = defaultLongWaitMessages;
 
@@ -99,6 +88,9 @@
     if (document.body.classList.contains("vertical-business")) {
       return "business";
     }
+    if (document.body.classList.contains("vertical-boat")) {
+      return "boat";
+    }
     return "";
   }
 
@@ -112,6 +104,9 @@
     }
     if (vertical === "business") {
       return "this brand";
+    }
+    if (vertical === "boat") {
+      return "this vessel";
     }
     const petType = formValue(form, ["pet_type", "species"]);
     if (petType) {
@@ -137,28 +132,31 @@
     const isBaby = vertical === "baby" || subject === "this baby name";
     const isPet = vertical === "pet" || Boolean(formValue(form, ["pet_type", "species"]));
     const isBusiness = vertical === "business" || Boolean(formValue(form, "business_description"));
+    const isBoat = vertical === "boat" || Boolean(formValue(form, ["boat_type", "waters", "radio_name"]));
     longWaitMessages = isBaby
       ? babyLongWaitMessages
       : isPet
         ? petLongWaitMessages
         : isBusiness
           ? businessLongWaitMessages
-          : defaultLongWaitMessages;
+          : isBoat
+            ? boatLongWaitMessages
+            : defaultLongWaitMessages;
     const feelLine = vibe ? `Matching the ${vibe.toLowerCase()} feel` : "Matching the feel";
     const cultureLine = culture && culture !== "No preference"
-      ? `Exploring ${culture.toLowerCase()} meaning and fit`
-      : "Exploring meaning and fit";
+      ? `Exploring ${culture.toLowerCase()} meaning and sound`
+      : "Exploring meaning and sound";
     const labels = isBaby ? [
       "Bringing together everything you shared",
       cultureLine,
       "Exploring names that fit your style",
-      "Looking at meaning, feeling, and family fit",
+      "Looking at sound, meaning, and feeling",
       "Finding names worth considering",
     ] : isPet ? [
       "Getting to know their personality",
-      "Exploring names that are joyful to call",
+      "Listening for names that are joyful to call",
       feelLine,
-      "Checking everyday fit",
+      "Checking sound and everyday fit",
       "Finding names that feel like them",
     ] : isBusiness ? [
       "Reading your business brief",
@@ -166,11 +164,17 @@
       feelLine,
       "Checking credibility and launch fit",
       "Building the strategic names",
+    ] : isBoat ? [
+      "Reading your vessel's story…",
+      "Searching the open water…",
+      "Checking sound and radio clarity…",
+      "Testing against the transom…",
+      "Picking names that feel earned…",
     ] : [
       "Reading the details",
       `Finding names for ${subject}`,
       feelLine,
-      "Checking everyday fit",
+      "Checking sound and use",
       "Picking the strongest names",
     ];
 
@@ -181,19 +185,26 @@
           ? "Finding names that feel like them"
           : isBusiness
             ? "Building your strategic brand names"
-            : `Finding names for ${subject}`;
+            : isBoat
+              ? "Finding names for this vessel"
+              : `Finding names for ${subject}`;
     }
     if (visualLabel && isBaby) {
       visualLabel.textContent = "Family fit";
     }
+    if (visualLabel && isBoat) {
+      visualLabel.textContent = "Finding your boat's name";
+    }
     if (note) {
       note.textContent = isBaby
-        ? "Estimated time: about 1–2 minutes. We’re reading your taste profile, story, style, and the feeling you want a name to carry."
+        ? "We’re listening to your story, style, and the feeling you want a name to carry."
         : isPet
-          ? "Estimated time: about 1–2 minutes. We’re matching personality, affection, everyday fit, and callability."
+          ? "We’re matching personality, sound, affection, and everyday callability."
           : isBusiness
-            ? "Estimated time: about 1–2 minutes. We’re weighing positioning, audience, distinctiveness, and practical launch fit."
-            : "Estimated time: about 1–2 minutes. A few quick checks before the list appears.";
+            ? "We’re weighing positioning, audience, distinctiveness, and practical launch fit."
+            : isBoat
+              ? "Checking sound, story, and how each name feels on the transom."
+              : "A few quick checks before the list appears.";
     }
     steps.forEach((step, index) => {
       const label = labels[index] || cleanValue(step.dataset.progressHeadline || step.textContent);
@@ -222,13 +233,6 @@
     if (visual) {
       visual.classList.add("is-searching");
     }
-    if (patienceMeter) {
-      patienceMeter.classList.remove("is-holding");
-      patienceMeter.style.setProperty("--progress-patience-duration", "50s");
-      patienceMeter.style.setProperty("--progress-patience-fill", "100%");
-      void patienceMeter.offsetWidth;
-      patienceMeter.classList.add("is-filling");
-    }
     activateStep(0);
     let index = 0;
     timer = window.setInterval(() => {
@@ -249,25 +253,6 @@
         void visual.offsetWidth;
         visual.classList.add("is-pulsing");
       }
-      if (patienceIndex >= longWaitMessages.length && patienceMeter) {
-        if (!patienceMeter.classList.contains("is-sparkling") && !patienceMeter.classList.contains("is-holding")) {
-          const fill = patienceMeter.querySelector(".progress-patience-fill");
-          if (fill) {
-            // Freeze at current animated position, then smooth-transition to 100%
-            const currentWidth = window.getComputedStyle(fill).width;
-            fill.style.transition = "none";
-            fill.style.width = currentWidth;
-            void fill.offsetWidth;
-            patienceMeter.classList.remove("is-filling");
-            void fill.offsetWidth;
-            fill.style.transition = "";
-            fill.style.width = "100%";
-          }
-          window.setTimeout(function () {
-            patienceMeter.classList.add("is-sparkling");
-          }, 420);
-        }
-      }
     }, 6500);
   }
 
@@ -276,29 +261,6 @@
     if (Number.isInteger(requestedStep)) {
       activateStep(Math.max(0, Math.min(requestedStep, steps.length - 1)));
     }
-  });
-
-  // Canonical finish-interview contract.
-  // All vertical JS must dispatch this event instead of calling .submit() directly.
-  // See contract comment at top of this file.
-  document.addEventListener("namengine:finish-interview", (event) => {
-    const targetForm = event.target.closest("form") || forms[0];
-    if (!targetForm) return;
-    if (timer) window.clearInterval(timer);
-    if (patienceTimer) window.clearInterval(patienceTimer);
-    personalizeProgress(targetForm);
-    showProgress();
-    submittingForm = targetForm;
-    const { navigateUrl, request } = requestForForm(targetForm, null);
-    const minimumWait = wait(minimumProgressMs);
-    Promise.all([request, minimumWait])
-      .then(([response]) => {
-        if (!response.ok) throw new Error(`Progress request failed: ${response.status}`);
-        window.location.assign(response.url || navigateUrl);
-      })
-      .catch(() => {
-        minimumWait.then(() => { HTMLFormElement.prototype.submit.call(targetForm); });
-      });
   });
 
   function requestForForm(form, submitter) {
@@ -346,10 +308,7 @@
     const input = document.getElementById(select.dataset.otherSelect);
     if (!input) return;
 
-    // Support custom triggers (e.g. "Something else — I'll describe it") via
-    // data-other-trigger on the select; fall back to "Other" for all other verticals.
-    const trigger = select.dataset.otherTrigger || "Other";
-    const isOther = select.value === trigger;
+    const isOther = select.value === "Other";
     input.hidden = !isOther;
     input.disabled = !isOther;
     input.required = isOther && select.required;

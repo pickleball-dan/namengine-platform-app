@@ -181,6 +181,91 @@ PRODUCT_CHANNEL_OPTIONS = (
     "Wholesale catalog",
 )
 
+BOAT_TYPE_OPTIONS = (
+    "Sailboat",
+    "Powerboat",
+    "Fishing boat",
+    "Motor cruiser",
+    "Yacht",
+    "Trawler",
+    "Catamaran",
+    "Dinghy / Dayboat",
+    "Kayak / Canoe",
+    "Personal watercraft / Jet Ski",
+    "Other",
+)
+BOAT_USE_OPTIONS = (
+    "Weekend adventures",
+    "Extended cruising",
+    "Fishing",
+    "Racing",
+    "Coastal day trips",
+    "Liveaboard",
+    "Family outings",
+)
+BOAT_WATERS_OPTIONS = (
+    "Ocean / offshore",
+    "Coastal / inshore",
+    "Bay or sound",
+    "Lakes and rivers",
+    "Multiple",
+)
+BOAT_SIZE_OPTIONS = (
+    "Under 20ft",
+    "20–30ft",
+    "30–45ft",
+    "45ft+",
+    "I'm not sure",
+)
+BOAT_CREW_OPTIONS = (
+    "Solo",
+    "Couple",
+    "Family with kids",
+    "Friends and crew",
+    "Mixed",
+)
+BOAT_VIBE_OPTIONS = (
+    "Adventurous",
+    "Serene",
+    "Classic and traditional",
+    "Irreverent and funny",
+    "Romantic",
+    "Rugged",
+    "Elegant",
+    "Mysterious",
+)
+BOAT_STYLE_OPTIONS = (
+    "Traditional nautical",
+    "Modern and clean",
+    "Vintage seafaring",
+    "Playful and personal",
+    "Literary or mythological",
+    "Geographic or place-based",
+)
+BOAT_RADIO_OPTIONS = (
+    "Critical — needs to be clear on VHF",
+    "Helpful but not absolute",
+    "Not a factor",
+)
+BOAT_NAME_TYPE_OPTIONS = (
+    "Real word or phrase",
+    "Wordplay or pun",
+    "Compound or hyphenated",
+    "Invented / made-up word",
+    "Proper name (person, place, myth)",
+    "Open to anything",
+)
+BOAT_NAME_INSPIRATION_OPTIONS = (
+    "Nautical tradition",
+    "Mythology or legend",
+    "Nature or weather",
+    "Personal story",
+    "Humor and personality",
+    "Geography or place",
+    "Literature or film",
+    "Open to anything",
+)
+
 
 PET = VerticalConfig(
     slug="pet",
@@ -799,6 +884,155 @@ CHARACTER = VerticalConfig(
     ),
 )
 
+BOAT = VerticalConfig(
+    slug="boat",
+    display_name="Boat",
+    object_label="boat name",
+    route_prefix="/boat",
+    intake_questions=(
+        Question(
+            "boat_type",
+            "What kind of vessel?",
+            required=True,
+            choices=BOAT_TYPE_OPTIONS,
+            section="About your vessel",
+        ),
+        Question(
+            "boat_size",
+            "How big?",
+            choices=BOAT_SIZE_OPTIONS,
+            section="About your vessel",
+        ),
+        Question(
+            "use",
+            "How do you use her?",
+            required=True,
+            choices=BOAT_USE_OPTIONS,
+            section="About your vessel",
+        ),
+        Question(
+            "waters",
+            "Where does she sail?",
+            choices=BOAT_WATERS_OPTIONS,
+            section="About your vessel",
+        ),
+        Question(
+            "crew",
+            "Who's aboard?",
+            choices=BOAT_CREW_OPTIONS,
+            section="About your vessel",
+        ),
+        Question(
+            "name_type",
+            "What kind of name feels right?",
+            required=True,
+            choices=BOAT_NAME_TYPE_OPTIONS,
+            section="Name style",
+        ),
+        Question(
+            "style",
+            "What style feels right?",
+            required=True,
+            choices=BOAT_STYLE_OPTIONS,
+            section="Name style",
+        ),
+        Question(
+            "name_inspiration",
+            "What should inspire the name?",
+            choices=BOAT_NAME_INSPIRATION_OPTIONS,
+            section="Name style",
+        ),
+        Question(
+            "vibe",
+            "What personality should the name carry?",
+            required=True,
+            choices=BOAT_VIBE_OPTIONS,
+            section="Fit and feeling",
+        ),
+        Question(
+            "radio_name",
+            "How important is radio clarity?",
+            choices=BOAT_RADIO_OPTIONS,
+            section="Fit and feeling",
+            help_text="Boat names get spoken on VHF radio — clear pronunciation matters.",
+        ),
+        Question(
+            "traditions",
+            "Anything to honor?",
+            kind="textarea",
+            placeholder="Family name, heritage, a place, a person, a past boat, a story…",
+            section="Fit and feeling",
+        ),
+        Question(
+            "avoid",
+            "Anything to avoid?",
+            kind="textarea",
+            placeholder="Names, sounds, themes, bad omens, previous boat names…",
+            section="Fit and feeling",
+        ),
+        Question(
+            "notes",
+            "What would make this name perfect?",
+            kind="textarea",
+            placeholder="The more specific you are, the sharper your names will be.",
+            section="Fit and feeling",
+        ),
+    ),
+    prompt_context=(
+        "Generate boat names that feel earned — names with nautical character, "
+        "phonetic clarity for radio use, and a personality that fits both the vessel "
+        "and her owner. Honor the name_type the user selected: if they want wordplay or "
+        "puns, generate names like Knot on Call, Sea-renity, Pier Pressure, or Off the Hook; "
+        "if they want compound or hyphenated, create two-part names with intentional joins; "
+        "if they want invented words, coin something pronounceable and memorable; if they "
+        "want a proper name, draw from mythology, geography, or personal heritage. "
+        "Consider maritime tradition, the emotional resonance of naming a boat, and the "
+        "fact that this name goes on the transom forever. For personal watercraft and jet "
+        "skis, lean into personality and fun while keeping clarity."
+    ),
+    result_field_labels={
+        "why_this_name": "Why this name?",
+        "fit_note": "Vessel fit",
+        "risks": "Worth noting",
+    },
+    validation_modules=("boat_radio_clarity", "boat_tradition_fit", "boat_length"),
+    theme={
+        "accent": "#c8963e",
+        "accent_deep": "#0a1628",
+        "accent_pet": "#c8963e",
+        "accent_soft": "rgba(200, 150, 62, 0.15)",
+        "accent_warm_soft": "rgba(200, 150, 62, 0.22)",
+        "surface": "rgba(10, 22, 40, 0.97)",
+        "page": "#07111f",
+        "card": "#0f1e33",
+        "ink": "#f0ead8",
+        "muted": "#8fa3b8",
+        "line": "rgba(200, 150, 62, 0.18)",
+    },
+    assets={
+        "logo": "images/namengine-boat.svg",
+        "share_image": "images/baby/namengine-baby-share.png",
+    },
+    visual=VerticalVisualConfig(
+        audience=("boat owners", "sailors", "powerboat and PWC enthusiasts"),
+        emotional_tone=("adventurous", "personal", "seafaring"),
+        main_colors=("#2b6cb8", "#0f2744"),
+        accent_colors=("#c9a96e", "#f4f8fd"),
+        background_style="subtle nautical chart texture on salt-air white",
+        icon_style="nautical instrument cues — compass, cleat, anchor — kept minimal",
+        illustration_style="editorial maritime with restrained sea-chart motifs",
+        hero_message="Find a name worthy of the open water.",
+        hero_support=(
+            "Generate boat names that feel earned — nautical character, radio clarity, "
+            "and a personality that fits both the vessel and her owner."
+        ),
+        identity_statement=(
+            "Built for names that belong on a transom."
+        ),
+        identity_points=("Tradition", "Character", "Radio clarity"),
+        result_card_style="vessel fit and maritime character card",
+    ),
+)
 
 VERTICALS = {
     PET.slug: PET,
@@ -806,6 +1040,7 @@ VERTICALS = {
     BUSINESS.slug: BUSINESS,
     PRODUCT.slug: PRODUCT,
     CHARACTER.slug: CHARACTER,
+    BOAT.slug: BOAT,
 }
 
 

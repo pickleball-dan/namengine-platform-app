@@ -1,0 +1,48 @@
+{
+  "heroCheck": {
+    "heroBackgroundColor": "rgba(0, 0, 0, 0)",
+    "heroBackgroundImage": "radial-gradient(circle at 82% 12%, rgba(200, 150, 62, 0.24), rgba(0, 0, 0, 0) 35%), radial-gradient(circle at 12% 100%, rgba(75, 111, 158, 0.2), rgba(0, 0, 0, 0) 38%), linear-gradient(145deg, rgba(15, 30, 51, 0.98), rgba(7, 17, 31, 0.98))",
+    "headlineColor": "rgb(240, 234, 216)",
+    "hitClass": "baby-welcome",
+    "text": "Let's find a name worthy of the open water."
+  },
+  "heroContrast": 15.75,
+  "navHasBoat": 1,
+  "loaderCheck": {
+    "bow": true,
+    "waves": 3,
+    "wakes": 2,
+    "label": "Finding your boat's name",
+    "panelBg": "linear-gradient(160deg, rgb(15, 30, 51) 0%, rgb(7, 17, 31) 100%)"
+  },
+  "resultsCheck": {
+    "labels": [
+      "Why this name?",
+      "Vessel fit",
+      "Worth noting",
+      "Why this name?",
+      "Vessel fit",
+      "Worth noting",
+      "Why this name?",
+      "Vessel fit",
+      "Worth noting",
+      "Why this name?",
+      "Vessel fit",
+      "Worth noting",
+      "Why this name?",
+      "Vessel fit",
+      "Worth noting",
+      "Why this name?",
+      "Vessel fit",
+      "Worth noting",
+      "Why this name?",
+      "Vessel fit",
+      "Worth noting",
+      "Why this name?",
+      "Vessel fit",
+      "Worth noting"
+    ],
+    "cardCount": 8,
+    "cta": "View vessel fit →"
+  }
+}
