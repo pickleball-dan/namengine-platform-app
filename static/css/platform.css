@@ -10208,11 +10208,30 @@ body.vertical-business {
 
 .footer-socials {
   display: flex;
-  gap: 24px;
-  margin-top: 22px;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
   color: #6c7482;
-  font-size: 15px;
-  font-weight: 800;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.footer-social-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.footer-social-link:hover {
+  opacity: 0.8;
+}
+
+.footer-social-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
 }
 
 .footer-column {
