@@ -10,11 +10,6 @@
     <p>{{ page_intro }}</p>
   </div>
 
-  <div class="legal-notice">
-    <strong>{{ legal_notice_label | default("Launch notice:") }}</strong>
-    <span>{{ legal_notice_text | default("These pages are practical launch copy for NamEngine. They should be reviewed by qualified counsel before a broad public launch.") }}</span>
-  </div>
-
   <div class="legal-content">
     {% block legal_content %}{% endblock %}
   </div>
