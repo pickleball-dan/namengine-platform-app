@@ -60,7 +60,7 @@
       {% if page_logo and vertical.slug != "baby" %}
         <img class="vertical-page-logo small" src="{{ url_for('static', filename=page_logo) }}" alt="NamEngine {{ vertical.display_name }} logo">
       {% endif %}
-      <p class="eyebrow">NamEngine {{ vertical.display_name }}</p>
+      {% if not page_logo or vertical.slug == "baby" %}<p class="eyebrow">NamEngine {{ vertical.display_name }}</p>{% endif %}
       <h1>{% if original_mode|default(false) %}Original pet names shaped from your life.{% elif vertical.slug == "baby" %}Here’s what stood out.{% else %}{{ vertical.display_name }} names shaped from your taste.{% endif %}</h1>
       <p>
         Round {{ round_number }} · {{ names|length }} options.
