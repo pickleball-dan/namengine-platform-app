@@ -11984,6 +11984,14 @@ body.vertical-boat {
   color: #f0ead8;
 }
 
+/* Logo: invert dark ink to cream on dark navy header */
+.vertical-boat .site-header img[class*="logo"],
+.vertical-boat .site-header .page-logo,
+.vertical-boat .site-header .header-logo,
+.vertical-boat .site-header a img {
+  filter: brightness(0) invert(1) sepia(1) saturate(0.3) hue-rotate(5deg) brightness(0.95);
+}
+
 /* Page eyebrow ("NAMENGINE BOAT") */
 .vertical-boat .results-heading .eyebrow,
 .vertical-boat .results-heading > p:first-of-type {

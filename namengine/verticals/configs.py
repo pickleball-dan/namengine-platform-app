@@ -993,6 +993,7 @@ BOAT = VerticalConfig(
         "page_logo": "images/namengine-boat.svg",
         "share_image": "images/baby/namengine-baby-share.png",
     },
+    page_dark=True,
     visual=VerticalVisualConfig(
         audience=("boat owners", "sailors", "powerboat and PWC enthusiasts"),
         emotional_tone=("adventurous", "personal", "seafaring"),
