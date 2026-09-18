@@ -97,6 +97,7 @@ from .quality import (
 from .progress import PROGRESS_STEPS, build_trust_cue
 from .pet_portrait import (
     build_baby_keepsake_prompt,
+    build_boat_keepsake_prompt,
     build_business_image_prompt,
     cleanup_generated_images,
     build_keepsake_prompt,

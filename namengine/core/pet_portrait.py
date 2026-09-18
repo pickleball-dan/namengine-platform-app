@@ -298,6 +298,57 @@ def build_pet_portrait_prompt(
     return build_keepsake_prompt(chosen, result, brief, details, "pet")
 
 
+def build_boat_keepsake_prompt(
+    chosen: dict[str, Any],
+    result: dict[str, Any],
+    brief: dict[str, Any],
+    details: dict[str, str] | None = None,
+) -> str:
+    inputs = brief.get("inputs", {}) if isinstance(brief, dict) else {}
+    name = _clean(chosen.get("name")) or _clean(result.get("name")) or "the vessel"
+    boat_type = _clean(inputs.get("boat_type")) or "sailboat"
+    vibe_raw = _clean(inputs.get("vibe")) or "serene"
+    vibe = vibe_raw.split(",")[0].strip().lower()
+    waters_raw = _clean(inputs.get("waters")) or "open water"
+    waters = waters_raw.split(",")[0].strip().lower()
+
+    # Map boat_type to a vivid visual description
+    vessel_map = {
+        "sailboat": "classic wooden sailboat with white sails",
+        "powerboat": "sleek modern powerboat",
+        "fishing boat": "rugged offshore fishing boat",
+        "motor cruiser": "elegant motor cruiser",
+        "yacht": "luxury sailing yacht",
+        "trawler": "ocean-going trawler",
+        "catamaran": "wide-beam sailing catamaran",
+        "dinghy / dayboat": "small wooden dayboat",
+        "kayak / canoe": "sea kayak on calm water",
+        "personal watercraft / jet ski": "personal watercraft",
+    }
+    vessel_desc = vessel_map.get(boat_type.lower(), f"{boat_type}")
+
+    # Map waters to a setting
+    waters_map = {
+        "ocean / offshore": "open ocean at golden hour, dramatic horizon",
+        "coastal / inshore": "calm coastal waters with rugged cliffs in the distance",
+        "bay or sound": "sheltered bay with soft morning light",
+        "lakes and rivers": "glassy lake at sunrise, forested shoreline",
+        "multiple": "open water, cinematic lighting",
+    }
+    setting = waters_map.get(waters_raw.lower(), "open water, golden hour light")
+
+    return (
+        f"Create a stunning portrait-orientation photograph of a {vessel_desc}. "
+        f"The name '{name}' is painted in large, elegant serif lettering on the transom (stern) of the vessel. "
+        f"Setting: {setting}. "
+        f"Mood: {vibe}, cinematic, evocative, aspirational. "
+        "Composition: portrait orientation, vessel centered or three-quarter view showing the transom clearly, "
+        "name fully visible and legible, water in foreground, sky behind, "
+        "professional maritime photography, warm natural light, no people. "
+        "Do not include logos, watermarks, extra captions, or unrelated text beyond the vessel name on the transom."
+    )
+
+
 def build_keepsake_prompt(
     chosen: dict[str, Any],
     result: dict[str, Any],
@@ -309,6 +360,8 @@ def build_keepsake_prompt(
         return build_baby_keepsake_prompt(chosen, result, brief, details)
     if vertical_slug == "business":
         return build_business_image_prompt(chosen, result, brief, details)
+    if vertical_slug == "boat":
+        return build_boat_keepsake_prompt(chosen, result, brief, details)
 
     inputs = brief.get("inputs", {}) if isinstance(brief, dict) else {}
     details = details or portrait_details_from_brief(brief)
@@ -423,6 +476,13 @@ def keepsake_details_from_brief(
             "market_scope": _clean(inputs.get("market_scope")),
             "style": _clean(inputs.get("style")),
         }
+    elif vertical_slug == "boat":
+        details = {
+            "boat_type": _clean(inputs.get("boat_type")),
+            "waters": _clean(inputs.get("waters")),
+            "vibe": _clean(inputs.get("vibe")),
+            "use": _clean(inputs.get("use")),
+        }
     else:
         details = {
             "gender": _clean(inputs.get("gender")),
@@ -437,6 +497,7 @@ def _keepsake_path(filename: str, vertical_slug: str) -> Path:
     dirname = {
         "baby": BABY_KEEPSAKE_DIRNAME,
         "business": BUSINESS_IMAGE_DIRNAME,
+        "boat": "boat-portraits",
         "pet": PORTRAIT_DIRNAME,
     }[vertical_slug]
     configured_root = os.getenv("NAMENGINE_GENERATED_IMAGE_DIR", "").strip()
@@ -448,6 +509,7 @@ def _metadata_key(vertical_slug: str) -> str:
     return {
         "baby": "baby_keepsake",
         "business": "business_image",
+        "boat": "boat_portrait",
         "pet": "pet_portrait",
     }[vertical_slug]
 
@@ -456,6 +518,7 @@ def _generated_route_segment(vertical_slug: str) -> str:
     return {
         "baby": "baby-keepsakes",
         "business": "business-images",
+        "boat": "boat-portraits",
         "pet": "pet-portraits",
     }[vertical_slug]
 
@@ -464,6 +527,7 @@ def _keepsake_kind(vertical_slug: str) -> str:
     return {
         "baby": "baby_blanket",
         "business": "business_brand_concept",
+        "boat": "boat_portrait",
         "pet": "pet_portrait",
     }[vertical_slug]
 
@@ -495,6 +559,7 @@ def _disable_flag(vertical_slug: str) -> str:
     return {
         "baby": "NAMENGINE_DISABLE_BABY_IMAGES",
         "business": "NAMENGINE_DISABLE_BUSINESS_IMAGES",
+        "boat": "NAMENGINE_DISABLE_BOAT_IMAGES",
         "pet": "NAMENGINE_DISABLE_PET_IMAGES",
     }[vertical_slug]
 

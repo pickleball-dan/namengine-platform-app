@@ -2089,6 +2089,10 @@ Sitemap: https://nam-engine.com/sitemap.xml
     def generated_business_image(filename: str):
         return send_from_directory(generated_image_directory("business"), filename)
 
+    @app.get("/generated/boat-portraits/<filename>")
+    def generated_boat_portrait(filename: str):
+        return send_from_directory(generated_image_directory("boat"), filename)
+
     @app.get("/api/chosen/<chosen_id>/portrait")
     def chosen_portrait_status(chosen_id: str):
         snapshot = get_chosen_snapshot(chosen_id)
@@ -2597,7 +2601,7 @@ def _keepsake_preview(chosen_id: str):
     snapshot = get_chosen_snapshot(chosen_id)
     if snapshot is None or snapshot["result"] is None:
         return None
-    if snapshot["chosen"].get("vertical") not in {"pet", "baby", "business"}:
+    if snapshot["chosen"].get("vertical") not in {"pet", "baby", "business", "boat"}:
         return None
 
     return keepsake_preview_for_chosen(snapshot["chosen"], snapshot["session"])
@@ -2607,7 +2611,7 @@ def _queue_keepsake_generation(chosen_id: str, *, force_retry: bool = False):
     snapshot = get_chosen_snapshot(chosen_id)
     if snapshot is None or snapshot["result"] is None:
         return None
-    if snapshot["chosen"].get("vertical") not in {"pet", "baby", "business"}:
+    if snapshot["chosen"].get("vertical") not in {"pet", "baby", "business", "boat"}:
         return None
 
     result = to_plain_data(json_loads(snapshot["result"]["result_json"]))
