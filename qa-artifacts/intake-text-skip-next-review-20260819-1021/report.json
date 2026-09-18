@@ -1,0 +1,128 @@
+[
+  {
+    "vertical": "baby",
+    "state": "empty_optional_text",
+    "data": {
+      "questionId": "family_context",
+      "questionKind": "text",
+      "value": "",
+      "skipText": "Skip",
+      "skipActionState": "skip",
+      "skipAriaLabel": "Skip this optional question",
+      "continueText": null
+    },
+    "screenshot": "qa-artifacts\\intake-text-skip-next-review-20260819-1021\\baby-family-context-empty-skip.png"
+  },
+  {
+    "vertical": "baby",
+    "state": "typed_optional_text",
+    "data": {
+      "questionId": "family_context",
+      "questionKind": "text",
+      "value": "Last name Parker; we like soft classic names.",
+      "skipText": "Next",
+      "skipActionState": "next",
+      "skipAriaLabel": "Save this answer and continue",
+      "continueText": null
+    },
+    "screenshot": "qa-artifacts\\intake-text-skip-next-review-20260819-1021\\baby-family-context-typed-next.png"
+  },
+  {
+    "vertical": "baby",
+    "state": "after_enter",
+    "data": {
+      "questionId": "notes",
+      "questionKind": "textarea",
+      "value": "",
+      "skipText": "Skip",
+      "skipActionState": "skip",
+      "skipAriaLabel": "Skip this optional question",
+      "continueText": null
+    },
+    "screenshot": "qa-artifacts\\intake-text-skip-next-review-20260819-1021\\baby-after-enter-next-question.png"
+  },
+  {
+    "vertical": "pet",
+    "state": "current_intake_surface_no_per_question_skip",
+    "data": {
+      "hasGuidedQuestions": false,
+      "visibleSkipButtons": [],
+      "submitText": "Generate Pet Names",
+      "textInputs": [
+        {
+          "id": "pet_type",
+          "placeholder": null,
+          "value": ""
+        },
+        {
+          "id": "pet_color",
+          "placeholder": "Honey, black and white, brindle, gray tabby...",
+          "value": ""
+        },
+        {
+          "id": "pet_life_stage",
+          "placeholder": null,
+          "value": ""
+        },
+        {
+          "id": "pet_gender",
+          "placeholder": null,
+          "value": ""
+        },
+        {
+          "id": "pet_breed",
+          "placeholder": "Golden retriever, tabby, mixed breed...",
+          "value": ""
+        },
+        {
+          "id": "pet_details",
+          "placeholder": "Size, markings, backstory, quirks, anything visually important...",
+          "value": ""
+        }
+      ]
+    },
+    "screenshot": "qa-artifacts\\intake-text-skip-next-review-20260819-1021\\pet-current-intake-surface.png"
+  },
+  {
+    "vertical": "business",
+    "state": "current_intake_surface_no_per_question_skip",
+    "data": {
+      "hasGuidedQuestions": false,
+      "visibleSkipButtons": [],
+      "submitText": "Continue",
+      "textInputs": [
+        {
+          "id": "business_description",
+          "placeholder": "Describe the offer, customer problem, or core service in plain language.",
+          "value": ""
+        },
+        {
+          "id": "industry",
+          "placeholder": "Wellness, SaaS, home services, coaching, retail...",
+          "value": ""
+        },
+        {
+          "id": "stage",
+          "placeholder": null,
+          "value": ""
+        },
+        {
+          "id": "audience",
+          "placeholder": null,
+          "value": ""
+        },
+        {
+          "id": "market_scope",
+          "placeholder": null,
+          "value": ""
+        },
+        {
+          "id": "notes",
+          "placeholder": "Mission, edge, geography, competitors, founder story, or customer promise...",
+          "value": ""
+        }
+      ]
+    },
+    "screenshot": "qa-artifacts\\intake-text-skip-next-review-20260819-1021\\business-current-intake-surface.png"
+  }
+]

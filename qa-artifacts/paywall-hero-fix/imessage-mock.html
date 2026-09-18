@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #1c1c1e;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: flex-end;
+    padding: 24px 16px 32px;
+    min-height: 100vh;
+    font-family: -apple-system, "SF Pro Text", sans-serif;
+    gap: 6px;
+  }
+
+  /* The text message bubble */
+  .bubble-text {
+    background: #2196F3;
+    /* iMessage blue */
+    background: #007AFF;
+    color: white;
+    padding: 10px 14px;
+    border-radius: 18px 18px 4px 18px;
+    font-size: 16px;
+    max-width: 260px;
+  }
+
+  /* Link preview card */
+  .link-preview {
+    width: 260px;
+    background: #2c2c2e;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .link-preview img {
+    width: 100%;
+    display: block;
+    aspect-ratio: 1200 / 630;
+    object-fit: cover;
+  }
+
+  .link-preview-meta {
+    padding: 8px 12px 10px;
+  }
+
+  .link-preview-site {
+    font-size: 11px;
+    color: #8e8e93;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 2px;
+  }
+
+  .link-preview-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #ffffff;
+    line-height: 1.3;
+  }
+
+  .link-preview-desc {
+    font-size: 12px;
+    color: #aeaeb2;
+    margin-top: 2px;
+    line-height: 1.3;
+  }
+
+  .time { font-size: 11px; color: #636366; text-align: right; margin-top: 2px; }
+</style>
+</head>
+<body>
+  <!-- Baby share -->
+  <div class="link-preview">
+    <img src="../../static/images/baby/namengine-baby-share.png" alt="">
+    <div class="link-preview-meta">
+      <div class="link-preview-site">nam-engine.com</div>
+      <div class="link-preview-title">A NamEngine Baby name list, ready to explore</div>
+      <div class="link-preview-desc">8 names selected by NamEngine. Tap to explore each one.</div>
+    </div>
+  </div>
+  <div class="bubble-text">Check out these baby names 🍼</div>
+  <div class="time">6:54 PM</div>
+</body>
+</html>

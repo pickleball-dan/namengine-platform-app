@@ -1,0 +1,1762 @@
+[
+  {
+    "viewport": "mobile",
+    "name": "home",
+    "route": "/",
+    "status": 200,
+    "title": "NamEngine — Understand what matters, then discover the name.",
+    "h1": "Finding the right name shouldn't begin with a thousand options.\nIt should begin with understanding what matters to you.",
+    "h2s": [
+      "What are you naming?",
+      "Unlock the list when the name matters.",
+      "Not a list. A conversation.",
+      "Good naming isn't a bigger list. It's a better fit.",
+      "Every reaction makes the next suggestion better."
+    ],
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "horizontalOverflow": false,
+    "tapTargets": 19,
+    "smallTapTargets": [
+      {
+        "tag": "A",
+        "text": "NamEngine home",
+        "w": 142,
+        "h": 23
+      },
+      {
+        "tag": "A",
+        "text": "Baby",
+        "w": 29,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "Pet",
+        "w": 19,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "Business",
+        "w": 52,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "About",
+        "w": 34,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "Pricing",
+        "w": 40,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "Privacy Policy",
+        "w": 80,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "Terms of Use",
+        "w": 76,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "AI Disclosures",
+        "w": 82,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "Data Protection",
+        "w": 89,
+        "h": 15
+      }
+    ],
+    "resultCards": 0,
+    "premiumActions": 0,
+    "forms": 0,
+    "bodyChars": 5087,
+    "aboveFoldText": "NAMING, DONE THE RIGHT WAY\n\nFinding the right name shouldn't begin with a thousand options.\nIt should begin with understanding what matters to you.\n\nNamEngine does not hand you an endless list and a wall of filters. It learns your taste through conversation, then refines its suggestions until one actually feels right.\n\nStart naming\nSee how it works\n\nTASTE SIGNAL PREVIEW\n\nBUSINESS\nNorthmark\n\nClear · credible · ownable\n\n♥ Love\nNo\nDistinctive\nDomain-ready\nTrustworthy\nBABY\nElowen\n\nNature-inspired · ",
+    "consoleErrors": [],
+    "requestFailures": []
+  },
+  {
+    "viewport": "mobile",
+    "name": "baby-start",
+    "route": "/baby",
+    "status": 200,
+    "title": "NamEngine Baby",
+    "h1": "Let’s discover your child’s name together.",
+    "h2s": [
+      "Any gender direction?",
+      "Sibling, surname, or family context",
+      "Cultural / heritage feel",
+      "Tell us what matters",
+      "How adventurous should we be?"
+    ],
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "horizontalOverflow": false,
+    "tapTargets": 13,
+    "smallTapTargets": [
+      {
+        "tag": "A",
+        "text": "Home",
+        "w": 58,
+        "h": 30
+      },
+      {
+        "tag": "A",
+        "text": "Baby",
+        "w": 29,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "Pet",
+        "w": 19,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "Business",
+        "w": 52,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "About",
+        "w": 34,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "Pricing",
+        "w": 40,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "Privacy Policy",
+        "w": 80,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "Terms of Use",
+        "w": 76,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "AI Disclosures",
+        "w": 82,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "Data Protection",
+        "w": 89,
+        "h": 15
+      }
+    ],
+    "resultCards": 0,
+    "premiumActions": 0,
+    "forms": 1,
+    "bodyChars": 1043,
+    "aboveFoldText": "A THOUGHTFUL PLACE TO BEGIN\n\nLet’s discover your child’s name together.\n\nWe’ll learn about your family’s story, your style, and the names that resonate with you.\n\nA child’s name is one of the few gifts that lasts a lifetime.\nTake as much time as you need. Every thoughtful answer helps us recommend names that truly feel right.\nBegin\n✦ Thoughtful AI guidance\nSuggestions shaped around what matters to your family.\n◈ Your family’s story stays private\nShare only what feels comfortable; avoid sensitive",
+    "consoleErrors": [],
+    "requestFailures": []
+  },
+  {
+    "viewport": "mobile",
+    "name": "pet-start",
+    "route": "/pet",
+    "status": 200,
+    "title": "NamEngine Pet",
+    "h1": "Let’s find the name that feels like them.",
+    "h2s": [
+      "Tell us who they are.",
+      "Your evolving pet-name taste",
+      "Pick up where you left off.",
+      "Finding names that feel right",
+      "NAMING EXPERIENCES"
+    ],
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "horizontalOverflow": false,
+    "tapTargets": 73,
+    "smallTapTargets": [
+      {
+        "tag": "A",
+        "text": "Home",
+        "w": 58,
+        "h": 30
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "w": 1,
+        "h": 56
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "w": 1,
+        "h": 56
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "w": 1,
+        "h": 56
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "w": 1,
+        "h": 56
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "w": 1,
+        "h": 56
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "w": 1,
+        "h": 56
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "w": 1,
+        "h": 56
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "w": 1,
+        "h": 56
+      },
+      {
+        "tag": "A",
+        "text": "Baby",
+        "w": 29,
+        "h": 15
+      }
+    ],
+    "resultCards": 0,
+    "premiumActions": 0,
+    "forms": 1,
+    "bodyChars": 2358,
+    "aboveFoldText": "A JOYFUL PLACE TO BEGIN\n\nLet’s find the name that feels like them.\n\nTell us about their personality, their story, and the names that make you smile.\n\n◷\nMost pet parents finish in about 3–5 minutes.\n\nBegin\nCreate an original pet name\n✦ Personality-led suggestions\nNames shaped around their energy, look, and place in your life.\n◈ Your details stay private\nShare only the pet details that help the search feel personal.\n♥ You choose what fits\nSave, compare, and refine until the name feels natural.\n\nTH",
+    "consoleErrors": [],
+    "requestFailures": []
+  },
+  {
+    "viewport": "mobile",
+    "name": "business-start",
+    "route": "/business",
+    "status": 200,
+    "title": "NamEngine Business",
+    "h1": "Let’s find a name your business can grow into.",
+    "h2s": [
+      "Define the business behind the name.",
+      "Your emerging brand direction",
+      "Pick up where you left off.",
+      "Finding names that feel right",
+      "NAMING EXPERIENCES"
+    ],
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "horizontalOverflow": false,
+    "tapTargets": 68,
+    "smallTapTargets": [
+      {
+        "tag": "A",
+        "text": "Home",
+        "w": 58,
+        "h": 30
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "w": 1,
+        "h": 56
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "w": 1,
+        "h": 56
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "w": 1,
+        "h": 56
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "w": 1,
+        "h": 56
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "w": 1,
+        "h": 56
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "w": 1,
+        "h": 56
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "w": 1,
+        "h": 56
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "w": 1,
+        "h": 56
+      },
+      {
+        "tag": "A",
+        "text": "Baby",
+        "w": 29,
+        "h": 15
+      }
+    ],
+    "resultCards": 0,
+    "premiumActions": 0,
+    "forms": 1,
+    "bodyChars": 2450,
+    "aboveFoldText": "A STRATEGIC PLACE TO BEGIN\n\nLet’s find a name your business can grow into.\n\nWe’ll connect your positioning, audience, and commercial goals to names built for the real market.\n\n◷\nMost founders finish in about 5–7 minutes.\n\nBegin\n✦ Strategic AI guidance\nOptions shaped around positioning, audience, and category fit.\n◈ Your business context stays private\nAvoid confidential data while giving the engine useful direction.\n♥ You keep final control\nCompare fit, risks, and launch practicality before decid",
+    "consoleErrors": [],
+    "requestFailures": []
+  },
+  {
+    "viewport": "mobile",
+    "name": "baby-access",
+    "route": "/baby/access",
+    "status": 200,
+    "title": "NamEngine Baby Access",
+    "h1": "NamEngine Baby — find the name that feels right.",
+    "h2s": [
+      "Join our list for new verticals",
+      "What paid access includes:",
+      "NAMING EXPERIENCES",
+      "COMING SOON",
+      "COMPANY"
+    ],
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "horizontalOverflow": false,
+    "tapTargets": 14,
+    "smallTapTargets": [
+      {
+        "tag": "A",
+        "text": "Home",
+        "w": 58,
+        "h": 30
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "w": 177,
+        "h": 21
+      },
+      {
+        "tag": "A",
+        "text": "Baby",
+        "w": 29,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "Pet",
+        "w": 19,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "Business",
+        "w": 52,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "About",
+        "w": 34,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "Pricing",
+        "w": 40,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "Privacy Policy",
+        "w": 80,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "Terms of Use",
+        "w": 76,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "AI Disclosures",
+        "w": 82,
+        "h": 15
+      }
+    ],
+    "resultCards": 0,
+    "premiumActions": 0,
+    "forms": 1,
+    "bodyChars": 1926,
+    "aboveFoldText": "NAMENGINE ACCESS\n\nNamEngine Baby — find the name that feels right.\n\nGenerate your first preview list, then unlock Baby Access when you are ready to explore details, react, compare, choose, share, and refine.\n\nNamEngine Baby Access\n$9.99\nOne-time access for this naming vertical, unlocked from this preview list and backed by a 100% money-back guarantee if NamEngine doesn’t feel useful.\nUnlock Baby Access\nJoin our list for new verticals\n\nOptional: leave your email if you’d like updates when NamEngi",
+    "consoleErrors": [],
+    "requestFailures": []
+  },
+  {
+    "viewport": "mobile",
+    "name": "pet-access",
+    "route": "/pet/access",
+    "status": 200,
+    "title": "NamEngine Pet Access",
+    "h1": "NamEngine Pet — find the name that feels right.",
+    "h2s": [
+      "Join our list for new verticals",
+      "What paid access includes:",
+      "NAMING EXPERIENCES",
+      "COMING SOON",
+      "COMPANY"
+    ],
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "horizontalOverflow": false,
+    "tapTargets": 14,
+    "smallTapTargets": [
+      {
+        "tag": "A",
+        "text": "Home",
+        "w": 58,
+        "h": 30
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "w": 177,
+        "h": 21
+      },
+      {
+        "tag": "A",
+        "text": "Baby",
+        "w": 29,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "Pet",
+        "w": 19,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "Business",
+        "w": 52,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "About",
+        "w": 34,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "Pricing",
+        "w": 40,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "Privacy Policy",
+        "w": 80,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "Terms of Use",
+        "w": 76,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "AI Disclosures",
+        "w": 82,
+        "h": 15
+      }
+    ],
+    "resultCards": 0,
+    "premiumActions": 0,
+    "forms": 1,
+    "bodyChars": 1921,
+    "aboveFoldText": "NAMENGINE ACCESS\n\nNamEngine Pet — find the name that feels right.\n\nGenerate your first preview list, then unlock Pet Access when you are ready to explore details, react, compare, choose, share, and refine.\n\nNamEngine Pet Access\n$9.99\nOne-time access for this naming vertical, unlocked from this preview list and backed by a 100% money-back guarantee if NamEngine doesn’t feel useful.\nUnlock Pet Access\nJoin our list for new verticals\n\nOptional: leave your email if you’d like updates when NamEngine r",
+    "consoleErrors": [],
+    "requestFailures": []
+  },
+  {
+    "viewport": "mobile",
+    "name": "business-access",
+    "route": "/business/access",
+    "status": 200,
+    "title": "NamEngine Business Access",
+    "h1": "NamEngine Business — find the name that feels right.",
+    "h2s": [
+      "Join our list for new verticals",
+      "What paid access includes:",
+      "NAMING EXPERIENCES",
+      "COMING SOON",
+      "COMPANY"
+    ],
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "horizontalOverflow": false,
+    "tapTargets": 14,
+    "smallTapTargets": [
+      {
+        "tag": "A",
+        "text": "Home",
+        "w": 58,
+        "h": 30
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "w": 177,
+        "h": 21
+      },
+      {
+        "tag": "A",
+        "text": "Baby",
+        "w": 29,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "Pet",
+        "w": 19,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "Business",
+        "w": 52,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "About",
+        "w": 34,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "Pricing",
+        "w": 40,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "Privacy Policy",
+        "w": 80,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "Terms of Use",
+        "w": 76,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "AI Disclosures",
+        "w": 82,
+        "h": 15
+      }
+    ],
+    "resultCards": 0,
+    "premiumActions": 0,
+    "forms": 1,
+    "bodyChars": 1946,
+    "aboveFoldText": "NAMENGINE ACCESS\n\nNamEngine Business — find the name that feels right.\n\nGenerate your first preview list, then unlock Business Access when you are ready to explore details, react, compare, choose, share, and refine.\n\nNamEngine Business Access\n$9.99\nOne-time access for this naming vertical, unlocked from this preview list and backed by a 100% money-back guarantee if NamEngine doesn’t feel useful.\nUnlock Business Access\nJoin our list for new verticals\n\nOptional: leave your email if you’d like upda",
+    "consoleErrors": [],
+    "requestFailures": []
+  },
+  {
+    "viewport": "mobile",
+    "name": "baby-results",
+    "route": "/baby/results?gender=Girl&style=Classic&sound=Soft",
+    "status": 200,
+    "title": "NamEngine Baby Results",
+    "h1": "Here’s what stood out.",
+    "h2s": [
+      "Clara",
+      "Lila",
+      "Mabel",
+      "Nora",
+      "Elise"
+    ],
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "horizontalOverflow": false,
+    "tapTargets": 47,
+    "smallTapTargets": [
+      {
+        "tag": "A",
+        "text": "Home",
+        "w": 58,
+        "h": 30
+      },
+      {
+        "tag": "A",
+        "text": "Compare favorites",
+        "w": 133,
+        "h": 28
+      },
+      {
+        "tag": "A",
+        "text": "Read disclaimers",
+        "w": 125,
+        "h": 22
+      },
+      {
+        "tag": "A",
+        "text": "Baby",
+        "w": 29,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "Pet",
+        "w": 19,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "Business",
+        "w": 52,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "About",
+        "w": 34,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "Pricing",
+        "w": 40,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "Privacy Policy",
+        "w": 80,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "Terms of Use",
+        "w": 76,
+        "h": 15
+      }
+    ],
+    "resultCards": 8,
+    "premiumActions": 41,
+    "forms": 8,
+    "bodyChars": 2383,
+    "aboveFoldText": "NAMENGINE BABY\n\nHere’s what stood out.\n\nRound 1 · 8 options.\n\nBased on everything you’ve shared, these names best match your style and preferences.\n\n♥\nYou loved 0 names in Round 1\n8 names checked for fit, sound, and distinctiveness. React to the names below; we’re using those preferences to refine your next recommendations.\nYour direction\n3 selections\n\nBEST FIRST LOOK\n\nClara\n\nCLAH-rah\n\nMeaning: Bright, clear\n\nTimeless elegance with gentle warmth\n\nclassic\nsoft\nEuropean\n\nView meaning\n→\n\nSTRONG ALT",
+    "consoleErrors": [],
+    "requestFailures": []
+  },
+  {
+    "viewport": "mobile",
+    "name": "pet-results",
+    "route": "/pet/results?pet_type=Dog&style=Playful&vibe=Friendly",
+    "status": 200,
+    "title": "NamEngine Pet Results",
+    "h1": "Pet names shaped from your taste.",
+    "h2s": [
+      "Bingo",
+      "Sunny",
+      "Zuzu",
+      "Ziggy",
+      "Clover"
+    ],
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "horizontalOverflow": false,
+    "tapTargets": 47,
+    "smallTapTargets": [
+      {
+        "tag": "A",
+        "text": "Home",
+        "w": 58,
+        "h": 30
+      },
+      {
+        "tag": "A",
+        "text": "Read disclaimers",
+        "w": 125,
+        "h": 22
+      },
+      {
+        "tag": "A",
+        "text": "Baby",
+        "w": 29,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "Pet",
+        "w": 19,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "Business",
+        "w": 52,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "About",
+        "w": 34,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "Pricing",
+        "w": 40,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "Privacy Policy",
+        "w": 80,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "Terms of Use",
+        "w": 76,
+        "h": 15
+      },
+      {
+        "tag": "A",
+        "text": "AI Disclosures",
+        "w": 82,
+        "h": 15
+      }
+    ],
+    "resultCards": 8,
+    "premiumActions": 49,
+    "forms": 8,
+    "bodyChars": 2759,
+    "aboveFoldText": "NAMENGINE PET\n\nPet names shaped from your taste.\n\nRound 1 · 8 options.\n\nBased on everything you shared, we found names that reflect their personality, your preferred sound, and the bond you already feel.\n\nNAME STYLE DNA\n\nPlayful names with friendly energy for this pet.\n\n♥ Saved 0 names this round Your favorites help us understand which names feel most like them.\n\nPersonality matched\nEveryday-ready\nFit reviewed\nYour direction\n3 selections\n\nBEST FIRST LOOK\n\nBingo\n\nBING-go\n\nMeaning: A fun, catchy n",
+    "consoleErrors": [],
+    "requestFailures": []
+  },
+  {
+    "viewport": "mobile",
+    "name": "business-results",
+    "route": "/business/results?business_description=Premium%20recovery%20studio&industry=Wellness&audience=Premium%20clients&style=Clear%20and%20credible",
+    "status": 200,
+    "title": "NamEngine Business Results",
+    "h1": "Business names shaped from your taste.",
+    "h2s": [
+      "Elevate Recovery",
+      "LuxeRevive",
+      "Serenova Recovery",
+      "Pure Haven Studio",
+      "RevitaCore Studio"
+    ],
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "horizontalOverflow": false,
+    "tapTargets": 47,
+    "smallTapTargets": [
+      {
+        "tag": "A",
+        "text": "Home",
+        "w": 58,
+        "h": 30
+      },
+      {
+        "tag": "A",
+        "text": "Elevate Recovery",
+        "w": 255,
+        "h": 38
+      },
+      {
+        "tag": "A",
+        "text": "LuxeRevive",
+        "w": 170,
+        "h": 38
+      },
+      {
+        "tag": "A",
+        "text": "Serenova Recovery",
+        "w": 286,
+        "h": 38
+      },
+      {
+        "tag": "A",
+        "text": "Pure Haven Studio",
+        "w": 270,
+        "h": 38
+      },
+      {
+        "tag": "A",
+        "text": "RevitaCore Studio",
+        "w": 264,
+        "h": 38
+      },
+      {
+        "tag": "A",
+        "text": "PrimeRestore",
+        "w": 200,
+        "h": 38
+      },
+      {
+        "tag": "A",
+        "text": "NexaWell Recovery",
+        "w": 285,
+        "h": 38
+      },
+      {
+        "tag": "A",
+        "text": "Opaluxe Studio",
+        "w": 224,
+        "h": 38
+      },
+      {
+        "tag": "A",
+        "text": "Read disclaimers",
+        "w": 125,
+        "h": 22
+      }
+    ],
+    "resultCards": 8,
+    "premiumActions": 49,
+    "forms": 8,
+    "bodyChars": 3054,
+    "aboveFoldText": "NAMENGINE BUSINESS\n\nBusiness names shaped from your taste.\n\nRound 1 · 8 options.\n\nBased on your brief, we found names that balance positioning, audience fit, distinctiveness, and practical launch considerations.\n\n8 names checked for fit, sound, and distinctiveness.\nReact to the names below, then use the next-step panel at the bottom.\n♥ Saved 0 names this round Your favorites reveal the brand direction with the strongest commercial fit.\nYour direction\n4 selections\n\nBEST FIRST LOOK\n\nElevate Recove",
+    "consoleErrors": [],
+    "requestFailures": []
+  },
+  {
+    "viewport": "desktop",
+    "name": "home",
+    "route": "/",
+    "status": 200,
+    "title": "NamEngine — Understand what matters, then discover the name.",
+    "h1": "Finding the right name shouldn't begin with a thousand options.\nIt should begin with understanding what matters to you.",
+    "h2s": [
+      "What are you naming?",
+      "Unlock the list when the name matters.",
+      "Not a list. A conversation.",
+      "Good naming isn't a bigger list. It's a better fit.",
+      "Every reaction makes the next suggestion better."
+    ],
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "horizontalOverflow": false,
+    "tapTargets": 22,
+    "smallTapTargets": [
+      {
+        "tag": "A",
+        "text": "NamEngine home",
+        "w": 196,
+        "h": 31
+      },
+      {
+        "tag": "A",
+        "text": "About",
+        "w": 44,
+        "h": 21
+      },
+      {
+        "tag": "A",
+        "text": "Pricing",
+        "w": 50,
+        "h": 21
+      },
+      {
+        "tag": "A",
+        "text": "Baby",
+        "w": 34,
+        "h": 19
+      },
+      {
+        "tag": "A",
+        "text": "Pet",
+        "w": 22,
+        "h": 19
+      },
+      {
+        "tag": "A",
+        "text": "Business",
+        "w": 60,
+        "h": 19
+      },
+      {
+        "tag": "A",
+        "text": "About",
+        "w": 40,
+        "h": 19
+      },
+      {
+        "tag": "A",
+        "text": "Pricing",
+        "w": 47,
+        "h": 19
+      },
+      {
+        "tag": "A",
+        "text": "Privacy Policy",
+        "w": 94,
+        "h": 19
+      },
+      {
+        "tag": "A",
+        "text": "Terms of Use",
+        "w": 89,
+        "h": 19
+      }
+    ],
+    "resultCards": 0,
+    "premiumActions": 0,
+    "forms": 0,
+    "bodyChars": 5117,
+    "aboveFoldText": "",
+    "consoleErrors": [],
+    "requestFailures": []
+  },
+  {
+    "viewport": "desktop",
+    "name": "baby-start",
+    "route": "/baby",
+    "status": 200,
+    "title": "NamEngine Baby",
+    "h1": "Let’s discover your child’s name together.",
+    "h2s": [
+      "Any gender direction?",
+      "Sibling, surname, or family context",
+      "Cultural / heritage feel",
+      "Tell us what matters",
+      "How adventurous should we be?"
+    ],
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "horizontalOverflow": false,
+    "tapTargets": 16,
+    "smallTapTargets": [
+      {
+        "tag": "A",
+        "text": "Home",
+        "w": 58,
+        "h": 30
+      },
+      {
+        "tag": "A",
+        "text": "About",
+        "w": 44,
+        "h": 21
+      },
+      {
+        "tag": "A",
+        "text": "Pricing",
+        "w": 50,
+        "h": 21
+      },
+      {
+        "tag": "A",
+        "text": "Baby",
+        "w": 34,
+        "h": 19
+      },
+      {
+        "tag": "A",
+        "text": "Pet",
+        "w": 22,
+        "h": 19
+      },
+      {
+        "tag": "A",
+        "text": "Business",
+        "w": 60,
+        "h": 19
+      },
+      {
+        "tag": "A",
+        "text": "About",
+        "w": 40,
+        "h": 19
+      },
+      {
+        "tag": "A",
+        "text": "Pricing",
+        "w": 47,
+        "h": 19
+      },
+      {
+        "tag": "A",
+        "text": "Privacy Policy",
+        "w": 94,
+        "h": 19
+      },
+      {
+        "tag": "A",
+        "text": "Terms of Use",
+        "w": 89,
+        "h": 19
+      }
+    ],
+    "resultCards": 0,
+    "premiumActions": 0,
+    "forms": 1,
+    "bodyChars": 1073,
+    "aboveFoldText": "",
+    "consoleErrors": [],
+    "requestFailures": []
+  },
+  {
+    "viewport": "desktop",
+    "name": "pet-start",
+    "route": "/pet",
+    "status": 200,
+    "title": "NamEngine Pet",
+    "h1": "Let’s find the name that feels like them.",
+    "h2s": [
+      "Tell us who they are.",
+      "Your evolving pet-name taste",
+      "Pick up where you left off.",
+      "Finding names that feel right",
+      "NAMING EXPERIENCES"
+    ],
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "horizontalOverflow": false,
+    "tapTargets": 76,
+    "smallTapTargets": [
+      {
+        "tag": "A",
+        "text": "Home",
+        "w": 58,
+        "h": 30
+      },
+      {
+        "tag": "A",
+        "text": "About",
+        "w": 44,
+        "h": 21
+      },
+      {
+        "tag": "A",
+        "text": "Pricing",
+        "w": 50,
+        "h": 21
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "w": 1,
+        "h": 56
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "w": 1,
+        "h": 56
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "w": 1,
+        "h": 56
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "w": 1,
+        "h": 56
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "w": 1,
+        "h": 56
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "w": 1,
+        "h": 56
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "w": 1,
+        "h": 56
+      }
+    ],
+    "resultCards": 0,
+    "premiumActions": 0,
+    "forms": 1,
+    "bodyChars": 2388,
+    "aboveFoldText": "",
+    "consoleErrors": [],
+    "requestFailures": []
+  },
+  {
+    "viewport": "desktop",
+    "name": "business-start",
+    "route": "/business",
+    "status": 200,
+    "title": "NamEngine Business",
+    "h1": "Let’s find a name your business can grow into.",
+    "h2s": [
+      "Define the business behind the name.",
+      "Your emerging brand direction",
+      "Pick up where you left off.",
+      "Finding names that feel right",
+      "NAMING EXPERIENCES"
+    ],
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "horizontalOverflow": false,
+    "tapTargets": 71,
+    "smallTapTargets": [
+      {
+        "tag": "A",
+        "text": "Home",
+        "w": 58,
+        "h": 30
+      },
+      {
+        "tag": "A",
+        "text": "About",
+        "w": 44,
+        "h": 21
+      },
+      {
+        "tag": "A",
+        "text": "Pricing",
+        "w": 50,
+        "h": 21
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "w": 1,
+        "h": 56
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "w": 1,
+        "h": 56
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "w": 1,
+        "h": 56
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "w": 1,
+        "h": 56
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "w": 1,
+        "h": 56
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "w": 1,
+        "h": 56
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "w": 1,
+        "h": 56
+      }
+    ],
+    "resultCards": 0,
+    "premiumActions": 0,
+    "forms": 1,
+    "bodyChars": 2480,
+    "aboveFoldText": "",
+    "consoleErrors": [],
+    "requestFailures": []
+  },
+  {
+    "viewport": "desktop",
+    "name": "baby-access",
+    "route": "/baby/access",
+    "status": 200,
+    "title": "NamEngine Baby Access",
+    "h1": "NamEngine Baby — find the name that feels right.",
+    "h2s": [
+      "Join our list for new verticals",
+      "What paid access includes:",
+      "NAMING EXPERIENCES",
+      "COMING SOON",
+      "COMPANY"
+    ],
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "horizontalOverflow": false,
+    "tapTargets": 17,
+    "smallTapTargets": [
+      {
+        "tag": "A",
+        "text": "Home",
+        "w": 58,
+        "h": 30
+      },
+      {
+        "tag": "A",
+        "text": "About",
+        "w": 44,
+        "h": 21
+      },
+      {
+        "tag": "A",
+        "text": "Pricing",
+        "w": 50,
+        "h": 21
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "w": 177,
+        "h": 21
+      },
+      {
+        "tag": "A",
+        "text": "Baby",
+        "w": 34,
+        "h": 19
+      },
+      {
+        "tag": "A",
+        "text": "Pet",
+        "w": 22,
+        "h": 19
+      },
+      {
+        "tag": "A",
+        "text": "Business",
+        "w": 60,
+        "h": 19
+      },
+      {
+        "tag": "A",
+        "text": "About",
+        "w": 40,
+        "h": 19
+      },
+      {
+        "tag": "A",
+        "text": "Pricing",
+        "w": 47,
+        "h": 19
+      },
+      {
+        "tag": "A",
+        "text": "Privacy Policy",
+        "w": 94,
+        "h": 19
+      }
+    ],
+    "resultCards": 0,
+    "premiumActions": 0,
+    "forms": 1,
+    "bodyChars": 1956,
+    "aboveFoldText": "",
+    "consoleErrors": [],
+    "requestFailures": []
+  },
+  {
+    "viewport": "desktop",
+    "name": "pet-access",
+    "route": "/pet/access",
+    "status": 200,
+    "title": "NamEngine Pet Access",
+    "h1": "NamEngine Pet — find the name that feels right.",
+    "h2s": [
+      "Join our list for new verticals",
+      "What paid access includes:",
+      "NAMING EXPERIENCES",
+      "COMING SOON",
+      "COMPANY"
+    ],
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "horizontalOverflow": false,
+    "tapTargets": 17,
+    "smallTapTargets": [
+      {
+        "tag": "A",
+        "text": "Home",
+        "w": 58,
+        "h": 30
+      },
+      {
+        "tag": "A",
+        "text": "About",
+        "w": 44,
+        "h": 21
+      },
+      {
+        "tag": "A",
+        "text": "Pricing",
+        "w": 50,
+        "h": 21
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "w": 177,
+        "h": 21
+      },
+      {
+        "tag": "A",
+        "text": "Baby",
+        "w": 34,
+        "h": 19
+      },
+      {
+        "tag": "A",
+        "text": "Pet",
+        "w": 22,
+        "h": 19
+      },
+      {
+        "tag": "A",
+        "text": "Business",
+        "w": 60,
+        "h": 19
+      },
+      {
+        "tag": "A",
+        "text": "About",
+        "w": 40,
+        "h": 19
+      },
+      {
+        "tag": "A",
+        "text": "Pricing",
+        "w": 47,
+        "h": 19
+      },
+      {
+        "tag": "A",
+        "text": "Privacy Policy",
+        "w": 94,
+        "h": 19
+      }
+    ],
+    "resultCards": 0,
+    "premiumActions": 0,
+    "forms": 1,
+    "bodyChars": 1951,
+    "aboveFoldText": "",
+    "consoleErrors": [],
+    "requestFailures": []
+  },
+  {
+    "viewport": "desktop",
+    "name": "business-access",
+    "route": "/business/access",
+    "status": 200,
+    "title": "NamEngine Business Access",
+    "h1": "NamEngine Business — find the name that feels right.",
+    "h2s": [
+      "Join our list for new verticals",
+      "What paid access includes:",
+      "NAMING EXPERIENCES",
+      "COMING SOON",
+      "COMPANY"
+    ],
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "horizontalOverflow": false,
+    "tapTargets": 17,
+    "smallTapTargets": [
+      {
+        "tag": "A",
+        "text": "Home",
+        "w": 58,
+        "h": 30
+      },
+      {
+        "tag": "A",
+        "text": "About",
+        "w": 44,
+        "h": 21
+      },
+      {
+        "tag": "A",
+        "text": "Pricing",
+        "w": 50,
+        "h": 21
+      },
+      {
+        "tag": "INPUT",
+        "text": "",
+        "w": 177,
+        "h": 21
+      },
+      {
+        "tag": "A",
+        "text": "Baby",
+        "w": 34,
+        "h": 19
+      },
+      {
+        "tag": "A",
+        "text": "Pet",
+        "w": 22,
+        "h": 19
+      },
+      {
+        "tag": "A",
+        "text": "Business",
+        "w": 60,
+        "h": 19
+      },
+      {
+        "tag": "A",
+        "text": "About",
+        "w": 40,
+        "h": 19
+      },
+      {
+        "tag": "A",
+        "text": "Pricing",
+        "w": 47,
+        "h": 19
+      },
+      {
+        "tag": "A",
+        "text": "Privacy Policy",
+        "w": 94,
+        "h": 19
+      }
+    ],
+    "resultCards": 0,
+    "premiumActions": 0,
+    "forms": 1,
+    "bodyChars": 1976,
+    "aboveFoldText": "",
+    "consoleErrors": [],
+    "requestFailures": []
+  },
+  {
+    "viewport": "desktop",
+    "name": "baby-results",
+    "route": "/baby/results?gender=Girl&style=Classic&sound=Soft",
+    "status": 200,
+    "title": "NamEngine Baby Results",
+    "h1": "Here’s what stood out.",
+    "h2s": [
+      "Clara",
+      "Lila",
+      "Mabel",
+      "Nora",
+      "Elise"
+    ],
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "horizontalOverflow": false,
+    "tapTargets": 50,
+    "smallTapTargets": [
+      {
+        "tag": "A",
+        "text": "Home",
+        "w": 58,
+        "h": 30
+      },
+      {
+        "tag": "A",
+        "text": "About",
+        "w": 44,
+        "h": 21
+      },
+      {
+        "tag": "A",
+        "text": "Pricing",
+        "w": 50,
+        "h": 21
+      },
+      {
+        "tag": "A",
+        "text": "Compare favorites",
+        "w": 133,
+        "h": 28
+      },
+      {
+        "tag": "A",
+        "text": "Read disclaimers",
+        "w": 117,
+        "h": 21
+      },
+      {
+        "tag": "A",
+        "text": "Baby",
+        "w": 34,
+        "h": 19
+      },
+      {
+        "tag": "A",
+        "text": "Pet",
+        "w": 22,
+        "h": 19
+      },
+      {
+        "tag": "A",
+        "text": "Business",
+        "w": 60,
+        "h": 19
+      },
+      {
+        "tag": "A",
+        "text": "About",
+        "w": 40,
+        "h": 19
+      },
+      {
+        "tag": "A",
+        "text": "Pricing",
+        "w": 47,
+        "h": 19
+      }
+    ],
+    "resultCards": 8,
+    "premiumActions": 41,
+    "forms": 8,
+    "bodyChars": 2413,
+    "aboveFoldText": "",
+    "consoleErrors": [],
+    "requestFailures": []
+  },
+  {
+    "viewport": "desktop",
+    "name": "pet-results",
+    "route": "/pet/results?pet_type=Dog&style=Playful&vibe=Friendly",
+    "status": 200,
+    "title": "NamEngine Pet Results",
+    "h1": "Pet names shaped from your taste.",
+    "h2s": [
+      "Bingo",
+      "Sunny",
+      "Zuzu",
+      "Ziggy",
+      "Clover"
+    ],
+    "scrollWidth": 1450,
+    "clientWidth": 1440,
+    "horizontalOverflow": true,
+    "tapTargets": 50,
+    "smallTapTargets": [
+      {
+        "tag": "A",
+        "text": "Home",
+        "w": 58,
+        "h": 30
+      },
+      {
+        "tag": "A",
+        "text": "About",
+        "w": 44,
+        "h": 21
+      },
+      {
+        "tag": "A",
+        "text": "Pricing",
+        "w": 50,
+        "h": 21
+      },
+      {
+        "tag": "A",
+        "text": "Bingo",
+        "w": 95,
+        "h": 41
+      },
+      {
+        "tag": "A",
+        "text": "Sunny",
+        "w": 106,
+        "h": 41
+      },
+      {
+        "tag": "A",
+        "text": "Zuzu",
+        "w": 84,
+        "h": 41
+      },
+      {
+        "tag": "A",
+        "text": "Ziggy",
+        "w": 95,
+        "h": 41
+      },
+      {
+        "tag": "A",
+        "text": "Clover",
+        "w": 108,
+        "h": 41
+      },
+      {
+        "tag": "A",
+        "text": "Honey",
+        "w": 108,
+        "h": 41
+      },
+      {
+        "tag": "A",
+        "text": "Buddy",
+        "w": 107,
+        "h": 41
+      }
+    ],
+    "resultCards": 8,
+    "premiumActions": 49,
+    "forms": 8,
+    "bodyChars": 2789,
+    "aboveFoldText": "",
+    "consoleErrors": [],
+    "requestFailures": []
+  },
+  {
+    "viewport": "desktop",
+    "name": "business-results",
+    "route": "/business/results?business_description=Premium%20recovery%20studio&industry=Wellness&audience=Premium%20clients&style=Clear%20and%20credible",
+    "status": 200,
+    "title": "NamEngine Business Results",
+    "h1": "Business names shaped from your taste.",
+    "h2s": [
+      "Elevate Recovery",
+      "LuxeRevive",
+      "Serenova Recovery",
+      "Pure Haven Studio",
+      "RevitaCore Studio"
+    ],
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "horizontalOverflow": false,
+    "tapTargets": 50,
+    "smallTapTargets": [
+      {
+        "tag": "A",
+        "text": "Home",
+        "w": 58,
+        "h": 30
+      },
+      {
+        "tag": "A",
+        "text": "About",
+        "w": 44,
+        "h": 21
+      },
+      {
+        "tag": "A",
+        "text": "Pricing",
+        "w": 50,
+        "h": 21
+      },
+      {
+        "tag": "A",
+        "text": "LuxeRevive",
+        "w": 162,
+        "h": 35
+      },
+      {
+        "tag": "A",
+        "text": "PrimeRestore",
+        "w": 190,
+        "h": 35
+      },
+      {
+        "tag": "A",
+        "text": "Read disclaimers",
+        "w": 117,
+        "h": 21
+      },
+      {
+        "tag": "A",
+        "text": "Baby",
+        "w": 34,
+        "h": 19
+      },
+      {
+        "tag": "A",
+        "text": "Pet",
+        "w": 22,
+        "h": 19
+      },
+      {
+        "tag": "A",
+        "text": "Business",
+        "w": 60,
+        "h": 19
+      },
+      {
+        "tag": "A",
+        "text": "About",
+        "w": 40,
+        "h": 19
+      }
+    ],
+    "resultCards": 8,
+    "premiumActions": 49,
+    "forms": 8,
+    "bodyChars": 3084,
+    "aboveFoldText": "",
+    "consoleErrors": [],
+    "requestFailures": []
+  }
+]

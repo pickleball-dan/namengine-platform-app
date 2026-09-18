@@ -1,0 +1,57 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Readable Intake Review</title><style>
+    body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;margin:24px;background:#f7f4ee;color:#172033;}
+    h1{margin:0 0 8px;font-size:28px}.note{max-width:880px;line-height:1.45;margin:0 0 20px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:24px}.card{background:white;border:1px solid #ddd4c8;border-radius:18px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.06)}h2{font-size:18px;margin:0 0 10px}pre{white-space:pre-wrap;background:#f3f0ea;padding:10px;border-radius:10px;font-size:12px}img{display:block;width:390px;max-width:100%;height:auto;border-radius:12px;border:1px solid #e4ddd3;background:white;margin:auto;}
+  </style></head><body><h1>Readable intake review: Skip → Next</h1><p class="note">Readable viewport/cropped review only — no full-page mobile skyscraper screenshots. Baby guided text field shows Skip while empty, Next after text. Pet/Business shown only as current grouped intake surfaces.</p><div class="grid">
+    <section class="card">
+      <h2>Baby empty text field: button remains Skip</h2>
+      <pre>{
+  "question": "Sibling, surname, or family context",
+  "questionId": "family_context",
+  "value": "",
+  "button": "Skip",
+  "actionState": "skip"
+}</pre>
+      <img src="01-baby-empty-skip-readable.png" alt="Baby empty text field: button remains Skip">
+    </section>
+
+    <section class="card">
+      <h2>Baby typed text field: button changes to Next</h2>
+      <pre>{
+  "question": "Sibling, surname, or family context",
+  "questionId": "family_context",
+  "value": "Last name Parker; we like soft classic names.",
+  "button": "Next",
+  "actionState": "next"
+}</pre>
+      <img src="02-baby-typed-next-readable.png" alt="Baby typed text field: button changes to Next">
+    </section>
+
+    <section class="card">
+      <h2>After Enter: moves to next question</h2>
+      <pre>{
+  "question": "Tell us what matters",
+  "questionId": "notes",
+  "value": "",
+  "button": "Skip",
+  "actionState": "skip"
+}</pre>
+      <img src="03-baby-after-enter-readable.png" alt="After Enter: moves to next question">
+    </section>
+
+    <section class="card">
+      <h2>Pet current grouped intake surface</h2>
+      <pre>{
+  "submit": "Generate Pet Names",
+  "hasPerQuestionSkip": false
+}</pre>
+      <img src="pet-grouped-intake-readable.png" alt="Pet current grouped intake surface">
+    </section>
+
+    <section class="card">
+      <h2>Business current grouped intake surface</h2>
+      <pre>{
+  "submit": "Continue",
+  "hasPerQuestionSkip": false
+}</pre>
+      <img src="business-grouped-intake-readable.png" alt="Business current grouped intake surface">
+    </section></div></body></html>

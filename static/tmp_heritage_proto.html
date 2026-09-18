@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Heritage Search — Intake Prototype</title>
+  <!-- Real platform CSS from local server -->
+  <link rel="stylesheet" href="http://127.0.0.1:5200/static/css/platform.css">
+  <style>
+    /* Heritage search additions — sits on top of real platform CSS */
+    .heritage-search-wrap {
+      position: relative;
+      margin-top: clamp(22px, 4vh, 34px);
+      margin-bottom: 14px;
+    }
+    .heritage-search-icon {
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #9399a7;
+      font-size: 16px;
+      pointer-events: none;
+      line-height: 1;
+    }
+    .heritage-search-input {
+      width: 100%;
+      min-height: 56px;
+      padding: 15px 44px 15px 46px;
+      color: #29344f;
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: 500;
+      background: #fff;
+      border: 1px solid #d6dce7;
+      border-radius: 15px;
+      outline: none;
+      box-shadow: 0 4px 14px rgba(41,52,79,.04);
+      transition: border-color 180ms, box-shadow 180ms;
+      -webkit-appearance: none;
+    }
+    .heritage-search-input::placeholder { color: #b0b8c8; font-weight: 400; }
+    .heritage-search-input:focus {
+      border-color: #8295bb;
+      box-shadow: 0 0 0 4px rgba(125,149,199,.13), 0 7px 20px rgba(41,52,79,.06);
+    }
+    .heritage-clear-btn {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 26px;
+      height: 26px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: #eceef3;
+      border: none;
+      border-radius: 50%;
+      color: #69758a;
+      font-size: 15px;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .heritage-search-wrap.has-value .heritage-clear-btn { display: flex; }
+
+    /* Results label */
+    .heritage-results-label {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #b0b8c8;
+      margin-bottom: 10px;
+      display: none;
+    }
+    .heritage-results-label.visible { display: block; }
+
+    /* No results */
+    .heritage-no-results {
+      grid-column: 1 / -1;
+      padding: 6px 4px;
+      color: #9399a7;
+      font-size: 13px;
+    }
+
+    /* Custom/free-form chip override */
+    .baby-choice.is-custom {
+      border-style: dashed;
+      border-color: #c5cedc;
+      color: #536078;
+    }
+    .baby-choice.is-custom:is(:hover, :focus-visible) { border-style: solid; }
+    .baby-choice.is-custom.is-selected { border-style: solid; }
+    .baby-choice-pencil { font-size: 13px; opacity: .5; flex: 0 0 auto; }
+
+    /* Show all toggle */
+    .heritage-show-all {
+      margin-top: 14px;
+      background: none;
+      border: none;
+      color: #8c7080;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 0;
+      display: inline-block;
+    }
+    .heritage-show-all:hover { color: #202a40; }
+
+    /* Full-width continue */
+    .baby-text-continue.full-width {
+      width: 100%;
+      margin-top: 8px;
+      display: block;
+      text-align: center;
+    }
+
+    /* Debug strip */
+    .debug {
+      margin-top: 16px;
+      padding: 8px 12px;
+      background: rgba(0,0,0,.04);
+      border-radius: 8px;
+      font-size: 11px;
+      color: #9399a7;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body class="vertical-baby baby-interview-enhanced baby-interview-started">
+
+  <div class="baby-conversation" style="display:block; padding: clamp(22px,4vw,44px) clamp(20px,5vw,44px) 40px;">
+
+    <div class="baby-question-stage">
+      <div class="baby-question is-active" style="display:block; animation:none;">
+
+        <p class="baby-question-kicker">
+          About your family <span class="baby-kicker-heart" aria-hidden="true"></span>
+        </p>
+
+        <div class="baby-question-heading">
+          <h2>What's your cultural or family heritage?</h2>
+          <span class="baby-question-status">Optional</span>
+        </div>
+
+        <p class="baby-optional-help" style="margin-top:8px; color:#9399a7; font-size:11px; font-weight:600;">
+          Answering helps us shape more personal names.
+        </p>
+
+        <!-- ── Heritage search ── -->
+        <div class="heritage-search-wrap" id="searchWrap">
+          <span class="heritage-search-icon" aria-hidden="true">🔍</span>
+          <input
+            type="text"
+            class="heritage-search-input"
+            id="searchInput"
+            placeholder="e.g. Irish, Sudanese, Basque…"
+            autocomplete="off"
+            autocorrect="off"
+            spellcheck="false"
+          >
+          <button class="heritage-clear-btn" id="clearBtn" type="button" aria-label="Clear">×</button>
+        </div>
+
+        <div class="heritage-results-label" id="resultsLabel">Matching</div>
+
+        <!-- Same class as real intake choice list -->
+        <div class="baby-choice-list" id="chips" role="listbox" aria-label="Heritage options"
+             style="max-height: min(42vh, 340px);">
+        </div>
+
+        <button class="heritage-show-all" id="showAllBtn" type="button">Show all 50 →</button>
+
+        <!-- Actions: Back + No preference -->
+        <div class="baby-question-actions">
+          <button type="button" class="baby-back-inline">← Back</button>
+          <button type="button" class="baby-skip" id="noPrefBtn">No preference</button>
+        </div>
+
+        <!-- Continue — full width -->
+        <button class="baby-text-continue full-width" id="continueBtn" type="button" disabled>
+          Continue
+        </button>
+
+        <div class="debug" id="debug">value: —</div>
+
+      </div>
+    </div>
+
+  </div>
+
+<script>
+  const ALL_HERITAGES = [
+    "African", "African American", "Arab / Middle Eastern", "Argentinian",
+    "Armenian", "Australian", "Bangladeshi", "Brazilian",
+    "Cambodian", "Caribbean", "Chinese", "Cuban",
+    "Danish", "Dutch", "English", "Ethiopian",
+    "Filipino", "French", "German", "Ghanaian",
+    "Greek", "Haitian", "Indian", "Indonesian",
+    "International / blended", "Irish", "Italian", "Jamaican",
+    "Japanese", "Jewish", "Korean", "Mexican",
+    "Native American / Indigenous", "Nigerian", "Norwegian", "Pakistani",
+    "Persian / Iranian", "Polish", "Portuguese", "Puerto Rican",
+    "Russian", "Scottish", "South African", "Spanish",
+    "Sri Lankan", "Swedish", "Thai", "Turkish",
+    "Ukrainian", "Vietnamese", "Welsh",
+  ];
+
+  const DEFAULT_SHOW = [
+    "English", "Irish", "German", "Italian", "Mexican",
+    "French", "African American", "Chinese", "Indian", "Jewish",
+    "Polish", "Japanese",
+  ];
+
+  const searchInput  = document.getElementById("searchInput");
+  const searchWrap   = document.getElementById("searchWrap");
+  const clearBtn     = document.getElementById("clearBtn");
+  const chips        = document.getElementById("chips");
+  const showAllBtn   = document.getElementById("showAllBtn");
+  const noPrefBtn    = document.getElementById("noPrefBtn");
+  const continueBtn  = document.getElementById("continueBtn");
+  const debug        = document.getElementById("debug");
+  const resultsLabel = document.getElementById("resultsLabel");
+
+  let selected = "";
+  let expanded = false;
+
+  function commit(val) {
+    selected = val;
+    continueBtn.disabled = !val;
+    debug.textContent = "value: " + (val || "—");
+    if (val && val !== "No preference") noPrefBtn.classList.remove("is-selected");
+    render();
+  }
+
+  function render() {
+    const q    = searchInput.value.trim();
+    const qLow = q.toLowerCase();
+    const searching = q.length > 0;
+
+    let list;
+    if (searching) {
+      list = ALL_HERITAGES.filter(h => h.toLowerCase().includes(qLow));
+    } else if (expanded) {
+      list = ALL_HERITAGES;
+    } else {
+      list = DEFAULT_SHOW;
+    }
+
+    resultsLabel.classList.toggle("visible", searching && list.length > 0);
+    showAllBtn.style.display = searching ? "none" : "inline-block";
+    showAllBtn.textContent   = expanded ? "Show fewer ↑" : "Show all 50 →";
+
+    let html = "";
+
+    if (list.length === 0 && searching) {
+      html = `<div class="heritage-no-results">No matches — continue to use <strong>"${q}"</strong></div>`;
+    } else {
+      list.forEach(item => {
+        const sel = selected === item ? " is-selected" : "";
+        html += `
+          <button class="baby-choice${sel}" type="button" data-val="${item}" role="option" aria-selected="${selected===item}">
+            <span class="baby-choice-copy"><strong>${item}</strong></span>
+            <span class="baby-choice-chevron" aria-hidden="true">›</span>
+            <span class="baby-choice-mark" aria-hidden="true">✓</span>
+          </button>`;
+      });
+    }
+
+    // Free-form chip when typed value not in list
+    if (searching && q && !ALL_HERITAGES.some(h => h.toLowerCase() === qLow)) {
+      const sel = selected === q ? " is-selected" : "";
+      html += `
+        <button class="baby-choice is-custom${sel}" type="button" data-val="${q}" role="option" aria-selected="${selected===q}">
+          <span class="baby-choice-copy"><strong>Use "${q}"</strong></span>
+          <span class="baby-choice-pencil" aria-hidden="true">✏</span>
+          <span class="baby-choice-mark" aria-hidden="true">✓</span>
+        </button>`;
+    }
+
+    chips.innerHTML = html;
+
+    chips.querySelectorAll(".baby-choice").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const val = btn.dataset.val;
+        if (selected === val) {
+          commit("");
+          if (!btn.classList.contains("is-custom")) {
+            searchInput.value = "";
+            searchWrap.classList.remove("has-value");
+          }
+        } else {
+          if (!btn.classList.contains("is-custom")) {
+            searchInput.value = val;
+            searchWrap.classList.add("has-value");
+          }
+          commit(val);
+        }
+      });
+    });
+  }
+
+  searchInput.addEventListener("input", () => {
+    const v = searchInput.value.trim();
+    searchWrap.classList.toggle("has-value", v.length > 0);
+    if (selected && selected !== v) {
+      selected = "";
+      continueBtn.disabled = true;
+      debug.textContent = "value: —";
+      noPrefBtn.classList.remove("is-selected");
+    }
+    render();
+  });
+
+  searchInput.addEventListener("keydown", e => {
+    if (e.key !== "Enter") return;
+    e.preventDefault();
+    const q    = searchInput.value.trim();
+    if (!q) return;
+    const exact  = ALL_HERITAGES.find(h => h.toLowerCase() === q.toLowerCase());
+    const single = ALL_HERITAGES.filter(h => h.toLowerCase().includes(q.toLowerCase()));
+    const val    = exact || (single.length === 1 ? single[0] : q);
+    searchInput.value = val;
+    searchWrap.classList.add("has-value");
+    commit(val);
+  });
+
+  clearBtn.addEventListener("click", () => {
+    searchInput.value = "";
+    searchWrap.classList.remove("has-value");
+    commit("");
+    searchInput.focus();
+  });
+
+  showAllBtn.addEventListener("click", () => {
+    expanded = !expanded;
+    render();
+  });
+
+  noPrefBtn.addEventListener("click", () => {
+    if (selected === "No preference") {
+      noPrefBtn.classList.remove("is-selected");
+      commit("");
+    } else {
+      searchInput.value = "";
+      searchWrap.classList.remove("has-value");
+      noPrefBtn.classList.add("is-selected");
+      selected = "No preference";
+      continueBtn.disabled = false;
+      debug.textContent = "value: No preference";
+      render();
+    }
+  });
+
+  continueBtn.addEventListener("click", () => {
+    if (!selected) {
+      const typed = searchInput.value.trim();
+      if (typed) commit(typed);
+    }
+    if (selected) alert(`Continuing with: "${selected}"`);
+  });
+
+  render();
+</script>
+</body>
+</html>

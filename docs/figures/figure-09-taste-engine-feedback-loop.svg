@@ -1,0 +1,290 @@
+<svg viewBox="0 0 1100 2650" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica, Arial, sans-serif" xmlns:c2pa="http://c2pa.org/manifest"><metadata><c2pa:manifest>AAAWgmp1bWIAAAAeanVtZGMycGEAEQAQgAAAqgA4m3EDYzJwYQAAABZcanVtYgAAAEdqdW1kYzJtYQARABCAAACqADibcQN1cm46YzJwYToxODViNmQ1OS0wYzNkLTQwMGMtOTE4MS01M2ZiNDUyMDNiMmQAAAADl2p1bWIAAAApanVtZGMyYXMAEQAQgAAAqgA4m3EDYzJwYS5hc3NlcnRpb25zAAAAALxqdW1iAAAARGp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuaW5ncmVkaWVudC52MwAAAAAYYzJzaKNSdLHVUtC8f8KOen+4mPUAAABwY2JvcqNpZGM6Zm9ybWF0bWltYWdlL3N2Zyt4bWxqaW5zdGFuY2VJRHgseG1wOmlpZDpjZjAwZjIzYy0zNmVlLTQ1ZmQtODlmZi1kOWZiZjc0Yjc1YjdscmVsYXRpb25zaGlwaHBhcmVudE9mAAAB4mp1bWIAAABBanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5hY3Rpb25zLnYyAAAAABhjMnNoBgT0YT6QNtZD5w0HOGIXYQAAAZljYm9yomdhY3Rpb25zgqJmYWN0aW9ua2MycGEub3BlbmVkanBhcmFtZXRlcnOha2luZ3JlZGllbnRzgaJjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFggLLMQPKg5uLLiFXHeRh42Zgzl8kiIJjE+/tvOh3AUJYikZmFjdGlvbngdY29tLmFudGhyb3BpYy5jbGF1ZGUucHJvdmlkZWRqcGFyYW1ldGVyc6F4H2NvbS5hbnRocm9waWMub3JpZ2luLWNvbmZpZGVuY2VndW5rbm93bmtkZXNjcmlwdGlvbnhmQ2xhdWRlIHByb3ZpZGVkIHRoaXMgZmlsZSBhdCB0aGUgcmVxdWVzdCBvZiBhIHVzZXIgYW5kIG1heSBoYXZlIGNyZWF0ZWQgb3IgbW9kaWZpZWQgdGhlIGZpbGUgY29udGVudHMubXNvZnR3YXJlQWdlbnShZG5hbWVmQ2xhdWRlcmFsbEFjdGlvbnNJbmNsdWRlZPUAAADIanVtYgAAAEBqdW1kY2JvcgARABCAAACqADibcRNjMnBhLmhhc2guZGF0YQAAAAAYYzJzaDze+l9RFjAtHAeln4KGlFwAAACAY2JvcqVjYWxnZnNoYTI1NmNwYWRNAAAAAAAAAAAAAAAAAGRoYXNoWCDs5NNMT8srKgaJWbMEmE0mka6G3+vWF9mgqszl/4mlzWRuYW1lbmp1bWJmIG1hbmlmZXN0amV4Y2x1c2lvbnOBomVzdGFydBiqZmxlbmd0aBkeBAAAAj5qdW1iAAAAJ2p1bWRjMmNsABEAEIAAAKoAOJtxA2MycGEuY2xhaW0udjIAAAACD2Nib3KlY2FsZ2ZzaGEyNTZpc2lnbmF0dXJleE1zZWxmI2p1bWJmPS9jMnBhL3VybjpjMnBhOjE4NWI2ZDU5LTBjM2QtNDAwYy05MTgxLTUzZmI0NTIwM2IyZC9jMnBhLnNpZ25hdHVyZWppbnN0YW5jZUlEeCx4bXA6aWlkOjM1NzRlNDFjLTU3NjEtNDJhZS05YzBhLWYyYzA1ODE3Y2M1OHJjcmVhdGVkX2Fzc2VydGlvbnODomN1cmx4LXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaW5ncmVkaWVudC52M2RoYXNoWCAssxA8qDm4suIVcd5GHjZmDOXySIgmMT7+286HcBQliKJjdXJseCpzZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmFjdGlvbnMudjJkaGFzaFggGzd0xkwW4VIC1ttpxalLtgBA4kPON6+yh8v3BpbAu+KiY3VybHgpc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5oYXNoLmRhdGFkaGFzaFggAj5vFONr1FpnJXGC1+Oc5tyHUAG8bdFMsVrpLUUNcrF0Y2xhaW1fZ2VuZXJhdG9yX2luZm+jZG5hbWVvQW50aHJvcGljIEZpbGVzZ3ZlcnNpb25lMS4wLjBrc3BlY1ZlcnNpb25lMi40LjAAABA4anVtYgAAAChqdW1kYzJjcwARABCAAACqADibcQNjMnBhLnNpZ25hdHVyZQAAABAIY2JvctKEWQISogEmGCFZAgowggIGMIIBjaADAgECAhRA5aAK7sI50L64g/oGQgU9Z1UTADAKBggqhkjOPQQDAzBJMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEuMCwGA1UEAxMlQW50aHJvcGljIENvbnRlbnQgQ3JlZGVudGlhbHMgUm9vdCBDQTAeFw0yNjA4MDcxODQzNTZaFw0yODA4MDYxOTQzNTZaMEQxFzAVBgNVBAoTDkFudGhyb3BpYywgUEJDMSkwJwYDVQQDEyBBbnRocm9waWMgQ2xhdWRlIENvbnRlbnQgU2lnbmluZzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJh6CmvLUBgFFNU0vUKlOVtE6djd17L5SuwX0LemFisBM3dkd/3cyjxFA3Qo5S46fX0/ihY0VZ7mfb9KF703t5OjWDBWMA4GA1UdDwEB/wQEAwIHgDAVBgNVHSUEDjAMBgorBgEEAYPoXgIBMAwGA1UdEwEB/wQCMAAwHwYDVR0jBBgwFoAUzlHiBIFOZFsj+OPEz5o+nMHXXMIwCgYIKoZIzj0EAwMDZwAwZAIwMXMdFJ4BetLLVY7ORuE9noqbbAZOZn/aArXyTwFAZfKrPzxF2vPoJNf1+UCdg1XGAjBwX1zd9WGqYkqmL5SFqw1QySjr1zJfpJM9+1rdDwSPLMOPOjKuiXjoU/pUUeG9RwmhY3BhZFkNngAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPZYQHEbm9sKymsRed1qYv6DVyfUd+p3MkA2tOisTsAJYYe0IX9D8TBycNBEtwBdc/ejpwHM8BtKJ+r1YaEOaQMtxbo=</c2pa:manifest></metadata>
+  <defs>
+    <marker id="arrow9" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="black"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1100" height="2650" fill="white"/>
+  <text x="550" y="30" font-size="16" text-anchor="middle" font-weight="bold">FIG. 9</text>
+  <text x="550" y="50" font-size="12" text-anchor="middle" font-style="italic">Taste Engine Feedback Loop (Advanced Embodiment)</text>
+
+  <!-- ============ 900 ROUND 1 ============ -->
+  <rect x="60" y="75" width="980" height="1100" fill="none" stroke="black" stroke-width="3"/>
+  <text x="550" y="105" font-size="17" text-anchor="middle" font-weight="bold">ROUND 1</text>
+  <text x="1010" y="95" font-size="12" font-style="italic">900</text>
+
+  <!-- 902/904/906 top row -->
+  <rect x="90" y="125" width="180" height="55" fill="none" stroke="black" stroke-width="1.5"/>
+  <text x="180" y="157" font-size="13" text-anchor="middle">Intake</text>
+  <text x="260" y="140" font-size="10" font-style="italic">902</text>
+  <line x1="270" y1="152" x2="305" y2="152" stroke="black" stroke-width="2" marker-end="url(#arrow9)"/>
+
+  <rect x="305" y="125" width="220" height="55" fill="none" stroke="black" stroke-width="1.5"/>
+  <text x="415" y="157" font-size="13" text-anchor="middle">CNI Mapper</text>
+  <text x="510" y="140" font-size="10" font-style="italic">904</text>
+  <text x="415" y="172" font-size="9" text-anchor="middle" font-style="italic">(FIG. 1: 120 / FIG. 2: 250)</text>
+  <line x1="525" y1="152" x2="560" y2="152" stroke="black" stroke-width="2" marker-end="url(#arrow9)"/>
+
+  <rect x="560" y="125" width="260" height="55" fill="none" stroke="black" stroke-width="1.5"/>
+  <text x="690" y="152" font-size="13" text-anchor="middle" font-weight="bold">Taste State: initial</text>
+  <text x="805" y="140" font-size="10" font-style="italic">906</text>
+
+  <line x1="690" y1="180" x2="690" y2="215" stroke="black" stroke-width="2" marker-end="url(#arrow9)"/>
+
+  <!-- 910 Exploration Planner -->
+  <rect x="440" y="215" width="500" height="110" fill="none" stroke="black" stroke-width="2"/>
+  <text x="690" y="243" font-size="14" text-anchor="middle" font-weight="bold">EXPLORATION PLANNER</text>
+  <text x="920" y="235" font-size="11" font-style="italic">910</text>
+  <text x="460" y="265" font-size="12">Reads: uncertainty, unexplored territories,</text>
+  <text x="460" y="285" font-size="12">confidence levels</text>
+  <text x="460" y="308" font-size="10" font-style="italic">(consumes FIG. 3: 356 exploration-planner input)</text>
+
+  <line x1="690" y1="325" x2="690" y2="360" stroke="black" stroke-width="2" marker-end="url(#arrow9)"/>
+
+  <!-- 912 Exploration Strategy -->
+  <rect x="440" y="360" width="500" height="110" fill="none" stroke="black" stroke-width="2"/>
+  <text x="690" y="388" font-size="14" text-anchor="middle" font-weight="bold">EXPLORATION STRATEGY</text>
+  <text x="920" y="380" font-size="11" font-style="italic">912</text>
+  <text x="460" y="410" font-size="12">&#8226; Target dimensions</text>
+  <text x="460" y="430" font-size="12">&#8226; Exploration ratio</text>
+  <text x="460" y="450" font-size="12">&#8226; Probe directives</text>
+
+  <line x1="690" y1="470" x2="690" y2="505" stroke="black" stroke-width="2" marker-end="url(#arrow9)"/>
+
+  <!-- 914/916 Brief Constructor + Generation Router -->
+  <rect x="330" y="505" width="260" height="60" fill="none" stroke="black" stroke-width="1.5"/>
+  <text x="460" y="540" font-size="13" text-anchor="middle">Brief Constructor</text>
+  <text x="575" y="520" font-size="10" font-style="italic">914</text>
+  <line x1="590" y1="535" x2="625" y2="535" stroke="black" stroke-width="2" marker-end="url(#arrow9)"/>
+
+  <rect x="625" y="505" width="260" height="60" fill="none" stroke="black" stroke-width="1.5"/>
+  <text x="755" y="540" font-size="13" text-anchor="middle">Generation Router</text>
+  <text x="870" y="520" font-size="10" font-style="italic">916</text>
+  <text x="755" y="558" font-size="9" text-anchor="middle" font-style="italic">(FIG. 4: 410)</text>
+
+  <line x1="690" y1="565" x2="690" y2="600" stroke="black" stroke-width="2" marker-end="url(#arrow9)"/>
+
+  <!-- 918 Multi-Provider AI -->
+  <rect x="440" y="600" width="500" height="55" fill="none" stroke="black" stroke-width="1.5"/>
+  <text x="690" y="633" font-size="13" text-anchor="middle">Multi-Provider AI</text>
+  <text x="920" y="620" font-size="10" font-style="italic">918</text>
+
+  <line x1="690" y1="655" x2="690" y2="690" stroke="black" stroke-width="2" marker-end="url(#arrow9)"/>
+
+  <!-- 920 Quality Adapter Scoring -->
+  <rect x="440" y="690" width="500" height="80" fill="none" stroke="black" stroke-width="1.5"/>
+  <text x="690" y="720" font-size="13" text-anchor="middle" font-weight="bold">Quality Adapter Scoring</text>
+  <text x="920" y="710" font-size="10" font-style="italic">920</text>
+  <text x="690" y="742" font-size="11" text-anchor="middle">(Taste State + Exploration Strategy)</text>
+  <text x="690" y="760" font-size="9" text-anchor="middle" font-style="italic">(FIG. 5: 520)</text>
+
+  <line x1="690" y1="770" x2="690" y2="805" stroke="black" stroke-width="2" marker-end="url(#arrow9)"/>
+
+  <!-- 922 Candidate Names -> User -->
+  <rect x="440" y="805" width="500" height="55" fill="none" stroke="black" stroke-width="1.5"/>
+  <text x="690" y="838" font-size="13" text-anchor="middle">Candidate Names &#8594; User</text>
+  <text x="920" y="825" font-size="10" font-style="italic">922</text>
+
+  <line x1="690" y1="860" x2="690" y2="895" stroke="black" stroke-width="2" marker-end="url(#arrow9)"/>
+
+  <!-- 924 Reaction Capture -->
+  <rect x="440" y="895" width="500" height="80" fill="none" stroke="black" stroke-width="1.5"/>
+  <text x="690" y="923" font-size="13" text-anchor="middle" font-weight="bold">Reaction Capture</text>
+  <text x="920" y="915" font-size="10" font-style="italic">924</text>
+  <text x="690" y="945" font-size="11" text-anchor="middle">Like / Dislike &#183; Strong Like / Strong Dislike</text>
+  <text x="690" y="962" font-size="9" text-anchor="middle" font-style="italic">(FIG. 1: 160)</text>
+
+  <line x1="690" y1="975" x2="690" y2="1010" stroke="black" stroke-width="2" marker-end="url(#arrow9)"/>
+
+  <!-- 926 Evidence Extractor -->
+  <rect x="380" y="1010" width="620" height="100" fill="none" stroke="black" stroke-width="2"/>
+  <text x="690" y="1038" font-size="14" text-anchor="middle" font-weight="bold">EVIDENCE EXTRACTOR</text>
+  <text x="985" y="1030" font-size="11" font-style="italic">926</text>
+  <text x="400" y="1060" font-size="12">&#8226; Extract phonetic signals</text>
+  <text x="400" y="1080" font-size="12">&#8226; Extract style/territory markers</text>
+  <text x="400" y="1100" font-size="12">&#8226; Detect contradictions</text>
+
+  <line x1="690" y1="1110" x2="690" y2="1140" stroke="black" stroke-width="2.5" marker-end="url(#arrow9)"/>
+
+  <!-- 928 Taste State Update -->
+  <rect x="330" y="1140" width="720" height="30" fill="none" stroke="black" stroke-width="2.5"/>
+  <text x="690" y="1163" font-size="13" text-anchor="middle" font-weight="bold">TASTE STATE UPDATE &#8212; confidence, signals, contradictions, unexplored territory map updated</text>
+  <text x="1035" y="1155" font-size="10" font-style="italic">928</text>
+
+  <!-- Down to Round 2 -->
+  <line x1="550" y1="1175" x2="550" y2="1225" stroke="black" stroke-width="3" marker-end="url(#arrow9)"/>
+
+  <!-- ============ 950 ROUND 2 ============ -->
+  <rect x="60" y="1225" width="980" height="900" fill="none" stroke="black" stroke-width="3"/>
+  <text x="550" y="1255" font-size="17" text-anchor="middle" font-weight="bold">ROUND 2</text>
+  <text x="1010" y="1245" font-size="12" font-style="italic">950</text>
+  <text x="550" y="1273" font-size="10" text-anchor="middle" font-style="italic">(shares the same internal flow structure as Round 1)</text>
+
+  <!-- 952 Updated Taste State -->
+  <rect x="90" y="1290" width="280" height="80" fill="none" stroke="black" stroke-width="2"/>
+  <text x="230" y="1315" font-size="13" text-anchor="middle" font-weight="bold">Updated Taste State</text>
+  <text x="355" y="1305" font-size="10" font-style="italic">952</text>
+  <text x="105" y="1335" font-size="10">higher confidence, resolved</text>
+  <text x="105" y="1350" font-size="10">contradictions, narrowed uncertainty</text>
+
+  <line x1="370" y1="1330" x2="405" y2="1330" stroke="black" stroke-width="2" marker-end="url(#arrow9)"/>
+
+  <!-- 954 Exploration Planner (round 2) -->
+  <rect x="405" y="1290" width="270" height="80" fill="none" stroke="black" stroke-width="2"/>
+  <text x="540" y="1320" font-size="13" text-anchor="middle" font-weight="bold">Exploration Planner</text>
+  <text x="655" y="1310" font-size="10" font-style="italic">954</text>
+  <text x="540" y="1345" font-size="10" text-anchor="middle">(FIG. 9: 910, re-invoked)</text>
+
+  <line x1="675" y1="1330" x2="710" y2="1330" stroke="black" stroke-width="2" marker-end="url(#arrow9)"/>
+
+  <!-- 956 New Exploration Strategy -->
+  <rect x="710" y="1290" width="270" height="80" fill="none" stroke="black" stroke-width="2"/>
+  <text x="845" y="1320" font-size="13" text-anchor="middle" font-weight="bold">New Exploration</text>
+  <text x="845" y="1338" font-size="13" text-anchor="middle" font-weight="bold">Strategy</text>
+  <text x="960" y="1310" font-size="10" font-style="italic">956</text>
+
+  <line x1="845" y1="1370" x2="845" y2="1405" stroke="black" stroke-width="2" marker-end="url(#arrow9)"/>
+  <line x1="845" y1="1405" x2="540" y2="1405" stroke="black" stroke-width="2"/>
+  <line x1="540" y1="1405" x2="540" y2="1435" stroke="black" stroke-width="2" marker-end="url(#arrow9)"/>
+
+  <!-- 958 Brief Constructor (round2, excludes round1 names) -->
+  <rect x="280" y="1435" width="300" height="70" fill="none" stroke="black" stroke-width="1.5"/>
+  <text x="430" y="1462" font-size="13" text-anchor="middle">Brief Constructor</text>
+  <text x="430" y="1482" font-size="10" text-anchor="middle" font-style="italic">(excludes Round 1 names)</text>
+  <text x="565" y="1452" font-size="10" font-style="italic">958</text>
+
+  <line x1="580" y1="1470" x2="615" y2="1470" stroke="black" stroke-width="2" marker-end="url(#arrow9)"/>
+
+  <!-- Generation Router (round2) -->
+  <rect x="615" y="1435" width="280" height="70" fill="none" stroke="black" stroke-width="1.5"/>
+  <text x="755" y="1462" font-size="13" text-anchor="middle">Generation Router</text>
+  <text x="755" y="1482" font-size="10" text-anchor="middle" font-style="italic">(FIG. 9: 916)</text>
+
+  <line x1="530" y1="1505" x2="530" y2="1535" stroke="black" stroke-width="2" marker-end="url(#arrow9)"/>
+
+  <!-- Multi-Provider AI (round2, condensed) -->
+  <rect x="330" y="1535" width="440" height="55" fill="none" stroke="black" stroke-width="1.5"/>
+  <text x="550" y="1568" font-size="13" text-anchor="middle">Multi-Provider AI</text>
+
+  <line x1="550" y1="1590" x2="550" y2="1620" stroke="black" stroke-width="2" marker-end="url(#arrow9)"/>
+
+  <!-- Quality Adapter Scoring (round2, enriched) -->
+  <rect x="330" y="1620" width="440" height="70" fill="none" stroke="black" stroke-width="1.5"/>
+  <text x="550" y="1650" font-size="13" text-anchor="middle" font-weight="bold">Quality Adapter Scoring</text>
+  <text x="550" y="1670" font-size="11" text-anchor="middle">(enriched Taste State)</text>
+
+  <line x1="550" y1="1690" x2="550" y2="1720" stroke="black" stroke-width="2" marker-end="url(#arrow9)"/>
+
+  <!-- Candidate Names -> User (round2) -->
+  <rect x="330" y="1720" width="440" height="55" fill="none" stroke="black" stroke-width="1.5"/>
+  <text x="550" y="1753" font-size="13" text-anchor="middle">Candidate Names &#8594; User</text>
+
+  <line x1="550" y1="1775" x2="550" y2="1805" stroke="black" stroke-width="2" marker-end="url(#arrow9)"/>
+
+  <!-- condensed: Reaction Capture -> Evidence -> Update -->
+  <rect x="250" y="1805" width="600" height="60" fill="none" stroke="black" stroke-width="2"/>
+  <text x="550" y="1841" font-size="13" text-anchor="middle" font-weight="bold">Reaction Capture &#8594; Evidence Extractor &#8594; Taste State Update</text>
+  <text x="865" y="1825" font-size="10" font-style="italic">(FIG. 9: 924/926/928)</text>
+
+  <!-- loop continuation to round 3, dashed -->
+  <line x1="550" y1="1865" x2="550" y2="1905" stroke="black" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#arrow9)"/>
+  <rect x="330" y="1905" width="440" height="55" fill="none" stroke="black" stroke-width="1.5" stroke-dasharray="6,4"/>
+  <text x="550" y="1938" font-size="13" text-anchor="middle" font-style="italic">Round 3 Exploration Planner...</text>
+  <text x="550" y="1978" font-size="10" text-anchor="middle" font-style="italic">(loop continues; see FIG. 7 for round-count and shortlist convergence)</text>
+
+  <!-- ============ Key Properties companion table ============ -->
+  <text x="550" y="2065" font-size="15" text-anchor="middle" font-weight="bold">KEY PROPERTIES OF THE LOOP</text>
+
+  <g font-size="12">
+    <rect x="90" y="2085" width="270" height="34" fill="none" stroke="black" stroke-width="1.5"/>
+    <rect x="360" y="2085" width="650" height="34" fill="none" stroke="black" stroke-width="1.5"/>
+    <text x="225" y="2107" text-anchor="middle" font-weight="bold">Property</text>
+    <text x="685" y="2107" text-anchor="middle" font-weight="bold">Description</text>
+
+    <rect x="90" y="2119" width="270" height="42" fill="none" stroke="black" stroke-width="1"/>
+    <rect x="360" y="2119" width="650" height="42" fill="none" stroke="black" stroke-width="1"/>
+    <text x="105" y="2145" font-weight="bold">Monotonically richer</text>
+    <text x="375" y="2145">Each round's Taste State is a superset of the prior round's</text>
+
+    <rect x="90" y="2161" width="270" height="42" fill="none" stroke="black" stroke-width="1"/>
+    <rect x="360" y="2161" width="650" height="42" fill="none" stroke="black" stroke-width="1"/>
+    <text x="105" y="2187" font-weight="bold">Adaptive strategy</text>
+    <text x="375" y="2187">Exploration Planner shifts targets each round based on what was learned</text>
+
+    <rect x="90" y="2203" width="270" height="42" fill="none" stroke="black" stroke-width="1"/>
+    <rect x="360" y="2203" width="650" height="42" fill="none" stroke="black" stroke-width="1"/>
+    <text x="105" y="2229" font-weight="bold">Name exclusion</text>
+    <text x="375" y="2229">Prior names excluded from all rounds via session chain linkage</text>
+
+    <rect x="90" y="2245" width="270" height="42" fill="none" stroke="black" stroke-width="1"/>
+    <rect x="360" y="2245" width="650" height="42" fill="none" stroke="black" stroke-width="1"/>
+    <text x="105" y="2271" font-weight="bold">Weighted reactions</text>
+    <text x="375" y="2271">Strong reactions update Taste State with higher evidence weight</text>
+
+    <rect x="90" y="2287" width="270" height="42" fill="none" stroke="black" stroke-width="1"/>
+    <rect x="360" y="2287" width="650" height="42" fill="none" stroke="black" stroke-width="1"/>
+    <text x="105" y="2313" font-weight="bold">Explicit contradictions</text>
+    <text x="375" y="2313">Conflicting evidence stored explicitly, reduces confidence</text>
+
+    <rect x="90" y="2329" width="270" height="42" fill="none" stroke="black" stroke-width="1"/>
+    <rect x="360" y="2329" width="650" height="42" fill="none" stroke="black" stroke-width="1"/>
+    <text x="105" y="2355" font-weight="bold">Convergence</text>
+    <text x="375" y="2355">Taste State converges toward a precise preference model over rounds</text>
+  </g>
+
+  <!-- ============ Taste State Fields companion table ============ -->
+  <text x="550" y="2420" font-size="15" text-anchor="middle" font-weight="bold">TASTE STATE FIELDS (reference)</text>
+
+  <g font-size="11">
+    <rect x="90" y="2440" width="260" height="30" fill="none" stroke="black" stroke-width="1.5"/>
+    <rect x="350" y="2440" width="110" height="30" fill="none" stroke="black" stroke-width="1.5"/>
+    <rect x="460" y="2440" width="550" height="30" fill="none" stroke="black" stroke-width="1.5"/>
+    <text x="220" y="2460" text-anchor="middle" font-weight="bold">Field</text>
+    <text x="405" y="2460" text-anchor="middle" font-weight="bold">Type</text>
+    <text x="735" y="2460" text-anchor="middle" font-weight="bold">Description</text>
+
+    <rect x="90" y="2470" width="260" height="26" fill="none" stroke="black" stroke-width="1"/>
+    <rect x="350" y="2470" width="110" height="26" fill="none" stroke="black" stroke-width="1"/>
+    <rect x="460" y="2470" width="550" height="26" fill="none" stroke="black" stroke-width="1"/>
+    <text x="100" y="2488" font-family="monospace" font-size="10">preference_dimensions</text>
+    <text x="405" y="2488" text-anchor="middle">dict</text>
+    <text x="470" y="2488">Named dimensions with inferred values</text>
+
+    <rect x="90" y="2496" width="260" height="26" fill="none" stroke="black" stroke-width="1"/>
+    <rect x="350" y="2496" width="110" height="26" fill="none" stroke="black" stroke-width="1"/>
+    <rect x="460" y="2496" width="550" height="26" fill="none" stroke="black" stroke-width="1"/>
+    <text x="100" y="2514" font-family="monospace" font-size="10">confidence_levels</text>
+    <text x="405" y="2514" text-anchor="middle">dict</text>
+    <text x="470" y="2514">0.0&#8211;1.0 float per dimension</text>
+
+    <rect x="90" y="2522" width="260" height="26" fill="none" stroke="black" stroke-width="1"/>
+    <rect x="350" y="2522" width="110" height="26" fill="none" stroke="black" stroke-width="1"/>
+    <rect x="460" y="2522" width="550" height="26" fill="none" stroke="black" stroke-width="1"/>
+    <text x="100" y="2540" font-family="monospace" font-size="10">uncertainty_flags</text>
+    <text x="405" y="2540" text-anchor="middle">dict</text>
+    <text x="470" y="2540">Boolean per dimension</text>
+
+    <rect x="90" y="2548" width="260" height="26" fill="none" stroke="black" stroke-width="1"/>
+    <rect x="350" y="2548" width="110" height="26" fill="none" stroke="black" stroke-width="1"/>
+    <rect x="460" y="2548" width="550" height="26" fill="none" stroke="black" stroke-width="1"/>
+    <text x="100" y="2566" font-family="monospace" font-size="10">contradiction_records</text>
+    <text x="405" y="2566" text-anchor="middle">list</text>
+    <text x="470" y="2566">Pairs of conflicting reaction signals</text>
+
+    <rect x="90" y="2574" width="260" height="26" fill="none" stroke="black" stroke-width="1"/>
+    <rect x="350" y="2574" width="110" height="26" fill="none" stroke="black" stroke-width="1"/>
+    <rect x="460" y="2574" width="550" height="26" fill="none" stroke="black" stroke-width="1"/>
+    <text x="100" y="2592" font-family="monospace" font-size="10">evidence_counters</text>
+    <text x="405" y="2592" text-anchor="middle">dict</text>
+    <text x="470" y="2592">Confirming vs. disconfirming count per dimension</text>
+
+    <rect x="90" y="2600" width="260" height="26" fill="none" stroke="black" stroke-width="1"/>
+    <rect x="350" y="2600" width="110" height="26" fill="none" stroke="black" stroke-width="1"/>
+    <rect x="460" y="2600" width="550" height="26" fill="none" stroke="black" stroke-width="1"/>
+    <text x="100" y="2618" font-family="monospace" font-size="9">positive_signal_inventory</text>
+    <text x="405" y="2618" text-anchor="middle">list</text>
+    <text x="470" y="2618">Phoneme patterns, style markers from liked names</text>
+  </g>
+
+</svg>

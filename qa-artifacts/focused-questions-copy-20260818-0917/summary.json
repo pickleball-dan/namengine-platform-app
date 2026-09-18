@@ -1,0 +1,74 @@
+[
+  {
+    "viewport": "desktop",
+    "name": "baby-start",
+    "route": "/baby",
+    "status": 200,
+    "consoleErrors": [],
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "horizontalOverflow": false,
+    "heroNote": "Start with a few focused questions. Your first preview list is free.",
+    "h1": "Let’s discover your child’s name together."
+  },
+  {
+    "viewport": "desktop",
+    "name": "pet-start",
+    "route": "/pet",
+    "status": 200,
+    "consoleErrors": [],
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "horizontalOverflow": false,
+    "heroNote": "Start with a few focused questions. Your first preview list is free.",
+    "h1": "Let’s find the name that feels like them."
+  },
+  {
+    "viewport": "desktop",
+    "name": "business-start",
+    "route": "/business",
+    "status": 200,
+    "consoleErrors": [],
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "horizontalOverflow": false,
+    "heroNote": "Start with a few focused questions. Your first preview list is free.",
+    "h1": "Let’s find a name your business can grow into."
+  },
+  {
+    "viewport": "mobile",
+    "name": "baby-start",
+    "route": "/baby",
+    "status": 200,
+    "consoleErrors": [],
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "horizontalOverflow": false,
+    "heroNote": "Start with a few focused questions. Your first preview list is free.",
+    "h1": "Let’s discover your child’s name together."
+  },
+  {
+    "viewport": "mobile",
+    "name": "pet-start",
+    "route": "/pet",
+    "status": 200,
+    "consoleErrors": [],
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "horizontalOverflow": false,
+    "heroNote": "Start with a few focused questions. Your first preview list is free.",
+    "h1": "Let’s find the name that feels like them."
+  },
+  {
+    "viewport": "mobile",
+    "name": "business-start",
+    "route": "/business",
+    "status": 200,
+    "consoleErrors": [],
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "horizontalOverflow": false,
+    "heroNote": "Start with a few focused questions. Your first preview list is free.",
+    "h1": "Let’s find a name your business can grow into."
+  }
+]

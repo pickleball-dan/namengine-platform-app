@@ -1,0 +1,54 @@
+{
+  "children": [
+    {
+      "object": "block",
+      "type": "divider",
+      "divider": {}
+    },
+    {
+      "object": "block",
+      "type": "heading_2",
+      "heading_2": {
+        "rich_text": [
+          {
+            "type": "text",
+            "text": {
+              "content": "Batch 1 Social Launch"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "object": "block",
+      "type": "paragraph",
+      "paragraph": {
+        "rich_text": [
+          {
+            "type": "text",
+            "text": {
+              "content": "Final Canva batch links and brand rules: "
+            }
+          },
+          {
+            "type": "text",
+            "text": {
+              "content": "NamEngine Batch 1 Social Launch",
+              "link": {
+                "url": "https://app.notion.com/p/NamEngine-Batch-1-Social-Launch-3c0c8498b23f813f8a18ec9eb20f7f62"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "object": "block",
+      "type": "link_to_page",
+      "link_to_page": {
+        "type": "page_id",
+        "page_id": "3c0c8498-b23f-813f-8a18-ec9eb20f7f62"
+      }
+    }
+  ]
+}

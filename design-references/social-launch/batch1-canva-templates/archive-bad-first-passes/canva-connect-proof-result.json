@@ -1,0 +1,65 @@
+{
+  "upload_status_code": 200,
+  "upload_response": {
+    "job": {
+      "id": "99beeba2-d431-444e-90cc-0f53097d807c",
+      "status": "in_progress"
+    }
+  },
+  "job_status_code": 200,
+  "job_response": {
+    "job": {
+      "id": "99beeba2-d431-444e-90cc-0f53097d807c",
+      "status": "success",
+      "asset": {
+        "type": "image",
+        "id": "MAHSrWswzmg",
+        "name": "NamEngine Day 01 Why NamEngine Exists",
+        "tags": [],
+        "import_status": {
+          "state": "success"
+        },
+        "created_at": 1787089645,
+        "updated_at": 1787089646,
+        "owner": {
+          "user_id": "oUZCNSOSVk37P0u9zyjnSI",
+          "team_id": "oBZCNnS5_k39MZBe49-q3w"
+        },
+        "thumbnail": {
+          "width": 160,
+          "height": 200,
+          "url": "https://media.canva.com/v2/image-resize/format:PNG/height:200/quality:100/uri:ifs%3A%2F%2FM%2Ffdaa726d-e250-4dab-9126-969fc725c980/watermark:F/width:160?csig=AAAAAAAAAAAAAAAAAAAAAEJ-_MtrypLNDH8aUVv0sUfZQjNisdfVFP2F1XyOJzqi&exp=1787105845&osig=AAAAAAAAAAAAAAAAAAAAACE7a2UL67KvO4d5nnzT1kZlHEfQmwGsWMr-b5LTdodZ&signer=media-rpc&x-canva-quality=thumbnail"
+        },
+        "metadata": {
+          "type": "image",
+          "width": 1080,
+          "height": 1350,
+          "smart_tags": [
+            "color"
+          ]
+        }
+      }
+    }
+  },
+  "design_status_code": 200,
+  "design_response": {
+    "design": {
+      "id": "DAHSrcKO11A",
+      "title": "NamEngine Batch 1 - Day 01 proof",
+      "owner": {
+        "user_id": "oUZCNSOSVk37P0u9zyjnSI",
+        "team_id": "oBZCNnS5_k39MZBe49-q3w"
+      },
+      "urls": {
+        "edit_url": "https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NjgxNjQ4MjE0fQ..e4HNwwh98YacjjJu.DXNZDdtitIl-WWVwK2jh9ey-b0m_IqhLPH3LRu5CYSfgVTRLSynj6LfZwPP6eQE0LUVxahQvgTttR0EtK-MW6DXSWZMLY-plwrZjc2TDgqNVsKA.G_qli5_4F2HQQGQmCUUzgA/edit?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=a379c060-b336-4b34-b5cb-aa99a3020632&utm_campaign=public_api_create_design_clicked_hyperlink",
+        "view_url": "https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NjgxNjQ4MjE0fQ..e4HNwwh98YacjjJu.DXNZDdtitIl-WWVwK2jh9ey-b0m_IqhLPH3LRu5CYSfgVTRLSynj6LfZwPP6eQE0LUVxahQvgTttR0EtK-MW6DXSWZMLY-plwrZjc2TDgqNVsKA.G_qli5_4F2HQQGQmCUUzgA/view?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=7756b111-6d7b-4099-9d42-19b1c2b377f6&utm_campaign=public_api_create_design_clicked_hyperlink"
+      },
+      "created_at": 1787089648,
+      "updated_at": 1787089648,
+      "page_count": 1,
+      "design_types": [
+        "custom"
+      ]
+    }
+  }
+}

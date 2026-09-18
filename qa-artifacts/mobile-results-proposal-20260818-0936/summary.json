@@ -1,0 +1,254 @@
+[
+  {
+    "name": "baby-results",
+    "route": "/baby/results?gender=Girl&style=Classic&sound=Soft&copy-proposal=1",
+    "variant": "current",
+    "status": 200,
+    "consoleErrors": [],
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "horizontalOverflow": false,
+    "resultCards": 8,
+    "firstCardBox": {
+      "x": 30,
+      "y": -3216.53125,
+      "width": 330,
+      "height": 410.90625,
+      "top": -3216.53125,
+      "right": 360,
+      "bottom": -2805.625,
+      "left": 30
+    },
+    "reactionBox": {
+      "x": 48,
+      "y": -3014.625,
+      "width": 294,
+      "height": 66,
+      "top": -3014.625,
+      "right": 342,
+      "bottom": -2948.625,
+      "left": 48
+    },
+    "panelBox": {
+      "x": 30,
+      "y": 210.71875,
+      "width": 330,
+      "height": 925.234375,
+      "top": 210.71875,
+      "right": 360,
+      "bottom": 1135.953125,
+      "left": 30
+    },
+    "bodySample": "Home\nWhat are you naming?\n\nNAMENGINE BABY\n\nHere’s what stood out.\n\nRound 1 · 8 options.\n\nBased on everything you’ve shared, these names best match your style and preferences.\n\n♥\nYou loved 0 names in Round 1\n8 names checked for fit, sound, and distinctiveness. React to the names below; we’re using those preferences to refine your next recommendations.\nYour direction\n3 selections\n\nBEST FIRST LOOK\n\nClara\n\nCLAH-rah\n\nMeaning: Bright, clear\n\nTimeless elegance with gentle warmth\n\nclassic\nsoft\nEuropean\n"
+  },
+  {
+    "name": "baby-results",
+    "route": "/baby/results?gender=Girl&style=Classic&sound=Soft&copy-proposal=1",
+    "variant": "proposal",
+    "status": 200,
+    "consoleErrors": [],
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "horizontalOverflow": false,
+    "resultCards": 8,
+    "firstCardBox": {
+      "x": 30,
+      "y": -3790.53125,
+      "width": 330,
+      "height": 465.65625,
+      "top": -3790.53125,
+      "right": 360,
+      "bottom": -3324.875,
+      "left": 30
+    },
+    "reactionBox": {
+      "x": 44.71875,
+      "y": -3527.28125,
+      "width": 300.5625,
+      "height": 59.4375,
+      "top": -3527.28125,
+      "right": 345.28125,
+      "bottom": -3467.84375,
+      "left": 44.71875
+    },
+    "panelBox": {
+      "x": 30,
+      "y": 42.484375,
+      "width": 330,
+      "height": 759.75,
+      "top": 42.484375,
+      "right": 360,
+      "bottom": 802.234375,
+      "left": 30
+    },
+    "bodySample": "Home\nWhat are you naming?\n\nNAMENGINE BABY\n\nHere’s what stood out.\n\nRound 1 · 8 options.\n\nBased on everything you’ve shared, these names best match your style and preferences.\n\n♥\nYou loved 0 names in Round 1\n8 names checked for fit, sound, and distinctiveness. React to the names below; we’re using those preferences to refine your next recommendations.\nYour direction\n3 selections\n\nBEST FIRST LOOK\n\nClara\n\nCLAH-rah\n\nMeaning: Bright, clear\n\nTimeless elegance with gentle warmth\n\nclassic\nsoft\nEuropean\n"
+  },
+  {
+    "name": "pet-results",
+    "route": "/pet/results?pet_type=Dog&style=Playful&vibe=Friendly&copy-proposal=1",
+    "variant": "current",
+    "status": 200,
+    "consoleErrors": [],
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "horizontalOverflow": false,
+    "resultCards": 8,
+    "firstCardBox": {
+      "x": 14,
+      "y": -3078.484375,
+      "width": 362,
+      "height": 381.90625,
+      "top": -3078.484375,
+      "right": 376,
+      "bottom": -2696.578125,
+      "left": 14
+    },
+    "reactionBox": {
+      "x": 32,
+      "y": -2877.578125,
+      "width": 326,
+      "height": 66,
+      "top": -2877.578125,
+      "right": 358,
+      "bottom": -2811.578125,
+      "left": 32
+    },
+    "panelBox": {
+      "x": 14,
+      "y": 110.765625,
+      "width": 362,
+      "height": 878.421875,
+      "top": 110.765625,
+      "right": 376,
+      "bottom": 989.1875,
+      "left": 14
+    },
+    "bodySample": "Home\nWhat are you naming?\n\nNAMENGINE PET\n\nPet names shaped from your taste.\n\nRound 1 · 8 options.\n\nBased on everything you shared, we found names that reflect their personality, your preferred sound, and the bond you already feel.\n\nNAME STYLE DNA\n\nPlayful names with friendly energy for this pet.\n\n♥ Saved 0 names this round Your favorites help us understand which names feel most like them.\n\nPersonality matched\nEveryday-ready\nFit reviewed\nYour direction\n3 selections\n\nBEST FIRST LOOK\n\nBingo\n\nBING-g"
+  },
+  {
+    "name": "pet-results",
+    "route": "/pet/results?pet_type=Dog&style=Playful&vibe=Friendly&copy-proposal=1",
+    "variant": "proposal",
+    "status": 200,
+    "consoleErrors": [],
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "horizontalOverflow": false,
+    "resultCards": 8,
+    "firstCardBox": {
+      "x": 14,
+      "y": -3562.484375,
+      "width": 362,
+      "height": 435.65625,
+      "top": -3562.484375,
+      "right": 376,
+      "bottom": -3126.828125,
+      "left": 14
+    },
+    "reactionBox": {
+      "x": 28.71875,
+      "y": -3301.234375,
+      "width": 332.5625,
+      "height": 59.4375,
+      "top": -3301.234375,
+      "right": 361.28125,
+      "bottom": -3241.796875,
+      "left": 28.71875
+    },
+    "panelBox": {
+      "x": 14,
+      "y": 30.53125,
+      "width": 362,
+      "height": 783.25,
+      "top": 30.53125,
+      "right": 376,
+      "bottom": 813.78125,
+      "left": 14
+    },
+    "bodySample": "Home\nWhat are you naming?\n\nNAMENGINE PET\n\nPet names shaped from your taste.\n\nRound 1 · 8 options.\n\nBased on everything you shared, we found names that reflect their personality, your preferred sound, and the bond you already feel.\n\nNAME STYLE DNA\n\nPlayful names with friendly energy for this pet.\n\n♥ Saved 0 names this round Your favorites help us understand which names feel most like them.\n\nPersonality matched\nEveryday-ready\nFit reviewed\nYour direction\n3 selections\n\nBEST FIRST LOOK\n\nBingo\n\nBING-g"
+  },
+  {
+    "name": "business-results",
+    "route": "/business/results?business_description=Premium%20recovery%20studio&industry=Wellness&audience=Premium%20clients&style=Clear%20and%20credible&copy-proposal=1",
+    "variant": "current",
+    "status": 200,
+    "consoleErrors": [],
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "horizontalOverflow": false,
+    "resultCards": 8,
+    "firstCardBox": {
+      "x": 14,
+      "y": -3006.71875,
+      "width": 362,
+      "height": 370.671875,
+      "top": -3006.71875,
+      "right": 376,
+      "bottom": -2636.046875,
+      "left": 14
+    },
+    "reactionBox": {
+      "x": 32,
+      "y": -2817.046875,
+      "width": 326,
+      "height": 66,
+      "top": -2817.046875,
+      "right": 358,
+      "bottom": -2751.046875,
+      "left": 32
+    },
+    "panelBox": {
+      "x": 14,
+      "y": 92.65625,
+      "width": 362,
+      "height": 854.421875,
+      "top": 92.65625,
+      "right": 376,
+      "bottom": 947.078125,
+      "left": 14
+    },
+    "bodySample": "Home\nWhat are you naming?\n\nNAMENGINE BUSINESS\n\nBusiness names shaped from your taste.\n\nRound 1 · 8 options.\n\nBased on your brief, we found names that balance positioning, audience fit, distinctiveness, and practical launch considerations.\n\n8 names checked for fit, sound, and distinctiveness.\nReact to the names below, then use the next-step panel at the bottom.\n♥ Saved 0 names this round Your favorites reveal the brand direction with the strongest commercial fit.\nYour direction\n4 selections\n\nBEST"
+  },
+  {
+    "name": "business-results",
+    "route": "/business/results?business_description=Premium%20recovery%20studio&industry=Wellness&audience=Premium%20clients&style=Clear%20and%20credible&copy-proposal=1",
+    "variant": "proposal",
+    "status": 200,
+    "consoleErrors": [],
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "horizontalOverflow": false,
+    "resultCards": 8,
+    "firstCardBox": {
+      "x": 14,
+      "y": -3431.71875,
+      "width": 362,
+      "height": 419.28125,
+      "top": -3431.71875,
+      "right": 376,
+      "bottom": -3012.4375,
+      "left": 14
+    },
+    "reactionBox": {
+      "x": 28.71875,
+      "y": -3186.84375,
+      "width": 332.5625,
+      "height": 59.4375,
+      "top": -3186.84375,
+      "right": 361.28125,
+      "bottom": -3127.40625,
+      "left": 28.71875
+    },
+    "panelBox": {
+      "x": 14,
+      "y": 30.296875,
+      "width": 362,
+      "height": 783.25,
+      "top": 30.296875,
+      "right": 376,
+      "bottom": 813.546875,
+      "left": 14
+    },
+    "bodySample": "Home\nWhat are you naming?\n\nNAMENGINE BUSINESS\n\nBusiness names shaped from your taste.\n\nRound 1 · 8 options.\n\nBased on your brief, we found names that balance positioning, audience fit, distinctiveness, and practical launch considerations.\n\n8 names checked for fit, sound, and distinctiveness.\nReact to the names below, then use the next-step panel at the bottom.\n♥ Saved 0 names this round Your favorites reveal the brand direction with the strongest commercial fit.\nYour direction\n4 selections\n\nBEST"
+  }
+]

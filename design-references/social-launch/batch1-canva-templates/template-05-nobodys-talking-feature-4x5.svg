@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350">
+  <rect width="100%" height="100%" fill="#FBF8F1"/>
+  <circle cx="960" cy="130" r="220" fill="#F7DAD6" opacity="0.50"/>
+  <circle cx="90" cy="1230" r="210" fill="#DDEBDD" opacity="0.48"/>
+  
+
+    <g transform="translate(60,56) scale(0.3)">
+      <rect width="1500" height="240" fill="none"/>
+      <g transform="translate(20,20)">
+        <path d="M110 10 C52 10 10 47 10 103 C10 153 45 188 92 196 L74 224 L119 198 C177 197 220 160 220 103 C220 56 184 20 137 12" fill="none" stroke="#0D2540" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="116" y="156" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="132" font-weight="700" fill="#0D2540">n</text>
+        <path d="M164 24 C164 10 182 4 192 16 C203 4 221 10 221 24 C221 40 192 58 192 58 C192 58 164 40 164 24Z" fill="#FF5233"/>
+      </g>
+      <text x="275" y="150" font-family="Georgia, 'Times New Roman', serif" font-size="110" font-weight="700" fill="#0D2540">NamEngine</text>
+      <text x="930" y="150" font-family="Georgia, 'Times New Roman', serif" font-size="110" font-weight="700" fill="#FF5233">Baby</text>
+    </g>
+    
+<text x="76" y="225" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="900" fill="#607086" >NOBODY’S TALKING ABOUT</text>
+<text x="76" y="400" text-anchor="start" font-family="Georgia, 'Times New Roman', serif" font-size="130" font-weight="700" fill="#0D2540" >Conrad</text>
+<rect x="70" y="520" width="940" height="500" rx="36" fill="#FFFFFF" stroke="rgba(13,37,64,0.12)"/>
+<text x="120" y="610" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="800" fill="#0D2540" >Established without feeling overexposed.</text>
+<text x="120" y="700" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="800" fill="#0D2540" >Strong, but not harsh.</text>
+<text x="120" y="790" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="800" fill="#0D2540" >Traditional, but not predictable.</text>
+<text x="120" y="880" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="800" fill="#0D2540" >Grounded, intelligent, quietly distinctive.</text>
+<rect x="120" y="1085" width="210" height="62" rx="31.0" fill="#DDEBDD" stroke="#DDE3EC"/><text x="225.0" y="1124.75" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="25" font-weight="800" fill="#0D2540">classic</text><rect x="355" y="1085" width="245" height="62" rx="31.0" fill="#F7DAD6" stroke="#DDE3EC"/><text x="477.5" y="1124.75" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="25" font-weight="800" fill="#0D2540">substantial</text><rect x="625" y="1085" width="250" height="62" rx="31.0" fill="#FFFFFF" stroke="#DDE3EC"/><text x="750.0" y="1124.75" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="25" font-weight="800" fill="#0D2540">less obvious</text>
+<text x="76" y="1240" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="31" font-weight="800" fill="#0D2540" >Would you add Conrad to the list?</text>
+
+</svg>

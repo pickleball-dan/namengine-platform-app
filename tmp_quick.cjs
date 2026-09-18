@@ -1,0 +1,23 @@
+const { chromium } = require('playwright');
+(async () => {
+  const browser = await chromium.launch({ timeout: 10000 });
+  const page = await browser.newPage();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('http://localhost:5000', { waitUntil: 'domcontentloaded', timeout: 10000 });
+  await page.waitForTimeout(800);
+  await page.click('.landing-pill[data-vertical="baby"]');
+  await page.waitForTimeout(500);
+  await page.screenshot({ path: 'tmp_fixed_baby.png' });
+  await page.goto('http://localhost:5000', { waitUntil: 'domcontentloaded', timeout: 10000 });
+  await page.waitForTimeout(800);
+  await page.click('.landing-pill[data-vertical="pet"]');
+  await page.waitForTimeout(500);
+  await page.screenshot({ path: 'tmp_fixed_pet.png' });
+  await page.goto('http://localhost:5000', { waitUntil: 'domcontentloaded', timeout: 10000 });
+  await page.waitForTimeout(800);
+  await page.click('.landing-pill[data-vertical="business"]');
+  await page.waitForTimeout(500);
+  await page.screenshot({ path: 'tmp_fixed_business.png' });
+  await browser.close();
+  console.log('done');
+})();

@@ -1,0 +1,603 @@
+NamEngine Social Media Launch Brief
+Executive Summary
+NamEngine is a personalized naming platform built to help people
+discover names that genuinely fit their taste.
+The core idea is simple: most naming tools give users more names.
+NamEngine is designed to understand what a person means when
+they say things like:
+“Classic, but not boring.”
+“Distinctive, but not strange.”
+“Strong, but still warm.”
+“Traditional, but not too common.”
+“Irish influence, but easy to use in America.”
+NamEngine turns those preferences into a taste profile, generates a
+curated set of names, learns from the user’s reactions, and improves
+its recommendations over successive rounds.
+The platform currently supports three naming verticals:
+Baby names
+Pet names
+Business names
+Baby is the lead consumer experience and should be the primary
+focus of the initial social launch.
+NamEngine is not positioned as “just another AI name generator.”
+Its long-term differentiation is that it is becoming a true taste engine:
+a system that learns what someone likes, why they like it, what they
+reject, where their preferences conflict, and how to make
+increasingly better recommendations over time.
+The social media strategy should reflect that distinction.
+The brand should become known not merely for providing lists of
+names, but for understanding names: their sound, history, meaning,
+Edit
+
+cultural context, popularity, emotional feel, and the psychology of
+why people respond to them.
+The central social idea is:
+The objective of social media is to build NamEngine into an
+engaging, trusted authority on naming while naturally introducing
+users to the product.
+The initial content mix should be approximately:
+70% useful, interesting, and highly shareable naming content
+20% audience participation and community
+10% direct NamEngine promotion
+The goal is for followers to think:
+And eventually:
+1. Social Media Objectives
+The first 30 days should accomplish five things.
+Build brand awareness
+Introduce NamEngine to prospective users without overwhelming
+them with product promotion.
+Establish naming authority
+Create content that demonstrates intelligence about names,
+including sound, history, popularity, meaning, culture, and style.
+Generate participation
+Names are more interesting than you think.
+“This account understands names.”
+“This product might actually understand my taste.”
+
+Names naturally create opinions. Polls, comparisons, debates, and
+preference questions should encourage comments, votes, shares,
+and saves.
+Introduce the concept of taste
+Gradually teach the audience that choosing names is not simply
+about finding names people like. It is about identifying patterns in
+what they like.
+Drive qualified traffic
+By the second half of the launch period, begin directing interested
+users toward the NamEngine experience.
+2. Brand Positioning
+NamEngine should not initially position itself as:
+There will be many AI naming tools, and that description does not
+capture the product's differentiation.
+The stronger positioning is:
+The technology should generally stay behind the experience.
+The consumer question is not:
+It is:
+The social presence should continually reinforce this idea through
+demonstration rather than technical explanation.
+An AI baby-name generator.
+NamEngine helps you discover names that fit your taste.
+“Which AI model does this use?”
+“Does this actually understand what I like?”
+
+3. Brand Personality
+The NamEngine social voice should feel:
+Curious
+Names have fascinating histories, sounds, associations, and
+cultural stories.
+Intelligent
+The brand should demonstrate expertise without becoming
+academic or inaccessible.
+Warm
+Naming is emotional, especially when children and families are
+involved.
+Occasionally opinionated
+A point of view makes content more interesting, but NamEngine
+should avoid declaring that people's personal name choices are
+objectively bad.
+Non-judgmental
+Avoid mocking names or people who choose them.
+The brand should never rely heavily on negative clickbait such as:
+That may generate short-term engagement but undermines the trust
+and sophistication NamEngine should represent.
+4. Initial Platforms
+The initial recommendation is to focus on three platforms.
+Instagram
+Primary social brand home.
+Best uses:
+Reels
+Carousels
+“10 baby names you should NEVER use.”
+
+Stories
+Polls
+Name comparisons
+Educational/name-history content
+TikTok
+Discovery and personality platform.
+Much of the Instagram Reel material can be adapted for TikTok with
+a slightly more conversational presentation.
+Best uses:
+Naming debates
+Name reactions
+“If you love…” content
+Surprising name facts
+Taste experiments
+Short product demonstrations
+Pinterest
+Evergreen discovery platform, particularly valuable for Baby.
+Best uses:
+Name lists
+Heritage-name collections
+Vintage-name collections
+Rare classic names
+Style-based naming guides
+“If you love X, consider Y” graphics
+Pinterest content may continue attracting discovery well after
+publication.
+The launch should not initially attempt to maintain every major
+social platform. Additional platforms can be added once we
+understand what content performs.
+5. Core Content Franchises
+
+A successful social strategy should rely on repeatable content
+formats rather than inventing an entirely new concept every day.
+Name DNA
+Explain why a particular name feels the way it does.
+Examples:
+Why Margot feels vintage and modern at the same time
+Why James never seems to go out of style
+Why certain names sound strong
+Why some names feel familiar without feeling common
+Purpose:
+Establish NamEngine as an authority on naming and reinforce the
+concept that taste has identifiable characteristics.
+If You Love…
+Take a familiar name and recommend alternatives based on what
+someone might actually love about it.
+Example:
+If you love Theodore but it feels too popular…
+Possible alternatives might include names that share:
+historical depth
+rhythm
+formality
+nickname potential
+traditional feel
+This is particularly powerful because it mirrors what the NamEngine
+product itself does.
+Would You Name Them?
+Simple head-to-head or multi-name choices.
+
+Examples:
+Arthur vs. August
+Maeve vs. Margot
+Felix vs. Finn
+Clara vs. Elodie
+Purpose:
+Generate participation while collecting interesting aggregate
+preference signals.
+Nobody's Talking About…
+Feature excellent underused names.
+Each piece should briefly explain:
+the name
+origin or history
+meaning where relevant
+pronunciation where needed
+what makes it interesting
+why NamEngine thinks it deserves consideration
+Purpose:
+Make NamEngine a source of discovery.
+The Naming Debate
+Questions that naturally produce disagreement without having a
+single correct answer.
+Examples:
+Would you avoid a name because it is becoming popular?
+Would you use a name your sibling already used?
+Would you rather correct pronunciation or share your name with
+three classmates?
+Does an unusual spelling make a name more distinctive or
+more difficult?
+
+Would popularity stop you from using the name you love?
+Purpose:
+Comments, community, and insight into how people make naming
+decisions.
+Taste Test
+Show several names representing different style territories.
+Example:
+A. Clara
+B. Margot
+C. Maeve
+D. Elodie
+Purpose:
+Introduce NamEngine's concept of taste without needing to describe
+the underlying technology.
+6. Thirty-Day Launch Calendar
+Week One — Establish Interest
+Day 1 — Why NamEngine Exists
+Message:
+Introduce the idea that endless lists do not solve the naming
+problem.
+Format: Reel/TikTok
+Objective: Brand introduction
+Don't overthink it. Which immediately feels most like you?
+Finding names isn't the problem. Finding your names is.
+
+Day 2 — If You Love Theodore
+Five thoughtful alternatives to Theodore for someone who wants
+something less common.
+Format: Carousel + Pinterest
+Objective: Saves and shares
+Day 3 — Would You Name Them?
+Arthur vs. August
+Format: Reel + Story poll
+Objective: Participation
+Day 4 — Name DNA: Margot
+Explain why Margot can feel simultaneously traditional, stylish, and
+contemporary.
+Format: Reel
+Objective: Authority
+Day 5 — Nobody's Talking About: Conrad
+Introduce Conrad as an established but less frequently encountered
+name.
+Format: Carousel
+Objective: Discovery
+Day 6 — Naming Debate
+Question:
+
+Format: Reel + Story
+Objective: Comments
+Day 7 — Sunday Name List
+Ten classic names beyond the most obvious choices.
+Format: Carousel + Pinterest
+Objective: Saves
+Week Two — Demonstrate Taste
+Day 8 — If You Love Henry
+Offer alternatives and explain what each shares with Henry.
+Examples may include:
+Arthur
+Hugh
+Frederick
+Edmund
+Conrad
+Format: Carousel/Reel
+Objective: Demonstrate intelligent recommendations
+Day 9 — Would You Name Them?
+Maeve vs. Margot
+Format: Reel + Story poll
+Objective: Participation
+Would you avoid a name you love because it is becoming
+popular?
+
+Day 10 — Name DNA: James
+Why does James remain relevant across generations?
+Format: Reel
+Objective: Authority
+Day 11 — Naming Debate
+Format: Reel/Story
+Objective: Comments
+Day 12 — Nobody's Talking About
+Feature an overlooked girl's name.
+Format: Carousel
+Objective: Discovery
+Day 13 — Taste Test
+A. Clara
+B. Margot
+C. Maeve
+D. Elodie
+Prompt:
+Format: Reel/Story
+Objective: Introduce taste concept
+Would you use the name you love if your sibling used it first?
+Which immediately feels most like you?
+
+Day 14 — Sunday Name List
+Twelve girl names that feel distinctive without feeling unusual.
+Format: Carousel + Pinterest
+Objective: Saves/shares
+Week Three — Introduce the Product
+Difference
+Day 15 — The Problem With Name Lists
+Opening:
+Follow with:
+Format: Reel
+Objective: First meaningful product positioning
+Day 16 — If You Love Olivia
+Demonstrate that people may love Olivia for different reasons:
+femininity
+rhythm
+classical feel
+familiarity
+literary association
+Recommend different alternatives based on those dimensions.
+Format: Carousel/Reel
+Objective: Explain taste intelligence
+You don't need another list of 500 baby names.
+You need a small group of names that actually feel like you.
+
+Day 17 — Would You Name Them?
+Felix vs. Finn
+Format: Reel + poll
+Objective: Engagement
+Day 18 — What NamEngine Hears
+Message:
+Format: Reel
+Objective: Explain differentiation
+Day 19 — Nobody's Talking About
+Feature another underused name.
+Format: Carousel
+Objective: Discovery
+Day 20 — Naming Debate
+Format: Reel/Story
+You say:
+“Classic, but not boring.”
+“Strong, but not harsh.”
+“Different, but not weird.”
+NamEngine hears a taste profile.
+Which would bother you more: regularly correcting pronunciation
+or sharing your name with several people in your class?
+
+Objective: Participation and taste insight
+Day 21 — Sunday Name List
+Ten names that “sound expensive without trying too hard.”
+Tone should be playful.
+Format: Carousel/Pinterest
+Objective: Reach, saves, personality
+Week Four — Convert Interest Into
+Product Usage
+Day 22 — Taste Challenge
+Present three style groups.
+Example:
+A: Arthur / Clara
+B: Brooks / Sloane
+C: Finn / Maeve
+Question:
+Format: Reel/Story
+Objective: Participation
+Day 23 — NamEngine Product Demonstration
+Show a short product journey:
+Intake
+→ Initial names
+→ Love / Like / Maybe / No
+Which pair feels most like your naming style?
+
+→ Refinement
+→ Improved recommendations
+Message:
+Format: Screen-recorded Reel/TikTok
+Objective: Product understanding
+Day 24 — Audience-Led If You Love…
+Use a name that performed particularly well in prior audience polls.
+Format: Carousel/Reel
+Objective: Community feedback loop
+Day 25 — Name DNA
+Analyze a name that generated significant discussion during the
+month.
+Format: Reel
+Objective: Authority + audience responsiveness
+Day 26 — The Couple Problem
+Opening:
+Show names occupying the overlap.
+Format: Reel
+Watch NamEngine learn someone's naming taste.
+She wants timeless.
+He wants unusual.
+They may not actually be that far apart.
+
+Objective: Address a real naming pain point
+Day 27 — Community Names
+Prompt:
+Feature selected audience submissions.
+Format: Story/Reel/Carousel
+Objective: Community building
+Day 28 — NamEngine Sunday List
+Twenty names NamEngine believes deserve more attention.
+Format: Carousel + Pinterest
+Objective: Branded editorial authority
+Day 29 — What We Learned
+If there is sufficient real engagement data, share anonymous
+aggregate findings.
+Potential future examples:
+Most polarizing name
+Most consistently loved name
+Strongest preference split
+Classic vs. modern preference
+Familiar vs. distinctive preference
+Do not invent statistics.
+Format: Carousel/Reel
+Objective: Establish NamEngine as a source of original naming
+intelligence
+What's the best name you've heard recently?
+
+This concept could eventually become:
+Day 30 — Direct Product Invitation
+Message:
+CTA:
+Format: Reel + Stories + profile link
+Objective: Conversion
+7. Content Ratio
+Across the first month, aim approximately for:
+70% naming education, entertainment, and discovery
+Examples:
+Name DNA
+name histories
+curated lists
+overlooked names
+If You Love…
+20% participation/community
+Examples:
+The NamEngine Taste Index
+You know what names you like.
+NamEngine figures out why.
+Then it uses that understanding to help you discover names you
+may never have found yourself.
+Try NamEngine.
+
+polls
+debates
+Taste Tests
+audience submissions
+10% direct product promotion
+Examples:
+product demonstrations
+NamEngine explanation
+conversion posts
+NamEngine should earn attention before repeatedly asking for
+action.
+8. Content Production Strategy
+The social media agency should create one primary piece of
+content and adapt it across platforms wherever practical.
+For example:
+One core concept:
+Can become:
+Instagram carousel
+Instagram Reel
+TikTok video
+Pinterest graphic
+Instagram Story poll
+This reduces content-production cost while maintaining platform-
+specific presentation.
+Content should ideally be prepared in batches rather than created
+daily.
+A minimum of the first seven days of finished content should be
+completed before launch.
+If you love Theodore but want something less common
+
+9. Social Media as a Taste Laboratory
+Social media can eventually provide NamEngine with valuable
+aggregate insight into naming preferences.
+Examples:
+Arthur vs. August
+Familiar vs. distinctive
+Strong vs. soft
+Traditional vs. contemporary
+Common spelling vs. alternative spelling
+This should initially be treated as research rather than automatically
+influencing the NamEngine production recommendation engine.
+Over time, anonymized aggregate patterns could become a
+proprietary dataset.
+Potential future branded research product:
+The NamEngine Taste Index
+Possible reports:
+Names people love but say they would not use
+Most polarizing names
+Rising naming styles
+Most appealing underused names
+Generational differences in taste
+Familiarity versus distinctiveness preferences
+This could eventually support media coverage, PR, and original
+NamEngine research.
+10. Measurement
+Follower count should not be the primary success metric during
+launch.
+The agency should track:
+
+Saves
+Indicates that the audience finds the content useful.
+Shares
+Indicates that people believe someone else should see the content.
+Comments and votes
+Indicates active participation.
+Profile visits
+Shows interest in the brand beyond a single post.
+Website visits
+Track traffic from each platform.
+NamEngine session starts
+Measure whether social traffic actually begins using the product.
+Naming-session completion
+A stronger measure of traffic quality.
+Links should use campaign tracking so NamEngine can distinguish
+traffic by:
+platform
+content franchise
+campaign
+individual post where practical
+In the future, social acquisition and conversion reporting may be
+incorporated into NamEngine Mission Control.
+11. Creative Guardrails
+The social agency should avoid:
+Mocking names or parents' choices
+Presenting subjective taste as objective truth
+
+Excessive “worst baby name” content
+Overusing AI terminology
+Generic list content without editorial reasoning
+Copying viral naming accounts without a NamEngine point of
+view
+Making unsupported popularity or trend claims
+Inventing survey statistics
+Over-promoting the product
+Content should continually reinforce the perception that:
+12. Role of AI in Content Production
+AI can assist with:
+Research
+Draft development
+Repurposing content across platforms
+Generating alternative hooks
+Organizing content calendars
+Analyzing audience responses
+Identifying emerging themes
+However, the NamEngine social voice should not feel mass-
+produced.
+Human editorial judgment should remain responsible for:
+Final tone
+Cultural sensitivity
+Accuracy
+Naming claims
+Taste judgments
+Community interaction
+The goal is not maximum content volume.
+The goal is distinctive, trustworthy content.
+NamEngine understands why names work.
+
+13. Longer-Term Expansion
+Once the Baby social strategy demonstrates repeatable
+performance, NamEngine can expand social content into its other
+verticals.
+Pet
+Potential content:
+Names based on personality
+Breed/style naming
+Human names for pets
+Funny naming debates
+Pet-owner submissions
+Naming transformations
+Visual before/after personality matching
+Pet has significant potential for highly visual and shareable content.
+Business
+Potential content:
+Why brand names work
+Naming mistakes
+Sound symbolism
+Memorability
+Category conventions
+Founder naming dilemmas
+Rebrands
+“Which brand name wins?” comparisons
+The three verticals should ultimately reinforce one central brand
+idea:
+14. Longer-Term Brand Opportunity
+NamEngine should aim to become more than a naming application.
+NamEngine understands names.
+
+The broader opportunity is to own expertise around taste in names.
+The product understands individual naming taste.
+Social media reveals aggregate naming taste.
+Together, these can create a reinforcing system:
+That creates a defensible position beyond simply being another AI-
+powered generator.
+15. The Core Message for the Agency
+The agency should think about NamEngine this way:
+The product should appear naturally as proof of that expertise.
+The audience should first become interested in how NamEngine
+thinks.
+Then they should want NamEngine to think about their names.
+NamEngine creates naming insight
+→ audiences engage
+→ aggregate taste patterns emerge
+→ NamEngine produces better insight
+→ brand authority grows
+→ more people discover the product
+We are not trying to become the social account with the
+biggest lists of names.
+We are trying to become the social account that
+understands names better than anyone else.

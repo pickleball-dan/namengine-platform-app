@@ -1,0 +1,74 @@
+[
+  {
+    "viewport": "desktop",
+    "name": "pet-results",
+    "status": 200,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "hasUnlockFullAccess": true,
+    "hasOldBaby": false,
+    "hasOldPet": false,
+    "hasOldBusiness": false,
+    "panelText": "NEXT LIST\n\nReady for a fresh list?\n\nUse 3 Love or No reactions, and we’ll tune the next list around their personality.\n\nPAID ACCESS\n\nWant a sharper next list?\n\nYour first list is free to view. Unlock full access to continue with:\n\nFull Reports for every name\nRefined follow-up rounds shaped by Love / No reactions\nCompare favorites and choose with confidence\nShareable name views and saved taste signals\n\n100% money-back guarantee if NamEngine doesn’t feel useful.\n\nUnlock Full Access\nCompare favorites\nShare list"
+  },
+  {
+    "viewport": "desktop",
+    "name": "baby-results",
+    "status": 200,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "hasUnlockFullAccess": true,
+    "hasOldBaby": false,
+    "hasOldPet": false,
+    "hasOldBusiness": false,
+    "panelText": "NEXT LIST\n\nWould you like another thoughtful list?\n\nShare how at least 3 names feel, and we’ll listen more closely next time.\n\nPAID ACCESS\n\nWant a smarter second list?\n\nYour first list is free to view. Unlock full access to continue with:\n\nFull Reports for every name\nRefined follow-up rounds shaped by Love / No reactions\nCompare favorites and choose with confidence\nShareable name views and saved taste signals\n\n100% money-back guarantee if NamEngine doesn’t feel useful.\n\nUnlock Full Access\nCompare favorites\nShare list"
+  },
+  {
+    "viewport": "desktop",
+    "name": "business-results",
+    "status": 200,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "hasUnlockFullAccess": true,
+    "hasOldBaby": false,
+    "hasOldPet": false,
+    "hasOldBusiness": false,
+    "panelText": "NEXT LIST\n\nReady for a fresh list?\n\nWe’ll use at least 3 Love or No reactions to sharpen the next set.\n\nPAID ACCESS\n\nWant a sharper next list?\n\nYour first list is free to view. Unlock full access to continue with:\n\nFull Reports for every name\nRefined follow-up rounds shaped by Love / No reactions\nCompare favorites and choose with confidence\nShareable name views and saved taste signals\n\n100% money-back guarantee if NamEngine doesn’t feel useful.\n\nUnlock Full Access\nCompare favorites\nShare list"
+  },
+  {
+    "viewport": "mobile",
+    "name": "pet-results",
+    "status": 200,
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "hasUnlockFullAccess": true,
+    "hasOldBaby": false,
+    "hasOldPet": false,
+    "hasOldBusiness": false,
+    "panelText": "NEXT LIST\n\nReady for a fresh list?\n\nUse 3 Love or No reactions, and we’ll tune the next list around their personality.\n\nPAID ACCESS\n\nWant a sharper next list?\n\nYour first list is free to view. Unlock full access to continue with:\n\nFull Reports for every name\nRefined follow-up rounds shaped by Love / No reactions\nCompare favorites and choose with confidence\nShareable name views and saved taste signals\n\n100% money-back guarantee if NamEngine doesn’t feel useful.\n\nUnlock Full Access\nCompare favorites\nShare list"
+  },
+  {
+    "viewport": "mobile",
+    "name": "baby-results",
+    "status": 200,
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "hasUnlockFullAccess": true,
+    "hasOldBaby": false,
+    "hasOldPet": false,
+    "hasOldBusiness": false,
+    "panelText": "NEXT LIST\n\nWould you like another thoughtful list?\n\nShare how at least 3 names feel, and we’ll listen more closely next time.\n\nPAID ACCESS\n\nWant a smarter second list?\n\nYour first list is free to view. Unlock full access to continue with:\n\nFull Reports for every name\nRefined follow-up rounds shaped by Love / No reactions\nCompare favorites and choose with confidence\nShareable name views and saved taste signals\n\n100% money-back guarantee if NamEngine doesn’t feel useful.\n\nUnlock Full Access\nCompare favorites\nShare list"
+  },
+  {
+    "viewport": "mobile",
+    "name": "business-results",
+    "status": 200,
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "hasUnlockFullAccess": true,
+    "hasOldBaby": false,
+    "hasOldPet": false,
+    "hasOldBusiness": false,
+    "panelText": "NEXT LIST\n\nReady for a fresh list?\n\nWe’ll use at least 3 Love or No reactions to sharpen the next set.\n\nPAID ACCESS\n\nWant a sharper next list?\n\nYour first list is free to view. Unlock full access to continue with:\n\nFull Reports for every name\nRefined follow-up rounds shaped by Love / No reactions\nCompare favorites and choose with confidence\nShareable name views and saved taste signals\n\n100% money-back guarantee if NamEngine doesn’t feel useful.\n\nUnlock Full Access\nCompare favorites\nShare list"
+  }
+]

@@ -1,0 +1,128 @@
+[
+  {
+    "viewport": "desktop",
+    "name": "pet-results",
+    "route": "/pet/results?pet_type=Dog&style=Playful&vibe=Friendly",
+    "consoleErrors": [],
+    "status": 200,
+    "title": "NamEngine Pet Results",
+    "h1": "Pet names shaped from your taste.",
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "horizontalOverflow": false,
+    "resultCards": 8,
+    "benefits": [
+      "Full Reports for every name",
+      "Refined follow-up rounds shaped by Love / No reactions",
+      "Compare favorites and choose with confidence",
+      "Shareable name views and saved taste signals"
+    ],
+    "guarantee": "100% money-back guarantee if NamEngine doesn’t feel useful.",
+    "panelText": "NEXT LIST\n\nReady for a fresh list?\n\nUse 3 Love or No reactions, and we’ll tune the next list around their personality.\n\nPAID ACCESS\n\nWant a sharper next list?\n\nYour first list is free to view. Unlock Pet access to continue with:\n\nFull Reports for every name\nRefined follow-up rounds shaped by Love / No reactions\nCompare favorites and choose with confidence\nShareable name views and saved taste signals\n\n100% money-back guarantee if NamEngine doesn’t feel useful.\n\nUnlock Pet Access\nCompare favorites\nShare list"
+  },
+  {
+    "viewport": "desktop",
+    "name": "baby-results",
+    "route": "/baby/results?gender=Girl&style=Classic&sound=Soft",
+    "consoleErrors": [],
+    "status": 200,
+    "title": "NamEngine Baby Results",
+    "h1": "Here’s what stood out.",
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "horizontalOverflow": false,
+    "resultCards": 8,
+    "benefits": [
+      "Full Reports for every name",
+      "Refined follow-up rounds shaped by Love / No reactions",
+      "Compare favorites and choose with confidence",
+      "Shareable name views and saved taste signals"
+    ],
+    "guarantee": "100% money-back guarantee if NamEngine doesn’t feel useful.",
+    "panelText": "NEXT LIST\n\nWould you like another thoughtful list?\n\nShare how at least 3 names feel, and we’ll listen more closely next time.\n\nPAID ACCESS\n\nWant a smarter second list?\n\nYour first list is free to view. Unlock Baby access to continue with:\n\nFull Reports for every name\nRefined follow-up rounds shaped by Love / No reactions\nCompare favorites and choose with confidence\nShareable name views and saved taste signals\n\n100% money-back guarantee if NamEngine doesn’t feel useful.\n\nUnlock Baby Access\nCompare favorites\nShare list"
+  },
+  {
+    "viewport": "desktop",
+    "name": "business-results",
+    "route": "/business/results?business_description=Premium%20recovery%20studio&industry=Wellness&audience=Premium%20clients&style=Clear%20and%20credible",
+    "consoleErrors": [],
+    "status": 200,
+    "title": "NamEngine Business Results",
+    "h1": "Business names shaped from your taste.",
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "horizontalOverflow": false,
+    "resultCards": 8,
+    "benefits": [
+      "Full Reports for every name",
+      "Refined follow-up rounds shaped by Love / No reactions",
+      "Compare favorites and choose with confidence",
+      "Shareable name views and saved taste signals"
+    ],
+    "guarantee": "100% money-back guarantee if NamEngine doesn’t feel useful.",
+    "panelText": "NEXT LIST\n\nReady for a fresh list?\n\nWe’ll use at least 3 Love or No reactions to sharpen the next set.\n\nPAID ACCESS\n\nWant a sharper next list?\n\nYour first list is free to view. Unlock Business access to continue with:\n\nFull Reports for every name\nRefined follow-up rounds shaped by Love / No reactions\nCompare favorites and choose with confidence\nShareable name views and saved taste signals\n\n100% money-back guarantee if NamEngine doesn’t feel useful.\n\nUnlock Business Access\nCompare favorites\nShare list"
+  },
+  {
+    "viewport": "mobile",
+    "name": "pet-results",
+    "route": "/pet/results?pet_type=Dog&style=Playful&vibe=Friendly",
+    "consoleErrors": [],
+    "status": 200,
+    "title": "NamEngine Pet Results",
+    "h1": "Pet names shaped from your taste.",
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "horizontalOverflow": false,
+    "resultCards": 8,
+    "benefits": [
+      "Full Reports for every name",
+      "Refined follow-up rounds shaped by Love / No reactions",
+      "Compare favorites and choose with confidence",
+      "Shareable name views and saved taste signals"
+    ],
+    "guarantee": "100% money-back guarantee if NamEngine doesn’t feel useful.",
+    "panelText": "NEXT LIST\n\nReady for a fresh list?\n\nUse 3 Love or No reactions, and we’ll tune the next list around their personality.\n\nPAID ACCESS\n\nWant a sharper next list?\n\nYour first list is free to view. Unlock Pet access to continue with:\n\nFull Reports for every name\nRefined follow-up rounds shaped by Love / No reactions\nCompare favorites and choose with confidence\nShareable name views and saved taste signals\n\n100% money-back guarantee if NamEngine doesn’t feel useful.\n\nUnlock Pet Access\nCompare favorites\nShare list"
+  },
+  {
+    "viewport": "mobile",
+    "name": "baby-results",
+    "route": "/baby/results?gender=Girl&style=Classic&sound=Soft",
+    "consoleErrors": [],
+    "status": 200,
+    "title": "NamEngine Baby Results",
+    "h1": "Here’s what stood out.",
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "horizontalOverflow": false,
+    "resultCards": 8,
+    "benefits": [
+      "Full Reports for every name",
+      "Refined follow-up rounds shaped by Love / No reactions",
+      "Compare favorites and choose with confidence",
+      "Shareable name views and saved taste signals"
+    ],
+    "guarantee": "100% money-back guarantee if NamEngine doesn’t feel useful.",
+    "panelText": "NEXT LIST\n\nWould you like another thoughtful list?\n\nShare how at least 3 names feel, and we’ll listen more closely next time.\n\nPAID ACCESS\n\nWant a smarter second list?\n\nYour first list is free to view. Unlock Baby access to continue with:\n\nFull Reports for every name\nRefined follow-up rounds shaped by Love / No reactions\nCompare favorites and choose with confidence\nShareable name views and saved taste signals\n\n100% money-back guarantee if NamEngine doesn’t feel useful.\n\nUnlock Baby Access\nCompare favorites\nShare list"
+  },
+  {
+    "viewport": "mobile",
+    "name": "business-results",
+    "route": "/business/results?business_description=Premium%20recovery%20studio&industry=Wellness&audience=Premium%20clients&style=Clear%20and%20credible",
+    "consoleErrors": [],
+    "status": 200,
+    "title": "NamEngine Business Results",
+    "h1": "Business names shaped from your taste.",
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "horizontalOverflow": false,
+    "resultCards": 8,
+    "benefits": [
+      "Full Reports for every name",
+      "Refined follow-up rounds shaped by Love / No reactions",
+      "Compare favorites and choose with confidence",
+      "Shareable name views and saved taste signals"
+    ],
+    "guarantee": "100% money-back guarantee if NamEngine doesn’t feel useful.",
+    "panelText": "NEXT LIST\n\nReady for a fresh list?\n\nWe’ll use at least 3 Love or No reactions to sharpen the next set.\n\nPAID ACCESS\n\nWant a sharper next list?\n\nYour first list is free to view. Unlock Business access to continue with:\n\nFull Reports for every name\nRefined follow-up rounds shaped by Love / No reactions\nCompare favorites and choose with confidence\nShareable name views and saved taste signals\n\n100% money-back guarantee if NamEngine doesn’t feel useful.\n\nUnlock Business Access\nCompare favorites\nShare list"
+  }
+]

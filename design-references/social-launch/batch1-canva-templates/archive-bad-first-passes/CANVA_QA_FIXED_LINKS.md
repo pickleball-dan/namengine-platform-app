@@ -1,0 +1,81 @@
+# NamEngine Batch 1 Canva Designs — QA Fixed
+
+Created 13 corrected Canva designs via Canva Connect API.
+
+## 1. NamEngine Batch 1 QA fixed - Template 01 Reel Text Card 9x16
+- File: `template-01-reel-text-card-9x16.png`
+- Canva design ID: `DAHSrR3m4Q4`
+- Edit: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NjgyMzUwNTU5fQ..Uhe31MHZFBq59N4U.grad5cozszhOLCaXVskQvggissOnGL9pFsmdThbexjHgB8d2p_6G4gYkHGjcloZblZXkjrqS0FktTsJ5oKsn-efzqRILnkrhKp4hN04r9EToxFk.bvwBJMzz4HAisPgUYnGoaQ/edit?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=4fc4ecc8-d9ee-4a0e-9b8a-a0b1ea7d7e26&utm_campaign=public_api_create_design_clicked_hyperlink
+- View: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NjgyMzUwNTU5fQ..Uhe31MHZFBq59N4U.grad5cozszhOLCaXVskQvggissOnGL9pFsmdThbexjHgB8d2p_6G4gYkHGjcloZblZXkjrqS0FktTsJ5oKsn-efzqRILnkrhKp4hN04r9EToxFk.bvwBJMzz4HAisPgUYnGoaQ/view?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=5312e9ee-2397-4cc9-957f-2b7c805e29dc&utm_campaign=public_api_create_design_clicked_hyperlink
+
+## 2. NamEngine Batch 1 QA fixed - Template 02 If You Love Carousel 4x5
+- File: `template-02-if-you-love-carousel-4x5.png`
+- Canva design ID: `DAHSrbLV9FI`
+- Edit: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NjgyMzU0MTA0fQ..6wGia8DvY4CL-gDE.VtrCveSyIG8VFH5asBANQTgOyGXnTNuKBJefbdTsGMDdW7qOwil68eXSqGZYZ9DqLjjm2PNjkd71e072WbItsP20AfcJUDU4-LnQJLOCKrxtYFE.SVs1I94X0hlmFPVKE5Qqfw/edit?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=928223c1-3623-47cf-871f-e009487d59cc&utm_campaign=public_api_create_design_clicked_hyperlink
+- View: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NjgyMzU0MTA0fQ..6wGia8DvY4CL-gDE.VtrCveSyIG8VFH5asBANQTgOyGXnTNuKBJefbdTsGMDdW7qOwil68eXSqGZYZ9DqLjjm2PNjkd71e072WbItsP20AfcJUDU4-LnQJLOCKrxtYFE.SVs1I94X0hlmFPVKE5Qqfw/view?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=c20a90d5-a29d-476f-825c-d4fcdd30d8c3&utm_campaign=public_api_create_design_clicked_hyperlink
+
+## 3. NamEngine Batch 1 QA fixed - Template 03 Would You Split Poll 9x16
+- File: `template-03-would-you-split-poll-9x16.png`
+- Canva design ID: `DAHSrWXpZSE`
+- Edit: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NjgyMzU3NzUzfQ..n3Yh4803IlREuBIW.oAAlCb1xKvCMvpTmFGVC1qWLxcirVdb4d9sEIWSWd2ht_OHgiF0GXWnuEhSbwp515wTYvyN1wvJ0gspUMY0k8CW0BpCNIKBssu7ktu4xh9nQDus.gYgl_ATD8tHf1Dj0F8FgaQ/edit?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=2c568c15-65ca-4f66-b173-7016a15594d1&utm_campaign=public_api_create_design_clicked_hyperlink
+- View: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NjgyMzU3NzUzfQ..n3Yh4803IlREuBIW.oAAlCb1xKvCMvpTmFGVC1qWLxcirVdb4d9sEIWSWd2ht_OHgiF0GXWnuEhSbwp515wTYvyN1wvJ0gspUMY0k8CW0BpCNIKBssu7ktu4xh9nQDus.gYgl_ATD8tHf1Dj0F8FgaQ/view?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=d7484e5e-45b4-4cd9-bd62-1602ba311f6c&utm_campaign=public_api_create_design_clicked_hyperlink
+
+## 4. NamEngine Batch 1 QA fixed - Template 04 Name DNA Explainer 9x16
+- File: `template-04-name-dna-explainer-9x16.png`
+- Canva design ID: `DAHSrQBHEP8`
+- Edit: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NjgyMzYxMjM2fQ..hGIEhkw5hKgqFQ5p.L_G8bAtpx8EakKJU7HZRDzoF9sCKjdAijIgk8sJPIumylBDVv3RoZpTFFOUeNmTAv8bxjOZGzWswNXva0I0NCdyMnw6PwlM_X9mw7NVLGwgYX8c.u02l8iaGToZ__VvV7Ve3Xg/edit?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=fb581e86-008c-40c8-bb7f-692f3c5d0f63&utm_campaign=public_api_create_design_clicked_hyperlink
+- View: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NjgyMzYxMjM2fQ..hGIEhkw5hKgqFQ5p.L_G8bAtpx8EakKJU7HZRDzoF9sCKjdAijIgk8sJPIumylBDVv3RoZpTFFOUeNmTAv8bxjOZGzWswNXva0I0NCdyMnw6PwlM_X9mw7NVLGwgYX8c.u02l8iaGToZ__VvV7Ve3Xg/view?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=ddfcec63-7a81-4f30-95cc-d2de2d4aa84f&utm_campaign=public_api_create_design_clicked_hyperlink
+
+## 5. NamEngine Batch 1 QA fixed - Template 05 Nobodys Talking Feature 4x5
+- File: `template-05-nobodys-talking-feature-4x5.png`
+- Canva design ID: `DAHSrdl9upM`
+- Edit: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NjgyMzY0NzA3fQ..j0H34CSJM2acvvp8.qJh3IWK53bTedp1OdD9-uhBlnTRhlGABFvtl7Lf8bRMcLYVGSb-Uc6wP9N6_-MxJQ_ZAfme8j3j042Wi-J8qi1Gmqg0rILInnTxL84iQBSNTqrA.fW7UE-n4lg5pA5vPFTzOgg/edit?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=416826b2-e1c4-482a-9569-063c1f677180&utm_campaign=public_api_create_design_clicked_hyperlink
+- View: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NjgyMzY0NzA3fQ..j0H34CSJM2acvvp8.qJh3IWK53bTedp1OdD9-uhBlnTRhlGABFvtl7Lf8bRMcLYVGSb-Uc6wP9N6_-MxJQ_ZAfme8j3j042Wi-J8qi1Gmqg0rILInnTxL84iQBSNTqrA.fW7UE-n4lg5pA5vPFTzOgg/view?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=e06033d9-54d1-4f0c-866a-a9914130fa94&utm_campaign=public_api_create_design_clicked_hyperlink
+
+## 6. NamEngine Batch 1 QA fixed - Template 06 Sunday Name List 4x5
+- File: `template-06-sunday-name-list-4x5.png`
+- Canva design ID: `DAHSrV5V3Eo`
+- Edit: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NjgyMzY4MjI5fQ..BO9o6eQbfkCgx7lg.L9XVh6fEH3jzNFMh0X6iqP_LinHy1MSxY6rozPVjcmOvFJOoPRTS6T9ciU7CbGNKK9PoDywvRjc93QhlkjAPE48Ns0Ozw1dPYflyusbCdQ2trRo.UYw4qCjVLxJmgX6Bvd5KBw/edit?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=912a2d7b-d00c-4f5e-9b66-a6e17891e21f&utm_campaign=public_api_create_design_clicked_hyperlink
+- View: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NjgyMzY4MjI5fQ..BO9o6eQbfkCgx7lg.L9XVh6fEH3jzNFMh0X6iqP_LinHy1MSxY6rozPVjcmOvFJOoPRTS6T9ciU7CbGNKK9PoDywvRjc93QhlkjAPE48Ns0Ozw1dPYflyusbCdQ2trRo.UYw4qCjVLxJmgX6Bvd5KBw/view?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=98011875-5aa8-4656-8ead-d6f4d381d802&utm_campaign=public_api_create_design_clicked_hyperlink
+
+## 7. NamEngine Batch 1 QA fixed - Day 01 Why Namengine Exists
+- File: `day-01-why-namengine-exists-preview.png`
+- Canva design ID: `DAHSrX48FzU`
+- Edit: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NjgyMzcxNzA3fQ..OJqePJhSkEP9Kmes.rh1onNldveA5Q7N15bwTAoYGIy0JvgN9COmFQ_INRkeS6xyEpWGWIGWn2owMY_xsrfEprhtvA_J6-etDJu5kXcOJo6A0iuyXoz_-speb2YscMNU.bL7T9jwhbNgOao5iwfb5eg/edit?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=c5f541fd-adb2-4d58-ac82-27dbed03c66b&utm_campaign=public_api_create_design_clicked_hyperlink
+- View: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NjgyMzcxNzA3fQ..OJqePJhSkEP9Kmes.rh1onNldveA5Q7N15bwTAoYGIy0JvgN9COmFQ_INRkeS6xyEpWGWIGWn2owMY_xsrfEprhtvA_J6-etDJu5kXcOJo6A0iuyXoz_-speb2YscMNU.bL7T9jwhbNgOao5iwfb5eg/view?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=1db994c9-ac9d-4e69-bf2e-49d9ec8a5df2&utm_campaign=public_api_create_design_clicked_hyperlink
+
+## 8. NamEngine Batch 1 QA fixed - Day 02 If You Love Theodore
+- File: `day-02-if-you-love-theodore-preview.png`
+- Canva design ID: `DAHSrdK7ueo`
+- Edit: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NjgyMzc1MTk5fQ..eetn9ND2nhey8UG2.xuuK7cXLvFipDIVYKc7dK8YXedL1WhyN2ikfG3a2gPHnBl1R8mSedfSMniWepPzEIKTwcTFmKrxBHGnKd5SB1zaqjsQoGAHyLbtH64LHr7VUzLM.S0M8hJHZCf8XC3MaQ7PE2Q/edit?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=44c2a6bd-d46c-4c52-8bf2-be2760a272fe&utm_campaign=public_api_create_design_clicked_hyperlink
+- View: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NjgyMzc1MTk5fQ..eetn9ND2nhey8UG2.xuuK7cXLvFipDIVYKc7dK8YXedL1WhyN2ikfG3a2gPHnBl1R8mSedfSMniWepPzEIKTwcTFmKrxBHGnKd5SB1zaqjsQoGAHyLbtH64LHr7VUzLM.S0M8hJHZCf8XC3MaQ7PE2Q/view?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=1e3d7fd4-3556-434c-a388-e9ebc4d8592f&utm_campaign=public_api_create_design_clicked_hyperlink
+
+## 9. NamEngine Batch 1 QA fixed - Day 03 Arthur August
+- File: `day-03-arthur-august-preview.png`
+- Canva design ID: `DAHSrdiQc5w`
+- Edit: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NjgyMzc4NjQ4fQ..A-h9x8ReKscjwTef.OygaQqQxacSGYSG6M6PLTuI1vxNdTySky2CmKjKXmg-ivl8BmukCEBLAjzqcD3GdKeaujnpV1bvCQxOjHL815f0eACjMSg3pUiWorWH7vFz4mCo.AhJ4uKF93uL1kZqaBbeGmQ/edit?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=e8d45b45-40dc-48b3-b300-64243730a8a3&utm_campaign=public_api_create_design_clicked_hyperlink
+- View: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NjgyMzc4NjQ4fQ..A-h9x8ReKscjwTef.OygaQqQxacSGYSG6M6PLTuI1vxNdTySky2CmKjKXmg-ivl8BmukCEBLAjzqcD3GdKeaujnpV1bvCQxOjHL815f0eACjMSg3pUiWorWH7vFz4mCo.AhJ4uKF93uL1kZqaBbeGmQ/view?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=ffcf2a15-9afe-4477-a7d8-2662f797ffaf&utm_campaign=public_api_create_design_clicked_hyperlink
+
+## 10. NamEngine Batch 1 QA fixed - Day 04 Name DNA Margot
+- File: `day-04-name-dna-margot-preview.png`
+- Canva design ID: `DAHSre0z1AI`
+- Edit: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NjgyMzgyMDk2fQ..bQSSiFUYS5zBqQp2.BFfSIFQpSau260D77QwtUwMQE3NP8p0VtFPhSsyc9WH1tBhOZajkaXXjkd3Puc5fKiV7dtgL7WsiZ5qB6cAZ2bbOoYjoDgixmzxZ5R64rts2Xa8.3a4TcS0lzU6T3KE-wDPgXQ/edit?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=1b3326bc-da4a-42c9-9064-6d28a76a81ff&utm_campaign=public_api_create_design_clicked_hyperlink
+- View: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NjgyMzgyMDk2fQ..bQSSiFUYS5zBqQp2.BFfSIFQpSau260D77QwtUwMQE3NP8p0VtFPhSsyc9WH1tBhOZajkaXXjkd3Puc5fKiV7dtgL7WsiZ5qB6cAZ2bbOoYjoDgixmzxZ5R64rts2Xa8.3a4TcS0lzU6T3KE-wDPgXQ/view?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=bd4e4014-bc39-45cb-a75b-f442c49656b4&utm_campaign=public_api_create_design_clicked_hyperlink
+
+## 11. NamEngine Batch 1 QA fixed - Day 05 Conrad
+- File: `day-05-conrad-preview.png`
+- Canva design ID: `DAHSrQ0e6ZI`
+- Edit: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NjgyMzg1NTcwfQ..knplarrTSbFuCXHL.6yAhTvZmimlK87Ov0vk7QjMHO3kHQU_Z2LiQ3g_AMBMNnTJVuZXys6V4DO6Ktf3Llks1XuTRTfpuPi_iG6Kf_LYfTYcTiBP4X6d3JMabBTLyfuI.wd09zdPVxiR67DYgmqhLlw/edit?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=480e3044-f4b0-4a3f-8a05-17f947d8eeb5&utm_campaign=public_api_create_design_clicked_hyperlink
+- View: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NjgyMzg1NTcwfQ..knplarrTSbFuCXHL.6yAhTvZmimlK87Ov0vk7QjMHO3kHQU_Z2LiQ3g_AMBMNnTJVuZXys6V4DO6Ktf3Llks1XuTRTfpuPi_iG6Kf_LYfTYcTiBP4X6d3JMabBTLyfuI.wd09zdPVxiR67DYgmqhLlw/view?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=8aaa9d8d-cf44-4390-9326-77ce1508661c&utm_campaign=public_api_create_design_clicked_hyperlink
+
+## 12. NamEngine Batch 1 QA fixed - Day 06 Popularity Debate
+- File: `day-06-popularity-debate-preview.png`
+- Canva design ID: `DAHSrf424k0`
+- Edit: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NjgyMzg5MTE4fQ..mVdjhNtdB0zfkoNY.nbGWRCzD2zw0jo8LZmrKtbGN8Sov1ge1yFNLDe6Ud4bxuI1mElgydboBCDk7jn2S_RhEl98Iv4bjr3QqQFGgA_JLbrnrdxHsxzRmYRmFyrtpLjg.ST-r9KRi6mByek7FTf25BA/edit?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=04d31069-9846-4537-9b99-158d409f18d3&utm_campaign=public_api_create_design_clicked_hyperlink
+- View: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NjgyMzg5MTE4fQ..mVdjhNtdB0zfkoNY.nbGWRCzD2zw0jo8LZmrKtbGN8Sov1ge1yFNLDe6Ud4bxuI1mElgydboBCDk7jn2S_RhEl98Iv4bjr3QqQFGgA_JLbrnrdxHsxzRmYRmFyrtpLjg.ST-r9KRi6mByek7FTf25BA/view?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=4394bbd5-9039-4b44-88a2-20b44e8e7fec&utm_campaign=public_api_create_design_clicked_hyperlink
+
+## 13. NamEngine Batch 1 QA fixed - Day 07 Classic List
+- File: `day-07-classic-list-preview.png`
+- Canva design ID: `DAHSrZmsRmA`
+- Edit: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NjgyMzkyNjY4fQ..q4QAj-lTFMiVArpN.ii8xuZEW8LuFdTsbN2oIRTI6eTHi_SL4xAsc1cEBMJqzCtAsDBtQT59UQNOGeYu1ePStmH2HKnD8wvedSflCe28IRzDp2PP-CQrVJIjTqRaIoaA.sQLWiwsxe_XxOpjtgG9tBA/edit?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=645cef57-3db1-4e63-9e8e-298d7bec7410&utm_campaign=public_api_create_design_clicked_hyperlink
+- View: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NjgyMzkyNjY4fQ..q4QAj-lTFMiVArpN.ii8xuZEW8LuFdTsbN2oIRTI6eTHi_SL4xAsc1cEBMJqzCtAsDBtQT59UQNOGeYu1ePStmH2HKnD8wvedSflCe28IRzDp2PP-CQrVJIjTqRaIoaA.sQLWiwsxe_XxOpjtgG9tBA/view?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=9f815e41-8e44-4362-9ae8-5c1a6c8b1989&utm_campaign=public_api_create_design_clicked_hyperlink

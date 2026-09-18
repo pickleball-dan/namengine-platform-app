@@ -33,7 +33,7 @@ TESTIMONIALS = [
     },
     {
         "quote": "I used this site to help come up with a business name, and I was amazed by how many creative and unique ideas it gave me! Honestly, I wish this had been around when I was naming my kids\u2014it would have made that decision so much easier!",
-        "name": "Kristin",
+        "name": "Jackie S.",
         "vertical": "business",
         "avatar": "images/testimonials/kristin.webp",
     },

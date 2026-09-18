@@ -1,0 +1,122 @@
+[
+  {
+    "name": "baby-results",
+    "route": "/baby/results?gender=Girl&style=Classic&sound=Soft&implemented=1",
+    "status": 200,
+    "consoleErrors": [],
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "horizontalOverflow": false,
+    "resultCards": 8,
+    "firstCardBox": {
+      "x": 30,
+      "y": -3790.53125,
+      "width": 330,
+      "height": 465.65625,
+      "top": -3790.53125,
+      "right": 360,
+      "bottom": -3324.875,
+      "left": 30
+    },
+    "reactionBox": {
+      "x": 44.71875,
+      "y": -3527.28125,
+      "width": 300.5625,
+      "height": 59.4375,
+      "top": -3527.28125,
+      "right": 345.28125,
+      "bottom": -3467.84375,
+      "left": 44.71875
+    },
+    "panelBox": {
+      "x": 30,
+      "y": 42.484375,
+      "width": 330,
+      "height": 759.75,
+      "top": 42.484375,
+      "right": 360,
+      "bottom": 802.234375,
+      "left": 30
+    }
+  },
+  {
+    "name": "pet-results",
+    "route": "/pet/results?pet_type=Dog&style=Playful&vibe=Friendly&implemented=1",
+    "status": 200,
+    "consoleErrors": [],
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "horizontalOverflow": false,
+    "resultCards": 8,
+    "firstCardBox": {
+      "x": 14,
+      "y": -3562.484375,
+      "width": 362,
+      "height": 435.65625,
+      "top": -3562.484375,
+      "right": 376,
+      "bottom": -3126.828125,
+      "left": 14
+    },
+    "reactionBox": {
+      "x": 28.71875,
+      "y": -3301.234375,
+      "width": 332.5625,
+      "height": 59.4375,
+      "top": -3301.234375,
+      "right": 361.28125,
+      "bottom": -3241.796875,
+      "left": 28.71875
+    },
+    "panelBox": {
+      "x": 14,
+      "y": 30.53125,
+      "width": 362,
+      "height": 783.25,
+      "top": 30.53125,
+      "right": 376,
+      "bottom": 813.78125,
+      "left": 14
+    }
+  },
+  {
+    "name": "business-results",
+    "route": "/business/results?business_description=Premium%20recovery%20studio&industry=Wellness&audience=Premium%20clients&style=Clear%20and%20credible&implemented=1",
+    "status": 200,
+    "consoleErrors": [],
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "horizontalOverflow": false,
+    "resultCards": 8,
+    "firstCardBox": {
+      "x": 14,
+      "y": -3431.71875,
+      "width": 362,
+      "height": 419.28125,
+      "top": -3431.71875,
+      "right": 376,
+      "bottom": -3012.4375,
+      "left": 14
+    },
+    "reactionBox": {
+      "x": 28.71875,
+      "y": -3186.84375,
+      "width": 332.5625,
+      "height": 59.4375,
+      "top": -3186.84375,
+      "right": 361.28125,
+      "bottom": -3127.40625,
+      "left": 28.71875
+    },
+    "panelBox": {
+      "x": 14,
+      "y": 30.296875,
+      "width": 362,
+      "height": 783.25,
+      "top": 30.296875,
+      "right": 376,
+      "bottom": 813.546875,
+      "left": 14
+    }
+  }
+]

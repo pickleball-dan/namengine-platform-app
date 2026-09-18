@@ -1,0 +1,248 @@
+/* landing-hero.css — Landing page Option B overrides
+   Loaded LAST — wins all conflicts via !important + specificity
+   v=20260824-landing-hero-v1 */
+
+/* ── Prevent horizontal bleed ── */
+html, body.page-landing {
+  overflow-x: hidden !important;
+}
+
+/* ── Reset main for full-bleed hero ── */
+body.page-landing main {
+  max-width: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* ── Constrain sections below hero ── */
+body.page-landing .landing-section {
+  max-width: 1180px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  box-sizing: border-box !important;
+}
+
+/* ── Floating transparent header ── */
+body.page-landing .site-header {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  background: transparent !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+  z-index: 100 !important;
+  transition: background 0.25s ease, box-shadow 0.25s ease !important;
+}
+
+body.page-landing .site-header.scrolled {
+  position: fixed !important;
+  background: #18212f !important;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.25) !important;
+}
+
+body.page-landing .brand-logo-wordmark {
+  filter: brightness(0) invert(1) !important;
+}
+
+body.page-landing .site-nav-link,
+body.page-landing .site-nav-signin {
+  color: rgba(255,255,255,0.88) !important;
+}
+
+body.page-landing .naming-menu-trigger,
+body.page-landing .naming-menu-trigger span {
+  color: rgba(255,255,255,0.88) !important;
+}
+
+body.page-landing .naming-menu-trigger svg path {
+  stroke: rgba(255,255,255,0.88) !important;
+}
+
+/* Hide the "What are you naming?" dropdown — hero pills handle this */
+body.page-landing .naming-menu {
+  display: none !important;
+}
+
+/* ── Hero ── */
+body.page-landing .landing-hero {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-end !important;
+  align-items: flex-start !important;
+  min-height: 100svh !important;
+  width: 100% !important;
+  padding: 0 clamp(20px, 6vw, 72px) clamp(40px, 5vw, 64px) !important;
+  /* 75% shifts right to show both people on mobile crop */
+  background: url('/static/images/namengine-hero.jpg') 75% center / cover no-repeat !important;
+  border-radius: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  grid-template-columns: unset !important;
+  gap: 0 !important;
+  overflow: visible !important;
+}
+
+.landing-hero-overlay {
+  position: absolute !important;
+  inset: 0 !important;
+  background: linear-gradient(
+    to bottom,
+    rgba(10,15,26,0.15) 0%,
+    rgba(10,15,26,0.08) 35%,
+    rgba(10,15,26,0.55) 68%,
+    rgba(10,15,26,0.82) 100%
+  ) !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+}
+
+body.page-landing .landing-hero-copy {
+  position: relative !important;
+  z-index: 1 !important;
+  max-width: 700px !important;
+  color: #ffffff !important;
+}
+
+body.page-landing .landing-hero-copy h1 {
+  font-family: 'Cormorant Garamond', serif !important;
+  font-size: clamp(2.6rem, 7vw, 5rem) !important;
+  font-weight: 700 !important;
+  line-height: 1.06 !important;
+  color: #ffffff !important;
+  margin: 0 0 0.45rem !important;
+  letter-spacing: -0.01em !important;
+  max-width: unset !important;
+}
+
+body.page-landing .landing-hero-copy h1 em {
+  display: inline !important;
+}
+
+body.page-landing .landing-hero-sub {
+  font-size: clamp(1rem, 2vw, 1.22rem) !important;
+  color: rgba(255,255,255,0.76) !important;
+  margin: 0 0 1.75rem !important;
+  font-weight: 400 !important;
+  max-width: unset !important;
+}
+
+/* ── Vertical pills ── */
+.landing-vertical-pills {
+  display: flex !important;
+  gap: 10px !important;
+  flex-wrap: wrap !important;
+  margin-bottom: 1.4rem !important;
+}
+
+.landing-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 10px 24px !important;
+  border-radius: 100px !important;
+  font-size: 0.95rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  border: 2px solid rgba(255,255,255,0.62) !important;
+  background: rgba(255,255,255,0.10) !important;
+  color: #ffffff !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  font-family: inherit !important;
+}
+
+.landing-pill:hover {
+  background: rgba(255,255,255,0.22) !important;
+  border-color: rgba(255,255,255,0.90) !important;
+}
+
+/* ── Hero CTA ── */
+.landing-cta-primary {
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 15px 32px !important;
+  background: #ffffff !important;
+  color: #18212f !important;
+  border: none !important;
+  border-radius: 100px !important;
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  margin-bottom: 0.55rem !important;
+  font-family: inherit !important;
+}
+
+.landing-cta-reassure {
+  font-size: 0.82rem !important;
+  color: rgba(255,255,255,0.55) !important;
+  margin: 0 0 1.75rem !important;
+}
+
+.landing-hero-remind {
+  position: relative !important;
+  z-index: 1 !important;
+  padding-top: 1.1rem !important;
+  border-top: 1px solid rgba(255,255,255,0.13) !important;
+  width: 100% !important;
+}
+
+.landing-hero-remind p {
+  font-size: 0.83rem !important;
+  color: rgba(255,255,255,0.52) !important;
+  margin: 0 0 3px !important;
+}
+
+.landing-remind-link {
+  font-size: 0.83rem !important;
+  color: rgba(255,255,255,0.76) !important;
+  font-weight: 500 !important;
+}
+
+/* ── Trust badge strip ── */
+.landing-trust-strip {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: clamp(14px, 4vw, 40px) !important;
+  flex-wrap: wrap !important;
+  padding: 16px clamp(20px, 5vw, 48px) !important;
+  background: #18212f !important;
+  color: rgba(255,255,255,0.82) !important;
+  font-size: 0.87rem !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.landing-trust-strip div {
+  display: flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+}
+
+.landing-trust-strip strong {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+/* ── Mobile ── */
+@media (max-width: 860px) {
+  body.page-landing .landing-hero {
+    padding: 0 20px clamp(36px, 8vw, 52px) !important;
+  }
+
+  body.page-landing .landing-section {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+  }
+
+  .landing-cta-primary {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  .landing-pill {
+    padding: 9px 18px !important;
+    font-size: 0.88rem !important;
+  }
+}

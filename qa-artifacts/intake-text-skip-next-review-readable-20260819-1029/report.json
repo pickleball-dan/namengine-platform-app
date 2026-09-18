@@ -1,0 +1,51 @@
+[
+  {
+    "label": "Baby empty text field: button remains Skip",
+    "state": {
+      "question": "Sibling, surname, or family context",
+      "questionId": "family_context",
+      "value": "",
+      "button": "Skip",
+      "actionState": "skip"
+    },
+    "screenshot": "qa-artifacts\\intake-text-skip-next-review-readable-20260819-1029\\01-baby-empty-skip-readable.png"
+  },
+  {
+    "label": "Baby typed text field: button changes to Next",
+    "state": {
+      "question": "Sibling, surname, or family context",
+      "questionId": "family_context",
+      "value": "Last name Parker; we like soft classic names.",
+      "button": "Next",
+      "actionState": "next"
+    },
+    "screenshot": "qa-artifacts\\intake-text-skip-next-review-readable-20260819-1029\\02-baby-typed-next-readable.png"
+  },
+  {
+    "label": "After Enter: moves to next question",
+    "state": {
+      "question": "Tell us what matters",
+      "questionId": "notes",
+      "value": "",
+      "button": "Skip",
+      "actionState": "skip"
+    },
+    "screenshot": "qa-artifacts\\intake-text-skip-next-review-readable-20260819-1029\\03-baby-after-enter-readable.png"
+  },
+  {
+    "label": "Pet current grouped intake surface",
+    "state": {
+      "submit": "Generate Pet Names",
+      "hasPerQuestionSkip": false
+    },
+    "screenshot": "qa-artifacts\\intake-text-skip-next-review-readable-20260819-1029\\pet-grouped-intake-readable.png"
+  },
+  {
+    "label": "Business current grouped intake surface",
+    "state": {
+      "submit": "Continue",
+      "hasPerQuestionSkip": false
+    },
+    "screenshot": "qa-artifacts\\intake-text-skip-next-review-readable-20260819-1029\\business-grouped-intake-readable.png"
+  }
+]

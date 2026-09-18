@@ -1,0 +1,93 @@
+# NamEngine Day 1-7 Launch Cards — Canva Links
+
+Created 14 Canva designs via Canva Connect API.
+
+Use this latest short-name batch only. Older long-name batches can be deleted manually in Canva.
+
+## Instagram 4x5
+### NE Day1ig
+- File: `day-01-instagram-4x5-launch.png`
+- Size: 1080×1350
+- Edit: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NzQ3NzM3MDM3fQ..qkMUGNKxxfSh0LIi.RfMBxleS9SliBshrTuF884Gbn-uibIrM0Xm_sHyUSdVAZzhs3PrAWb488kzqaKUW-H6LSJd3gWm6IQtZaTTDp0grYsYMPo2-fp4Ap3U_ftbN7FY.IqrcHdqyOYqd_ZGeft0frg/edit?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=baf71f9a-03ff-41a0-9ba8-81a1d077009d&utm_campaign=public_api_create_design_clicked_hyperlink
+- View: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NzQ3NzM3MDM3fQ..qkMUGNKxxfSh0LIi.RfMBxleS9SliBshrTuF884Gbn-uibIrM0Xm_sHyUSdVAZzhs3PrAWb488kzqaKUW-H6LSJd3gWm6IQtZaTTDp0grYsYMPo2-fp4Ap3U_ftbN7FY.IqrcHdqyOYqd_ZGeft0frg/view?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=e54972e9-618e-411c-a166-f36babf35d9b&utm_campaign=public_api_create_design_clicked_hyperlink
+
+### NE Day2ig
+- File: `day-02-instagram-4x5-launch.png`
+- Size: 1080×1350
+- Edit: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NzQ3NzQzODg4fQ..KyjRqkmmRKv27oJ6.Ju1GbvKLpsPjpG42nvDsRSBb9xlGVrYSwN9K6ohiqHgt1kUp4gkMmqYC58_gdsSfttdu5KdHyOmG66oz3GGMbg9Zyd3qKnv5GqYQAeiVnSY2CR8.IBPCeiaF86ntdNXB0coJgw/edit?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=c6fe6174-caa4-4d6a-8163-20b3c63eaacf&utm_campaign=public_api_create_design_clicked_hyperlink
+- View: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NzQ3NzQzODg4fQ..KyjRqkmmRKv27oJ6.Ju1GbvKLpsPjpG42nvDsRSBb9xlGVrYSwN9K6ohiqHgt1kUp4gkMmqYC58_gdsSfttdu5KdHyOmG66oz3GGMbg9Zyd3qKnv5GqYQAeiVnSY2CR8.IBPCeiaF86ntdNXB0coJgw/view?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=304df4de-1cf2-44b9-b290-7c8805e2bfc1&utm_campaign=public_api_create_design_clicked_hyperlink
+
+### NE Day3ig
+- File: `day-03-instagram-4x5-launch.png`
+- Size: 1080×1350
+- Edit: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NzQ3NzUwNzQzfQ..mlw4ILFzChiSutlJ.ytkjqM-dUXltZ6w4da8N0HjzOsPUpxrNOWx3CjzcSESyj2Sis1DDwp-llSuJGY9_Wqg-U3KSvMG5R2aoucwPlA_dcvas_SW6J64QrNTVhcAke7M.QzZsBx_2-L_1DCtu4pSOxQ/edit?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=a29dd4a3-62b2-4291-8160-10ebcde60ae2&utm_campaign=public_api_create_design_clicked_hyperlink
+- View: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NzQ3NzUwNzQzfQ..mlw4ILFzChiSutlJ.ytkjqM-dUXltZ6w4da8N0HjzOsPUpxrNOWx3CjzcSESyj2Sis1DDwp-llSuJGY9_Wqg-U3KSvMG5R2aoucwPlA_dcvas_SW6J64QrNTVhcAke7M.QzZsBx_2-L_1DCtu4pSOxQ/view?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=1765f9b6-cd17-4a27-9b9e-7278c4983658&utm_campaign=public_api_create_design_clicked_hyperlink
+
+### NE Day4ig
+- File: `day-04-instagram-4x5-launch.png`
+- Size: 1080×1350
+- Edit: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NzQ3NzU3ODk0fQ..VqvW5gwyWk8p25l1.akLKOaojXB3BZ_4JICSfVyjdXblpnqjLDSNgSzpe0fwxjtdqkSvVuDAgQh3fo7brv31x23Acp8QVt0f1ziStLliYTp3si3ysVIAr-mSvqhKe6PI.BDKcuxUfhleMKE09Rw164g/edit?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=f0b24fed-529b-4fb5-998d-ebc4dca31122&utm_campaign=public_api_create_design_clicked_hyperlink
+- View: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NzQ3NzU3ODk0fQ..VqvW5gwyWk8p25l1.akLKOaojXB3BZ_4JICSfVyjdXblpnqjLDSNgSzpe0fwxjtdqkSvVuDAgQh3fo7brv31x23Acp8QVt0f1ziStLliYTp3si3ysVIAr-mSvqhKe6PI.BDKcuxUfhleMKE09Rw164g/view?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=c8a3c880-332d-4625-9cb1-39e79fdd9ce4&utm_campaign=public_api_create_design_clicked_hyperlink
+
+### NE Day5ig
+- File: `day-05-instagram-4x5-launch.png`
+- Size: 1080×1350
+- Edit: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NzQ3NzY0ODc3fQ..Wf1k7Hw3SAkT7S8u.0yfWhrjqL0O-7UH1yE1T-L1AIV4fJdeSfNvs9q8zWd-ciWwaPmm1WAQ7ErUgW3D9WTp-KFUPewKlBMGI7ixapYNyYZnFBCyguBBMv64Glazwn2E.0wYF9RTjs88NjanyE6K24Q/edit?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=169472c6-136e-4105-9358-5317d30941b5&utm_campaign=public_api_create_design_clicked_hyperlink
+- View: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NzQ3NzY0ODc3fQ..Wf1k7Hw3SAkT7S8u.0yfWhrjqL0O-7UH1yE1T-L1AIV4fJdeSfNvs9q8zWd-ciWwaPmm1WAQ7ErUgW3D9WTp-KFUPewKlBMGI7ixapYNyYZnFBCyguBBMv64Glazwn2E.0wYF9RTjs88NjanyE6K24Q/view?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=c622c61c-9a3e-4311-8d7c-6183dc9ca573&utm_campaign=public_api_create_design_clicked_hyperlink
+
+### NE Day6ig
+- File: `day-06-instagram-4x5-launch.png`
+- Size: 1080×1350
+- Edit: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NzQ3NzcxODE3fQ..OPKZmoYjVvqD0Kjq.e95Oiii-nzyu_YpGW7SMb9790FEuH7NewmejRI2NnQFlAfzngzekPKJYZ9iUe0zHrNEoC_av6fxP3vBR4KjURrVnusUVpPfn5x61n2Tvb0VXM9k.h0wWHx8-spvTtphDt-YWpw/edit?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=a2ad07f0-6e8e-4316-8b60-b7e72cf550df&utm_campaign=public_api_create_design_clicked_hyperlink
+- View: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NzQ3NzcxODE3fQ..OPKZmoYjVvqD0Kjq.e95Oiii-nzyu_YpGW7SMb9790FEuH7NewmejRI2NnQFlAfzngzekPKJYZ9iUe0zHrNEoC_av6fxP3vBR4KjURrVnusUVpPfn5x61n2Tvb0VXM9k.h0wWHx8-spvTtphDt-YWpw/view?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=c6f78965-4081-41cd-b730-fabdca7ccf89&utm_campaign=public_api_create_design_clicked_hyperlink
+
+### NE Day7ig
+- File: `day-07-instagram-4x5-launch.png`
+- Size: 1080×1350
+- Edit: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NzQ3Nzc4NjI0fQ..0gkXm5-DRsGA36Tb.Y1vft7C4liH_mL4Tb8d-aw9y7v0J1e8DwQMLtCMZExMMUsGAiyCM8vpZirdim7ircalOdn1KpVYrIXL_hwcoKu_-JlDzWnIRVoB2p2HqVV7oYZM.Ag94L_gA9ytQKRZp6_Mm8Q/edit?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=2101ceea-5dca-4a3f-be55-543f9c11be8c&utm_campaign=public_api_create_design_clicked_hyperlink
+- View: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NzQ3Nzc4NjI0fQ..0gkXm5-DRsGA36Tb.Y1vft7C4liH_mL4Tb8d-aw9y7v0J1e8DwQMLtCMZExMMUsGAiyCM8vpZirdim7ircalOdn1KpVYrIXL_hwcoKu_-JlDzWnIRVoB2p2HqVV7oYZM.Ag94L_gA9ytQKRZp6_Mm8Q/view?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=de2cee52-8b78-4589-a8b6-62f4321eebaa&utm_campaign=public_api_create_design_clicked_hyperlink
+
+
+## TikTok 9x16
+### NE Day1tt
+- File: `day-01-tiktok-9x16-launch.png`
+- Size: 1080×1920
+- Edit: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NzQ3NzQwNDU1fQ..HdVlLDuEf5lZLFhX.t0NONFrZa0DeCmpb5XlnuJ_5DTsWgpgTVm6UTRCAMgltEs-uRaqziAv7bEaBVcLtydPoacIkcK7H6nC6mj85w1Gz_wOVj-2lWTJ-QP1uD8SUzdU.7Jj8NSrTEprXLjhCAMZ3Xg/edit?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=84314694-d72f-41e7-b369-ccfb7e3bdf8b&utm_campaign=public_api_create_design_clicked_hyperlink
+- View: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NzQ3NzQwNDU1fQ..HdVlLDuEf5lZLFhX.t0NONFrZa0DeCmpb5XlnuJ_5DTsWgpgTVm6UTRCAMgltEs-uRaqziAv7bEaBVcLtydPoacIkcK7H6nC6mj85w1Gz_wOVj-2lWTJ-QP1uD8SUzdU.7Jj8NSrTEprXLjhCAMZ3Xg/view?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=e08c185c-1501-4394-a1bf-81f0574c70a9&utm_campaign=public_api_create_design_clicked_hyperlink
+
+### NE Day2tt
+- File: `day-02-tiktok-9x16-launch.png`
+- Size: 1080×1920
+- Edit: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NzQ3NzQ3MzM1fQ..E44MMxTZTYOzUCnk.bGnZeBOhuW3EEmYlrGYVbToa3LxXEGvNSqr_zX3PsUg75ezskjZoOxoFIZlTvVQ0xE03v4z9shKk-zubFZZmtYM46LNHP0ECNs1BCbSjeWpGnLQ.XJvqDMjZ0ejU61uKgF7h3w/edit?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=f4b65ecc-e7ff-48a3-b77c-7acaf7351c84&utm_campaign=public_api_create_design_clicked_hyperlink
+- View: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NzQ3NzQ3MzM1fQ..E44MMxTZTYOzUCnk.bGnZeBOhuW3EEmYlrGYVbToa3LxXEGvNSqr_zX3PsUg75ezskjZoOxoFIZlTvVQ0xE03v4z9shKk-zubFZZmtYM46LNHP0ECNs1BCbSjeWpGnLQ.XJvqDMjZ0ejU61uKgF7h3w/view?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=3ae88e8e-02f3-4474-bdbf-53c88c6777ab&utm_campaign=public_api_create_design_clicked_hyperlink
+
+### NE Day3tt
+- File: `day-03-tiktok-9x16-launch.png`
+- Size: 1080×1920
+- Edit: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NzQ3NzU0MTgyfQ..7xmYDkdh0dze2RaK.oT9QHPGkoBcH7L5lyS6wVUzd9tJm2EfWsCJKTLBRR9D1hrlFt-9dU9jVmNoIz3zgQVuEzLlZRz35egOqtfmhiMDwwb4LeVRlwZNn1DDeL6rQ2eQ.yhL8dvFuJ_cmxNl1ZO41Tg/edit?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=96867aff-c924-4c65-8111-423188ac9be8&utm_campaign=public_api_create_design_clicked_hyperlink
+- View: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NzQ3NzU0MTgyfQ..7xmYDkdh0dze2RaK.oT9QHPGkoBcH7L5lyS6wVUzd9tJm2EfWsCJKTLBRR9D1hrlFt-9dU9jVmNoIz3zgQVuEzLlZRz35egOqtfmhiMDwwb4LeVRlwZNn1DDeL6rQ2eQ.yhL8dvFuJ_cmxNl1ZO41Tg/view?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=d00dd162-42dc-4fd4-b53b-4c3cea84c36d&utm_campaign=public_api_create_design_clicked_hyperlink
+
+### NE Day4tt
+- File: `day-04-tiktok-9x16-launch.png`
+- Size: 1080×1920
+- Edit: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NzQ3NzYxMzEwfQ..JC3AS5bq10nolGpw.lt26uOW1tWIQjz1OYuMNZE2_hZdzn5h0jlQn3dhYR5qs4J2fWvS0Ua4GnIMrI537UQq6zGy52PLvfzhKVsVsJ3Y6DxPQzYReA_TfXi0Eav6dNlA.fGPvwdBK5Nna1mBx1CIJDA/edit?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=dd2e1317-0f94-4d3b-97ea-ee9225a0bee6&utm_campaign=public_api_create_design_clicked_hyperlink
+- View: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NzQ3NzYxMzEwfQ..JC3AS5bq10nolGpw.lt26uOW1tWIQjz1OYuMNZE2_hZdzn5h0jlQn3dhYR5qs4J2fWvS0Ua4GnIMrI537UQq6zGy52PLvfzhKVsVsJ3Y6DxPQzYReA_TfXi0Eav6dNlA.fGPvwdBK5Nna1mBx1CIJDA/view?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=59e3e41a-c56e-4b20-a6f9-ac9e92b94169&utm_campaign=public_api_create_design_clicked_hyperlink
+
+### NE Day5tt
+- File: `day-05-tiktok-9x16-launch.png`
+- Size: 1080×1920
+- Edit: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NzQ3NzY4MzE5fQ..d6q33Ku-lzfD7ssE.rEqmMQR2ERxvhSX6__0cSpQknA0TUxXdy6QFuNP8ujeiLDaxUIq9PTL8PkHVx4i81uTwl4A_wA8wubC7o1jJfblPXwBQ2aZbOaRUzsKCa5Cd-9U.2kh-OPLTrDoqMbSNqLikzA/edit?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=3465d1f6-3510-4c46-85b9-836a06f405b9&utm_campaign=public_api_create_design_clicked_hyperlink
+- View: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NzQ3NzY4MzE5fQ..d6q33Ku-lzfD7ssE.rEqmMQR2ERxvhSX6__0cSpQknA0TUxXdy6QFuNP8ujeiLDaxUIq9PTL8PkHVx4i81uTwl4A_wA8wubC7o1jJfblPXwBQ2aZbOaRUzsKCa5Cd-9U.2kh-OPLTrDoqMbSNqLikzA/view?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=b21cef39-54f8-4dd1-adf1-3299a6f9ebac&utm_campaign=public_api_create_design_clicked_hyperlink
+
+### NE Day6tt
+- File: `day-06-tiktok-9x16-launch.png`
+- Size: 1080×1920
+- Edit: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NzQ3Nzc1MjMyfQ..kM9iSVRig17eG075.P5JThzfVnOvH8w7WPyP9tjgL6vMRyXsl7jgDzxYA2Re0fpXdjFxFLHQ37YDpeMEHp30dNVi4kz38kpb9S1o4zrBwMCVu5TiWp6hNDv6KylQ9_gg.CyThVTFbsUfI14xi3scWzg/edit?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=719607e9-468b-4fab-b2c8-c0576029ea17&utm_campaign=public_api_create_design_clicked_hyperlink
+- View: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NzQ3Nzc1MjMyfQ..kM9iSVRig17eG075.P5JThzfVnOvH8w7WPyP9tjgL6vMRyXsl7jgDzxYA2Re0fpXdjFxFLHQ37YDpeMEHp30dNVi4kz38kpb9S1o4zrBwMCVu5TiWp6hNDv6KylQ9_gg.CyThVTFbsUfI14xi3scWzg/view?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=2e5aa050-c398-4d3f-8e46-43e1c94bbb9a&utm_campaign=public_api_create_design_clicked_hyperlink
+
+### NE Day7tt
+- File: `day-07-tiktok-9x16-launch.png`
+- Size: 1080×1920
+- Edit: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NzQ3NzgyMDQ0fQ..LPZDJ-xrP176ZMrF.JAZvxQiixvlVgGYLEtUrybbbo2qBgbOoG5fhhhW68ER-XocpbmwGghzwZ5KICPURZ_at9oTIizgV5lRTWQlAw6ikc-KTYKj89db_y3kz03sIoOU.lbgxygcM5X98HoJL8iWhRg/edit?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=60782269-8fbf-463b-a5f9-c865e3a98ede&utm_campaign=public_api_create_design_clicked_hyperlink
+- View: https://www.canva.com/api/design/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiZXhwaXJ5IjoxNzg5NzQ3NzgyMDQ0fQ..LPZDJ-xrP176ZMrF.JAZvxQiixvlVgGYLEtUrybbbo2qBgbOoG5fhhhW68ER-XocpbmwGghzwZ5KICPURZ_at9oTIizgV5lRTWQlAw6ikc-KTYKj89db_y3kz03sIoOU.lbgxygcM5X98HoJL8iWhRg/view?utm_source=OC-AaAWy7B27BHX&utm_medium=referral&utm_term=ccfea4cf-94d9-4f76-a0a8-ae203cc379c4&utm_campaign=public_api_create_design_clicked_hyperlink
+

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+  
+    <rect width="100%" height="100%" fill="#FBF8F1"/>
+    <circle cx="970" cy="120" r="260" fill="#F7DAD6" opacity="0.78"/>
+    <circle cx="94" cy="1828" r="250" fill="#DDEBDD" opacity="0.70"/>
+    <circle cx="842" cy="1498" r="115" fill="#FF5233" opacity="0.10"/>
+    <path d="M-40 653 C 238 461, 562 806, 1120 576" fill="none" stroke="#FF5233" stroke-width="4" opacity="0.16"/>
+    <path d="M870 1670 l22 44 l48 7 l-35 34 l8 48 l-43 -23 l-43 23 l8 -48 l-35 -34 l48 -7 z" fill="#FF5233" opacity="0.16"/>
+    
+  
+    <g transform="translate(64,58) scale(0.3)">
+      <rect width="1500" height="240" fill="none"/>
+      <g transform="translate(20,20)">
+        <path d="M110 10 C52 10 10 47 10 103 C10 153 45 188 92 196 L74 224 L119 198 C177 197 220 160 220 103 C220 56 184 20 137 12" fill="none" stroke="#0D2540" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="116" y="156" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="132" font-weight="700" fill="#0D2540">n</text>
+        <path d="M164 24 C164 10 182 4 192 16 C203 4 221 10 221 24 C221 40 192 58 192 58 C192 58 164 40 164 24Z" fill="#FF5233"/>
+      </g>
+      <text x="275" y="150" font-family="Georgia, 'Times New Roman', serif" font-size="110" font-weight="700" fill="#0D2540">NamEngine</text>
+      <text x="930" y="150" font-family="Georgia, 'Times New Roman', serif" font-size="110" font-weight="700" fill="#FF5233">Baby</text>
+    </g>
+  
+    <text x="72" y="570" text-anchor="start" font-family="Georgia, 'Times New Roman', serif" font-size="178" font-weight="700" fill="#0D2540" >Margot</text>
+    <text x="78" y="637" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="44" font-weight="850" fill="#607086" >vintage roots, modern shape</text>
+    <rect x="72" y="805" width="936" height="405" rx="44" fill="#FFFFFF" stroke="rgba(13,37,64,0.12)" stroke-width="2"/>
+    <rect x="96" y="853" width="350" height="58" rx="29" fill="#F7DAD6" stroke="rgba(13,37,64,0.12)"/><text x="271.0" y="891" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="900" fill="#0D2540">VINTAGE</text><rect x="536" y="853" width="350" height="58" rx="29" fill="#DDEBDD" stroke="rgba(13,37,64,0.12)"/><text x="711.0" y="891" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="900" fill="#0D2540">TAILORED</text><rect x="96" y="949" width="350" height="58" rx="29" fill="#FFFFFF" stroke="rgba(13,37,64,0.12)"/><text x="271.0" y="987" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="900" fill="#0D2540">STYLISH</text><rect x="536" y="949" width="350" height="58" rx="29" fill="#F7DAD6" stroke="rgba(13,37,64,0.12)"/><text x="711.0" y="987" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="900" fill="#0D2540">WARM</text>
+    <text x="120" y="1135" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="42" font-weight="900" fill="#0D2540" >Distinctive without being difficult.</text>
+    
+  <text x="72" y="1695" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="32" font-weight="950" fill="#0D2540" >@namengine.app</text><text x="1008" y="1695" text-anchor="end" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="850" fill="#607086" >nam-engine.com</text>
+</svg>

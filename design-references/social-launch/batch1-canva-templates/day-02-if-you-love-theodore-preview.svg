@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350">
+  <rect width="100%" height="100%" fill="#FBF8F1"/>
+  <circle cx="960" cy="130" r="220" fill="#F7DAD6" opacity="0.50"/>
+  <circle cx="90" cy="1230" r="210" fill="#DDEBDD" opacity="0.48"/>
+  
+    
+    <g transform="translate(60,56) scale(0.3)">
+      <rect width="1500" height="240" fill="none"/>
+      <g transform="translate(20,20)">
+        <path d="M110 10 C52 10 10 47 10 103 C10 153 45 188 92 196 L74 224 L119 198 C177 197 220 160 220 103 C220 56 184 20 137 12" fill="none" stroke="#0D2540" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="116" y="156" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="132" font-weight="700" fill="#0D2540">n</text>
+        <path d="M164 24 C164 10 182 4 192 16 C203 4 221 10 221 24 C221 40 192 58 192 58 C192 58 164 40 164 24Z" fill="#FF5233"/>
+      </g>
+      <text x="275" y="150" font-family="Georgia, 'Times New Roman', serif" font-size="110" font-weight="700" fill="#0D2540">NamEngine</text>
+      <text x="930" y="150" font-family="Georgia, 'Times New Roman', serif" font-size="110" font-weight="700" fill="#FF5233">Baby</text>
+    </g>
+    
+    <text x="76" y="360" text-anchor="start" font-family="Georgia, 'Times New Roman', serif" font-size="78" font-weight="700" fill="#0D2540" ><tspan x="76" dy="0">If you love</tspan></text>
+    <text x="76" y="610" text-anchor="start" font-family="Georgia, 'Times New Roman', serif" font-size="82" font-weight="700" fill="#FF5233" font-style="italic"><tspan x="76" dy="0">Theodore</tspan></text>
+    <rect x="76" y="790" width="928" height="300" rx="36" fill="#FFFFFF" stroke="rgba(13,37,64,0.12)"/>
+    <text x="126" y="870" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="32" font-weight="800" fill="#0D2540" >Try names with the same old-soul warmth.</text>
+        <text x="126" y="958" text-anchor="start" font-family="Georgia, 'Times New Roman', serif" font-size="40" font-weight="700" fill="#0D2540" >Arthur · Frederick · Edmund</text>
+        <rect x="126" y="1018" width="220" height="58" rx="29.0" fill="#F7DAD6" stroke="#DDE3EC"/><text x="236.0" y="1055.05" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="23" font-weight="800" fill="#0D2540">warm</text><rect x="370" y="1018" width="250" height="58" rx="29.0" fill="#DDEBDD" stroke="#DDE3EC"/><text x="495.0" y="1055.05" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="23" font-weight="800" fill="#0D2540">classic</text><rect x="645" y="1018" width="230" height="58" rx="29.0" fill="#FFFFFF" stroke="#DDE3EC"/><text x="760.0" y="1055.05" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="23" font-weight="800" fill="#0D2540">less common</text>
+    <text x="76" y="1240" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="900" fill="#0D2540" >@namengine.APP</text>
+    
+</svg>

@@ -1,0 +1,113 @@
+import base64
+import json
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
+from pathlib import Path
+
+TOKEN_PATH = Path('.canva-connect-token.json')
+BASE = Path('design-references/social-launch/batch1-canva-templates')
+IMAGE = BASE / 'day-07-classic-list-preview.png'
+OUT_PATH = BASE / 'canva-day07-final-v2.json'
+TITLE = 'NamEngine Batch 1 FINAL v2 - Day 07 Classic List'
+
+
+def load_token():
+    return json.loads(TOKEN_PATH.read_text(encoding='utf-8'))
+
+
+def save_token(token):
+    TOKEN_PATH.write_text(json.dumps(token, indent=2), encoding='utf-8')
+
+
+def request(method, url, token, headers=None, body=None):
+    headers = dict(headers or {})
+    headers['Authorization'] = f"Bearer {token['access_token']}"
+    req = urllib.request.Request(url, data=body, headers=headers, method=method)
+    try:
+        with urllib.request.urlopen(req, timeout=90) as resp:
+            data = resp.read().decode('utf-8', errors='replace')
+            return resp.status, json.loads(data) if data else {}
+    except urllib.error.HTTPError as e:
+        data = e.read().decode('utf-8', errors='replace')
+        try:
+            parsed = json.loads(data)
+        except Exception:
+            parsed = data
+        return e.code, parsed
+
+
+def refresh(token):
+    basic = base64.b64encode(f"{token['client_id']}:{token['client_secret']}".encode()).decode()
+    body = urllib.parse.urlencode({'grant_type': 'refresh_token', 'refresh_token': token['refresh_token']}).encode()
+    req = urllib.request.Request('https://api.canva.com/rest/v1/oauth/token', data=body, headers={
+        'Authorization': f'Basic {basic}',
+        'Content-Type': 'application/x-www-form-urlencoded',
+    }, method='POST')
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        new = json.loads(resp.read().decode())
+    token.update(new)
+    save_token(token)
+    return token
+
+
+def api(method, url, token, headers=None, body=None):
+    status, data = request(method, url, token, headers, body)
+    if status == 401 and token.get('refresh_token'):
+        token = refresh(token)
+        status, data = request(method, url, token, headers, body)
+    return token, status, data
+
+
+def upload_asset(token):
+    image_bytes = IMAGE.read_bytes()
+    metadata = json.dumps({'name_base64': base64.b64encode(TITLE[:50].encode()).decode()})
+    token, status, upload = api('POST', 'https://api.canva.com/rest/v1/asset-uploads', token, headers={
+        'Content-Type': 'application/octet-stream',
+        'Asset-Upload-Metadata': metadata,
+        'Content-Length': str(len(image_bytes)),
+    }, body=image_bytes)
+    if status >= 300:
+        raise RuntimeError(f'upload failed {status}: {upload}')
+    job_id = upload.get('job', {}).get('id')
+    for _ in range(20):
+        time.sleep(1.5)
+        token, js, job = api('GET', f'https://api.canva.com/rest/v1/asset-uploads/{job_id}', token)
+        if js >= 300:
+            raise RuntimeError(f'job read failed {js}: {job}')
+        asset_id = job.get('job', {}).get('asset', {}).get('id') or job.get('asset', {}).get('id') or job.get('asset_id')
+        if asset_id:
+            return token, asset_id
+        status_value = job.get('job', {}).get('status') or job.get('status')
+        if status_value == 'failed':
+            raise RuntimeError(f'upload job failed: {job}')
+    raise RuntimeError('upload timed out')
+
+
+def main():
+    token = load_token()
+    token, asset_id = upload_asset(token)
+    payload = json.dumps({
+        'type': 'type_and_asset',
+        'design_type': {'type': 'custom', 'width': 1080, 'height': 1350},
+        'asset_id': asset_id,
+        'title': TITLE,
+    }).encode()
+    token, status, design = api('POST', 'https://api.canva.com/rest/v1/designs', token, headers={'Content-Type': 'application/json'}, body=payload)
+    if status >= 300:
+        raise RuntimeError(f'design create failed {status}: {design}')
+    item = {
+        'file': IMAGE.name,
+        'title': TITLE,
+        'asset_id': asset_id,
+        'design_id': design.get('design', {}).get('id'),
+        'edit_url': design.get('design', {}).get('urls', {}).get('edit_url'),
+        'view_url': design.get('design', {}).get('urls', {}).get('view_url'),
+    }
+    OUT_PATH.write_text(json.dumps(item, indent=2), encoding='utf-8')
+    print(json.dumps(item, indent=2))
+
+
+if __name__ == '__main__':
+    main()
