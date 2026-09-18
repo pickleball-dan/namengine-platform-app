@@ -11847,13 +11847,13 @@ body.vertical-boat {
   display: grid;
   gap: 3px;
   padding: 10px 11px;
-  background: rgba(15, 30, 51, 0.06);
+  background: rgba(15, 30, 51, 0.50);
   border: 1px solid rgba(200, 150, 62, 0.22);
   border-radius: 12px;
 }
 
 .vertical-boat .boat-result-field-labels dt {
-  color: #7a5a20;
+  color: #d9b96f;
   font-size: 11px;
   font-weight: 900;
   text-transform: uppercase;
@@ -11862,7 +11862,7 @@ body.vertical-boat {
 
 .vertical-boat .boat-result-field-labels dd {
   margin: 0;
-  color: #18212f;
+  color: #c6d1dd;
   font-size: 13px;
   font-weight: 650;
   line-height: 1.35;
@@ -11905,9 +11905,42 @@ body.vertical-boat {
 /* Fix 3: footer logo — SVG "Boat" tspan is hardcoded #2b6cb8 in the SVG source.
    No CSS override needed here; the SVG file itself has the correct color. */
 
-/* ── Boat result card: contrast fixes for dark navy background ─────────────── */
+/* ── Boat results page: full contrast fix for dark navy background ─────────── */
 
-/* Instruction box ("8 names checked…") */
+/* Page eyebrow ("NAMENGINE BOAT") */
+.vertical-boat .results-heading .eyebrow,
+.vertical-boat .results-heading > p:first-of-type {
+  color: #d9b96f;
+  font-weight: 900;
+  letter-spacing: 0.10em;
+}
+
+/* Hero headline */
+.vertical-boat .results-heading h1 {
+  color: #f0ead8;
+}
+
+/* Round · N options */
+.vertical-boat .results-heading > p {
+  color: #a8bdd4;
+}
+
+/* Framing paragraph ("Based on your brief…") */
+.vertical-boat .baby-results-framing {
+  color: #c6d1dd;
+}
+
+/* Trust cue box ("8 names checked…") */
+.vertical-boat .trust-cue {
+  color: #c6d1dd;
+  background: rgba(15, 30, 51, 0.60);
+  border-color: rgba(200, 150, 62, 0.30);
+}
+.vertical-boat .trust-cue strong {
+  color: #f0ead8;
+}
+
+/* Instruction box fallback */
 .vertical-boat .result-intro strong,
 .vertical-boat .result-intro,
 .vertical-boat .results-instruction-box strong,
@@ -11919,18 +11952,30 @@ body.vertical-boat {
   background: rgba(7, 17, 31, 0.70);
 }
 
-/* Kicker ("Best first look") */
+/* Direction disclosure ("Your direction" / "8 selections") */
+.vertical-boat .direction-disclosure summary {
+  color: #c6d1dd;
+  border-color: rgba(200, 150, 62, 0.22);
+  background: rgba(15, 30, 51, 0.50);
+}
+.vertical-boat .direction-disclosure summary strong {
+  color: #d9b96f;
+}
+
+/* Result card kicker ("Best first look" / "Strong alternative") */
+.vertical-boat .result-card .result-index,
 .vertical-boat .result-card .result-card-kicker,
 .vertical-boat .result-card .vc-kicker {
   color: #d9b96f;
 }
 
 /* Name heading */
-.vertical-boat .result-card h2 {
+.vertical-boat .result-card h2,
+.vertical-boat .result-card h2 a {
   color: #f0ead8;
 }
 
-/* Pronunciation ("THEE-oh") */
+/* Pronunciation */
 .vertical-boat .result-card .pronunciation {
   color: #a8bdd4;
 }
@@ -11943,11 +11988,13 @@ body.vertical-boat {
   color: #d9b96f;
 }
 
-/* Tagline / descriptor */
+/* Tagline */
 .vertical-boat .result-card .tagline {
   color: #c6d1dd;
   font-weight: 500;
 }
+
+/* WHY THIS NAME / VESSEL FIT / RISKS labels — already fixed above in field-labels block */
 
 /* Tags */
 .vertical-boat .result-card .result-tags span {
@@ -11956,7 +12003,7 @@ body.vertical-boat {
   border: 1.5px solid rgba(200, 150, 62, 0.36);
 }
 
-/* Reaction row buttons */
+/* Reaction row */
 .vertical-boat .result-card > .reaction-row button {
   color: #c6d1dd;
   background: rgba(200, 150, 62, 0.09);
@@ -11969,7 +12016,15 @@ body.vertical-boat {
   box-shadow: 0 4px 18px rgba(200, 150, 62, 0.28);
 }
 
-/* Mobile compact overrides */
+/* View vessel fit CTA link */
+.vertical-boat .result-explore-link {
+  color: #d9b96f;
+}
+.vertical-boat .result-explore-link:hover {
+  color: #f0ead8;
+}
+
+/* Mobile */
 @media (max-width: 640px) {
   .vertical-boat .result-card-meaning,
   .vertical-boat .result-card .tagline {
