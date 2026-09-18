@@ -11783,6 +11783,7 @@ body.vertical-boat {
 .vertical-boat .polished-flow-shell { grid-template-columns: minmax(0, 1fr); gap: 44px; padding-top: 18px; background: var(--page, #07111f); }
 .vertical-boat .intake-heading { background: var(--page, #07111f); }
 .vertical-boat .polished-flow-shell > * { grid-column: 1; }
+.vertical-boat { color: #f0ead8; }
 .vertical-boat .baby-welcome { position: relative; isolation: isolate; display: grid; min-height: 500px; align-content: center; justify-items: start; overflow: hidden; padding: clamp(40px, 7vw, 76px); color: #f0ead8; background-color: var(--page, #07111f); background: radial-gradient(circle at 82% 12%, rgba(200, 150, 62, 0.24), transparent 35%), radial-gradient(circle at 12% 100%, rgba(75, 111, 158, 0.20), transparent 38%), linear-gradient(145deg, rgba(15, 30, 51, 0.98), rgba(7, 17, 31, 0.98)); border: 1px solid rgba(200, 150, 62, 0.28); border-radius: 34px; box-shadow: 0 30px 90px rgba(0, 0, 0, 0.34); }
 .vertical-boat .baby-welcome::after { position: absolute; z-index: -1; right: -7%; bottom: -40%; width: 48%; aspect-ratio: 1.1; content: ""; background: linear-gradient(135deg, rgba(200, 150, 62, 0.28), rgba(36, 70, 112, 0.2)); border-radius: 55% 45% 62% 38% / 42% 58% 42% 58%; filter: blur(14px); transform: rotate(-8deg); }
 .vertical-boat .baby-welcome .vertical-page-logo { width: min(245px, 62vw); max-height: 76px; object-fit: contain; object-position: left center; margin-bottom: 22px; }
@@ -11908,6 +11909,13 @@ body.vertical-boat {
    No CSS override needed here; the SVG file itself has the correct color. */
 
 /* ── Boat results page: full contrast fix for dark navy background ─────────── */
+
+/* Navbar + page logo: NamEngine text (currentColor) = cream, Boat stays gold in SVG */
+.vertical-boat .site-header,
+.vertical-boat .navbar,
+.vertical-boat nav {
+  color: #f0ead8;
+}
 
 /* Page eyebrow ("NAMENGINE BOAT") */
 .vertical-boat .results-heading .eyebrow,

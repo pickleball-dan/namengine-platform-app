@@ -28,6 +28,6 @@
   <text x="275" y="150"
         font-family="Georgia, 'Times New Roman', serif"
         font-size="110" font-weight="700">
-    <tspan fill="currentColor">NamEngine</tspan><tspan fill="#2b6cb8">Boat</tspan>
+    <tspan fill="currentColor">NamEngine</tspan><tspan fill="#c8963e">Boat</tspan>
   </text>
 </svg>
