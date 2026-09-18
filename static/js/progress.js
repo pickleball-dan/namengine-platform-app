@@ -213,6 +213,15 @@
     });
   }
 
+  const boatBarFill = document.querySelector("[data-boat-progress-fill]");
+
+  function updateBoatBar(index) {
+    if (!boatBarFill) return;
+    // Steps 0-4 map to 10%→30%→50%→70%→90%; completion sets 100%
+    const pcts = [10, 30, 50, 70, 90];
+    boatBarFill.style.width = (pcts[index] ?? 90) + "%";
+  }
+
   function activateStep(index) {
     steps.forEach((step, stepIndex) => {
       step.classList.toggle("is-active", stepIndex === index);
@@ -225,6 +234,7 @@
       void visual.offsetWidth;
       visual.classList.add("is-pulsing");
     }
+    updateBoatBar(index);
   }
 
   function showProgress() {
@@ -419,6 +429,7 @@
           if (!response.ok) {
             throw new Error(`Progress request failed: ${response.status}`);
           }
+          if (boatBarFill) boatBarFill.style.width = "100%";
           window.location.assign(response.url || navigateUrl);
         })
         .catch(() => {

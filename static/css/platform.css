@@ -2946,6 +2946,39 @@ button {
 [data-progress-vertical="boat"] .progress-panel {
   background: linear-gradient(160deg, #0f1e33 0%, #07111f 100%);
   border-color: rgba(200, 150, 62, 0.22);
+  grid-template-columns: 1fr;
+  justify-items: center;
+  text-align: center;
+  gap: 20px;
+  padding: 32px 36px 28px;
+}
+
+/* Boat progress bar */
+[data-progress-vertical="boat"] .boat-progress-bar-wrap {
+  width: 100%;
+  margin: 14px 0 0;
+}
+[data-progress-vertical="boat"] .boat-progress-bar-track {
+  width: 100%;
+  height: 4px;
+  background: rgba(200, 150, 62, 0.18);
+  border-radius: 2px;
+  overflow: hidden;
+}
+[data-progress-vertical="boat"] .boat-progress-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #c8963e, #e8b84b);
+  border-radius: 2px;
+  transition: width 0.6s ease;
+}
+[data-progress-vertical="boat"] .boat-progress-time {
+  display: block;
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: #6a839a;
+  font-weight: 500;
+  letter-spacing: 0.01em;
 }
 
 [data-progress-vertical="boat"] .progress-visual::before {
