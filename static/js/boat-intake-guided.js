@@ -5,7 +5,7 @@
   const questions = Array.from(form.querySelectorAll("[data-boat-question]"));
   const stage = form.querySelector("[data-boat-question-stage]");
   const progressbar = form.querySelector("[data-boat-progressbar]");
-  const progressFill = form.querySelector("[data-boat-progress-fill]");
+  const progressFill = form.querySelector("[data-boat-intake-fill]");
   const progressCopy = form.querySelector("[data-boat-progress-copy]");
   const review = form.querySelector("[data-boat-direction-review]");
   const reviewList = form.querySelector("[data-boat-direction-list]");

@@ -295,7 +295,7 @@
       {% elif vertical.slug == "boat" and is_polished_flow %}
         <div class="boat-question-progress" aria-live="polite">
           <div class="boat-progress-track" role="progressbar" aria-label="Boat intake progress" aria-valuemin="1" aria-valuenow="1" aria-valuemax="{{ vertical.intake_questions|length }}" data-boat-progressbar>
-            <span data-boat-progress-fill></span>
+            <span data-boat-intake-fill></span>
           </div>
           <span class="boat-progress-copy" data-boat-progress-copy>Question 1 of {{ vertical.intake_questions|length }}</span>
         </div>
