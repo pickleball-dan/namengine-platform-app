@@ -199,7 +199,6 @@ BOAT_USE_OPTIONS = (
     "Extended cruising",
     "Fishing",
     "Racing",
-    "Coastal day trips",
     "Liveaboard",
     "Family outings",
 )
@@ -226,21 +225,13 @@ BOAT_CREW_OPTIONS = (
 )
 BOAT_VIBE_OPTIONS = (
     "Adventurous",
-    "Serene",
+    "Serene and peaceful",
     "Classic and traditional",
-    "Irreverent and funny",
+    "Playful and funny",
     "Romantic",
-    "Rugged",
+    "Rugged and tough",
     "Elegant",
     "Mysterious",
-)
-BOAT_STYLE_OPTIONS = (
-    "Traditional nautical",
-    "Modern and clean",
-    "Vintage seafaring",
-    "Playful and personal",
-    "Literary or mythological",
-    "Geographic or place-based",
 )
 BOAT_RADIO_OPTIONS = (
     "Critical — needs to be clear on VHF",
@@ -253,16 +244,8 @@ BOAT_NAME_TYPE_OPTIONS = (
     "Compound or hyphenated",
     "Invented / made-up word",
     "Proper name (person, place, myth)",
-    "Open to anything",
-)
-BOAT_NAME_INSPIRATION_OPTIONS = (
-    "Nautical tradition",
-    "Mythology or legend",
-    "Nature or weather",
-    "Personal story",
-    "Humor and personality",
-    "Geography or place",
-    "Literature or film",
+    "Literary or mythological",
+    "Geographic or place-based",
     "Open to anything",
 )
 
@@ -930,24 +913,11 @@ BOAT = VerticalConfig(
             section="Name style",
         ),
         Question(
-            "style",
-            "What style feels right?",
-            required=True,
-            choices=BOAT_STYLE_OPTIONS,
-            section="Name style",
-        ),
-        Question(
-            "name_inspiration",
-            "What should inspire the name?",
-            choices=BOAT_NAME_INSPIRATION_OPTIONS,
-            section="Name style",
-        ),
-        Question(
             "vibe",
             "What personality should the name carry?",
             required=True,
             choices=BOAT_VIBE_OPTIONS,
-            section="Fit and feeling",
+            section="Name style",
         ),
         Question(
             "radio_name",
@@ -958,9 +928,9 @@ BOAT = VerticalConfig(
         ),
         Question(
             "traditions",
-            "Anything to honor?",
+            "Anything to honor or draw from?",
             kind="textarea",
-            placeholder="Family name, heritage, a place, a person, a past boat, a story…",
+            placeholder="Family name, heritage, a place, a person, a past boat, mythology, a story…",
             section="Fit and feeling",
         ),
         Question(
