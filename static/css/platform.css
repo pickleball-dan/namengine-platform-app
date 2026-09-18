@@ -12118,10 +12118,102 @@ body.vertical-boat {
   color: #f0ead8;
 }
 
+/* Reaction status text ("React to X more names to unlock") */
+.vertical-boat .reaction-status {
+  color: #8a9db8;
+}
+
+/* Brief summary / direction disclosure body */
+.vertical-boat .brief-summary,
+.vertical-boat .direction-disclosure-body {
+  background: rgba(15, 30, 51, 0.55);
+  border-color: rgba(200, 150, 62, 0.22);
+}
+.vertical-boat .brief-summary h2,
+.vertical-boat .brief-summary h3 {
+  color: #f0ead8;
+}
+.vertical-boat .brief-summary-item {
+  background: rgba(15, 30, 51, 0.50);
+  border-color: rgba(200, 150, 62, 0.18);
+  border-left-color: #c8963e;
+}
+.vertical-boat .brief-summary-item:hover,
+.vertical-boat .brief-summary-item:focus-visible {
+  background: rgba(200, 150, 62, 0.12);
+  border-color: rgba(200, 150, 62, 0.35);
+  border-left-color: #c8963e;
+}
+.vertical-boat .brief-summary dt,
+.vertical-boat .brief-summary-item dt {
+  color: #d9b96f;
+}
+.vertical-boat .brief-summary dd,
+.vertical-boat .brief-summary-item dd {
+  color: #f0ead8;
+}
+
+/* Reaction counts ("3 love · 1 no") */
+.vertical-boat .reaction-counts {
+  color: #a8bdd4;
+}
+
+/* Taste profile */
+.vertical-boat .taste-profile {
+  border-top-color: rgba(200, 150, 62, 0.20);
+}
+.vertical-boat .taste-profile h2,
+.vertical-boat .taste-profile h3 {
+  color: #d9b96f;
+}
+.vertical-boat .taste-profile p {
+  color: #c6d1dd;
+}
+
+/* Validation pills (availability / domain / trademark) */
+.vertical-boat .validation-pill {
+  background: rgba(15, 30, 51, 0.60);
+  border-color: rgba(200, 150, 62, 0.22);
+  color: #f0ead8;
+}
+.vertical-boat .validation-pill strong {
+  color: #f0ead8;
+}
+.vertical-boat .validation-pill span {
+  color: #a8bdd4;
+}
+.vertical-boat .validation-pass {
+  border-color: rgba(120, 200, 150, 0.45);
+  background: rgba(15, 40, 25, 0.55);
+}
+.vertical-boat .validation-warn {
+  border-color: rgba(200, 150, 62, 0.55);
+  background: rgba(40, 30, 10, 0.55);
+}
+.vertical-boat .validation-fail {
+  border-color: rgba(200, 80, 80, 0.45);
+  background: rgba(40, 15, 15, 0.55);
+}
+
+/* Choose button */
+.vertical-boat .choose-button {
+  background: #c8963e;
+  color: #07111f;
+  border-color: #c8963e;
+}
+.vertical-boat .choose-button:hover,
+.vertical-boat .choose-button:focus-visible {
+  background: #e0aa50;
+  border-color: #e0aa50;
+}
+
 /* Mobile */
 @media (max-width: 640px) {
   .vertical-boat .result-card-meaning,
   .vertical-boat .result-card .tagline {
     color: #c6d1dd;
+  }
+  .vertical-boat .brief-summary dl {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
