@@ -11835,7 +11835,6 @@ body.vertical-boat {
 @media (max-width: 640px) { .vertical-boat .baby-welcome { min-height: 440px; padding: 30px 22px; } .vertical-boat .baby-welcome .vertical-page-logo { width: min(var(--brand-baby-welcome-tablet-width), 52vw); max-height: 72px; } .vertical-boat .boat-choice-list { grid-template-columns: 1fr; } .vertical-boat .boat-question-heading { display: grid; } .vertical-boat .boat-question-actions { flex-direction: column-reverse; } .vertical-boat .boat-direction-row { grid-template-columns: 1fr; } }
 @media (max-width: 390px) { .vertical-boat .baby-welcome .vertical-page-logo { width: min(var(--brand-baby-welcome-mobile-width), 52vw); max-height: 64px; margin-bottom: 12px; } }
 .vertical-boat .baby-welcome .vertical-page-logo {
-  filter: invert(92%) sepia(14%) saturate(424%) hue-rotate(5deg) brightness(104%);
   opacity: 0.96;
 }
 
@@ -12011,7 +12010,6 @@ body.vertical-boat {
   color: #c6d1dd;
 }
 .vertical-boat .footer-brand-logo {
-  filter: brightness(0) invert(1) sepia(1) saturate(0.3) brightness(0.95);
 }
 
 /* ── Boat results page: full contrast fix for dark navy background ─────────── */
@@ -12023,12 +12021,12 @@ body.vertical-boat {
   color: #f0ead8;
 }
 
-/* Logo: invert dark ink to cream on dark navy header */
+/* Logo: set currentColor to cream so NamEngine text is readable; Boat gold renders from SVG */
 .vertical-boat .site-header img[class*="logo"],
 .vertical-boat .site-header .page-logo,
 .vertical-boat .site-header .header-logo,
 .vertical-boat .site-header a img {
-  filter: brightness(0) invert(1) sepia(1) saturate(0.3) hue-rotate(5deg) brightness(0.95);
+  color: #f0ead8;
 }
 
 /* Page eyebrow ("NAMENGINE BOAT") */
