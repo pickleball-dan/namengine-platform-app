@@ -942,6 +942,19 @@ main {
 .landing-vertical-card.business h3 { color: #162c58; }
 .landing-vertical-card.business > span { background: #29344f; }
 
+/* Boat card: dark navy + gold */
+.landing-vertical-card.boat {
+  background: linear-gradient(148deg, #0f1e33 0%, #0b1929 52%, #071120 100%);
+  border-top-color: #c8963e;
+  border-color: rgba(200, 150, 62, 0.28);
+  box-shadow:
+    0 8px 28px rgba(200, 150, 62, 0.14),
+    0 28px 64px rgba(7, 17, 31, 0.30);
+}
+.landing-vertical-card.boat h3 { color: #c8963e; }
+.landing-vertical-card.boat p { color: #c6d1dd; }
+.landing-vertical-card.boat > span { color: #c8963e; }
+
 /* Demo carousel: per-vertical gradient backgrounds */
 .landing-demo-slide.baby {
   background:
