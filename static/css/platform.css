@@ -11869,3 +11869,75 @@ body.vertical-boat {
 
 /* Fix 3: footer logo — SVG "Boat" tspan is hardcoded #2b6cb8 in the SVG source.
    No CSS override needed here; the SVG file itself has the correct color. */
+
+/* ── Boat result card: contrast fixes for dark navy background ─────────────── */
+
+/* Instruction box ("8 names checked…") */
+.vertical-boat .result-intro strong,
+.vertical-boat .result-intro,
+.vertical-boat .results-instruction-box strong,
+.vertical-boat .results-instruction-box {
+  color: #f0ead8;
+}
+.vertical-boat .results-instruction-box {
+  border-color: rgba(200, 150, 62, 0.40);
+  background: rgba(7, 17, 31, 0.70);
+}
+
+/* Kicker ("Best first look") */
+.vertical-boat .result-card .result-card-kicker,
+.vertical-boat .result-card .vc-kicker {
+  color: #d9b96f;
+}
+
+/* Name heading */
+.vertical-boat .result-card h2 {
+  color: #f0ead8;
+}
+
+/* Pronunciation ("THEE-oh") */
+.vertical-boat .result-card .pronunciation {
+  color: #a8bdd4;
+}
+
+/* Meaning label + text */
+.vertical-boat .result-card .result-card-meaning {
+  color: #c6d1dd;
+}
+.vertical-boat .result-card .result-card-meaning strong {
+  color: #d9b96f;
+}
+
+/* Tagline / descriptor */
+.vertical-boat .result-card .tagline {
+  color: #c6d1dd;
+  font-weight: 500;
+}
+
+/* Tags */
+.vertical-boat .result-card .result-tags span {
+  background: rgba(200, 150, 62, 0.18);
+  color: #d9b96f;
+  border: 1.5px solid rgba(200, 150, 62, 0.36);
+}
+
+/* Reaction row buttons */
+.vertical-boat .result-card > .reaction-row button {
+  color: #c6d1dd;
+  background: rgba(200, 150, 62, 0.09);
+  border-color: rgba(200, 150, 62, 0.26);
+}
+.vertical-boat .result-card > .reaction-row button.is-selected {
+  color: #f0ead8;
+  background: rgba(200, 150, 62, 0.20);
+  border-color: #c8963e;
+  box-shadow: 0 4px 18px rgba(200, 150, 62, 0.28);
+}
+
+/* Mobile compact overrides */
+@media (max-width: 640px) {
+  .vertical-boat .result-card-meaning,
+  .vertical-boat .result-card .tagline {
+    color: #c6d1dd;
+  }
+}
