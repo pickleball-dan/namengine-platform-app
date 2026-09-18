@@ -25,9 +25,10 @@
     },
     "pet": {},
     "boat": {
-      "traditions": ["named after my grandfather who served in the Navy", "continuing a family tradition of flower names", "honoring the lake where we got engaged"],
+      "inspiration": ["named after my grandfather who served in the Navy", "a place where something important happened", "honoring a person, song, or saying that shaped me"],
       "avoid": ["anything that sounds like distress on the radio", "previous owner's name — bad memories", "anything too common at the marina"],
-      "notes": ["needs to work shouted across a dock in the wind", "should feel at home in a log book from 1952", "the kind of name that earns a second look when she passes"]
+      "notes": ["needs to work shouted across a dock in the wind", "should feel at home in a log book from 1952", "the kind of name that earns a second look when she passes"],
+      "loved_names": ["Endeavour, Wanderlust, Scout", "I love Osprey but it's taken at our marina", "anything in the Farr 40 fleet naming style"]
     },
     "business": {
       "business_description": ["who pays, what they get, and what changes after", "what happens right before someone needs you", "where the business makes money"],
@@ -302,7 +303,8 @@
         <div class="boat-question-stage" data-boat-question-stage>
           {% for question in vertical.intake_questions %}
             {% set current_value = request.args.get(question.id, "") %}
-            <section class="boat-question" data-boat-question data-question-id="{{ question.id }}" data-question-kind="{% if question.choices %}choice{% else %}{{ question.kind }}{% endif %}" data-question-label="{{ question.label }}" data-required="{{ 'true' if question.required else 'false' }}" hidden>
+            {% set current_choices = current_value.split(",") if current_value else [] %}
+            <section class="boat-question" data-boat-question data-question-id="{{ question.id }}" data-question-kind="{% if question.choices %}choice{% else %}{{ question.kind }}{% endif %}" data-question-label="{{ question.label }}" data-required="{{ 'true' if question.required else 'false' }}" data-max-select="{{ question.max_select }}" hidden>
               <p class="boat-question-kicker">{{ question.section }}</p>
               <div class="boat-question-heading">
                 <h2 id="boat-question-{{ question.id }}">{{ question.label }}</h2>
@@ -325,9 +327,12 @@
               {% if question.help_text %}<p class="boat-question-help">{{ question.help_text }}</p>{% endif %}
 
               {% if question.choices %}
-                <div class="boat-choice-list" role="radiogroup" aria-labelledby="boat-question-{{ question.id }}" data-boat-choices>
+                {% set is_multi_select = question.max_select > 1 %}
+                {% if is_multi_select %}<p class="boat-choice-counter" data-boat-choice-counter>Choose up to {{ question.max_select }}</p>{% endif %}
+                <div class="boat-choice-list" role="{{ 'group' if is_multi_select else 'radiogroup' }}" aria-labelledby="boat-question-{{ question.id }}" data-boat-choices>
                   {% for choice in question.choices %}
-                    <button class="boat-choice-card{% if current_value == choice %} is-selected{% endif %}" type="button" role="radio" aria-checked="{{ 'true' if current_value == choice else 'false' }}" data-choice-value="{{ choice }}">
+                    {% set choice_selected = choice in current_choices if is_multi_select else current_value == choice %}
+                    <button class="boat-choice-card{% if choice_selected %} is-selected{% endif %}" type="button" role="{{ 'checkbox' if is_multi_select else 'radio' }}" aria-checked="{{ 'true' if choice_selected else 'false' }}" data-choice-value="{{ choice }}">
                       <span class="boat-choice-copy"><strong>{{ choice }}</strong></span>
                       <span class="boat-choice-mark" aria-hidden="true">✓</span>
                     </button>
@@ -510,7 +515,7 @@
     <script src="{{ url_for('static', filename='js/pet-choice-cards.js') }}?v=20260727-business-choice-cards-v1"></script>
   {% endif %}
   {% if vertical.slug == "boat" %}
-    <script src="{{ url_for('static', filename='js/boat-intake-guided.js') }}?v=20260916-boat-guided-v1"></script>
+    <script src="{{ url_for('static', filename='js/boat-intake-guided.js') }}?v=20260918-boat-conversation-v1"></script>
   {% endif %}
   {% if vertical.slug in ["pet", "baby", "business", "product"] %}
     <script src="{{ url_for('static', filename='js/taste-history.js') }}"></script>

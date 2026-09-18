@@ -45,6 +45,7 @@ class Question:
     kind: str = "text"
     required: bool = False
     choices: tuple[str, ...] = ()
+    max_select: int = 1
     placeholder: str = ""
     help_text: str = ""
     section: str = ""
