@@ -11975,6 +11975,45 @@ body.vertical-boat {
 /* Fix 3: footer logo — SVG "Boat" tspan is hardcoded #2b6cb8 in the SVG source.
    No CSS override needed here; the SVG file itself has the correct color. */
 
+/* ── Boat footer overrides ─────────────────────────────────────────────────── */
+.vertical-boat .site-footer {
+  background: #07111f;
+  border-top: 1px solid rgba(200, 150, 62, 0.18);
+}
+.vertical-boat .footer-column h2 {
+  color: #d9b96f;
+}
+.vertical-boat .footer-column a,
+.vertical-boat .footer-column span {
+  color: #c6d1dd;
+}
+.vertical-boat .footer-column a:hover {
+  color: #f0ead8;
+}
+.vertical-boat .footer-socials {
+  color: #c8963e;
+}
+.vertical-boat .footer-socials a {
+  color: #c8963e;
+}
+.vertical-boat .footer-socials a:hover {
+  color: #e0aa50;
+}
+.vertical-boat .footer-social-icon {
+  color: #c8963e;
+  fill: #c8963e;
+}
+.vertical-boat .footer-bottom-line {
+  color: #8a9db8;
+  border-top-color: rgba(200, 150, 62, 0.12);
+}
+.vertical-boat .footer-brand-block p {
+  color: #c6d1dd;
+}
+.vertical-boat .footer-brand-logo {
+  filter: brightness(0) invert(1) sepia(1) saturate(0.3) brightness(0.95);
+}
+
 /* ── Boat results page: full contrast fix for dark navy background ─────────── */
 
 /* Navbar + page logo: NamEngine text (currentColor) = cream, Boat stays gold in SVG */
