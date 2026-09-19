@@ -12013,6 +12013,11 @@ body.vertical-boat {
 .vertical-boat .footer-column a:hover {
   color: #f0ead8;
 }
+.vertical-boat .brand-home-link,
+.vertical-boat .brand-home-text {
+  color: #303644;
+}
+
 .vertical-boat .footer-socials {
   color: #c8963e;
 }
