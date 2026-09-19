@@ -331,7 +331,8 @@
     <div class="testimonials-track">
       {% for t in testimonials %}
       <blockquote class="testimonial-card testimonial-{{ t.vertical }}">
-        <p class="testimonial-quote">{{ t.quote }}</p>
+        <p class="testimonial-quote" id="tq-{{ loop.index }}">{{ t.quote }}</p>
+        <button class="testimonial-more" onclick="var q=document.getElementById('tq-{{ loop.index }}');var x=q.classList.toggle('expanded');this.textContent=x?'Less':'More';">More</button>
         <footer class="testimonial-footer">
           {% if t.avatar %}<img class="testimonial-avatar" src="{{ url_for('static', filename=t.avatar) }}" alt="{{ t.name }}" loading="lazy">{% endif %}
           <div class="testimonial-byline">
