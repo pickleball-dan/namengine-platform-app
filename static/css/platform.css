@@ -10418,7 +10418,12 @@ body.vertical-business {
   }
 
   .footer-socials {
-    display: none;
+    display: flex;
+    grid-column: 1 / -1;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 12px 20px;
+    margin-top: 8px;
   }
 
   .footer-column {
