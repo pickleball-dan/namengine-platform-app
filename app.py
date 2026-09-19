@@ -37,6 +37,12 @@ TESTIMONIALS = [
         "vertical": "business",
         "avatar": "images/testimonials/jackie-s.webp",
     },
+    {
+        "quote": "NamEngine was actually really fun to go through! It feels very personalized - more like a guided decision based on specific questions about you and what you're looking for, rather than a website search, AI, or another naming site that just generates endless names with no clear direction. The suggestions felt thoughtful and genuinely tailored to my preferences. It made the whole process feel much easier and more intentional.",
+        "name": "Julie A.",
+        "vertical": "baby",
+        "avatar": "images/testimonials/julie-a.jpg",
+    },
 ]
 from werkzeug.middleware.proxy_fix import ProxyFix
 
