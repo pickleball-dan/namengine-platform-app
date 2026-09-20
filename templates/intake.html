@@ -242,7 +242,7 @@
                 {% endif %}
                 {% if not question.required %}
                   <div class="baby-question-actions">
-                    <button type="button" class="baby-text-continue" data-baby-continue>Continue</button>
+                    <button type="button" class="baby-text-continue" data-baby-skip>Skip</button>
                   </div>
                 {% endif %}
               {% elif question.kind == "textarea" %}
@@ -256,7 +256,7 @@
                   {% if question.required %}
                     <button type="button" class="baby-text-continue" data-baby-continue>Continue</button>
                   {% else %}
-                    <button type="button" class="baby-text-continue" data-baby-continue>Continue</button>
+                    <button type="button" class="baby-text-continue" data-baby-skip>Skip</button>
                   {% endif %}
                 </div>
               {% endif %}
