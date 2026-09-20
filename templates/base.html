@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}NamEngine{% endblock %}</title>
     <meta name="google-site-verification" content="r-ZZjJs-28v_IKscs3F-ywRi3-u_FLSbg2LNfmXWG8I">
-    <meta name="description" content="{% block meta_description %}NamEngine is an AI name generator that learns your taste through a short conversation. Free first list for baby, pet, boat, or business names.{% endblock %}">
+    <meta name="description" content="{% block meta_description %}World's Best AI Name Discovery App{% endblock %}">
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -54,7 +54,7 @@
       {% set social_image = social_image|default(url_for('static', filename=vertical.assets.get('share_image', 'images/namengine-share.png'), _external=True)) %}
     {% else %}
       {% set social_title = social_title|default(self.title()|striptags|trim) %}
-      {% set social_description = social_description|default("Thoughtful name discovery for babies, pets, businesses, and more.") %}
+      {% set social_description = social_description|default("World's Best AI Name Discovery App") %}
       {% set social_image = social_image|default(url_for('static', filename='images/namengine-share.png', _external=True)) %}
     {% endif %}
     <meta property="og:type" content="website">
