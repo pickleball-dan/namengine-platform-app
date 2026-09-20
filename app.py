@@ -1522,6 +1522,7 @@ Sitemap: https://nam-engine.com/sitemap.xml
             "intake.html",
             vertical=vertical,
             beta_unlocked=beta_unlocked_from_request(vertical),
+            testimonials=TESTIMONIALS,
         )
 
 
