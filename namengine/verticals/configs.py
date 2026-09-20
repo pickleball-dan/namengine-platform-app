@@ -990,7 +990,7 @@ BOAT = VerticalConfig(
     assets={
         "logo": "images/namengine-boat.svg",
         "page_logo": "images/namengine-boat.svg",
-        "share_image": "images/baby/namengine-baby-share.png",
+        "share_image": "images/boat/namengine-boat-share.png",
     },
     page_dark=True,
     visual=VerticalVisualConfig(
