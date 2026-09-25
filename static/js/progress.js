@@ -430,7 +430,11 @@
             throw new Error(`Progress request failed: ${response.status}`);
           }
           if (boatBarFill) boatBarFill.style.width = "100%";
-          window.location.assign(response.url || navigateUrl);
+          if (overlay) overlay.classList.add("is-complete");
+          if (visual) visual.classList.add("is-complete");
+          window.setTimeout(() => {
+            window.location.assign(response.url || navigateUrl);
+          }, 800);
         })
         .catch(() => {
           minimumWait.then(() => {

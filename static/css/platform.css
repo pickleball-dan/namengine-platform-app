@@ -2605,6 +2605,22 @@ button {
   animation: progress-node-pulse 720ms ease-out;
 }
 
+[data-progress-visual].is-complete {
+  animation: progress-complete-pulse 0.6s ease-out forwards;
+}
+
+@keyframes progress-complete-pulse {
+  0%   { transform: scale(1);    opacity: 1; }
+  40%  { transform: scale(1.18); opacity: 1; }
+  70%  { transform: scale(0.96); opacity: 1; }
+  100% { transform: scale(1.08); opacity: 1; }
+}
+
+[data-progress-overlay].is-complete [data-progress-step].is-active::after {
+  content: ' ✓';
+  color: var(--accent, #4c1d95);
+}
+
 .progress-visual.is-searching .progress-orbit-one {
   animation: progress-orbit-breathe 7.6s ease-in-out infinite;
 }

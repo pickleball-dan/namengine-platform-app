@@ -220,9 +220,7 @@ def feeling_section_titles(vertical) -> list[str]:
 
 
 def feelings_scale_enabled(vertical) -> bool:
-    if vertical.slug in {"pet", "boat"}:
-        return False
-    return len(feeling_section_titles(vertical)) >= 2
+    return False
 
 
 def section_strength_field(section_title: str) -> str:
@@ -308,6 +306,7 @@ def display_brief_items(vertical, brief) -> list[dict[str, str]]:
         "vibe": "Personality",
         "cultural_context": "Inspiration",
         "partner_alignment": "Torn between",
+        "priority_focus": "Search priority",
         "business_description": "Business",
         "industry": "Category",
         "stage": "Stage",

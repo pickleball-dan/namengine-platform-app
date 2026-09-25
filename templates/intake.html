@@ -139,7 +139,7 @@
       {% endif %}
     </div>
 
-    <form id="{{ vertical.slug }}-intake-form" class="intake-form{% if is_polished_flow %} baby-intake-form polished-intake-form{% endif %}{% if vertical.slug == 'baby' %} baby-conversation{% endif %}{% if vertical.slug == 'pet' %} pet-conversation{% endif %}{% if vertical.slug == 'boat' %} boat-conversation{% endif %}" action="{% if feelings_scale_enabled(vertical) %}{{ vertical.route_prefix }}/feelings{% else %}{{ vertical.route_prefix }}/results{% endif %}" method="{% if feelings_scale_enabled(vertical) %}get{% else %}post{% endif %}" data-progress-form{% if vertical.slug == 'baby' %} data-journey-vertical="baby"{% endif %}{% if vertical.slug == 'baby' and request.args.get('edit') %} data-edit-question="{{ request.args.get('edit') }}"{% endif %} novalidate>
+    <form id="{{ vertical.slug }}-intake-form" class="intake-form{% if is_polished_flow %} baby-intake-form polished-intake-form{% endif %}{% if vertical.slug == 'baby' %} baby-conversation{% endif %}{% if vertical.slug == 'pet' %} pet-conversation{% endif %}{% if vertical.slug == 'boat' %} boat-conversation{% endif %}" action="{{ vertical.route_prefix }}/results" method="post" data-progress-form{% if vertical.slug == 'baby' %} data-journey-vertical="baby"{% endif %}{% if vertical.slug == 'baby' and request.args.get('edit') %} data-edit-question="{{ request.args.get('edit') }}"{% endif %} novalidate>
       {% if vertical.slug == "baby" %}
         {% set gender_descriptions = {
           "Girl": "We’re expecting a baby girl.",
@@ -262,6 +262,43 @@
               {% endif %}
             </section>
           {% endfor %}
+          <section class="baby-question baby-priority-question field field--priority" data-baby-question data-question-id="priority_focus" data-question-kind="choice" data-question-section="Fit and feeling" data-required="false" hidden>
+            <p class="baby-question-kicker">Your naming direction <span class="baby-kicker-heart" aria-hidden="true"></span></p>
+            <div class="baby-question-heading">
+              <h2 id="baby-question-priority_focus">What should guide the search?</h2>
+              <span class="baby-question-status">Optional</span>
+            </div>
+            <p class="field-hint baby-question-lede">We'll honor everything you shared. This simply tells us where to listen most closely.</p>
+            <div class="baby-choice-list" role="radiogroup" aria-label="Search priority" data-baby-choices>
+              <button class="baby-choice" type="button" role="radio" aria-checked="{{ 'true' if request.args.get('priority_focus') == 'Your family story' else 'false' }}" data-choice-value="Your family story" data-baby-priority-weights="60,20,20" data-baby-weight="60,20,20" data-baby-label="Your family story">
+                <span class="baby-choice-copy"><strong>Your family story</strong><small>Heritage, meaning, and the people this name belongs with.</small></span>
+                <span class="baby-choice-chevron" aria-hidden="true">›</span>
+                <span class="baby-choice-mark" aria-hidden="true">✓</span>
+              </button>
+              <button class="baby-choice" type="button" role="radio" aria-checked="{{ 'true' if request.args.get('priority_focus') == 'The name style' else 'false' }}" data-choice-value="The name style" data-baby-priority-weights="20,60,20" data-baby-weight="20,60,20" data-baby-label="The name style">
+                <span class="baby-choice-copy"><strong>The name style</strong><small>Classic, modern, playful, gentle, bold — the lane that feels right.</small></span>
+                <span class="baby-choice-chevron" aria-hidden="true">›</span>
+                <span class="baby-choice-mark" aria-hidden="true">✓</span>
+              </button>
+              <button class="baby-choice" type="button" role="radio" aria-checked="{{ 'true' if request.args.get('priority_focus') == 'Sound and feeling' else 'false' }}" data-choice-value="Sound and feeling" data-baby-priority-weights="20,20,60" data-baby-weight="20,20,60" data-baby-label="Sound and feeling">
+                <span class="baby-choice-copy"><strong>Sound and feeling</strong><small>How it sounds out loud, softens, sings, and lives every day.</small></span>
+                <span class="baby-choice-chevron" aria-hidden="true">›</span>
+                <span class="baby-choice-mark" aria-hidden="true">✓</span>
+              </button>
+              <button class="baby-choice" type="button" role="radio" aria-checked="{{ 'true' if request.args.get('priority_focus') == 'A thoughtful balance' else 'false' }}" data-choice-value="A thoughtful balance" data-baby-priority-weights="34,33,33" data-baby-weight="34,33,33" data-baby-label="A thoughtful balance">
+                <span class="baby-choice-copy"><strong>A thoughtful balance</strong><small>Let NamEngine weigh everything evenly before choosing finalists.</small></span>
+                <span class="baby-choice-chevron" aria-hidden="true">›</span>
+                <span class="baby-choice-mark" aria-hidden="true">✓</span>
+              </button>
+            </div>
+            <input type="hidden" id="priority_focus" name="priority_focus" value="{{ request.args.get('priority_focus', '') }}">
+            {% for section in feeling_section_titles(vertical) %}
+              {% set default_strength = 34 if loop.index == 1 else 33 %}
+              {% set strength_field = section_strength_field(section) %}
+              <input type="hidden" name="{{ strength_field }}" value="{{ request.args.get(strength_field, default_strength) }}" data-feelings-input data-baby-priority-field="{{ loop.index0 }}">
+            {% endfor %}
+          </section>
+
           <section class="baby-checkin" data-intake-checkin hidden>
             <p class="baby-question-kicker">A quick check-in <span class="baby-kicker-heart" aria-hidden="true"></span></p>
             <h2 data-checkin-heading></h2>
