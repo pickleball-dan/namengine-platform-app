@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Your Naming Direction — NamEngine {{ vertical.display_name }}{% endblock %}
+
+{% block content %}
+<div class="intake-review-page vertical-{{ vertical.slug }}">
+  <div class="intake-review-inner">
+    <p class="eyebrow">Your naming direction</p>
+    <h1>Ready to find your name?</h1>
+    <p class="intake-review-sub">Here's what you told us. Edit anything before we begin.</p>
+
+    <dl class="{{ vertical.slug }}-direction-list">
+      {% for item in items %}
+      <div class="{{ vertical.slug }}-direction-row">
+        <dt>{{ item.question }}</dt>
+        <dd{% if not item.value %} class="is-empty"{% endif %}>{{ item.value or "Not answered" }}</dd>
+        <a class="{{ vertical.slug }}-direction-edit-btn" href="{{ edit_urls[item.key] }}">Edit</a>
+      </div>
+      {% endfor %}
+    </dl>
+
+    <a class="{{ vertical.slug }}-direction-find" href="{{ generate_url }}">Generate {{ vertical.display_name }} Names</a>
+  </div>
+</div>
+{% endblock %}
