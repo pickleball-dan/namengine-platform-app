@@ -277,7 +277,7 @@ def intake_edit_url(vertical, brief, field_id: str) -> str:
         and value not in ("", None)
     }
     query["edit"] = field_id
-    return f"{vertical.route_prefix}?{urlencode(query)}"
+    return f"{vertical.route_prefix}?{urlencode(query)}#field-{field_id}"
 
 
 def feelings_scale_edit_url(vertical, brief) -> str:
@@ -1510,6 +1510,40 @@ Sitemap: https://nam-engine.com/sitemap.xml
     @app.get("/data-protection")
     def data_protection():
         return render_template("legal_data_protection.html")
+
+    @app.get("/<vertical_slug>/review")
+    def intake_review(vertical_slug: str):
+        if vertical_slug not in VERTICALS:
+            abort(404)
+        if vertical_slug not in ("pet", "business"):
+            abort(404)
+        vertical = get_vertical(vertical_slug)
+        raw_params = request.args.to_dict(flat=True)
+        source = _sanitize_intake_source(vertical, raw_params)
+        brief = build_brief(vertical, source)
+        # Build items from all intake questions so nothing is missing
+        all_items = display_brief_items(vertical, brief)
+        # Build a lookup by key so we can fill in blanks
+        items_by_key = {item["key"]: item for item in all_items}
+        items = []
+        for q in vertical.intake_questions:
+            item = items_by_key.get(q.id, {"key": q.id, "label": q.label, "value": ""})
+            if not item.get("value"):
+                item = dict(item, value="—")
+            item = dict(item, question=q.label)
+            items.append(item)
+        edit_urls = {item["key"]: intake_edit_url(vertical, brief, item["key"]) for item in items}
+        # Build the generate URL (same as results route)
+        from urllib.parse import urlencode
+        generate_url = f"{vertical.route_prefix}/results?{urlencode(source)}"
+        return render_template(
+            "intake_review.html",
+            vertical=vertical,
+            items=items,
+            edit_urls=edit_urls,
+            generate_url=generate_url,
+            beta_unlocked=beta_unlocked_from_request(vertical),
+        )
 
     @app.get("/<vertical_slug>")
     def intake(vertical_slug: str):

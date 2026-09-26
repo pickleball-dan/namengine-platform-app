@@ -57,6 +57,11 @@
         <p class="eyebrow" data-progress-eyebrow>Finding names for this identity</p>
         <h2 data-progress-current>Finding names that feel right</h2>
         <p class="progress-note" data-progress-note>A few quick checks before the list appears.</p>
+        <div class="generic-progress-bar-wrap" aria-hidden="true">
+          <div class="generic-progress-bar-track">
+            <div class="generic-progress-bar-fill" data-generic-progress-fill></div>
+          </div>
+        </div>
         <ol class="progress-steps{% if vertical is defined and vertical.slug == 'pet' %} pet-progress-steps{% endif %}" hidden>
           <li data-progress-step data-progress-headline="Reading the details">Reading the details</li>
           <li data-progress-step data-progress-headline="Finding names for this identity">Finding names for this identity</li>

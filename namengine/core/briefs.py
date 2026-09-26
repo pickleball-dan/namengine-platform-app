@@ -77,13 +77,7 @@ def _apply_pet_legacy_aliases(vertical: VerticalConfig, inputs: dict[str, Any], 
         raw_value = source.get("partner_alignment", "")
         inputs["avoid"] = _clip_vertical_field(vertical, "avoid", raw_value)
 
-    legacy_details = []
-    for key in ("pet_life_stage", "notes"):
-        value = source.get(key)
-        if value:
-            legacy_details.append(value.strip() if isinstance(value, str) else str(value))
-    if legacy_details and not inputs.get("pet_details"):
-        inputs["pet_details"] = _clip_vertical_field(vertical, "pet_details", "; ".join(legacy_details))
+
 
 
 def _apply_registered_intake_aliases(

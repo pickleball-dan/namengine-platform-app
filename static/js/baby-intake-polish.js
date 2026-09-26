@@ -358,21 +358,21 @@
     applicableQuestions().forEach((question) => {
       const value = valueFor(question);
       const display = value ? (value.length > 60 ? value.slice(0, 57) + "\u2026" : value) : "";
+      const row = document.createElement("div");
+      row.className = "baby-direction-row";
       const dt = document.createElement("dt");
       dt.textContent = labelFor(question);
       const dd = document.createElement("dd");
-      const answerSpan = document.createElement("span");
-      answerSpan.textContent = display || "Not answered";
-      answerSpan.className = display ? "baby-direction-answer" : "baby-direction-blank";
+      if (!display) dd.className = "is-empty";
+      dd.textContent = display || "Not answered";
       const editBtn = document.createElement("button");
       editBtn.type = "button";
-      editBtn.className = "baby-direction-edit";
       editBtn.dataset.editQuestion = question.dataset.questionId;
       editBtn.textContent = "Edit";
-      dd.appendChild(answerSpan);
-      dd.appendChild(editBtn);
-      directionList.appendChild(dt);
-      directionList.appendChild(dd);
+      row.appendChild(dt);
+      row.appendChild(dd);
+      row.appendChild(editBtn);
+      directionList.appendChild(row);
     });
   }
 
@@ -446,10 +446,11 @@
     progressFill.style.width = "100%";
     progressBar.setAttribute("aria-valuenow", progressBar.getAttribute("aria-valuemax"));
     completePanel.hidden = false;
-    // Dispatch the canonical finish-interview event so progress.js
-    // can show the overlay before submitting. Never call .submit() directly.
-    // See contract comment at top of progress.js.
-    window.setTimeout(() => form.dispatchEvent(new CustomEvent("namengine:finish-interview", { bubbles: true })), motionQuery.matches ? 100 : loadingHandoff.delay);
+    window.setTimeout(() => {
+      completing = true;
+      form.setAttribute("data-intake-completing", "");
+      form.requestSubmit();
+    }, motionQuery.matches ? 100 : loadingHandoff.delay);
   }
 
   function selectChoice(question, button) {
@@ -550,7 +551,7 @@
       confirmation.textContent = "";
       const following = checkInFollowingQuestion();
       if (following) showQuestion(following);
-      else showDirectionReview();
+      else finishInterview();
     }, motionQuery.matches ? 0 : 260);
   }
 
@@ -598,6 +599,7 @@
       return;
     }
     if (event.target.closest("[data-baby-direction-find]")) {
+      form.action = "/baby/review";
       finishInterview();
       return;
     }

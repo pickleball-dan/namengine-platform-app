@@ -214,12 +214,17 @@
   }
 
   const boatBarFill = document.querySelector("[data-boat-progress-fill]");
+  const genericBarFill = document.querySelector("[data-generic-progress-fill]");
+  const stepPcts = [10, 30, 50, 70, 90];
 
   function updateBoatBar(index) {
     if (!boatBarFill) return;
-    // Steps 0-4 map to 10%→30%→50%→70%→90%; completion sets 100%
-    const pcts = [10, 30, 50, 70, 90];
-    boatBarFill.style.width = (pcts[index] ?? 90) + "%";
+    boatBarFill.style.width = (stepPcts[index] ?? 90) + "%";
+  }
+
+  function updateGenericBar(index) {
+    if (!genericBarFill) return;
+    genericBarFill.style.width = (stepPcts[index] ?? 90) + "%";
   }
 
   function activateStep(index) {
@@ -235,6 +240,7 @@
       visual.classList.add("is-pulsing");
     }
     updateBoatBar(index);
+    updateGenericBar(index);
   }
 
   function showProgress() {
@@ -401,12 +407,15 @@
         event.preventDefault();
         return;
       }
-      if (!form.checkValidity()) {
+      const visibleInvalid = Array.from(form.elements).some(
+        (el) => !el.checkValidity() && !el.hidden && el.offsetParent !== null
+      );
+      if (visibleInvalid && !form.hasAttribute("data-intake-completing")) {
         event.preventDefault();
         focusFirstInvalid(form);
         return;
       }
-      if (!form.matches("[data-progress-form]") || !canShowProgress) {
+      if (!form.matches("[data-progress-form]") || !canShowProgress || form.hasAttribute("data-no-progress")) {
         return;
       }
 
@@ -430,6 +439,7 @@
             throw new Error(`Progress request failed: ${response.status}`);
           }
           if (boatBarFill) boatBarFill.style.width = "100%";
+          if (genericBarFill) genericBarFill.style.width = "100%";
           if (overlay) overlay.classList.add("is-complete");
           if (visual) visual.classList.add("is-complete");
           window.setTimeout(() => {

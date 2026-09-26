@@ -173,25 +173,25 @@
     questions.forEach(function (question) {
       const answer = answerDisplay(question);
 
+      const row = document.createElement("div");
+      row.className = "pet-direction-row";
+
       const dt = document.createElement("dt");
       dt.textContent = labelFor(question);
 
       const dd = document.createElement("dd");
-
-      const answerSpan = document.createElement("span");
-      answerSpan.textContent = answer || "Not answered";
-      answerSpan.className = answer ? "pet-direction-answer" : "pet-direction-blank";
+      if (!answer) dd.className = "is-empty";
+      dd.textContent = answer || "Not answered";
 
       const editBtn = document.createElement("button");
       editBtn.type = "button";
-      editBtn.className = "pet-direction-edit";
       editBtn.dataset.editQuestion = question.dataset.questionId;
       editBtn.textContent = "Edit";
 
-      dd.appendChild(answerSpan);
-      dd.appendChild(editBtn);
-      directionList.appendChild(dt);
-      directionList.appendChild(dd);
+      row.appendChild(dt);
+      row.appendChild(dd);
+      row.appendChild(editBtn);
+      directionList.appendChild(row);
     });
   }
 
