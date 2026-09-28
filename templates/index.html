@@ -190,7 +190,7 @@
   </div>
 
   <div class="landing-vertical-grid">
-    <div class="landing-vertical-card baby" onclick="window.location.href='/baby'" role="link" tabindex="0" style="--card-accent: #ff6b6b; --card-soft: rgba(255,107,107,.12); cursor:pointer;">
+    <a class="landing-vertical-card baby" href="/baby" style="--card-accent: #ff6b6b; --card-soft: rgba(255,107,107,.12);">
       <img src="{{ url_for('static', filename='images/namengine-baby.svg') }}" alt="NamEngine Baby logo for guided baby name discoveryby">
       <h3>Baby</h3>
       <p>A name that carries meaning, sounds right out loud, and feels theirs for life.</p>
@@ -202,10 +202,10 @@
           <li>Generate a first run of names tailored to your taste &amp; feelings</li>
         </ul>
         <span class="vc-nav-btn" role="button" tabindex="0">Name a baby →</span>
-        <a class="vc-remind" href="mailto:support@nam-engine.com?subject=Save%20My%20Spot%20-%20NamEngine%20Baby" onclick="event.stopPropagation()">Don't have 5 minutes right now? <strong>Save your spot — we'll remind you →</strong></a>
+        <span class="vc-remind" onclick="event.preventDefault();event.stopPropagation();window.location.href='mailto:support@nam-engine.com?subject=Save%20My%20Spot%20-%20NamEngine%20Baby'" role="link" tabindex="0">Don't have 5 minutes right now? <strong>Save your spot — we'll remind you →</strong></span>
       </div>
-    </div>
-    <div class="landing-vertical-card pet" onclick="window.location.href='/pet'" role="link" tabindex="0" style="--card-accent: #fcba76; --card-soft: rgba(252,186,118,.18); cursor:pointer;">
+    </a>
+    <a class="landing-vertical-card pet" href="/pet" style="--card-accent: #fcba76; --card-soft: rgba(252,186,118,.18);">
       <img src="{{ url_for('static', filename='images/namengine-pets.svg') }}" alt="NamEngine Pet logo for personality-matched pet namest">
       <h3>Pet</h3>
       <p>Playful, memorable names suited to the personality your new companion already has.</p>
@@ -217,10 +217,10 @@
           <li>Generate a first run of names tailored to your taste &amp; feelings</li>
         </ul>
         <span class="vc-nav-btn" role="button" tabindex="0">Name a pet →</span>
-        <a class="vc-remind" href="mailto:support@nam-engine.com?subject=Save%20My%20Spot%20-%20NamEngine%20Pet" onclick="event.stopPropagation()">Don't have 5 minutes right now? <strong>Save your spot — we'll remind you →</strong></a>
+        <span class="vc-remind" onclick="event.preventDefault();event.stopPropagation();window.location.href='mailto:support@nam-engine.com?subject=Save%20My%20Spot%20-%20NamEngine%20Pet'" role="link" tabindex="0">Don't have 5 minutes right now? <strong>Save your spot — we'll remind you →</strong></span>
       </div>
-    </div>
-    <div class="landing-vertical-card business" onclick="window.location.href='/business'" role="link" tabindex="0" style="--card-accent: #3fa6a0; --card-soft: rgba(63,166,160,.14); cursor:pointer;">
+    </a>
+    <a class="landing-vertical-card business" href="/business" style="--card-accent: #3fa6a0; --card-soft: rgba(63,166,160,.14);">
       <img src="{{ url_for('static', filename='images/namengine-biz.svg') }}" alt="NamEngine Business logo for brandable business namesiness">
       <h3>Business</h3>
       <p>A name your business can grow into — distinct, ownable, and ready for a domain.</p>
@@ -232,10 +232,10 @@
           <li>Generate a first run of names tailored to your taste &amp; feelings</li>
         </ul>
         <span class="vc-nav-btn" role="button" tabindex="0">Name a business →</span>
-        <a class="vc-remind" href="mailto:support@nam-engine.com?subject=Save%20My%20Spot%20-%20NamEngine%20Business" onclick="event.stopPropagation()">Don't have 5 minutes right now? <strong>Save your spot — we'll remind you →</strong></a>
+        <span class="vc-remind" onclick="event.preventDefault();event.stopPropagation();window.location.href='mailto:support@nam-engine.com?subject=Save%20My%20Spot%20-%20NamEngine%20Business'" role="link" tabindex="0">Don't have 5 minutes right now? <strong>Save your spot — we'll remind you →</strong></span>
       </div>
-    </div>
-    <div class="landing-vertical-card boat" onclick="window.location.href='/boat'" role="link" tabindex="0" style="--card-accent: #2b6cb8; --card-soft: rgba(43,108,184,.14); cursor:pointer;">
+    </a>
+    <a class="landing-vertical-card boat" href="/boat" style="--card-accent: #2b6cb8; --card-soft: rgba(43,108,184,.14);">
       <img src="{{ url_for('static', filename='images/namengine-boat.svg') }}" alt="NamEngine Boat">
       <h3>Boat</h3>
       <p>A transom-worthy name with nautical character, story, and radio clarity.</p>
@@ -248,7 +248,7 @@
           <li>Save your favorites and refine with feedback</li>
         </ul>
         <span class="vc-nav-btn" role="button" tabindex="0">Name a boat →</span>
-        <a class="vc-remind" href="mailto:support@nam-engine.com?subject=Save%20My%20Spot%20-%20NamEngine%20Boat" onclick="event.stopPropagation()">Don't have 5 minutes right now? <strong>Save your spot — we'll remind you →</strong></a>
+        <span class="vc-remind" onclick="event.preventDefault();event.stopPropagation();window.location.href='mailto:support@nam-engine.com?subject=Save%20My%20Spot%20-%20NamEngine%20Boat'" role="link" tabindex="0">Don't have 5 minutes right now? <strong>Save your spot — we'll remind you →</strong></span>
       </div>
     </a>
   </div>
