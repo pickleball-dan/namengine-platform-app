@@ -27,6 +27,10 @@
           <a class="button-link access-gate-primary" data-access-gate-unlock>Unlock Access</a>
           <button class="button-link secondary-button access-gate-secondary" type="button" data-access-gate-close>Keep browsing the preview</button>
         </div>
+        <div class="access-gate-payments">
+          <span>Secured by Stripe</span>
+          <span class="access-gate-payment-cards">Visa &middot; Mastercard &middot; Amex &middot; Apple Pay &middot; Google Pay</span>
+        </div>
       </section>
     `;
     element.querySelector("#access-gate-title").textContent = modalTitle;
