@@ -16,11 +16,52 @@
     }
   }
 
-  function setSelection(group, button) {
-    const controlId = group.dataset.choiceTarget;
-    const control = controlId ? document.getElementById(controlId) : null;
-    if (!control) return;
+  function updateCounter(group, selected, maxSelect) {
+    const counter = group.closest("[data-pet-question], [data-boat-question], label, fieldset")
+      ?.querySelector("[data-pet-choice-counter]");
+    if (!counter) return;
+    const remaining = maxSelect - selected;
+    if (remaining <= 0) {
+      counter.textContent = `${maxSelect} selected`;
+    } else {
+      counter.textContent = `Choose up to ${maxSelect} — ${selected} selected`;
+    }
+  }
 
+  function setSelectionMulti(group, button, control, maxSelect) {
+    const currentValues = control.value ? control.value.split(",").filter(Boolean) : [];
+    const value = button.dataset.choiceValue || "";
+    const alreadySelected = currentValues.includes(value);
+
+    let newValues;
+    if (alreadySelected) {
+      // Deselect
+      newValues = currentValues.filter((v) => v !== value);
+    } else {
+      // Select — enforce max
+      if (currentValues.length >= maxSelect) return;
+      newValues = [...currentValues, value];
+    }
+
+    control.value = newValues.join(",");
+
+    group.querySelectorAll("[data-choice-value]").forEach((card) => {
+      const sel = newValues.includes(card.dataset.choiceValue);
+      card.classList.toggle("is-selected", sel);
+      card.setAttribute("aria-checked", String(sel));
+      // Dim unavailable choices when at max
+      if (newValues.length >= maxSelect && !sel) {
+        card.classList.add("is-dimmed");
+      } else {
+        card.classList.remove("is-dimmed");
+      }
+    });
+
+    updateCounter(group, newValues.length, maxSelect);
+    control.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+
+  function setSelectionSingle(group, button, control) {
     // Toggle: clicking an already-selected card on an optional question deselects it.
     if (button.classList.contains("is-selected") && !control.required) {
       group.querySelectorAll("[data-choice-value]").forEach((choice) => {
@@ -46,13 +87,26 @@
   groups.forEach((group) => {
     const controlId = group.dataset.choiceTarget;
     const control = controlId ? document.getElementById(controlId) : null;
+    const maxSelect = parseInt(group.dataset.maxSelect || "1", 10);
+    const isMulti = maxSelect > 1;
+
     if (control) {
       syncOther(control);
+      if (isMulti) {
+        // Sync initial state for multi-select
+        const currentValues = control.value ? control.value.split(",").filter(Boolean) : [];
+        updateCounter(group, currentValues.length, maxSelect);
+      }
     }
 
     group.addEventListener("click", (event) => {
       const button = event.target.closest("[data-choice-value]");
-      if (button) setSelection(group, button);
+      if (!button || !control) return;
+      if (isMulti) {
+        setSelectionMulti(group, button, control, maxSelect);
+      } else {
+        setSelectionSingle(group, button, control);
+      }
     });
 
     group.addEventListener("keydown", (event) => {

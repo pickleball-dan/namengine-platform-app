@@ -298,14 +298,19 @@
   // ── Event handlers ─────────────────────────────────────────────────────────
 
   // Choice card selections: pet-choice-cards.js handles visual state and fires change on native control.
-  // We listen for that change event to trigger auto-advance for required questions.
+  // We listen for that change event to trigger auto-advance for single-select questions only.
+  // Multi-select questions (max_select > 1) require the user to hit Next.
   form.addEventListener("change", function (event) {
     const control = event.target.closest("input.pet-native-control");
     if (!control) return;
     const question = control.closest("[data-pet-question]");
     if (!question || question.dataset.questionKind !== "choice") return;
+    // Skip auto-advance if this is a multi-select question
+    const choiceList = question.querySelector("[data-choice-card-list]");
+    const maxSelect = parseInt(choiceList?.dataset.maxSelect || "1", 10);
+    if (maxSelect > 1) return;
     const value = control.value;
-    // Auto-advance for all choice questions (required and optional) when a real value is selected
+    // Auto-advance for single-select choice questions when a real value is selected
     if (value && value !== "Other") {
       advanceFrom(question, question.dataset.required === "true" ? copy.choiceRequired : copy.choiceOptional);
     }
