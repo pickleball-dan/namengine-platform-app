@@ -68,21 +68,7 @@
       {% if launch_results %}
         <p class="baby-results-framing">{{ result_framing.get(vertical.slug, "Based on your brief, these names best match your direction, practical needs, and taste signals.") }}</p>
       {% endif %}
-      {% if vertical.slug == "pet" %}
-        <section class="pet-premium-panel" aria-label="Pet naming quality checks">
-          <div>
-            <p class="eyebrow">Name Style DNA</p>
-            <p>{{ pet_style }} names with {{ pet_vibe|lower }} energy for this pet.</p>
-            {% if launch_results %}
-              <p aria-live="polite"><span aria-hidden="true">♥</span> <strong data-saved-count>Saved {{ reaction_counts.love }} {{ "name" if reaction_counts.love == 1 else "names" }} this round</strong> {{ saved_notes.get(vertical.slug, "Your favorites help us understand the direction with the strongest fit.") }}</p>
-            {% endif %}
-          </div>
-          <ul>
-            <li>Personality matched</li>
-            <li>Everyday-ready</li>
-            <li>Fit reviewed</li>
-          </ul>
-        </section>
+      {% if False %}{# pet-premium-panel removed #}
       {% elif trust_cue and vertical.slug != "baby" %}
         <div class="trust-cue" aria-label="Generation summary">
           <strong>{{ names|length }} names checked for fit, sound, and distinctiveness.</strong>
@@ -120,6 +106,9 @@
               </div>
             {% endif %}
           {% endfor %}
+          {% if not beta_unlocked %}
+            <p class="brief-locked-note">Unlock full access to edit your direction and refine your results.</p>
+          {% endif %}
         </dl>
         {% if feelings_scale_enabled(vertical) and beta_unlocked %}
           <p>
@@ -363,6 +352,11 @@
               </ul>
               <p class="paid-access-guarantee">100% money-back guarantee if NamEngine doesn't feel useful.</p>
               <a class="button-link" href="/{{ vertical.slug }}/access?return_session={{ session_id }}">{{ beta_cta_label(vertical) }}</a>
+              <div class="landing-accepted-payments">
+                <span>Secure payment by</span>
+                <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/stripe.svg" alt="Stripe" class="accepted-payment-stripe">
+                <span class="accepted-payment-cards">Visa · Mastercard · Amex · Apple Pay · Google Pay</span>
+              </div>
             </div>
 
           </div>

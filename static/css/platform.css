@@ -944,6 +944,13 @@ button {
   padding: 0 18px 18px;
 }
 
+.brief-locked-note {
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: #999;
+  font-style: italic;
+}
+
 .brief-summary dl {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -12592,13 +12599,15 @@ body.vertical-boat {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  flex-wrap: nowrap;
+  gap: 6px;
   margin-top: 16px;
-  font-size: 12px;
+  font-size: 11px;
   color: #59667a;
-  max-width: 480px;
+  max-width: 100%;
   margin-left: auto;
   margin-right: auto;
+  white-space: nowrap;
 }
 .accepted-payment-stripe {
   height: 18px;
