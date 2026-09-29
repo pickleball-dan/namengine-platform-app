@@ -74,3 +74,48 @@
     openModal(trigger);
   }, true);
 })();
+
+// Save-progress form handler
+document.addEventListener('DOMContentLoaded', function () {
+  const form = document.querySelector('[data-save-progress-form]');
+  if (!form) return;
+
+  const statusEl = form.querySelector('.save-progress-status');
+  const submitBtn = form.querySelector('.save-progress-submit');
+
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const email = form.querySelector('[name="email"]').value.trim();
+    const sessionId = form.querySelector('[name="session_id"]').value.trim();
+    if (!email) return;
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending…';
+    statusEl.textContent = '';
+    statusEl.className = 'save-progress-status';
+
+    try {
+      const res = await fetch('/api/save-progress', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, session_id: sessionId }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        statusEl.textContent = '✓ Check your email — your link is on its way.';
+        statusEl.className = 'save-progress-status is-success';
+        submitBtn.textContent = 'Sent!';
+      } else {
+        statusEl.textContent = 'Something went wrong. Try again.';
+        statusEl.className = 'save-progress-status is-error';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send My Link';
+      }
+    } catch (err) {
+      statusEl.textContent = 'Could not connect. Try again.';
+      statusEl.className = 'save-progress-status is-error';
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Send My Link';
+    }
+  });
+});

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visitor Reset — NamEngine Mission Control</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #0f1117; color: #e2e8f0; margin: 0; padding: 40px 24px; }
+    h1 { font-size: 20px; margin: 0 0 6px; color: #fff; }
+    p.sub { font-size: 13px; color: #64748b; margin: 0 0 32px; }
+    .card { background: #1e2430; border: 1px solid #2d3748; border-radius: 10px; padding: 28px; max-width: 520px; }
+    label { display: block; font-size: 12px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+    input, select { width: 100%; box-sizing: border-box; background: #0f1117; border: 1px solid #2d3748; border-radius: 6px; color: #e2e8f0; font-size: 14px; padding: 10px 12px; margin-bottom: 18px; outline: none; }
+    input:focus, select:focus { border-color: #3b82f6; }
+    button { background: #3b82f6; color: #fff; border: none; border-radius: 6px; padding: 12px 24px; font-size: 14px; font-weight: 600; cursor: pointer; width: 100%; }
+    button:hover { background: #2563eb; }
+    .result { margin-top: 20px; padding: 14px 16px; border-radius: 6px; font-size: 13px; display: none; }
+    .result.ok { background: #052e16; border: 1px solid #166534; color: #86efac; }
+    .result.err { background: #2d0f0f; border: 1px solid #7f1d1d; color: #fca5a5; }
+    .token-row { display: flex; gap: 8px; margin-bottom: 18px; }
+    .token-row input { margin-bottom: 0; }
+    .token-row button { width: auto; padding: 10px 16px; font-size: 13px; background: #334155; }
+    .token-row button:hover { background: #475569; }
+    a.back { display: inline-block; margin-bottom: 28px; font-size: 13px; color: #64748b; text-decoration: none; }
+    a.back:hover { color: #94a3b8; }
+  </style>
+</head>
+<body>
+  <a class="back" href="javascript:history.back()">← Back</a>
+  <h1>Visitor Reset</h1>
+  <p class="sub">Clear a visitor's free-generation record so they get a fresh first-generation slot.</p>
+
+  <div class="card">
+    <label>Bearer Token (NAMENGINE_TELEMETRY_TOKEN)</label>
+    <div class="token-row">
+      <input type="password" id="token" placeholder="Paste token here" autocomplete="off">
+      <button type="button" onclick="saveToken()">Save</button>
+    </div>
+
+    <label>Visitor ID</label>
+    <input type="text" id="visitor_id" placeholder="namengine_beta_visitor cookie value" autocomplete="off">
+
+    <label>Vertical (optional — leave blank to clear all)</label>
+    <select id="vertical">
+      <option value="">All verticals</option>
+      <option value="baby">Baby</option>
+      <option value="pet">Pet</option>
+      <option value="business">Business</option>
+      <option value="boat">Boat</option>
+    </select>
+
+    <button type="button" onclick="doReset()">Reset Visitor</button>
+
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    function saveToken() {
+      sessionStorage.setItem('mc_token', document.getElementById('token').value.trim());
+      document.getElementById('token').value = '••••••••';
+    }
+
+    function getToken() {
+      const stored = sessionStorage.getItem('mc_token');
+      const field = document.getElementById('token').value.trim();
+      return (field && field !== '••••••••') ? field : stored || '';
+    }
+
+    async function doReset() {
+      const token = getToken();
+      const visitor_id = document.getElementById('visitor_id').value.trim();
+      const vertical = document.getElementById('vertical').value;
+      const resultEl = document.getElementById('result');
+
+      if (!token) { show(resultEl, 'err', 'Enter your Bearer token first.'); return; }
+      if (!visitor_id) { show(resultEl, 'err', 'Enter a visitor ID.'); return; }
+
+      try {
+        const res = await fetch('/api/internal/mission-control/reset-visitor', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ visitor_id, vertical: vertical || null })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          const scope = vertical || 'all verticals';
+          show(resultEl, 'ok', `✓ Reset complete. ${data.deleted_rows} row(s) deleted for visitor "${visitor_id}" (${scope}).`);
+        } else {
+          show(resultEl, 'err', `Error: ${data.error || 'unknown'}`);
+        }
+      } catch (e) {
+        show(resultEl, 'err', 'Request failed: ' + e.message);
+      }
+    }
+
+    function show(el, type, msg) {
+      el.className = 'result ' + type;
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+  </script>
+</body>
+</html>

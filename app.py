@@ -100,11 +100,14 @@ from namengine.core.name_facts import build_name_fact_card
 from namengine.core.baby_decision_support import build_baby_decision_support
 from namengine.core.storage import get_session_chain_snapshots
 from namengine.core.storage import (
+    delete_beta_usage,
     get_beta_usage,
     save_beta_email_capture,
     save_beta_usage_email,
     save_beta_usage_free_session,
 )
+from namengine.magic_links import create_magic_link, build_magic_url, validate_and_consume_token
+from namengine.email import send_magic_link
 from namengine.core.taste_evolution import build_taste_evolution
 from namengine.core.ai_generation import DEFAULT_MODEL
 from namengine.core.cost_estimates import estimate_ai_calls_cost_usd
@@ -1518,6 +1521,13 @@ Sitemap: https://nam-engine.com/sitemap.xml
         if vertical_slug not in ("pet", "business"):
             abort(404)
         vertical = get_vertical(vertical_slug)
+        # Free users who already generated cannot go back through intake review
+        if not beta_unlocked_from_request(vertical):
+            visitor_id = request.cookies.get(beta_visitor_cookie_name(), "").strip()
+            usage = get_beta_usage(visitor_id, vertical.slug) if visitor_id else None
+            existing_session_id = str((usage or {}).get("free_session_id") or "").strip()
+            if existing_session_id:
+                return redirect(url_for("session_results", session_id=existing_session_id))
         raw_params = request.args.to_dict(flat=True)
         source = _sanitize_intake_source(vertical, raw_params)
         brief = build_brief(vertical, source)
@@ -1788,6 +1798,84 @@ Sitemap: https://nam-engine.com/sitemap.xml
             "results_path": summary.get("results_path"),
         })
 
+    @app.post("/api/internal/mission-control/reset-visitor")
+    def mission_control_reset_visitor():
+        if not _mission_control_authorized(request.headers.get("Authorization", "")):
+            return jsonify({"error": "unauthorized"}), 401
+        payload = request.get_json(silent=True) or request.form or {}
+        visitor_id = str(payload.get("visitor_id") or "").strip()
+        vertical = str(payload.get("vertical") or "").strip() or None
+        if not visitor_id:
+            return jsonify({"error": "visitor_id_required"}), 400
+        deleted = delete_beta_usage(visitor_id=visitor_id, vertical=vertical)
+        return jsonify({"status": "ok", "deleted_rows": deleted, "visitor_id": visitor_id, "vertical": vertical})
+
+    @app.get("/dev/visitor-reset")
+    def dev_visitor_reset():
+        if not _mission_control_authorized(request.headers.get("Authorization", "")):
+            abort(404)
+        return render_template("visitor_reset.html")
+
+    @app.post("/api/save-progress")
+    def save_progress():
+        payload = request.get_json(silent=True) or request.form or {}
+        email = str(payload.get("email") or "").strip().lower()
+        session_id = str(payload.get("session_id") or "").strip()
+        if not email or "@" not in email:
+            return jsonify({"error": "valid_email_required"}), 400
+        if not session_id:
+            return jsonify({"error": "session_id_required"}), 400
+        snapshot = get_session_snapshot(session_id)
+        if snapshot is None:
+            return jsonify({"error": "session_not_found"}), 404
+        vertical = get_vertical(snapshot["session"]["vertical"])
+        session_state = {
+            "session_id": session_id,
+            "vertical": vertical.slug,
+            "source_url": request.referrer or "",
+        }
+        try:
+            token = create_magic_link(
+                email=email,
+                vertical=vertical.slug,
+                session_id=session_id,
+                session_state=session_state,
+            )
+            base_url = request.host_url.rstrip("/")
+            magic_url = build_magic_url(token, base_url)
+            send_magic_link(
+                to_email=email,
+                magic_url=magic_url,
+                vertical_name=vertical.display_name,
+            )
+            return jsonify({"status": "ok", "message": "Magic link sent"}), 200
+        except Exception as exc:
+            logging.exception("save_progress failed")
+            return jsonify({"error": "send_failed", "detail": str(exc)}), 500
+
+    @app.get("/continue/<token>")
+    def continue_session(token: str):
+        record = validate_and_consume_token(token)
+        if record is None:
+            return render_template("link_expired.html"), 410
+        session_id = record["session_id"]
+        snapshot = get_session_snapshot(session_id)
+        if snapshot is None:
+            return render_template("link_expired.html"), 410
+        vertical_slug = record["vertical"]
+        # Restore visitor's free session so the access check lets them see their names
+        visitor_id = _beta_visitor_id(create=True)
+        now = _utcnow()
+        expires_at = now + timedelta(hours=_beta_free_access_hours())
+        save_beta_usage_free_session(
+            visitor_id=visitor_id,
+            vertical=vertical_slug,
+            session_id=session_id,
+            first_free_at=_isoformat(now),
+            free_access_expires_at=_isoformat(expires_at),
+        )
+        return redirect(url_for("session_results", session_id=session_id))
+
     @app.post("/api/react")
     def react():
         payload = request.get_json(silent=True) or request.form
@@ -1798,10 +1886,6 @@ Sitemap: https://nam-engine.com/sitemap.xml
         value = str(payload.get("value", ""))
 
         snapshot = get_session_snapshot(session_id) if session_id else None
-        if snapshot is not None:
-            vertical = get_vertical(snapshot["session"]["vertical"])
-            if not beta_unlocked_from_request(vertical):
-                return _access_required_response(vertical, session_id, wants_json=True)
 
         try:
             reaction = build_public_reaction(
@@ -2075,9 +2159,6 @@ Sitemap: https://nam-engine.com/sitemap.xml
         vertical = get_vertical(detail["session"]["vertical"])
         if vertical.slug != vertical_slug:
             abort(404)
-        if not beta_unlocked_from_request(vertical):
-            return _access_required_response(vertical, session_id)
-
         decision_support = build_baby_decision_support(
             detail["result"],
             detail["session"],

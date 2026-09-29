@@ -16,22 +16,9 @@
         window.location.href = card.getAttribute('href');
         return;
       }
-      // Allow vc-remind to scroll (handled below)
-      if (e.target.closest('.vc-remind')) return;
       // Block everything else — no navigation
       e.preventDefault();
       e.stopPropagation();
-    });
-  });
-
-  /* ── Remind spans: scroll rather than navigate ── */
-  document.querySelectorAll('.vc-remind').forEach(el => {
-    el.addEventListener('click', e => {
-      e.stopPropagation();
-      e.preventDefault();
-      const target = document.getElementById('remind') ||
-                     document.querySelector('[id*="remind"]');
-      if (target) target.scrollIntoView({ behavior: 'smooth' });
     });
   });
 

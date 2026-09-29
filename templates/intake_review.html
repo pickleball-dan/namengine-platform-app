@@ -19,7 +19,11 @@
       {% endfor %}
     </dl>
 
-    <a class="{{ vertical.slug }}-direction-find" href="{{ generate_url }}">Generate {{ vertical.display_name }} Names</a>
+    <form class="{{ vertical.slug }}-direction-find-form" action="{{ generate_url }}" method="get" data-progress-form>
+      <button type="submit" class="{{ vertical.slug }}-direction-find">Generate {{ vertical.display_name }} Names</button>
+    </form>
   </div>
 </div>
+{% include "progress_overlay.html" %}
+<script src="{{ url_for('static', filename='js/progress.js') }}"></script>
 {% endblock %}

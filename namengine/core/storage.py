@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import sqlite3
+from datetime import datetime
 from contextlib import closing
 from pathlib import Path
 from typing import Any
@@ -196,6 +197,23 @@ def initialize_database(db_path: Path | None = None) -> None:
 
             CREATE INDEX IF NOT EXISTS idx_beta_email_captures_email_created
             ON beta_email_captures(email, created_at DESC);
+
+            CREATE TABLE IF NOT EXISTS magic_links (
+                token TEXT PRIMARY KEY,
+                email TEXT NOT NULL,
+                vertical TEXT NOT NULL,
+                session_id TEXT NOT NULL,
+                session_state_json TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                expires_at TEXT NOT NULL,
+                used_at TEXT
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_magic_links_email
+            ON magic_links(email, created_at DESC);
+
+            CREATE INDEX IF NOT EXISTS idx_magic_links_expires
+            ON magic_links(expires_at);
             """
         )
         _ensure_column(connection, "sessions", "round_number", "INTEGER NOT NULL DEFAULT 1")
@@ -203,6 +221,77 @@ def initialize_database(db_path: Path | None = None) -> None:
         _ensure_column(connection, "sessions", "refinement_prompt", "TEXT")
         connection.commit()
     _INITIALIZED_DATABASE_PATHS.add(path)
+
+
+def save_magic_link(
+    *,
+    token: str,
+    email: str,
+    vertical: str,
+    session_id: str,
+    session_state_json: str,
+    expires_at: str,
+    db_path: Path | None = None,
+) -> None:
+    initialize_database(db_path)
+    now = datetime.utcnow().isoformat()
+    with closing(connect(db_path)) as connection:
+        connection.execute(
+            """
+            INSERT INTO magic_links
+                (token, email, vertical, session_id, session_state_json, created_at, expires_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (token, email, vertical, session_id, session_state_json, now, expires_at),
+        )
+        connection.commit()
+
+
+def get_magic_link(
+    token: str,
+    db_path: Path | None = None,
+) -> dict[str, Any] | None:
+    initialize_database(db_path)
+    with closing(connect(db_path)) as connection:
+        row = connection.execute(
+            "SELECT * FROM magic_links WHERE token = ?",
+            (token,),
+        ).fetchone()
+    return dict(row) if row else None
+
+
+def mark_magic_link_used(
+    token: str,
+    db_path: Path | None = None,
+) -> None:
+    initialize_database(db_path)
+    now = datetime.utcnow().isoformat()
+    with closing(connect(db_path)) as connection:
+        connection.execute(
+            "UPDATE magic_links SET used_at = ? WHERE token = ?",
+            (now, token),
+        )
+        connection.commit()
+
+
+def get_magic_links_by_email(
+    email: str,
+    vertical: str | None = None,
+    db_path: Path | None = None,
+) -> list[dict[str, Any]]:
+    initialize_database(db_path)
+    with closing(connect(db_path)) as connection:
+        if vertical:
+            rows = connection.execute(
+                "SELECT * FROM magic_links WHERE email = ? AND vertical = ? ORDER BY created_at DESC LIMIT 10",
+                (email, vertical),
+            ).fetchall()
+        else:
+            rows = connection.execute(
+                "SELECT * FROM magic_links WHERE email = ? ORDER BY created_at DESC LIMIT 10",
+                (email,),
+            ).fetchall()
+    return [dict(r) for r in rows]
 
 
 def get_beta_usage(
@@ -271,6 +360,29 @@ def save_beta_usage_free_session(
         )
         connection.commit()
     return get_beta_usage(visitor_id, vertical, db_path) or {}
+
+
+def delete_beta_usage(
+    *,
+    visitor_id: str,
+    vertical: str | None = None,
+    db_path: Path | None = None,
+) -> int:
+    """Delete beta_usage rows for a visitor. Pass vertical to clear one vertical only."""
+    initialize_database(db_path)
+    with closing(connect(db_path)) as connection:
+        if vertical:
+            cursor = connection.execute(
+                "DELETE FROM beta_usage WHERE visitor_id = ? AND vertical = ?",
+                (visitor_id, vertical),
+            )
+        else:
+            cursor = connection.execute(
+                "DELETE FROM beta_usage WHERE visitor_id = ?",
+                (visitor_id,),
+            )
+        connection.commit()
+        return cursor.rowcount
 
 
 def save_beta_usage_email(

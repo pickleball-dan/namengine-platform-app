@@ -1603,23 +1603,6 @@ body.page-landing {
   transform: translateY(-1px);
 }
 
-/* ── Remind link ── */
-.vc-remind {
-  display: block;
-  font-size: 11.5px;
-  color: #687386;
-  text-align: center;
-  cursor: pointer;
-  line-height: 1.5;
-}
-
-.vc-remind strong {
-  color: color-mix(in srgb, var(--card-accent, #b06010) 70%, #18212f);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  font-weight: 600;
-}
-
 /* ============================================================
    Hero microcopy  v=20260824-step1
    ============================================================ */

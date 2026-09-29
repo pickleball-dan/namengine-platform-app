@@ -163,7 +163,7 @@
             </p>
             {% set detail_url = url_for('name_detail', vertical_slug=vertical.slug, session_id=session_id, result_id=item.id) %}
             <div class="result-card-identity">
-              <h2>{% if launch_results %}<a class="result-name-link{% if not beta_unlocked %} premium-locked-action{% endif %}" href="{{ detail_url if beta_unlocked else '/%s/access?return_session=%s'|format(vertical.slug, session_id) }}"{% if not beta_unlocked %} data-premium-action aria-label="Unlock details for {{ item.name }}"{% endif %}>{{ item.name }}</a>{% else %}{{ item.name }}{% endif %}</h2>
+              <h2>{% if launch_results %}<a class="result-name-link" href="{{ detail_url }}">{{ item.name }}</a>{% else %}{{ item.name }}{% endif %}</h2>
               {% if item.pronunciation %}
                 <p class="pronunciation">{{ item.pronunciation }}</p>
               {% endif %}
@@ -201,16 +201,16 @@
             {% endif %}
           </div>
 
-          <div class="reaction-row{% if not beta_unlocked %} premium-locked-row{% endif %}" aria-label="React to {{ item.name }}" data-result-id="{{ item.id }}">
-            <button type="button" class="{% if current_reaction == 'love' %}is-selected{% endif %}{% if not beta_unlocked %} premium-locked-action{% endif %}" data-reaction-value="love" data-reaction-label="Love" data-result-name="{{ item.name }}" aria-label="Love {{ item.name }}" aria-pressed="{{ 'true' if current_reaction == 'love' else 'false' }}"{% if not beta_unlocked %} data-premium-action{% endif %}>
+          <div class="reaction-row" aria-label="React to {{ item.name }}" data-result-id="{{ item.id }}">
+            <button type="button" class="{% if current_reaction == 'love' %}is-selected{% endif %}" data-reaction-value="love" data-reaction-label="Love" data-result-name="{{ item.name }}" aria-label="Love {{ item.name }}" aria-pressed="{{ 'true' if current_reaction == 'love' else 'false' }}">
               <img class="reaction-icon" src="{{ url_for('static', filename='images/reactions/love.jpg') }}" alt="">
             </button>
-            <button type="button" class="{% if current_reaction == 'no' %}is-selected{% endif %}{% if not beta_unlocked %} premium-locked-action{% endif %}" data-reaction-value="no" data-reaction-label="No" data-result-name="{{ item.name }}" aria-label="No {{ item.name }}" aria-pressed="{{ 'true' if current_reaction == 'no' else 'false' }}"{% if not beta_unlocked %} data-premium-action{% endif %}>
+            <button type="button" class="{% if current_reaction == 'no' %}is-selected{% endif %}" data-reaction-value="no" data-reaction-label="No" data-result-name="{{ item.name }}" aria-label="No {{ item.name }}" aria-pressed="{{ 'true' if current_reaction == 'no' else 'false' }}">
               <img class="reaction-icon" src="{{ url_for('static', filename='images/reactions/no.jpg') }}" alt="">
             </button>
           </div>
           <p class="reaction-status" aria-live="polite"></p>
-          {% if launch_results %}<a class="result-explore-link{% if not beta_unlocked %} premium-locked-action{% endif %}" href="{{ detail_url if beta_unlocked else '/%s/access?return_session=%s'|format(vertical.slug, session_id) }}" aria-label="Full report for {{ item.name }}{% if not beta_unlocked %} with NamEngine Access{% endif %}"{% if not beta_unlocked %} data-premium-action{% endif %}>{{ result_cta_labels.get(vertical.slug, "View full report") }} <span aria-hidden="true">→</span></a>{% endif %}
+          {% if launch_results %}<a class="result-explore-link" href="{{ detail_url }}" aria-label="Full report for {{ item.name }}">{{ result_cta_labels.get(vertical.slug, "View full report") }} <span aria-hidden="true">→</span></a>{% endif %}
 
 
           <div class="result-card-details" id="result-details-{{ loop.index }}" data-result-card-details>
@@ -293,12 +293,12 @@
             {% endif %}
 
             <div class="result-card-actions">
-              {% if vertical.slug != "baby" %}<a class="button-link detail-link{% if not beta_unlocked %} premium-locked-action{% endif %}" href="{{ detail_url if beta_unlocked else '/%s/access?return_session=%s'|format(vertical.slug, session_id) }}"{% if not beta_unlocked %} data-premium-action{% endif %}>Open full detail</a>{% endif %}
+              {% if vertical.slug != "baby" %}<a class="button-link detail-link" href="{{ detail_url }}">Open full detail</a>{% endif %}
               <form action="/choose" method="post">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="session_id" value="{{ session_id }}">
                 <input type="hidden" name="result_id" value="{{ item.id }}">
-                <button class="choose-button{% if not beta_unlocked %} premium-locked-action{% endif %}" type="{{ 'submit' if beta_unlocked else 'button' }}"{% if not beta_unlocked %} data-premium-action{% endif %}>Choose {{ item.name }}</button>
+                <button class="choose-button" type="submit">Choose {{ item.name }}</button>
               </form>
             </div>
           </div>
@@ -311,30 +311,62 @@
     {% set reactions_remaining = [min_reactions_for_refinement - reaction_total, 0]|max %}
     {% set project_complete = beta_unlocked and (round_number >= 5 or names|length < min_reactions_for_refinement) %}
     <section class="bottom-next-panel" aria-label="Next list options">
-      <div>
-        {% if project_complete %}
-          <p class="eyebrow">List complete</p>
-          <h2>Congratulations — your list is complete.</h2>
-          <p>NamEngine has narrowed this project to a focused set of names. Click a name to dive deeper into why it works for your tastes, choose your favorite, or share the list for feedback.</p>
-        {% else %}
-          <p class="eyebrow">Next list</p>
-          <h2>{% if vertical.slug == "baby" %}Would you like another thoughtful list?{% else %}Ready for a fresh list?{% endif %}</h2>
-          <p>{% if vertical.slug == "baby" %}Share how at least 3 names feel, and we’ll listen more closely next time.{% elif vertical.slug == "pet" %}Use 3 Love or No reactions, and we’ll tune the next list around their personality.{% else %}We’ll use at least 3 Love or No reactions to sharpen the next set.{% endif %}</p>
-        {% endif %}
-      </div>
       {% if not beta_unlocked %}
-        <div class="bottom-refine-form beta-refine-lock" aria-label="{{ beta_cta_label(vertical) }}">
-          <p class="eyebrow">Paid access</p>
-          <h3>{% if vertical.slug == "baby" %}Want a smarter second list?{% else %}Want a sharper next list?{% endif %}</h3>
-          <p>Your first list is free to view. Unlock full access to continue with:</p>
-          <ul class="paid-access-benefits" aria-label="What paid access includes">
-            <li>Full Reports for every name</li>
-            <li>Refined follow-up rounds shaped by Love / No reactions</li>
-            <li>Compare favorites and choose with confidence</li>
-            <li>Shareable name views and saved taste signals</li>
-          </ul>
-          <p class="paid-access-guarantee">100% money-back guarantee if NamEngine doesn’t feel useful.</p>
-          <a class="button-link" href="/{{ vertical.slug }}/access?return_session={{ session_id }}">{{ beta_cta_label(vertical) }}</a>
+        <div class="bottom-refine-form beta-refine-lock" aria-label="Continue with NamEngine">
+
+          <!-- Full-width heading row -->
+          <div class="paywall-heading-row">
+            {% if project_complete %}
+              <p class="eyebrow">List complete</p>
+              <h2>Congratulations — your list is complete.</h2>
+              <p>NamEngine has narrowed this project to a focused set of names. Click a name to dive deeper into why it works for your tastes, choose your favorite, or share the list for feedback.</p>
+            {% else %}
+              <p class="eyebrow">Next list</p>
+              <h2>{% if vertical.slug == "baby" %}Would you like another thoughtful list?{% else %}Ready for a fresh list?{% endif %}</h2>
+              <p>{% if vertical.slug == "baby" %}Share how at least 3 names feel, and we'll listen more closely next time.{% elif vertical.slug == "pet" %}Use 3 Love or No reactions, and we'll tune the next list around their personality.{% else %}We'll use at least 3 Love or No reactions to sharpen the next set.{% endif %}</p>
+            {% endif %}
+          </div>
+
+          <!-- Bottom row: Save & Share left | Unlock Full Access right -->
+          <div class="paywall-two-options">
+
+            <!-- Option 1: Save / Share -->
+            <div class="paywall-option paywall-option-save">
+              <p class="eyebrow">Free</p>
+              <h3>Save &amp; Share Your Progress</h3>
+              <p>Get a magic link sent to your email. Come back anytime or share with a partner — your reactions and names are saved.</p>
+              <form class="save-progress-form" data-save-progress-form>
+                <input type="hidden" name="session_id" value="{{ session_id }}">
+                <input
+                  type="email"
+                  name="email"
+                  class="save-progress-email"
+                  placeholder="your@email.com"
+                  autocomplete="email"
+                  required
+                >
+                <button type="submit" class="button-link save-progress-submit">Send My Link</button>
+                <p class="save-progress-status" aria-live="polite"></p>
+              </form>
+            </div>
+
+            <div class="paywall-option-divider"><span>or</span></div>
+
+            <!-- Option 2: Purchase -->
+            <div class="paywall-option paywall-option-purchase">
+              <p class="eyebrow">Full Access</p>
+              <h3>{% if vertical.slug == "baby" %}Want a smarter second list?{% else %}Want a sharper next list?{% endif %}</h3>
+              <ul class="paid-access-benefits" aria-label="What paid access includes">
+                <li>Full Reports for every name</li>
+                <li>Refined follow-up rounds shaped by Love / No reactions</li>
+                <li>Compare favorites and choose with confidence</li>
+              </ul>
+              <p class="paid-access-guarantee">100% money-back guarantee if NamEngine doesn't feel useful.</p>
+              <a class="button-link" href="/{{ vertical.slug }}/access?return_session={{ session_id }}">{{ beta_cta_label(vertical) }}</a>
+            </div>
+
+          </div>
+
           {% if refinement_error %}
             <p class="refine-reaction-gate is-error" aria-live="polite">{{ refinement_error }}</p>
           {% endif %}
@@ -381,19 +413,7 @@
           </form>
         {% endif %}
       {% endif %}
-      <div class="bottom-next-actions">
-        <a class="button-link compare-link{% if not beta_unlocked %} premium-locked-action{% endif %}" href="{{ '/compare/%s'|format(session_id) if beta_unlocked else '/%s/access?return_session=%s'|format(vertical.slug, session_id) }}"{% if not beta_unlocked %} data-premium-action{% endif %}>Compare favorites</a>
-        <a
-          class="button-link secondary-button"
-          href="/share/{{ session_id }}"
-          data-share-list
-          data-share-url="/share/{{ session_id }}"
-          data-share-title="NamEngine {{ vertical.display_name }} list"
-          data-share-text="Here is a NamEngine {{ vertical.display_name|lower }} name list to review."
-          data-share-copied-label="Link copied"
-        >Share list</a>
 
-      </div>
     </section>
 
     <section class="results-disclaimer" aria-label="Important naming disclaimer">
@@ -409,5 +429,5 @@
   <script src="{{ url_for('static', filename='js/reactions.js') }}?v=20260716-results-mobile-stabilization-v1"></script>
   <script src="{{ url_for('static', filename='js/results-accordion.js') }}?v=20260731-launch-card-contract-v1"></script>
   <script src="{{ url_for('static', filename='js/share-list.js') }}?v=20260815-share-sheet-v1"></script>
-  {% if not beta_unlocked %}<script src="{{ url_for('static', filename='js/access-gate.js') }}?v=20260929-stripe-badge-v2"></script>{% endif %}
+  {% if not beta_unlocked %}<script src="{{ url_for('static', filename='js/access-gate.js') }}?v=20260929-free-actions-v4"></script>{% endif %}
 {% endblock %}

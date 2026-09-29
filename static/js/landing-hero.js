@@ -28,17 +28,6 @@
     heroCta.addEventListener('click', () => { window.location.href = '/baby'; });
   }
 
-  /* ── Remind spans: stop propagation, scroll to remind section ── */
-  document.querySelectorAll('.vc-remind').forEach(el => {
-    el.addEventListener('click', e => {
-      e.stopPropagation();
-      e.preventDefault();
-      const target = document.getElementById('remind') ||
-                     document.querySelector('.landing-hero-remind');
-      if (target) target.scrollIntoView({ behavior: 'smooth' });
-    });
-  });
-
   /* ── Mobile: tap to reveal, nav button to go ── */
   const isTouch = window.matchMedia('(hover: none)').matches;
 
@@ -51,8 +40,6 @@
 
     cards.forEach(card => {
       card.addEventListener('click', e => {
-        /* Remind handled above — do nothing here */
-        if (e.target.closest('.vc-remind')) return;
         /* Nav button: navigate to vertical */
         if (e.target.closest('.vc-nav-btn')) {
           e.stopPropagation();
