@@ -301,7 +301,6 @@ PET = VerticalConfig(
             "What personality should the name capture?",
             required=True,
             choices=PET_PERSONALITY_OPTIONS,
-            max_select=3,
             section="Fit and feeling",
         ),
         Question(
@@ -322,7 +321,6 @@ PET = VerticalConfig(
             "cultural_context",
             "Name inspiration",
             choices=PET_INSPIRATION_OPTIONS,
-            max_select=2,
             section="Fit and feeling",
         ),
         Question(
