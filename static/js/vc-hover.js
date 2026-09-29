@@ -1,24 +1,16 @@
-/* vc-hover.js — hover "Start naming" span to reveal info card; card click blocked except action button
-   v=20260922-v3 */
+/* vc-hover.js — hover "Start naming" span to reveal info card; clicking anywhere on card navigates
+   v=20260929-v4 */
 
 (function () {
   'use strict';
 
   const cards = Array.from(document.querySelectorAll('.landing-vertical-card'));
 
-  /* ── Block card-level navigation everywhere — only vc-nav-btn navigates ── */
+  /* ── Clicking anywhere on the card navigates ── */
   cards.forEach(card => {
     card.addEventListener('click', e => {
-      // Allow vc-nav-btn to navigate
-      if (e.target.closest('.vc-nav-btn')) {
-        e.stopPropagation();
-        e.preventDefault();
-        window.location.href = card.getAttribute('href');
-        return;
-      }
-      // Block everything else — no navigation
-      e.preventDefault();
       e.stopPropagation();
+      window.location.href = card.getAttribute('href');
     });
   });
 

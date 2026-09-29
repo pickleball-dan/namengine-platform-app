@@ -2,14 +2,11 @@
 
 from __future__ import annotations
 
-import json
 import os
-import urllib.request
-import urllib.error
 from typing import Any
 
+import resend
 
-RESEND_API_URL = "https://api.resend.com/emails"
 FROM_ADDRESS = "NamEngine <support@nam-engine.com>"
 
 
@@ -20,9 +17,6 @@ def _api_key() -> str:
     return key
 
 
-
-
-
 def send_magic_link(
     *,
     to_email: str,
@@ -30,6 +24,13 @@ def send_magic_link(
     vertical_name: str,
 ) -> dict[str, Any]:
     """Send a magic link email via Resend. Returns the Resend API response dict."""
+
+    # In local dev, skip the real API call and just print the link
+    if os.getenv("NAMENGINE_DEV_EMAIL") == "1":
+        print(f"\n[DEV MAGIC LINK] To: {to_email}\n[DEV MAGIC LINK] URL: {magic_url}\n")
+        return {"id": "dev-mode"}
+
+    resend.api_key = _api_key()
 
     subject = f"Your {vertical_name} names — pick up where you left off"
 
@@ -114,32 +115,13 @@ Questions? Reply to this email.
 — NamEngine
 """
 
-    payload = json.dumps({
+    params: resend.Emails.SendParams = {
         "from": FROM_ADDRESS,
         "to": [to_email],
         "subject": subject,
         "html": html_body,
         "text": text_body,
-    }).encode("utf-8")
+    }
 
-    # In local dev, skip the real API call and just print the link
-    if os.getenv("NAMENGINE_DEV_EMAIL") == "1":
-        print(f"\n[DEV MAGIC LINK] To: {to_email}\n[DEV MAGIC LINK] URL: {magic_url}\n")
-        return {"id": "dev-mode"}
-
-    req = urllib.request.Request(
-        RESEND_API_URL,
-        data=payload,
-        headers={
-            "Authorization": f"Bearer {_api_key()}",
-            "Content-Type": "application/json",
-        },
-        method="POST",
-    )
-
-    try:
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            return json.loads(resp.read().decode("utf-8"))
-    except urllib.error.HTTPError as exc:
-        body = exc.read().decode("utf-8", errors="replace")
-        raise RuntimeError(f"Resend API error {exc.code}: {body}") from exc
+    email = resend.Emails.send(params)
+    return email
