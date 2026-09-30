@@ -22,6 +22,7 @@ def send_magic_link(
     to_email: str,
     magic_url: str,
     vertical_name: str,
+    recovery: bool = False,
 ) -> dict[str, Any]:
     """Send a magic link email via Resend. Returns the Resend API response dict."""
 
@@ -32,7 +33,27 @@ def send_magic_link(
 
     resend.api_key = _api_key()
 
-    subject = f"Your {vertical_name} names — pick up where you left off"
+    if recovery:
+        subject = f"Your {vertical_name} preferences are saved"
+        heading = "Your NamEngine session is saved"
+        intro = "Use this private link to return to your saved preferences."
+        support = "When you come back, you can try generating your list again without starting over."
+        cta = "Return to My Session"
+        text_intro = (
+            f"Your {vertical_name} preferences are saved.\n\n"
+            "Use this private link to return to your NamEngine session and try again without starting over."
+        )
+    else:
+        subject = f"Your {vertical_name} names — pick up where you left off"
+        heading = f"Your {vertical_name} names are waiting"
+        intro = "Click the button below to get back to your names. Your reactions and progress are saved exactly where you left them."
+        support = "You can also share this link with a partner so they can see your list and weigh in."
+        cta = "Open My Names →"
+        text_intro = (
+            f"Your {vertical_name} names are waiting.\n\n"
+            "Click the link below to pick up where you left off. Your reactions and progress are saved.\n\n"
+            "You can also share this link with a partner."
+        )
 
     html_body = f"""<!DOCTYPE html>
 <html lang="en">
@@ -51,7 +72,7 @@ def send_magic_link(
           <tr>
             <td style="padding:32px 40px 24px;border-bottom:1px solid #f0f0f0;">
               <p style="margin:0;font-size:13px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#999;">NamEngine</p>
-              <h1 style="margin:8px 0 0;font-size:22px;font-weight:700;color:#111;line-height:1.3;">Your {vertical_name} names are waiting</h1>
+              <h1 style="margin:8px 0 0;font-size:22px;font-weight:700;color:#111;line-height:1.3;">{heading}</h1>
             </td>
           </tr>
 
@@ -59,10 +80,10 @@ def send_magic_link(
           <tr>
             <td style="padding:28px 40px;">
               <p style="margin:0 0 20px;font-size:15px;color:#444;line-height:1.6;">
-                Click the button below to get back to your names. Your reactions and progress are saved exactly where you left them.
-              </p>
-              <p style="margin:0 0 28px;font-size:15px;color:#444;line-height:1.6;">
-                You can also share this link with a partner so they can see your list and weigh in.
+                 {intro}
+               </p>
+               <p style="margin:0 0 28px;font-size:15px;color:#444;line-height:1.6;">
+                 {support}
               </p>
 
               <!-- CTA -->
@@ -70,7 +91,7 @@ def send_magic_link(
                 <tr>
                   <td style="border-radius:10px;background:#ff5233;">
                     <a href="{magic_url}" style="display:inline-block;padding:16px 36px;font-size:15px;font-weight:700;color:#fff;text-decoration:none;border-radius:10px;">
-                      Open My Names →
+                       {cta}
                     </a>
                   </td>
                 </tr>
@@ -101,11 +122,7 @@ def send_magic_link(
 </body>
 </html>"""
 
-    text_body = f"""Your {vertical_name} names are waiting.
-
-Click the link below to pick up where you left off. Your reactions and progress are saved.
-
-You can also share this link with a partner.
+    text_body = f"""{text_intro}
 
 {magic_url}
 

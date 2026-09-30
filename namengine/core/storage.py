@@ -155,9 +155,11 @@ def initialize_database(db_path: Path | None = None) -> None:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 created_at TEXT NOT NULL,
                 vertical TEXT NOT NULL,
+                session_id TEXT,
                 provider TEXT NOT NULL,
                 model TEXT NOT NULL,
                 prompt_version TEXT NOT NULL,
+                generation_purpose TEXT,
                 latency_ms INTEGER NOT NULL,
                 customer_intake_json TEXT NOT NULL,
                 exception_type TEXT NOT NULL,
@@ -219,6 +221,8 @@ def initialize_database(db_path: Path | None = None) -> None:
         _ensure_column(connection, "sessions", "round_number", "INTEGER NOT NULL DEFAULT 1")
         _ensure_column(connection, "sessions", "parent_session_id", "TEXT")
         _ensure_column(connection, "sessions", "refinement_prompt", "TEXT")
+        _ensure_column(connection, "failed_generation_audits", "session_id", "TEXT")
+        _ensure_column(connection, "failed_generation_audits", "generation_purpose", "TEXT")
         connection.commit()
     _INITIALIZED_DATABASE_PATHS.add(path)
 
@@ -547,6 +551,8 @@ def save_failed_generation_audit(
     customer_intake: dict[str, Any],
     exception_type: str,
     safe_error_message: str,
+    session_id: str = "",
+    generation_purpose: str = "",
     db_path: Path | None = None,
 ) -> int:
     """Persist a generation failure without storing exception text or tracebacks."""
@@ -555,16 +561,19 @@ def save_failed_generation_audit(
         cursor = connection.execute(
             """
             INSERT INTO failed_generation_audits
-                (created_at, vertical, provider, model, prompt_version, latency_ms,
+                (created_at, vertical, session_id, provider, model, prompt_version,
+                 generation_purpose, latency_ms,
                  customer_intake_json, exception_type, safe_error_message)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 utc_now_iso(),
                 vertical,
+                session_id,
                 provider,
                 model,
                 prompt_version,
+                generation_purpose,
                 max(0, int(latency_ms)),
                 json.dumps(customer_intake),
                 exception_type,

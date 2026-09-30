@@ -110,8 +110,8 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         body = response.get_data(as_text=True)
         self.assertIn("Round 2", body)
         self.assertNotIn("Get finalists", body)
-        self.assertIn("Ready for a fresh list?", body)
         self.assertIn("Generate New List", body)
+        self.assertIn("React to 3 more names before generating the next list.", body)
         self.assertIn("Hazel", body)
 
     def test_progress_refine_redirects_to_saved_results_page(self):
@@ -139,7 +139,6 @@ class PhaseSevenRefinementTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn('class="bottom-next-panel"', body)
-        self.assertIn("Ready for a fresh list?", body)
         self.assertIn("Generate New List", body)
         self.assertIn(f'name="session_id" value="{session_id}"', body)
         self.assertIn('action="/refine"', body)
@@ -183,7 +182,7 @@ class PhaseSevenRefinementTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("Unlock Full Access", body)
-        self.assertIn("Your first list is free", body)
+        self.assertIn("Your first pet list is free", body)
         self.assertIn("100% money-back guarantee", body)
         self.assertIn('/pet/access?return_session=', body)
         self.assertNotIn('action="/refine"', body)
@@ -253,10 +252,10 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         body = response.get_data(as_text=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn("Congratulations", body)
-        self.assertIn("your list is complete", body)
-        self.assertIn("Compare favorites", body)
-        self.assertIn("Share list", body)
+        self.assertIn("Curated finish", body)
+        self.assertIn("This naming project has reached its strongest final set.", body)
+        self.assertIn("compare your favorites", body)
+        self.assertIn("share this list", body)
         self.assertNotIn("Generate One More List", body)
         self.assertNotIn('action="/refine"', body)
 
@@ -284,8 +283,8 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         body = response.get_data(as_text=True)
 
         self.assertEqual(response.status_code, 400)
-        self.assertIn("Congratulations", body)
-        self.assertIn("your list is complete", body)
+        self.assertIn("Curated finish", body)
+        self.assertIn("This naming project has reached its strongest final set.", body)
         self.assertNotIn("Round 5", body)
 
     def test_baby_refinement_does_not_repeat_any_prior_round_names(self):
