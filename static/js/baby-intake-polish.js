@@ -599,7 +599,7 @@
       return;
     }
     if (event.target.closest("[data-baby-direction-find]")) {
-      form.action = "/baby/review";
+      form.action = form.dataset.intakeSubmitUrl || form.action;
       finishInterview();
       return;
     }

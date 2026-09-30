@@ -231,6 +231,11 @@ def vertical_uses_server_review(vertical) -> bool:
     return getattr(vertical, "review_mode", "direct_generation") == "direction_review"
 
 
+def intake_form_action(vertical) -> str:
+    suffix = "/review" if vertical_uses_server_review(vertical) else "/results"
+    return f"{vertical.route_prefix}{suffix}"
+
+
 def section_strength_field(section_title: str) -> str:
     return "taste_strength_" + slugify_for_field(section_title)
 
@@ -1288,6 +1293,7 @@ def create_app() -> Flask:
             "csrf_token": csrf_token,
             "app_release": app_release_info(),
             "vertical_uses_server_review": vertical_uses_server_review,
+            "intake_form_action": intake_form_action,
         }
 
     @app.after_request

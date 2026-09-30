@@ -132,6 +132,7 @@ class PhaseTwoWebShellTest(unittest.TestCase):
                 self.assertEqual(response.status_code, 200)
                 body = response.get_data(as_text=True)
                 self.assertIn(f'action="{expected_action}"', body)
+                self.assertIn(f'data-intake-submit-url="{expected_action}"', body)
                 if VERTICALS[slug].review_mode == "direction_review":
                     self.assertIn("Review Direction", body)
                     self.assertIn("data-no-progress", body)
@@ -167,9 +168,28 @@ class PhaseTwoWebShellTest(unittest.TestCase):
                 self.assertEqual(response.status_code, 200)
                 body = response.get_data(as_text=True)
                 self.assertIn(f'action="/{slug}/results"', body)
+                self.assertNotIn(f'action="/{slug}/results?', body)
                 for key, value in payload.items():
                     escaped_value = value.replace("&", "&amp;")
                     self.assertIn(f'name="{key}" value="{escaped_value}"', body)
+                    self.assertIn(f'edit={key}', body)
+
+    def test_intake_lifecycle_preserves_control_contracts(self):
+        baby_body = self.client.get("/baby").get_data(as_text=True)
+        pet_body = self.client.get("/pet").get_data(as_text=True)
+        boat_body = self.client.get("/boat").get_data(as_text=True)
+
+        self.assertIn('id="gender" name="gender" required', baby_body)
+        self.assertIn('id="notes" name="notes"', baby_body)
+        self.assertNotIn('id="notes" name="notes" required', baby_body)
+
+        self.assertIn('data-choice-target="vibe" data-max-select="3"', pet_body)
+        self.assertIn('id="vibe" name="vibe" value="" required', pet_body)
+        self.assertIn('data-choice-target="cultural_context" data-max-select="2"', pet_body)
+
+        self.assertIn('data-question-id="use"', boat_body)
+        self.assertIn('data-max-select="3"', boat_body)
+        self.assertIn('id="use" name="use" value="" required', boat_body)
 
     def test_baby_intake_renders_baby_specific_structure(self):
         response = self.client.get("/baby")

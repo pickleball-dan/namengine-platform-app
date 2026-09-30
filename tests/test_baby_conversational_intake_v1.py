@@ -26,6 +26,7 @@ class BabyConversationalIntakeV1Test(unittest.TestCase):
         body = self.client.get("/baby").get_data(as_text=True)
 
         self.assertIn('action="/baby/results"', body)  # Polished flow now posts directly to results
+        self.assertIn('data-intake-submit-url="/baby/results"', body)
         for field in (
             "gender", "family_context", "cultural_heritage", "notes",
             "discovery_style", "style", "timeless_vs_distinctive",
@@ -270,6 +271,8 @@ class BabyConversationalIntakeV1Test(unittest.TestCase):
         self.assertIn("if (next) showQuestion(next)", confirmation)
         self.assertIn('confirmAndAdvance(question, "Skipped")', skip_question)
         self.assertIn("if (question) showQuestion(question)", click_handler)
+        self.assertIn("form.dataset.intakeSubmitUrl || form.action", click_handler)
+        self.assertNotIn('form.action = "/baby/review"', click_handler)
 
     def test_nursery_art_is_local_decorative_and_does_not_replace_labels(self):
         body = self.client.get("/baby").get_data(as_text=True)
