@@ -8,7 +8,7 @@ from uuid import uuid4
 
 from namengine.core.briefs import build_brief
 from namengine.core.generation import generate_names
-from namengine.core.schemas import NameResult, NamingBrief, VerticalConfig
+from namengine.core.schemas import GenerationContext, NameResult, NamingBrief, VerticalConfig
 from namengine.core.storage import (
     StorageError,
     get_session_snapshot,
@@ -44,6 +44,7 @@ def refine_session(
     instruction: str = "",
     use_ai: bool = False,
     generator: Callable[..., list[NameResult]] | None = None,
+    generation_context: GenerationContext | None = None,
 ) -> tuple[str, NamingBrief, list]:
     snapshot = get_session_snapshot(parent_session_id)
     if snapshot is None:
@@ -80,7 +81,9 @@ def refine_session(
             **generation_kwargs,
         )
     else:
-        results = generator(vertical, brief, **generation_kwargs)
+        if generation_context is None:
+            raise ValueError("generation_context is required when a route-level generator is supplied")
+        results = generator(vertical, brief, generation_context=generation_context, **generation_kwargs)
     if next_round >= 4:
         session_id = f"{parent_session_id}-r{next_round}-{uuid4().hex[:8]}"
     else:

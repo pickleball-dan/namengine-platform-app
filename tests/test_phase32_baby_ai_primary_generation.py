@@ -6,7 +6,15 @@ from unittest.mock import patch
 
 import app as platform_app
 from app import create_app
-from namengine.core.schemas import NameResult, ValidationResult, ValidationStatus
+from namengine.core.schemas import (
+    GenerationAccessTier,
+    GenerationContext,
+    GenerationEnvironment,
+    GenerationPurpose,
+    NameResult,
+    ValidationResult,
+    ValidationStatus,
+)
 from namengine.core.briefs import build_brief
 from namengine.verticals import get_vertical
 
@@ -40,6 +48,14 @@ def _ai_names():
             start=1,
         )
     ]
+
+
+def _test_context() -> GenerationContext:
+    return GenerationContext(
+        purpose=GenerationPurpose.FIRST_LIST,
+        access_tier=GenerationAccessTier.FREE,
+        environment=GenerationEnvironment.TEST,
+    )
 
 
 class PhaseThirtyTwoBabyAiPrimaryGenerationTest(unittest.TestCase):
@@ -78,6 +94,7 @@ class PhaseThirtyTwoBabyAiPrimaryGenerationTest(unittest.TestCase):
             names = platform_app._generate_names_for_route(
                 get_vertical("baby"),
                 build_brief(get_vertical("baby"), {"gender": "Girl", "style": "Playful"}),
+                generation_context=_test_context(),
             )
 
         self.assertTrue(names)

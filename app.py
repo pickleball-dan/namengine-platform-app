@@ -17,7 +17,7 @@ from threading import Lock, Thread
 from hashlib import sha1
 from urllib.parse import urlencode, urlparse, urljoin
 
-from flask import Flask, abort, g, jsonify, make_response, redirect, render_template, request, send_from_directory, url_for
+from flask import Flask, abort, current_app, g, has_app_context, jsonify, make_response, redirect, render_template, request, send_from_directory, url_for
 TESTIMONIALS = [
     {
         "quote": "So fun to find names for my puppy I would've never thought of! Started off wanting a classic name and ended up with some very cool ideas from modern movies and TV that I love!",
@@ -115,7 +115,16 @@ from namengine.core.domain_availability import enrich_business_domain_info
 from namengine.core.mission_control_telemetry import build_openai_usage_report
 from namengine.core.prompt_versions import prompt_version_for
 from scripts.simulate_generation_quality import DEFAULT_OUTPUT_ROOT as GENERATION_QA_OUTPUT_ROOT, run_generation_quality
-from namengine.core.schemas import NameResult, NamingBrief, ValidationResult, to_plain_data
+from namengine.core.schemas import (
+    GenerationAccessTier,
+    GenerationContext,
+    GenerationEnvironment,
+    GenerationPurpose,
+    NameResult,
+    NamingBrief,
+    ValidationResult,
+    to_plain_data,
+)
 from namengine.core.validation import filter_results_for_brief
 from namengine.verticals import VERTICALS, get_vertical
 
@@ -409,6 +418,85 @@ def app_release_info() -> dict[str, str]:
         "commit": commit[:7] if commit else "unknown",
         "channel": channel or "unknown",
     }
+
+
+def generation_environment() -> GenerationEnvironment:
+    raw_value = (
+        os.getenv("NAMENGINE_ENVIRONMENT")
+        or os.getenv("NAMENGINE_APP_ENV")
+        or os.getenv("FLASK_ENV")
+        or ""
+    ).strip().lower()
+    aliases = {
+        "prod": GenerationEnvironment.PRODUCTION,
+        "production": GenerationEnvironment.PRODUCTION,
+        "stage": GenerationEnvironment.STAGING,
+        "staging": GenerationEnvironment.STAGING,
+        "dev": GenerationEnvironment.DEVELOPMENT,
+        "development": GenerationEnvironment.DEVELOPMENT,
+        "local": GenerationEnvironment.DEVELOPMENT,
+        "test": GenerationEnvironment.TEST,
+        "testing": GenerationEnvironment.TEST,
+    }
+    if raw_value in aliases:
+        return aliases[raw_value]
+    if has_app_context() and current_app.config.get("TESTING"):
+        return GenerationEnvironment.TEST
+    if os.getenv("PYTEST_CURRENT_TEST"):
+        return GenerationEnvironment.TEST
+    if os.getenv("RENDER"):
+        render_name = " ".join(
+            [
+                os.getenv("RENDER_SERVICE_NAME", ""),
+                os.getenv("RENDER_EXTERNAL_HOSTNAME", ""),
+            ]
+        ).lower()
+        if "staging" in render_name:
+            return GenerationEnvironment.STAGING
+        return GenerationEnvironment.PRODUCTION
+    return GenerationEnvironment.DEVELOPMENT
+
+
+def generation_access_tier_for_request(vertical) -> GenerationAccessTier:
+    return (
+        GenerationAccessTier.PAID
+        if beta_unlocked_from_request(vertical)
+        else GenerationAccessTier.FREE
+    )
+
+
+def build_generation_context(
+    *,
+    purpose: GenerationPurpose,
+    access_tier: GenerationAccessTier,
+) -> GenerationContext:
+    return GenerationContext(
+        purpose=purpose,
+        access_tier=access_tier,
+        environment=generation_environment(),
+    )
+
+
+def first_list_generation_context(vertical) -> GenerationContext:
+    return build_generation_context(
+        purpose=GenerationPurpose.FIRST_LIST,
+        access_tier=generation_access_tier_for_request(vertical),
+    )
+
+
+def refinement_generation_context(vertical) -> GenerationContext:
+    return build_generation_context(
+        purpose=GenerationPurpose.REFINEMENT,
+        access_tier=GenerationAccessTier.PAID,
+    )
+
+
+def internal_qa_generation_context() -> GenerationContext:
+    return build_generation_context(
+        purpose=GenerationPurpose.INTERNAL_QA,
+        access_tier=GenerationAccessTier.INTERNAL,
+    )
+
 
 def make_session_id(vertical_slug: str, query_string: bytes) -> str:
     digest = sha1(vertical_slug.encode("utf-8") + b":" + query_string).hexdigest()
@@ -1189,7 +1277,15 @@ def _render_results_snapshot(
     if not _cached_names_match_current_rules(vertical, brief, names):
         if _free_generation_blocked(vertical, session_id, needs_generation=True):
             return _free_generation_access_required_response(vertical, session_id)
-        names = _generate_names_for_route(vertical, brief)
+        names = _generate_names_for_route(
+            vertical,
+            brief,
+            generation_context=(
+                refinement_generation_context(vertical)
+                if int(snapshot["session"]["round_number"]) > 1
+                else first_list_generation_context(vertical)
+            ),
+        )
         save_session(
             session_id,
             vertical.slug,
@@ -1652,7 +1748,11 @@ Sitemap: https://nam-engine.com/sitemap.xml
             names = _names_from_snapshot(snapshot)
         else:
             # Always generate for a new session — user must see names before any paywall.
-            names = _generate_names_for_route(vertical, brief)
+            names = _generate_names_for_route(
+                vertical,
+                brief,
+                generation_context=first_list_generation_context(vertical),
+            )
             save_session(session_id, vertical.slug, brief, names)
             snapshot = get_session_snapshot(session_id)
         reaction_counts = snapshot.get("reaction_counts") if snapshot else {"love": 0, "maybe": 0, "no": 0}
@@ -1688,11 +1788,19 @@ Sitemap: https://nam-engine.com/sitemap.xml
             if not _cached_names_match_current_rules(vertical, brief, names):
                 if _free_generation_blocked(vertical, session_id, needs_generation=True):
                     raise FreeGenerationAccessRequired(session_id)
-                names = _generate_names_for_route(vertical, brief)
+                names = _generate_names_for_route(
+                    vertical,
+                    brief,
+                    generation_context=first_list_generation_context(vertical),
+                )
                 save_session(session_id, vertical.slug, brief, names)
         else:
             # Always generate for a new session — user must see names before any paywall.
-            names = _generate_names_for_route(vertical, brief)
+            names = _generate_names_for_route(
+                vertical,
+                brief,
+                generation_context=first_list_generation_context(vertical),
+            )
             save_session(session_id, vertical.slug, brief, names)
         return session_id
 
@@ -1728,7 +1836,11 @@ Sitemap: https://nam-engine.com/sitemap.xml
             if not _cached_names_match_current_rules(vertical, brief, names):
                 if _free_generation_blocked(vertical, session_id, needs_generation=True):
                     return _free_generation_access_required_response(vertical, session_id)
-                names = _generate_names_for_route(vertical, brief)
+                names = _generate_names_for_route(
+                    vertical,
+                    brief,
+                    generation_context=first_list_generation_context(vertical),
+                )
                 save_session(session_id, vertical.slug, brief, names)
         else:
             # New session: always generate so every visitor sees names before any paywall.
@@ -1737,7 +1849,11 @@ Sitemap: https://nam-engine.com/sitemap.xml
             # for brand-new visitors who have no usage ledger yet, so they still get through.
             if _free_generation_blocked(vertical, session_id, needs_generation=True):
                 return _free_generation_access_required_response(vertical, session_id)
-            names = _generate_names_for_route(vertical, brief)
+            names = _generate_names_for_route(
+                vertical,
+                brief,
+                generation_context=first_list_generation_context(vertical),
+            )
             save_session(session_id, vertical.slug, brief, names)
             snapshot = get_session_snapshot(session_id)
         reaction_counts = snapshot.get("reaction_counts") if snapshot else {"love": 0, "maybe": 0, "no": 0}
@@ -2004,6 +2120,7 @@ Sitemap: https://nam-engine.com/sitemap.xml
                 vertical,
                 instruction=instruction,
                 generator=_generate_names_for_route,
+                generation_context=refinement_generation_context(vertical),
             )
         except StorageError as exc:
             if "guided naming project is complete" in str(exc):
@@ -2551,11 +2668,14 @@ def _generate_names_for_route(
     vertical,
     brief: NamingBrief,
     *,
+    generation_context: GenerationContext,
     round_number: int = 1,
     taste_summary: str = "",
     taste_profile=None,
     previous_names: list[str] | None = None,
 ) -> list[NameResult]:
+    if not isinstance(generation_context, GenerationContext):
+        raise TypeError("generation_context must be a GenerationContext")
     if _should_use_ai_for_vertical(vertical):
         started_at = time.perf_counter()
         try:

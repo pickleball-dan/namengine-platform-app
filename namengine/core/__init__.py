@@ -126,7 +126,11 @@ from .reactions import ReactionError, build_public_reaction, build_reaction
 from .refinement import build_reaction_effect_summary, refine_session
 from .schemas import (
     ChosenName,
+    GenerationAccessTier,
     GenerationCandidate,
+    GenerationContext,
+    GenerationEnvironment,
+    GenerationPurpose,
     ModelProvider,
     NamingBrief,
     NamingSession,
@@ -299,7 +303,11 @@ __all__ = [
     "summarize_evaluation_pack",
     "validate_fixture",
     "EngineAuditRow",
+    "GenerationAccessTier",
     "GenerationCandidate",
+    "GenerationContext",
+    "GenerationEnvironment",
+    "GenerationPurpose",
     "get_chosen_snapshot",
     "get_database_path",
     "get_failed_generation_audits",

@@ -13,7 +13,13 @@ from namengine.core import get_failed_generation_audits
 from namengine.core.mission_control_telemetry import build_openai_usage_report
 from namengine.core.ai_generation import AIGenerationError, _default_client, _openai_max_retries, _openai_timeout_seconds
 from namengine.core.briefs import build_brief
-from namengine.core.schemas import ModelProvider
+from namengine.core.schemas import (
+    GenerationAccessTier,
+    GenerationContext,
+    GenerationEnvironment,
+    GenerationPurpose,
+    ModelProvider,
+)
 from namengine.verticals import get_vertical
 
 
@@ -28,6 +34,14 @@ def _openai_incomplete(*args, **kwargs):
     raise AIGenerationError(
         "OpenAI response incomplete stage=critic_ranker_finalizer_v1 model=gpt-4.1-mini "
         "status=incomplete reason=max_output_tokens output_json_chars=12102"
+    )
+
+
+def _test_context() -> GenerationContext:
+    return GenerationContext(
+        purpose=GenerationPurpose.FIRST_LIST,
+        access_tier=GenerationAccessTier.FREE,
+        environment=GenerationEnvironment.TEST,
     )
 
 
@@ -150,7 +164,11 @@ class OpenAITimeoutFallbackTest(unittest.TestCase):
         with patch.object(platform_app, "is_ai_generation_configured", return_value=True), patch.object(
             model_router, "_openai_provider", side_effect=_openai_timeout
         ), patch.dict("os.environ", {"NAMENGINE_AI_PRIMARY_VERTICALS": "baby"}):
-            names = platform_app._generate_names_for_route(self.vertical, self.brief)
+            names = platform_app._generate_names_for_route(
+                self.vertical,
+                self.brief,
+                generation_context=_test_context(),
+            )
 
         self.assertTrue(names)
         self.assertTrue(all(name.metadata["provider"] == "fallback" for name in names))
@@ -163,7 +181,11 @@ class OpenAITimeoutFallbackTest(unittest.TestCase):
         with patch.object(platform_app, "is_ai_generation_configured", return_value=True), patch.object(
             model_router, "_openai_provider", side_effect=_openai_timeout
         ), patch.dict("os.environ", {"NAMENGINE_AI_PRIMARY_VERTICALS": "baby"}):
-            names = platform_app._generate_names_for_route(self.vertical, self.brief)
+            names = platform_app._generate_names_for_route(
+                self.vertical,
+                self.brief,
+                generation_context=_test_context(),
+            )
 
         self.assertTrue(names)
         failures = get_failed_generation_audits("baby")
@@ -185,7 +207,11 @@ class OpenAITimeoutFallbackTest(unittest.TestCase):
             model_router, "_fallback_provider", wraps=model_router._fallback_provider
         ) as fallback_provider, patch.dict("os.environ", {"NAMENGINE_AI_PRIMARY_VERTICALS": "business"}):
             with self.assertRaises(NameGenerationUnavailable):
-                platform_app._generate_names_for_route(business, brief)
+                platform_app._generate_names_for_route(
+                    business,
+                    brief,
+                    generation_context=_test_context(),
+                )
 
         fallback_provider.assert_not_called()
         self.assertEqual(get_failed_generation_audits("business")[0]["exception_type"], "AIGenerationError")
@@ -197,7 +223,11 @@ class OpenAITimeoutFallbackTest(unittest.TestCase):
             model_router, "_fallback_provider", side_effect=RuntimeError("fallback exploded")
         ), patch.dict("os.environ", {"NAMENGINE_AI_PRIMARY_VERTICALS": "baby"}):
             with self.assertRaises(NameGenerationUnavailable):
-                platform_app._generate_names_for_route(self.vertical, self.brief)
+                platform_app._generate_names_for_route(
+                    self.vertical,
+                    self.brief,
+                    generation_context=_test_context(),
+                )
 
 
 if __name__ == "__main__":
