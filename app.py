@@ -1521,8 +1521,9 @@ Sitemap: https://nam-engine.com/sitemap.xml
         if vertical_slug not in ("pet", "business"):
             abort(404)
         vertical = get_vertical(vertical_slug)
-        # Free users who already generated cannot go back through intake review
-        if not beta_unlocked_from_request(vertical):
+        # Free users who already generated and arrive with no intake params go to their results.
+        # But if they have intake params (coming from the form), always show the review.
+        if not beta_unlocked_from_request(vertical) and not request.args:
             visitor_id = request.cookies.get(beta_visitor_cookie_name(), "").strip()
             usage = get_beta_usage(visitor_id, vertical.slug) if visitor_id else None
             existing_session_id = str((usage or {}).get("free_session_id") or "").strip()
