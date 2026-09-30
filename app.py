@@ -227,6 +227,10 @@ def feelings_scale_enabled(vertical) -> bool:
     return False
 
 
+def vertical_uses_server_review(vertical) -> bool:
+    return getattr(vertical, "review_mode", "direct_generation") == "direction_review"
+
+
 def section_strength_field(section_title: str) -> str:
     return "taste_strength_" + slugify_for_field(section_title)
 
@@ -1283,6 +1287,7 @@ def create_app() -> Flask:
             "beta_cta_label": beta_cta_label,
             "csrf_token": csrf_token,
             "app_release": app_release_info(),
+            "vertical_uses_server_review": vertical_uses_server_review,
         }
 
     @app.after_request
@@ -1538,9 +1543,9 @@ Sitemap: https://nam-engine.com/sitemap.xml
     def intake_review(vertical_slug: str):
         if vertical_slug not in VERTICALS:
             abort(404)
-        if vertical_slug not in ("pet", "business"):
-            abort(404)
         vertical = get_vertical(vertical_slug)
+        if not vertical_uses_server_review(vertical):
+            abort(404)
         raw_params = request.form.to_dict(flat=True) if request.method == "POST" else request.args.to_dict(flat=True)
         # Free users who already generated and arrive with no intake params go to their results.
         # But if they have intake params (coming from the form), always show the review.

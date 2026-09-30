@@ -254,6 +254,7 @@ PET = VerticalConfig(
     display_name="Pet",
     object_label="pet name",
     route_prefix="/pet",
+    review_mode="direction_review",
     intake_questions=(
         Question(
             "pet_type",
@@ -392,6 +393,7 @@ BABY = VerticalConfig(
     display_name="Baby",
     object_label="baby name",
     route_prefix="/baby",
+    review_mode="direct_generation",
     intake_questions=(
         Question(
             "gender",
@@ -535,6 +537,7 @@ BUSINESS = VerticalConfig(
     display_name="Business",
     object_label="business name",
     route_prefix="/business",
+    review_mode="direction_review",
     intake_questions=(
         Question(
             "business_description",
@@ -872,6 +875,7 @@ BOAT = VerticalConfig(
     display_name="Boat",
     object_label="boat name",
     route_prefix="/boat",
+    review_mode="direct_generation",
     intake_questions=(
         Question(
             "boat_type",

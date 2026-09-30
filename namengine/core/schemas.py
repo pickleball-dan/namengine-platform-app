@@ -82,6 +82,7 @@ class VerticalConfig:
     visual: VerticalVisualConfig = field(default_factory=VerticalVisualConfig)
     default_result_count: int = 8
     page_dark: bool = False
+    review_mode: str = "direct_generation"
 
 
 @dataclass(slots=True)

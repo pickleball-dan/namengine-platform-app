@@ -2,6 +2,7 @@ import unittest
 from html.parser import HTMLParser
 
 from app import create_app
+from namengine.verticals import VERTICALS
 
 
 class AnchorParser(HTMLParser):
@@ -109,6 +110,66 @@ class PhaseTwoWebShellTest(unittest.TestCase):
         self.assertIn('method="post"', body)
         self.assertIn('data-progress-form data-no-progress novalidate', body)
         self.assertIn("Review Direction", body)
+
+    def test_review_lifecycle_modes_are_configured_for_active_verticals(self):
+        self.assertEqual(VERTICALS["baby"].review_mode, "direct_generation")
+        self.assertEqual(VERTICALS["pet"].review_mode, "direction_review")
+        self.assertEqual(VERTICALS["business"].review_mode, "direction_review")
+        self.assertEqual(VERTICALS["boat"].review_mode, "direct_generation")
+
+    def test_intake_form_action_follows_configured_review_mode(self):
+        expected_actions = {
+            "baby": "/baby/results",
+            "pet": "/pet/review",
+            "business": "/business/review",
+            "boat": "/boat/results",
+        }
+
+        for slug, expected_action in expected_actions.items():
+            with self.subTest(slug=slug):
+                response = self.client.get(f"/{slug}")
+
+                self.assertEqual(response.status_code, 200)
+                body = response.get_data(as_text=True)
+                self.assertIn(f'action="{expected_action}"', body)
+                if VERTICALS[slug].review_mode == "direction_review":
+                    self.assertIn("Review Direction", body)
+                    self.assertIn("data-no-progress", body)
+                else:
+                    self.assertNotIn(f'action="/{slug}/review"', body)
+
+    def test_server_review_route_follows_configured_review_mode(self):
+        for slug in ("baby", "boat"):
+            with self.subTest(slug=slug):
+                response = self.client.post(f"/{slug}/review", data={})
+
+                self.assertEqual(response.status_code, 404)
+
+        review_payloads = {
+            "pet": {
+                "pet_type": "Dog",
+                "pet_color": "gold",
+                "pet_life_stage": "Young",
+                "vibe": "Gentle,Adventurous",
+                "style": "Classic",
+            },
+            "business": {
+                "business_description": "A strategy studio for founders",
+                "industry": "Consulting",
+                "style": "Premium and refined",
+                "audience": "Businesses / organizations",
+            },
+        }
+        for slug, payload in review_payloads.items():
+            with self.subTest(slug=slug):
+                response = self.client.post(f"/{slug}/review", data=payload)
+
+                self.assertEqual(response.status_code, 200)
+                body = response.get_data(as_text=True)
+                self.assertIn(f'action="/{slug}/results"', body)
+                for key, value in payload.items():
+                    escaped_value = value.replace("&", "&amp;")
+                    self.assertIn(f'name="{key}" value="{escaped_value}"', body)
 
     def test_baby_intake_renders_baby_specific_structure(self):
         response = self.client.get("/baby")

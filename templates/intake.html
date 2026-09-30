@@ -137,7 +137,7 @@
       {% endif %}
     </div>
 
-    <form id="{{ vertical.slug }}-intake-form" class="intake-form{% if is_polished_flow %} baby-intake-form polished-intake-form{% endif %}{% if vertical.slug == 'baby' %} baby-conversation{% endif %}{% if vertical.slug == 'pet' %} pet-conversation{% endif %}{% if vertical.slug == 'boat' %} boat-conversation{% endif %}" action="{{ vertical.route_prefix }}{% if vertical.slug in ['pet', 'business'] %}/review{% else %}/results{% endif %}" method="post" data-progress-form{% if vertical.slug in ['pet', 'business'] %} data-no-progress{% endif %}{% if vertical.slug == 'baby' %} data-journey-vertical="baby"{% endif %}{% if vertical.slug == 'baby' and request.args.get('edit') %} data-edit-question="{{ request.args.get('edit') }}"{% endif %} novalidate>
+    <form id="{{ vertical.slug }}-intake-form" class="intake-form{% if is_polished_flow %} baby-intake-form polished-intake-form{% endif %}{% if vertical.slug == 'baby' %} baby-conversation{% endif %}{% if vertical.slug == 'pet' %} pet-conversation{% endif %}{% if vertical.slug == 'boat' %} boat-conversation{% endif %}" action="{{ vertical.route_prefix }}{% if vertical_uses_server_review(vertical) %}/review{% else %}/results{% endif %}" method="post" data-progress-form{% if vertical_uses_server_review(vertical) %} data-no-progress{% endif %}{% if vertical.slug == 'baby' %} data-journey-vertical="baby"{% endif %}{% if vertical.slug == 'baby' and request.args.get('edit') %} data-edit-question="{{ request.args.get('edit') }}"{% endif %} novalidate>
       {% if vertical.slug == "baby" %}
         {% set gender_descriptions = {
           "Girl": "We’re expecting a baby girl.",
@@ -518,7 +518,7 @@
       {% endfor %}
 
 
-      <button type="submit">{% if vertical.slug in ['pet', 'business'] %}Review Direction{% elif not feelings_scale_enabled(vertical) %}Generate {{ vertical.display_name }} Names{% elif is_polished_flow %}Continue{% else %}Continue to Feelings Scale{% endif %}</button>
+      <button type="submit">{% if vertical_uses_server_review(vertical) %}Review Direction{% elif not feelings_scale_enabled(vertical) %}Generate {{ vertical.display_name }} Names{% elif is_polished_flow %}Continue{% else %}Continue to Feelings Scale{% endif %}</button>
       {% endif %}
     </form>
 
@@ -564,7 +564,7 @@
   {% if vertical.slug in ["pet", "business"] %}
     <script src="{{ url_for('static', filename='js/pet-choice-cards.js') }}?v=20260929-multiselect-v1"></script>
   {% endif %}
-  {% if vertical.slug in ["pet", "business"] %}
+  {% if vertical_uses_server_review(vertical) %}
     <script src="{{ url_for('static', filename='js/direction-review.js') }}?v=20260925-direction-review-v6"></script>
   {% endif %}
   {% if vertical.slug == "boat" %}
