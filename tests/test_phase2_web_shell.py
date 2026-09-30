@@ -141,6 +141,14 @@ class PhaseTwoWebShellTest(unittest.TestCase):
         self.assertIn(">Next</button>", body)
         self.assertNotIn("Skip for now", body)
 
+    def test_about_page_shows_release_version(self):
+        response = self.client.get("/about")
+
+        self.assertEqual(response.status_code, 200)
+        body = response.get_data(as_text=True)
+        self.assertIn("Current release", body)
+        self.assertIn("NamEngine Beta v0.9.0-beta", body)
+
     def test_unknown_vertical_404s(self):
         response = self.client.get("/spaceship")
 

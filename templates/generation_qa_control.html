@@ -20,6 +20,12 @@
       {% endif %}
     </div>
 
+    <div class="beta-price-card">
+      <span>Build</span>
+      <strong>v{{ app_release.version }} · {{ app_release.channel|title }}</strong>
+      <small>Commit {{ app_release.commit }}</small>
+    </div>
+
     <p class="form-help">Trigger runs from Mission Control using the protected API actions below. The page intentionally does not embed bearer tokens in browser JavaScript.</p>
 
     <p class="form-help">Protected API actions:</p>

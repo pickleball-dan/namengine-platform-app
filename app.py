@@ -121,6 +121,7 @@ from namengine.verticals import VERTICALS, get_vertical
 
 
 logger = logging.getLogger(__name__)
+APP_VERSION = os.getenv("NAMENGINE_APP_VERSION", "0.9.0-beta")
 _LOCAL_BETA_ACCESS_SECRET = token_urlsafe(32)
 _portrait_jobs: set[str] = set()
 _portrait_jobs_lock = Lock()
@@ -381,6 +382,24 @@ def brief_value(brief_json: str, *keys: str) -> str:
             return str(value)
     return ""
 
+
+def app_release_info() -> dict[str, str]:
+    commit = (
+        os.getenv("NAMENGINE_BUILD_SHA")
+        or os.getenv("RENDER_GIT_COMMIT")
+        or os.getenv("GIT_COMMIT")
+        or os.getenv("COMMIT_SHA")
+        or ""
+    ).strip()
+    channel = (
+        os.getenv("NAMENGINE_RELEASE_CHANNEL")
+        or ("production" if os.getenv("RENDER") else "local")
+    ).strip()
+    return {
+        "version": APP_VERSION,
+        "commit": commit[:7] if commit else "unknown",
+        "channel": channel or "unknown",
+    }
 
 def make_session_id(vertical_slug: str, query_string: bytes) -> str:
     digest = sha1(vertical_slug.encode("utf-8") + b":" + query_string).hexdigest()
@@ -1263,6 +1282,7 @@ def create_app() -> Flask:
             "beta_unlocked_from_request": beta_unlocked_from_request,
             "beta_cta_label": beta_cta_label,
             "csrf_token": csrf_token,
+            "app_release": app_release_info(),
         }
 
     @app.after_request
@@ -2454,6 +2474,7 @@ def _mission_control_generation_qa_status_payload() -> dict:
         "report_path": str(latest_report_path),
         "results_path": str(latest_results_path),
         "summary": None,
+        "build": app_release_info(),
     }
     if not latest_summary_path.exists():
         return payload

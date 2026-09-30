@@ -68,6 +68,9 @@ class MissionControlGenerationQATest(unittest.TestCase):
         self.assertIn("summary.json", payload["summary_path"])
         self.assertIn("report.md", payload["report_path"])
         self.assertIn("results.json", payload["results_path"])
+        self.assertEqual(payload["build"]["version"], "0.9.0-beta")
+        self.assertIn("commit", payload["build"])
+        self.assertIn("channel", payload["build"])
 
     def test_generation_qa_report_returns_latest_report_and_results(self):
         latest = Path(os.environ["NAMENGINE_GENERATION_QA_OUTPUT_ROOT"]) / "latest"
@@ -134,6 +137,8 @@ class MissionControlGenerationQATest(unittest.TestCase):
         body = response.get_data(as_text=True)
         self.assertIn("Generation QA", body)
         self.assertIn("Protected API actions", body)
+        self.assertIn("Build", body)
+        self.assertIn("0.9.0-beta", body)
 
     def test_generation_qa_control_page_requires_engine_audit_flag(self):
         os.environ.pop("NAMENGINE_ENABLE_ENGINE_AUDIT", None)
