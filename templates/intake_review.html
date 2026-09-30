@@ -20,6 +20,9 @@
     </dl>
 
     <form class="{{ vertical.slug }}-direction-find-form" action="{{ generate_url }}" method="get" data-progress-form>
+      {% for key, value in generate_params.items() %}
+        <input type="hidden" name="{{ key }}" value="{{ value }}">
+      {% endfor %}
       <button type="submit" class="{{ vertical.slug }}-direction-find">Generate {{ vertical.display_name }} Names</button>
     </form>
   </div>

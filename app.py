@@ -1544,15 +1544,16 @@ Sitemap: https://nam-engine.com/sitemap.xml
             item = dict(item, question=q.label)
             items.append(item)
         edit_urls = {item["key"]: intake_edit_url(vertical, brief, item["key"]) for item in items}
-        # Build the generate URL (same as results route)
-        from urllib.parse import urlencode
-        generate_url = f"{vertical.route_prefix}/results?{urlencode(source)}"
+        # Keep intake values as real form fields. progress.js rebuilds GET URLs
+        # from FormData and would otherwise discard an action query string.
+        generate_url = f"{vertical.route_prefix}/results"
         return render_template(
             "intake_review.html",
             vertical=vertical,
             items=items,
             edit_urls=edit_urls,
             generate_url=generate_url,
+            generate_params=source,
             beta_unlocked=beta_unlocked_from_request(vertical),
         )
 
