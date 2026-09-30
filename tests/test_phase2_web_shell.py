@@ -147,7 +147,7 @@ class PhaseTwoWebShellTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         body = response.get_data(as_text=True)
         self.assertIn("Current release", body)
-        self.assertIn("NamEngine Beta v0.9.0-beta", body)
+        self.assertIn("NamEngine v0.9.0-beta", body)
 
     def test_unknown_vertical_404s(self):
         response = self.client.get("/spaceship")
