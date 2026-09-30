@@ -4,6 +4,16 @@ SOE means Standardization of Engine. NamEngine should operate as one shared nami
 
 The rule: the engine, route lifecycle, telemetry, and release checks are shared. The visuals, copy voice, graphical artifacts, and domain-specific judgment stay vertical-specific.
 
+## Core Implementation Rules
+
+A vertical may extend the shared engine, but it should not bypass it.
+
+Vertical-specific behavior should live in adapters, validators, configuration, prompts, visual components, or artifact handlers that are called by the shared lifecycle. If Pet needs special validation, that should be a Pet adapter called by the shared lifecycle, not an `if vertical == "pet"` branch buried inside a route. The same rule applies to Business, Boat, Baby, and every future vertical.
+
+Slug checks are considered migration debt unless they are strictly presentation-layer concerns.
+
+A slug check deciding which logo, visual treatment, or presentation-only copy to show may be acceptable. A slug check deciding generation flow, session persistence, telemetry, paywall behavior, result handling, review behavior, or saved/share behavior is a candidate for SOE migration.
+
 ## Why This Exists
 
 NamEngine has active verticals that work, but some behaviors still live in slug-specific branches. That makes every new vertical more expensive than it should be and creates the kind of patchwork that led to Pet fixes landing in several different places.
@@ -233,4 +243,3 @@ Recommended order:
 SOE is not a redesign. It should not flatten vertical identities or make every vertical look the same.
 
 SOE is also not a rewrite. Migrate small pieces behind tests, one contract at a time.
-
