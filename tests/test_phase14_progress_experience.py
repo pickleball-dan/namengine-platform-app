@@ -47,15 +47,14 @@ class PhaseFourteenProgressExperienceTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         body = response.get_data(as_text=True)
-        self.assertIn('action="/pet/results"', body)
+        self.assertIn('action="/pet/review"', body)
         self.assertIn('method="post"', body)
         self.assertIn('data-progress-form', body)
-        self.assertIn("Find names", body)
+        self.assertIn("Review Direction", body)
         self.assertIn("Finding names for this identity", body)
         self.assertIn("A few quick checks before the list appears.", body)
         self.assertIn("Finding names for this identity", body)
-        self.assertIn("Checking everyday fit", body)
-        self.assertNotIn("Checking sound and use", body)
+        self.assertIn("Checking sound and use", body)
         self.assertIn("data-progress-visual", body)
         self.assertIn("pet-progress-visual", body)
         self.assertIn("pet-progress-companion", body)
@@ -71,22 +70,24 @@ class PhaseFourteenProgressExperienceTest(unittest.TestCase):
         self.assertIn("js/progress.js", body)
         self.assertIn("novalidate", body)
 
-    def test_pet_review_progress_form_preserves_intake_params_as_hidden_fields(self):
-        response = self.client.get(
-            "/pet/review"
-            "?pet_type=Reptile"
-            "&pet_color=yellow"
-            "&pet_life_stage=Young"
-            "&vibe=Gentle%2CAdventurous%2CElegant"
-            "&cultural_context=Mythology%2CNature"
-            "&style=Strong+and+tailored"
-            "&familiarity_preference=Distinctive"
+    def test_pet_review_progress_form_posts_intake_params_as_hidden_fields(self):
+        response = self.client.post(
+            "/pet/review",
+            data={
+                "pet_type": "Reptile",
+                "pet_color": "yellow",
+                "pet_life_stage": "Young",
+                "vibe": "Gentle,Adventurous,Elegant",
+                "cultural_context": "Mythology,Nature",
+                "style": "Strong and tailored",
+                "familiarity_preference": "Distinctive",
+            },
         )
 
         self.assertEqual(response.status_code, 200)
         body = response.get_data(as_text=True)
         self.assertIn('action="/pet/results"', body)
-        self.assertIn('method="get"', body)
+        self.assertIn('method="post"', body)
         self.assertIn('data-progress-form', body)
         self.assertIn('name="pet_type" value="Reptile"', body)
         self.assertIn('name="vibe" value="Gentle,Adventurous,Elegant"', body)

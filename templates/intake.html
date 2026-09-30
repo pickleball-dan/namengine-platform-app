@@ -137,7 +137,7 @@
       {% endif %}
     </div>
 
-    <form id="{{ vertical.slug }}-intake-form" class="intake-form{% if is_polished_flow %} baby-intake-form polished-intake-form{% endif %}{% if vertical.slug == 'baby' %} baby-conversation{% endif %}{% if vertical.slug == 'pet' %} pet-conversation{% endif %}{% if vertical.slug == 'boat' %} boat-conversation{% endif %}" action="{{ vertical.route_prefix }}{% if vertical.slug in ['pet', 'business'] %}/review{% else %}/results{% endif %}" method="{% if vertical.slug in ['pet', 'business'] %}get{% else %}post{% endif %}" data-progress-form{% if vertical.slug in ['pet', 'business'] %} data-no-progress{% endif %}{% if vertical.slug == 'baby' %} data-journey-vertical="baby"{% endif %}{% if vertical.slug == 'baby' and request.args.get('edit') %} data-edit-question="{{ request.args.get('edit') }}"{% endif %} novalidate>
+    <form id="{{ vertical.slug }}-intake-form" class="intake-form{% if is_polished_flow %} baby-intake-form polished-intake-form{% endif %}{% if vertical.slug == 'baby' %} baby-conversation{% endif %}{% if vertical.slug == 'pet' %} pet-conversation{% endif %}{% if vertical.slug == 'boat' %} boat-conversation{% endif %}" action="{{ vertical.route_prefix }}{% if vertical.slug in ['pet', 'business'] %}/review{% else %}/results{% endif %}" method="post" data-progress-form{% if vertical.slug in ['pet', 'business'] %} data-no-progress{% endif %}{% if vertical.slug == 'baby' %} data-journey-vertical="baby"{% endif %}{% if vertical.slug == 'baby' and request.args.get('edit') %} data-edit-question="{{ request.args.get('edit') }}"{% endif %} novalidate>
       {% if vertical.slug == "baby" %}
         {% set gender_descriptions = {
           "Girl": "We’re expecting a baby girl.",

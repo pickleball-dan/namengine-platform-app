@@ -1514,22 +1514,22 @@ Sitemap: https://nam-engine.com/sitemap.xml
     def data_protection():
         return render_template("legal_data_protection.html")
 
-    @app.get("/<vertical_slug>/review")
+    @app.route("/<vertical_slug>/review", methods=["GET", "POST"])
     def intake_review(vertical_slug: str):
         if vertical_slug not in VERTICALS:
             abort(404)
         if vertical_slug not in ("pet", "business"):
             abort(404)
         vertical = get_vertical(vertical_slug)
+        raw_params = request.form.to_dict(flat=True) if request.method == "POST" else request.args.to_dict(flat=True)
         # Free users who already generated and arrive with no intake params go to their results.
         # But if they have intake params (coming from the form), always show the review.
-        if not beta_unlocked_from_request(vertical) and not request.args:
+        if not beta_unlocked_from_request(vertical) and not raw_params:
             visitor_id = request.cookies.get(beta_visitor_cookie_name(), "").strip()
             usage = get_beta_usage(visitor_id, vertical.slug) if visitor_id else None
             existing_session_id = str((usage or {}).get("free_session_id") or "").strip()
             if existing_session_id:
                 return redirect(url_for("session_results", session_id=existing_session_id))
-        raw_params = request.args.to_dict(flat=True)
         source = _sanitize_intake_source(vertical, raw_params)
         brief = build_brief(vertical, source)
         # Build items from all intake questions so nothing is missing

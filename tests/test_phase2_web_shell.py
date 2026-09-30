@@ -105,10 +105,10 @@ class PhaseTwoWebShellTest(unittest.TestCase):
         self.assertIn('data-choice-value="Cat"', body)
         self.assertIn('data-choice-value="Balanced"', body)
         self.assertIn('data-choice-value="Very important"', body)
-        self.assertIn('action="/pet/results"', body)
+        self.assertIn('action="/pet/review"', body)
         self.assertIn('method="post"', body)
-        self.assertIn('data-progress-form novalidate', body)
-        self.assertIn("Find names", body)
+        self.assertIn('data-progress-form data-no-progress novalidate', body)
+        self.assertIn("Review Direction", body)
 
     def test_baby_intake_renders_baby_specific_structure(self):
         response = self.client.get("/baby")

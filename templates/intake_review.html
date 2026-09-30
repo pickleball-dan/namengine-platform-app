@@ -19,7 +19,7 @@
       {% endfor %}
     </dl>
 
-    <form class="{{ vertical.slug }}-direction-find-form" action="{{ generate_url }}" method="get" data-progress-form>
+    <form class="{{ vertical.slug }}-direction-find-form" action="{{ generate_url }}" method="post" data-progress-form>
       {% for key, value in generate_params.items() %}
         <input type="hidden" name="{{ key }}" value="{{ value }}">
       {% endfor %}
