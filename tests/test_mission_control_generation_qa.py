@@ -53,8 +53,8 @@ class MissionControlGenerationQATest(unittest.TestCase):
         summary = {
             "schema_version": "generation-simulator-v1",
             "run_id": "generation-qa-test",
-            "scenario_count": 3,
-            "round_count": 3,
+            "scenario_count": 4,
+            "round_count": 4,
             "anomaly_count": 0,
         }
         (latest / "summary.json").write_text(json.dumps(summary), encoding="utf-8")
@@ -102,7 +102,7 @@ class MissionControlGenerationQATest(unittest.TestCase):
         self.assertEqual(payload["status"], "completed")
         summary = payload["summary"]
         self.assertEqual(summary["mode"], "fallback")
-        self.assertEqual(summary["scenario_count"], 3)
+        self.assertEqual(summary["scenario_count"], 4)
         self.assertEqual(summary["anomaly_count"], 0)
         self.assertTrue(Path(summary["summary_path"]).exists())
         self.assertTrue(Path(summary["report_path"]).exists())

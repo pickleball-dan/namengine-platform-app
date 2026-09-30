@@ -32,7 +32,7 @@ from namengine.verticals import VERTICALS, get_vertical
 
 DEFAULT_SCENARIO_PATH = REPO_ROOT / "tests" / "fixtures" / "generation_scenarios.json"
 DEFAULT_OUTPUT_ROOT = REPO_ROOT / "qa-artifacts" / "generation-runs"
-ACTIVE_VERTICALS = {"baby", "pet", "business"}
+ACTIVE_VERTICALS = {"baby", "pet", "business", "boat"}
 SIMULATOR_SCHEMA_VERSION = "generation-simulator-v1"
 
 

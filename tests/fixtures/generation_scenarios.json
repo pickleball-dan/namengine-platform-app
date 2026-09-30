@@ -68,6 +68,30 @@
     "avoid_names": ["Labs", "AI", "Agency"]
   },
   {
+    "id": "boat-classic-coastal-family",
+    "label": "Boat · classic coastal family",
+    "mode": "fast",
+    "vertical": "boat",
+    "rounds": 1,
+    "expected_count": 8,
+    "inputs": {
+      "boat_type": "Sailboat",
+      "boat_size": "30–45ft",
+      "use": "Weekend adventures,Family outings",
+      "waters": "Coastal / inshore",
+      "crew": "Family with kids",
+      "name_type": "Real word or phrase,Literary or mythological",
+      "vibe": "Adventurous,Classic and traditional,Elegant",
+      "radio_name": "Critical — needs to be clear on VHF",
+      "inspiration": "Coastal New England, family weekends, mythology, and clean radio-friendly sound.",
+      "avoid": "Sea-renity, Pier Pressure",
+      "notes": "Should feel timeless on the stern, easy to say over radio, and not like a novelty pun.",
+      "loved_names": "Astra, Meridian, Windward"
+    },
+    "expected_signals": ["coastal", "classic", "radio", "family", "nautical"],
+    "avoid_names": ["Sea-renity", "Pier Pressure"]
+  },
+  {
     "id": "baby-rare-strong-distinctive",
     "label": "Baby · rare strong distinctive",
     "mode": "full",

@@ -12,7 +12,7 @@ class GenerationQualitySimulatorTest(unittest.TestCase):
         scenarios = simulator.load_scenarios()
 
         self.assertGreaterEqual(len(scenarios), 3)
-        self.assertTrue({"baby", "pet", "business"}.issubset({scenario.vertical for scenario in scenarios}))
+        self.assertTrue({"baby", "pet", "business", "boat"}.issubset({scenario.vertical for scenario in scenarios}))
         for scenario in scenarios:
             with self.subTest(scenario=scenario.id):
                 self.assertIn(scenario.vertical, simulator.VERTICALS)
@@ -28,7 +28,7 @@ class GenerationQualitySimulatorTest(unittest.TestCase):
         selected = simulator.select_scenarios(simulator.load_scenarios(), args)
 
         self.assertEqual({scenario.mode for scenario in selected}, {"fast"})
-        self.assertEqual({scenario.vertical for scenario in selected}, {"baby", "pet", "business"})
+        self.assertEqual({scenario.vertical for scenario in selected}, {"baby", "pet", "business", "boat"})
 
     def test_detect_anomalies_catches_structural_failures(self):
         scenario = simulator.GenerationScenario(
@@ -62,10 +62,10 @@ class GenerationQualitySimulatorTest(unittest.TestCase):
         summary = simulator.summarize_run(results, run_id="generation-qa-test", use_ai=False)
 
         self.assertEqual(summary["schema_version"], simulator.SIMULATOR_SCHEMA_VERSION)
-        self.assertEqual(summary["scenario_count"], 3)
+        self.assertEqual(summary["scenario_count"], 4)
         self.assertIn("anomalies", summary)
         self.assertIn("scenarios", summary)
-        self.assertEqual({scenario["vertical"] for scenario in summary["scenarios"]}, {"baby", "pet", "business"})
+        self.assertEqual({scenario["vertical"] for scenario in summary["scenarios"]}, {"baby", "pet", "business", "boat"})
 
         with tempfile.TemporaryDirectory() as tmp:
             run_dir = simulator.write_artifacts(results, summary, Path(tmp))
