@@ -125,6 +125,35 @@ class PhaseTwelveModelRouterQualityTest(unittest.TestCase):
         self.assertEqual(len(names), 4)
         self.assertTrue(all(item.metadata["provider"] == "fallback" for item in names))
 
+    def test_provider_routing_keeps_openai_claude_and_fallback_distinct(self):
+        brief = build_brief(PET, {"species": "Dog", "style": "Warm"})
+        openai_name = NameResult(id="openai-1", name="Aster", slug="aster")
+        claude_name = NameResult(id="claude-1", name="Harbor", slug="harbor")
+
+        with patch("namengine.core.model_router._openai_provider", return_value=[openai_name]) as openai, patch(
+            "namengine.core.model_router._claude_provider",
+            return_value=[claude_name],
+        ) as claude:
+            provider_results = route_generation(
+                vertical=PET,
+                brief=brief,
+                round_number=1,
+                taste_profile=None,
+                previous_names=[],
+                providers=[ModelProvider.OPENAI, ModelProvider.CLAUDE, ModelProvider.FALLBACK],
+            )
+
+        self.assertEqual([result.provider for result in provider_results], [
+            ModelProvider.OPENAI,
+            ModelProvider.CLAUDE,
+            ModelProvider.FALLBACK,
+        ])
+        self.assertEqual(provider_results[0].names[0].name, "Aster")
+        self.assertEqual(provider_results[1].names[0].name, "Harbor")
+        self.assertNotEqual(provider_results[2].provider, ModelProvider.CLAUDE)
+        openai.assert_called_once()
+        claude.assert_called_once()
+
     def test_baby_round_three_falls_back_when_openai_selection_is_all_previous_names(self):
         brief = build_brief(BABY, {"gender": "Girl", "style": "Warm", "sound": "Soft"})
         previous_names = [

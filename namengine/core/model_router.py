@@ -332,6 +332,8 @@ def _is_incomplete_openai_response(exc: BaseException) -> bool:
 def _provider_callable(provider: ModelProvider) -> ProviderCallable:
     if provider == ModelProvider.OPENAI:
         return _openai_provider
+    if provider == ModelProvider.CLAUDE:
+        return _claude_provider
     if provider == ModelProvider.FALLBACK:
         return _fallback_provider
     return _unconfigured_provider(provider)
@@ -350,6 +352,24 @@ def _openai_provider(
         round_number=round_number,
         taste_profile=taste_profile,
         previous_names=previous_names,
+        provider=ModelProvider.OPENAI,
+    )
+
+
+def _claude_provider(
+    vertical: VerticalConfig,
+    brief: NamingBrief,
+    round_number: int,
+    taste_profile: TasteProfile | None,
+    previous_names: list[str],
+) -> list[NameResult]:
+    return generate_ai_names(
+        vertical=vertical,
+        brief=brief,
+        round_number=round_number,
+        taste_profile=taste_profile,
+        previous_names=previous_names,
+        provider=ModelProvider.CLAUDE,
     )
 
 

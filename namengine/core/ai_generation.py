@@ -6,6 +6,8 @@ import json
 import logging
 import os
 import time
+import urllib.error
+import urllib.request
 import uuid
 from collections.abc import Callable
 from typing import Any
@@ -20,6 +22,7 @@ from namengine.core.quality_framework import (
     quality_prompt_guidance,
 )
 from namengine.core.schemas import (
+    ModelProvider,
     NameResult,
     NamingBrief,
     TasteProfile,
@@ -29,8 +32,11 @@ from namengine.core.validation import validate_results
 
 
 DEFAULT_MODEL = "gpt-4.1-mini"
+DEFAULT_CLAUDE_MODEL = "claude-sonnet-4-5-20250929"
 DEFAULT_TIMEOUT_SECONDS = 60.0
 DEFAULT_MAX_RETRIES = 1
+DEFAULT_CLAUDE_TIMEOUT_SECONDS = 60.0
+DEFAULT_CLAUDE_MAX_RETRIES = 1
 PROMPT_VERSION = DEFAULT_PROMPT_VERSION
 TASTE_STRATEGY_SCHEMA_NAME = "namengine_taste_strategy_v1"
 CANDIDATE_POOL_SCHEMA_NAME = "namengine_candidate_pool_v1"
@@ -55,6 +61,28 @@ def is_ai_generation_configured() -> bool:
     return bool(os.getenv("OPENAI_API_KEY"))
 
 
+def is_provider_generation_configured(provider: ModelProvider) -> bool:
+    if provider == ModelProvider.OPENAI:
+        return bool(os.getenv("OPENAI_API_KEY"))
+    if provider == ModelProvider.CLAUDE:
+        return bool(os.getenv("ANTHROPIC_API_KEY"))
+    return False
+
+
+def _provider_api_key_name(provider: ModelProvider) -> str:
+    if provider == ModelProvider.CLAUDE:
+        return "ANTHROPIC_API_KEY"
+    if provider == ModelProvider.OPENAI:
+        return "OPENAI_API_KEY"
+    return f"{provider.value.upper()}_API_KEY"
+
+
+def _default_model_for_provider(provider: ModelProvider) -> str:
+    if provider == ModelProvider.CLAUDE:
+        return os.getenv("NAMENGINE_CLAUDE_MODEL", DEFAULT_CLAUDE_MODEL)
+    return os.getenv("NAMENGINE_OPENAI_MODEL", DEFAULT_MODEL)
+
+
 def generate_ai_names(
     vertical: VerticalConfig,
     brief: NamingBrief,
@@ -64,6 +92,7 @@ def generate_ai_names(
     count: int | None = None,
     model: str | None = None,
     client_factory: Callable[[], Any] | None = None,
+    provider: ModelProvider = ModelProvider.OPENAI,
 ) -> list[NameResult]:
     """Generate names with NamEngine's three-pass LLM engine.
 
@@ -71,11 +100,11 @@ def generate_ai_names(
     thesis. Pass 3 critiques, rejects, ranks, and returns final names. Local
     fallback pools are not used as the creative source for this path.
     """
-    if not is_ai_generation_configured():
-        raise AIGenerationError("OPENAI_API_KEY is not configured")
+    if not is_provider_generation_configured(provider):
+        raise AIGenerationError(f"{_provider_api_key_name(provider)} is not configured")
 
     target_count = count or _count_for_round(vertical, round_number)
-    selected_model = model or os.getenv("NAMENGINE_OPENAI_MODEL", DEFAULT_MODEL)
+    selected_model = model or _default_model_for_provider(provider)
     client = client_factory() if client_factory else None
     shared_client_factory = (lambda: client) if client is not None else None
     generation_id = f"gen-{uuid.uuid4().hex[:12]}"
@@ -91,7 +120,8 @@ def generate_ai_names(
         count=target_count,
     )
     try:
-        taste_call = _call_openai_with_metadata(
+        taste_call = _call_provider_with_metadata(
+            provider=provider,
             prompt=taste_prompt,
             model=selected_model,
             client_factory=shared_client_factory,
@@ -112,7 +142,8 @@ def generate_ai_names(
         prompt_version=prompt_version,
     )
     try:
-        candidate_call = _call_openai_with_metadata(
+        candidate_call = _call_provider_with_metadata(
+            provider=provider,
             prompt=candidate_prompt,
             model=selected_model,
             client_factory=shared_client_factory,
@@ -135,6 +166,7 @@ def generate_ai_names(
         candidate_pool=candidate_pool,
         prompt_version=prompt_version,
         model=selected_model,
+        provider=provider,
         client_factory=shared_client_factory,
     )
 
@@ -170,6 +202,8 @@ def generate_ai_names(
         result.metadata["prompt_version"] = prompt_version
         result.metadata["generation_id"] = generation_id
         result.metadata["model"] = selected_model
+        result.metadata["source"] = provider.value
+        result.metadata["provider"] = provider.value
         result.metadata["candidate_pool"] = candidate_pool
         result.metadata["rejected_candidates"] = finalizer_audit["rejected_candidates"]
         result.metadata["ai_calls"] = ai_calls
@@ -699,6 +733,7 @@ def _run_finalizer_with_business_recovery(
     candidate_pool: list[dict[str, Any]],
     prompt_version: str,
     model: str,
+    provider: ModelProvider,
     client_factory: Callable[[], Any] | None,
 ) -> tuple[dict[str, Any], dict[str, list[dict[str, Any]]], list[NameResult], str]:
     finalizer_prompt = build_finalizer_prompt(
@@ -717,6 +752,7 @@ def _run_finalizer_with_business_recovery(
             prompt=finalizer_prompt,
             vertical_slug=vertical.slug,
             model=model,
+            provider=provider,
             client_factory=client_factory,
             stage="critic_ranker_finalizer_v1",
         )
@@ -740,6 +776,7 @@ def _run_finalizer_with_business_recovery(
                 prompt=recovery_prompt,
                 vertical_slug=vertical.slug,
                 model=model,
+                provider=provider,
                 client_factory=client_factory,
                 stage="business_recovery_finalizer_v1",
             )
@@ -752,10 +789,12 @@ def _run_finalizer_call(
     prompt: dict[str, Any],
     vertical_slug: str,
     model: str,
+    provider: ModelProvider,
     client_factory: Callable[[], Any] | None,
     stage: str,
 ) -> tuple[dict[str, Any], dict[str, list[dict[str, Any]]], list[NameResult], str]:
-    call = _call_openai_with_metadata(
+    call = _call_provider_with_metadata(
+        provider=provider,
         prompt=prompt,
         model=model,
         client_factory=client_factory,
@@ -1229,6 +1268,31 @@ def _call_openai(
     )["text"]
 
 
+def _call_provider_with_metadata(
+    *,
+    provider: ModelProvider,
+    prompt: dict[str, Any],
+    model: str,
+    client_factory: Callable[[], Any] | None = None,
+    response_format: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    if provider == ModelProvider.OPENAI:
+        return _call_openai_with_metadata(
+            prompt=prompt,
+            model=model,
+            client_factory=client_factory,
+            response_format=response_format,
+        )
+    if provider == ModelProvider.CLAUDE:
+        return _call_claude_with_metadata(
+            prompt=prompt,
+            model=model,
+            client_factory=client_factory,
+            response_format=response_format,
+        )
+    raise AIGenerationError(f"{provider.value} provider is not configured yet")
+
+
 def _call_openai_with_metadata(
     prompt: dict[str, Any],
     model: str,
@@ -1320,6 +1384,7 @@ def _call_openai_with_metadata(
         )
         return {
             "text": output_text,
+            "provider": ModelProvider.OPENAI.value,
             "model": model,
             "latency_ms": latency_ms,
             "usage": usage,
@@ -1327,6 +1392,166 @@ def _call_openai_with_metadata(
             "schema_name": response_format.get("name") if response_format else None,
         }
     raise AIGenerationError("OpenAI response did not include output_text")
+
+
+def _call_claude_with_metadata(
+    prompt: dict[str, Any],
+    model: str,
+    client_factory: Callable[[], Any] | None = None,
+    response_format: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    start = time.perf_counter()
+    system_content = (
+        "You are NamEngine, an expert naming strategist. "
+        "Return only valid JSON matching the supplied output contract."
+    )
+    prompt_json = json.dumps(_claude_prompt_payload(prompt, response_format), ensure_ascii=True)
+    kwargs = {
+        "model": model,
+        "system": system_content,
+        "messages": [
+            {
+                "role": "user",
+                "content": prompt_json,
+            }
+        ],
+        "temperature": 0.75,
+        "max_tokens": _claude_max_output_tokens(),
+    }
+    attempts = _claude_max_retries() + 1
+    last_error: Exception | None = None
+    for _attempt in range(attempts):
+        try:
+            if client_factory:
+                response = client_factory().messages.create(
+                    **kwargs,
+                    timeout=_claude_timeout_seconds(),
+                )
+                response_payload = _anthropic_response_to_payload(response)
+            else:
+                response_payload = _post_anthropic_messages(kwargs)
+            break
+        except Exception as exc:  # pragma: no cover - live SDK/network behavior
+            last_error = exc
+    else:
+        raise AIGenerationError(str(last_error)) from last_error
+
+    output_text = _anthropic_output_text(response_payload)
+    if output_text:
+        latency_ms = int((time.perf_counter() - start) * 1000)
+        usage = _usage_payload(response_payload.get("usage"))
+        response_json = json.dumps(response_payload, ensure_ascii=True)
+        metrics = {
+            "status": str(response_payload.get("stop_reason") or "unknown"),
+            "incomplete_reason": "",
+            "prompt_json_chars": len(prompt_json),
+            "prompt_json_bytes": len(prompt_json.encode("utf-8")),
+            "request_input_chars": len(system_content) + len(prompt_json),
+            "output_json_chars": len(output_text),
+            "output_json_bytes": len(output_text.encode("utf-8")),
+            "raw_response_json_chars": len(response_json),
+            "raw_response_json_bytes": len(response_json.encode("utf-8")),
+        }
+        logger.warning(
+            "Claude call metrics stage=%s model=%s status=%s latency_ms=%s input_tokens=%s output_tokens=%s prompt_json_chars=%s output_json_chars=%s raw_response_json_chars=%s",
+            prompt.get("engine_stage") or prompt.get("prompt_type") or "unknown",
+            model,
+            metrics["status"],
+            latency_ms,
+            usage.get("input_tokens", 0),
+            usage.get("output_tokens", 0),
+            metrics["prompt_json_chars"],
+            metrics["output_json_chars"],
+            metrics["raw_response_json_chars"],
+        )
+        return {
+            "text": output_text,
+            "provider": ModelProvider.CLAUDE.value,
+            "model": model,
+            "latency_ms": latency_ms,
+            "usage": usage,
+            "metrics": metrics,
+            "schema_name": response_format.get("name") if response_format else None,
+        }
+    raise AIGenerationError("Claude response did not include text output")
+
+
+def _claude_prompt_payload(prompt: dict[str, Any], response_format: dict[str, Any] | None) -> dict[str, Any]:
+    payload = dict(prompt)
+    if response_format is not None:
+        payload["json_schema"] = response_format
+        payload["provider_instruction"] = (
+            "Return only a JSON object. Do not wrap the JSON in markdown. "
+            "The JSON must satisfy json_schema."
+        )
+    return payload
+
+
+def _post_anthropic_messages(payload: dict[str, Any]) -> dict[str, Any]:
+    api_key = os.getenv("ANTHROPIC_API_KEY", "").strip()
+    if not api_key:
+        raise AIGenerationError("ANTHROPIC_API_KEY is not configured")
+    body = json.dumps(payload).encode("utf-8")
+    request = urllib.request.Request(
+        os.getenv("NAMENGINE_CLAUDE_API_URL", "https://api.anthropic.com/v1/messages"),
+        data=body,
+        method="POST",
+        headers={
+            "content-type": "application/json",
+            "x-api-key": api_key,
+            "anthropic-version": os.getenv("NAMENGINE_CLAUDE_API_VERSION", "2023-06-01"),
+        },
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=_claude_timeout_seconds()) as response:
+            raw = response.read().decode("utf-8")
+    except urllib.error.HTTPError as exc:
+        error_body = exc.read().decode("utf-8", errors="replace")
+        raise AIGenerationError(f"Claude API error {exc.code}: {error_body[:500]}") from exc
+    except urllib.error.URLError as exc:
+        raise AIGenerationError(f"Claude API transport error: {exc.reason}") from exc
+    try:
+        decoded = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise AIGenerationError("Claude response was not valid JSON") from exc
+    if not isinstance(decoded, dict):
+        raise AIGenerationError("Claude response was not a JSON object")
+    return decoded
+
+
+def _anthropic_response_to_payload(response: Any) -> dict[str, Any]:
+    if isinstance(response, dict):
+        return response
+    dump = getattr(response, "model_dump", None)
+    if callable(dump):
+        payload = dump()
+        if isinstance(payload, dict):
+            return payload
+    payload: dict[str, Any] = {
+        "content": getattr(response, "content", []),
+        "usage": getattr(response, "usage", None),
+        "stop_reason": getattr(response, "stop_reason", None),
+    }
+    return payload
+
+
+def _anthropic_output_text(payload: dict[str, Any]) -> str:
+    content = payload.get("content")
+    parts: list[str] = []
+    if isinstance(content, list):
+        for item in content:
+            if isinstance(item, dict):
+                if item.get("type") == "text" or "text" in item:
+                    text = item.get("text")
+                    if text:
+                        parts.append(str(text))
+            else:
+                text = getattr(item, "text", "")
+                if text:
+                    parts.append(str(text))
+    elif isinstance(content, str):
+        parts.append(content)
+    return "\n".join(part.strip() for part in parts if part.strip()).strip()
 
 
 def _response_state(response: Any) -> dict[str, Any]:
@@ -1397,6 +1622,7 @@ def _call_audit_summary(
             else {}
         ),
         "stage": stage,
+        "provider": call.get("provider"),
         "model": call.get("model"),
         "latency_ms": call.get("latency_ms"),
         "usage": call.get("usage") or {},
@@ -1483,6 +1709,33 @@ def _openai_max_retries() -> int:
 
 def _openai_max_output_tokens() -> int:
     raw_value = os.getenv("NAMENGINE_OPENAI_MAX_OUTPUT_TOKENS", "5000")
+    try:
+        value = int(raw_value)
+    except ValueError:
+        return 5000
+    return max(1000, value)
+
+
+def _claude_timeout_seconds() -> float:
+    raw_value = os.getenv("NAMENGINE_CLAUDE_TIMEOUT_SECONDS", str(DEFAULT_CLAUDE_TIMEOUT_SECONDS))
+    try:
+        value = float(raw_value)
+    except ValueError:
+        return DEFAULT_CLAUDE_TIMEOUT_SECONDS
+    return max(1.0, value)
+
+
+def _claude_max_retries() -> int:
+    raw_value = os.getenv("NAMENGINE_CLAUDE_MAX_RETRIES", str(DEFAULT_CLAUDE_MAX_RETRIES))
+    try:
+        value = int(raw_value)
+    except ValueError:
+        return DEFAULT_CLAUDE_MAX_RETRIES
+    return max(0, value)
+
+
+def _claude_max_output_tokens() -> int:
+    raw_value = os.getenv("NAMENGINE_CLAUDE_MAX_OUTPUT_TOKENS", "5000")
     try:
         value = int(raw_value)
     except ValueError:
