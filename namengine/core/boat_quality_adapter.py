@@ -10,10 +10,11 @@ from namengine.core.quality_framework import (
     explanation_quality_score,
     register_quality_adapter,
 )
+from namengine.core.prompt_versions import DEFAULT_PROMPT_VERSION
 from namengine.core.schemas import NameResult, NamingBrief
 
 
-BOAT_PROMPT_VERSION = "namengine-boat-quality-v1"
+BOAT_PROMPT_VERSION = DEFAULT_PROMPT_VERSION
 BOAT_QUALITY_SCORE_VERSION = "boat-quality-score-v1"
 BOAT_QUALITY_SCORE_WEIGHTS = {
     "radio_clarity": 0.24,
@@ -319,13 +320,8 @@ BOAT_QUALITY_ADAPTER = QualityAdapter(
     prompt_version=BOAT_PROMPT_VERSION,
     score_version=BOAT_QUALITY_SCORE_VERSION,
     score_weights=BOAT_QUALITY_SCORE_WEIGHTS,
-    model_score_keys=("radio_clarity", "vessel_fit", "nautical_character"),
-    prompt_guidance=(
-        "Keep every Boat-specific intake field as evidence; do not genericize into Baby, Pet, or Business naming language.",
-        "Prioritize radio clarity, vessel fit, nautical character, and transom-ready memorability.",
-        "Tie rationale to boat type, use, waters, name style, and practical spoken use.",
-        "Mention one practical tradeoff honestly when relevant, especially radio or readability friction.",
-    ),
+    model_score_keys=("callability", "warmth", "distinctiveness"),
+    prompt_guidance=(),
     build_taste_thesis=build_boat_taste_thesis,
     score_dimensions=score_boat_dimensions,
     improve_explanations=improve_boat_explanations,
