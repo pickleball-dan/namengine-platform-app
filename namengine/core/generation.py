@@ -8,6 +8,9 @@ import namengine.core.quality_adapters  # Registers built-in vertical adapters.
 from namengine.core.prompt_versions import prompt_version_for
 from namengine.core.quality_framework import apply_quality_metadata, improve_quality_explanations
 from namengine.core.schemas import (
+    GenerationEnvironment,
+    GenerationPurpose,
+    GenerationContext,
     NameResult,
     NamingBrief,
     TasteProfile,
@@ -708,6 +711,7 @@ def generate_names(
     taste_profile: TasteProfile | None = None,
     previous_names: list[str] | None = None,
     use_ai: bool = False,
+    generation_context: GenerationContext | None = None,
 ) -> list[NameResult]:
     from namengine.core.intake import version_metadata_for_brief
 
@@ -734,6 +738,8 @@ def generate_names(
                 previous_names=previous_names or [],
             )
         except Exception as exc:  # pragma: no cover - production safety net
+            if _context_requires_ai(generation_context):
+                raise
             for name in fallback:
                 name.metadata["ai_requested"] = True
                 name.metadata["ai_fell_back"] = True
@@ -747,6 +753,14 @@ def generate_names(
             return routed
 
     return fallback
+
+
+def _context_requires_ai(generation_context: GenerationContext | None) -> bool:
+    return bool(
+        generation_context
+        and generation_context.purpose in {GenerationPurpose.FIRST_LIST, GenerationPurpose.REFINEMENT}
+        and generation_context.environment in {GenerationEnvironment.PRODUCTION, GenerationEnvironment.STAGING}
+    )
 
 
 def generate_fallback_names(
@@ -1391,7 +1405,7 @@ def _generate_baby_fallback_names(
     elif round_number >= 3:
         pool = BABY_FINALIST_POOL + BABY_EXTRA_POOL + BABY_WIDE_EXPLORATION_POOL + _baby_heritage_pool_items()
 
-    result_count = 6 if round_number >= 3 else vertical.default_result_count
+    result_count = 6 if round_number >= 4 else vertical.default_result_count
     pool = _rank_pool_for_taste(vertical.slug, brief, pool)
     pool = _filter_baby_pool_for_brief(brief, pool, minimum_count=result_count)
 

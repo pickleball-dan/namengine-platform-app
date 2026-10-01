@@ -15,9 +15,9 @@ class PhaseThirtyEightGenerationUnavailableCopyTest(unittest.TestCase):
                 vertical=get_vertical("baby"),
             )
 
-        self.assertIn("We need a moment before trying again.", html)
-        self.assertIn("Your answers are safe", html)
-        self.assertNotIn("We’re having trouble generating this list right now. Please try again shortly.", html)
+        self.assertIn("We want to get this right.", html)
+        self.assertIn("Your preferences are saved", html)
+        self.assertIn("We’re having trouble generating this list right now. Please try again shortly.", html)
         self.assertIn("Go back and try again", html)
         self.assertNotIn("No fallback list was shown", html)
         self.assertNotIn("real engine", html)
@@ -29,11 +29,10 @@ class PhaseThirtyEightGenerationUnavailableCopyTest(unittest.TestCase):
                 vertical=get_vertical("business"),
             )
 
-        self.assertIn("Quality over filler", html)
-        self.assertIn("We need a clean AI pass before showing business names.", html)
-        self.assertIn("Rather than show generic fallback names as premium output", html)
+        self.assertIn("We want to get this right.", html)
+        self.assertIn("we don’t want to substitute generic names", html)
         self.assertIn("Go back and try again", html)
-        self.assertNotIn("We’re having trouble generating this list right now. Please try again shortly.", html)
+        self.assertIn("We’re having trouble generating this list right now. Please try again shortly.", html)
 
 
 if __name__ == "__main__":

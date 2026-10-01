@@ -6,6 +6,7 @@ import unittest
 from unittest.mock import patch
 
 from app import create_app
+import namengine.core.model_router as model_router
 from namengine.core import (
     AIGenerationError,
     ModelProvider,
@@ -24,6 +25,35 @@ from namengine.core import (
 )
 from namengine.verticals import BABY, PET
 from namengine.core.schemas import NameResult, ProviderResult
+
+
+def _baby_openai_name(
+    name: str,
+    *,
+    index: int,
+    candidate_pool: list[str] | None = None,
+    rejected: list[str] | None = None,
+) -> NameResult:
+    metadata = {"source": "openai", "provider": "openai"}
+    if candidate_pool is not None:
+        metadata["candidate_pool"] = [{"name": item} for item in candidate_pool]
+    if rejected is not None:
+        metadata["rejected_candidates"] = [{"name": item} for item in rejected]
+    return NameResult(
+        id=f"baby-{index}",
+        name=name,
+        slug=name.lower(),
+        pronunciation=name,
+        tagline=f"{name} feels warm and vivid.",
+        origin="Test origin",
+        meaning="A test baby name.",
+        why_this_name=f"{name} fits the brief with a bolder but wearable sound.",
+        fit_note=f"{name} is strongest for a warm, distinctive baby-name direction.",
+        risks=["Low practical risk; still test initials and family fit."],
+        tags=["warm", "distinctive"],
+        scores={"fit": 0.9, "usability": 0.9, "distinctiveness": 0.8},
+        metadata=metadata,
+    )
 
 
 class PhaseTwelveModelRouterQualityTest(unittest.TestCase):
@@ -125,8 +155,44 @@ class PhaseTwelveModelRouterQualityTest(unittest.TestCase):
         self.assertEqual(len(names), 4)
         self.assertTrue(all(item.metadata["provider"] == "fallback" for item in names))
 
-    def test_baby_round_three_falls_back_when_openai_selection_is_all_previous_names(self):
+    def test_round_count_policy_matches_four_round_product_policy(self):
+        self.assertEqual(model_router._count_for_round(BABY, 1), 8)
+        self.assertEqual(model_router._count_for_round(BABY, 2), 8)
+        self.assertEqual(model_router._count_for_round(BABY, 3), 8)
+        self.assertEqual(model_router._count_for_round(BABY, 4), 6)
+
+    def test_provider_routing_keeps_openai_claude_and_fallback_distinct(self):
+        brief = build_brief(PET, {"species": "Dog", "style": "Warm"})
+        openai_name = NameResult(id="openai-1", name="Aster", slug="aster")
+        claude_name = NameResult(id="claude-1", name="Harbor", slug="harbor")
+
+        with patch("namengine.core.model_router._openai_provider", return_value=[openai_name]) as openai, patch(
+            "namengine.core.model_router._claude_provider",
+            return_value=[claude_name],
+        ) as claude:
+            provider_results = route_generation(
+                vertical=PET,
+                brief=brief,
+                round_number=1,
+                taste_profile=None,
+                previous_names=[],
+                providers=[ModelProvider.OPENAI, ModelProvider.CLAUDE, ModelProvider.FALLBACK],
+            )
+
+        self.assertEqual([result.provider for result in provider_results], [
+            ModelProvider.OPENAI,
+            ModelProvider.CLAUDE,
+            ModelProvider.FALLBACK,
+        ])
+        self.assertEqual(provider_results[0].names[0].name, "Aster")
+        self.assertEqual(provider_results[1].names[0].name, "Harbor")
+        self.assertNotEqual(provider_results[2].provider, ModelProvider.CLAUDE)
+        openai.assert_called_once()
+        claude.assert_called_once()
+
+    def test_baby_round_three_shortfall_uses_openai_top_up_not_fallback(self):
         brief = build_brief(BABY, {"gender": "Girl", "style": "Warm", "sound": "Soft"})
+        brief.notes = "bolder"
         previous_names = [
             "Maya",
             "Nora",
@@ -145,28 +211,33 @@ class PhaseTwelveModelRouterQualityTest(unittest.TestCase):
             "Iris",
             "Ada",
         ]
-        duplicate_openai = [
-            NameResult(
-                id="openai-duplicate-maya",
-                name="Maya",
-                slug="maya",
-                why_this_name="Duplicate from an earlier round.",
-                fit_note="Already seen.",
-                scores={"fit": 0.9, "usability": 0.9, "distinctiveness": 0.7},
-                metadata={"source": "openai"},
-            ),
-            NameResult(
-                id="openai-duplicate-nora",
-                name="Nora",
-                slug="nora",
-                why_this_name="Duplicate from an earlier round.",
-                fit_note="Already seen.",
-                scores={"fit": 0.9, "usability": 0.9, "distinctiveness": 0.7},
-                metadata={"source": "openai"},
-            ),
+        first_pass = [
+            _baby_openai_name("Aveline", index=1, candidate_pool=["Aveline", "Cora"], rejected=["Nova"]),
+            _baby_openai_name("Elowen", index=2),
+            _baby_openai_name("Seren", index=3),
+            _baby_openai_name("Maris", index=4),
         ]
+        top_up = [
+            _baby_openai_name("Liora", index=5),
+            _baby_openai_name("Anouk", index=6),
+            _baby_openai_name("Vera", index=7),
+            _baby_openai_name("Zara", index=8),
+        ]
+        calls = []
 
-        with patch("namengine.core.model_router._openai_provider", return_value=duplicate_openai):
+        def openai_provider(vertical, brief_arg, round_number, taste_profile, previous):
+            calls.append(
+                {
+                    "round_number": round_number,
+                    "notes": brief_arg.notes,
+                    "previous_names": list(previous),
+                }
+            )
+            return first_pass if len(calls) == 1 else top_up
+
+        with patch("namengine.core.model_router._openai_provider", side_effect=openai_provider), patch(
+            "namengine.core.model_router._fallback_provider"
+        ) as fallback, patch("namengine.core.model_router._claude_provider") as claude:
             with self.assertLogs("namengine.core.model_router", level="WARNING") as captured:
                 names = generate_with_router(
                     vertical=BABY,
@@ -177,10 +248,42 @@ class PhaseTwelveModelRouterQualityTest(unittest.TestCase):
                     fallback_on_provider_error=True,
                 )
 
-        self.assertEqual(len(names), 6)
+        self.assertEqual(len(names), 8)
         self.assertFalse({item.name.lower() for item in names} & {item.lower() for item in previous_names})
-        self.assertTrue(all(item.metadata["provider"] == "fallback" for item in names))
-        self.assertIn("Model selection shortfall", "\n".join(captured.output))
+        self.assertTrue(all(item.metadata["provider"] == "openai" for item in names))
+        self.assertEqual(len(calls), 2)
+        self.assertEqual(calls[0]["notes"], "bolder")
+        self.assertEqual(calls[1]["notes"], "bolder")
+        self.assertIn("Aveline", calls[1]["previous_names"])
+        self.assertIn("Cora", calls[1]["previous_names"])
+        self.assertIn("Nova", calls[1]["previous_names"])
+        fallback.assert_not_called()
+        claude.assert_not_called()
+        self.assertIn("trying AI top-up", "\n".join(captured.output))
+
+    def test_baby_round_four_shortfall_raises_without_fallback_after_top_up_fails(self):
+        brief = build_brief(BABY, {"gender": "Girl", "style": "Warm", "sound": "Soft"})
+        first_pass = [_baby_openai_name("Aveline", index=1), _baby_openai_name("Elowen", index=2)]
+        top_up = [_baby_openai_name("Seren", index=3)]
+
+        with patch(
+            "namengine.core.model_router._openai_provider",
+            side_effect=[first_pass, top_up],
+        ), patch("namengine.core.model_router._fallback_provider") as fallback, patch(
+            "namengine.core.model_router._claude_provider"
+        ) as claude:
+            with self.assertRaisesRegex(AIGenerationError, "required 6"):
+                generate_with_router(
+                    vertical=BABY,
+                    brief=brief,
+                    round_number=4,
+                    previous_names=["Maya", "Nora"],
+                    providers=[ModelProvider.OPENAI],
+                    fallback_on_provider_error=True,
+                )
+
+        fallback.assert_not_called()
+        claude.assert_not_called()
 
     def test_public_generate_names_uses_router(self):
         brief = build_brief(PET, {"species": "Dog", "style": "Warm"})

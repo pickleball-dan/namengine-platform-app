@@ -82,6 +82,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const statusEl = form.querySelector('.save-progress-status');
   const submitBtn = form.querySelector('.save-progress-submit');
+  const defaultSubmitText = submitBtn ? submitBtn.textContent : 'Send My Link';
 
   form.addEventListener('submit', async function (e) {
     e.preventDefault();
@@ -109,13 +110,13 @@ document.addEventListener('DOMContentLoaded', function () {
         statusEl.textContent = 'Something went wrong. Try again.';
         statusEl.className = 'save-progress-status is-error';
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Send My Link';
+        submitBtn.textContent = defaultSubmitText;
       }
     } catch (err) {
       statusEl.textContent = 'Could not connect. Try again.';
       statusEl.className = 'save-progress-status is-error';
       submitBtn.disabled = false;
-      submitBtn.textContent = 'Send My Link';
+      submitBtn.textContent = defaultSubmitText;
     }
   });
 });

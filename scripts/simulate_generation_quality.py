@@ -27,7 +27,8 @@ if str(REPO_ROOT) not in sys.path:
 
 from namengine.core.briefs import build_brief
 from namengine.core.generation import generate_names
-from namengine.core.schemas import NameResult, to_plain_data
+from namengine.core.model_router import generate_with_router
+from namengine.core.schemas import ModelProvider, NameResult, to_plain_data
 from namengine.verticals import VERTICALS, get_vertical
 
 DEFAULT_SCENARIO_PATH = REPO_ROOT / "tests" / "fixtures" / "generation_scenarios.json"
@@ -90,6 +91,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument("--rounds", type=int, default=0, help="Override rounds for every selected scenario.")
     parser.add_argument("--use-ai", action="store_true", help="Use live AI generation when configured. Off by default.")
+    parser.add_argument(
+        "--provider",
+        choices=[item.value for item in (ModelProvider.FALLBACK, ModelProvider.OPENAI, ModelProvider.CLAUDE)],
+        default=ModelProvider.FALLBACK.value,
+        help="Explicit provider for QA runs. Claude/OpenAI require configured credentials.",
+    )
     parser.add_argument("--out-dir", default=str(DEFAULT_OUTPUT_ROOT), help="Root directory for generated reports.")
     parser.add_argument("--no-write", action="store_true", help="Print summary only; do not write artifacts.")
     return parser.parse_args(argv)
@@ -138,7 +145,13 @@ def select_scenarios(scenarios: list[GenerationScenario], args: argparse.Namespa
     return selected
 
 
-def run_scenario(scenario: GenerationScenario, *, use_ai: bool = False, rounds_override: int = 0) -> ScenarioRunResult:
+def run_scenario(
+    scenario: GenerationScenario,
+    *,
+    use_ai: bool = False,
+    rounds_override: int = 0,
+    provider: ModelProvider = ModelProvider.FALLBACK,
+) -> ScenarioRunResult:
     vertical = get_vertical(scenario.vertical)
     brief = build_brief(vertical, scenario.inputs)
     round_count = rounds_override if rounds_override > 0 else scenario.rounds
@@ -149,13 +162,22 @@ def run_scenario(scenario: GenerationScenario, *, use_ai: bool = False, rounds_o
     for round_number in range(1, round_count + 1):
         start = time.perf_counter()
         try:
-            results = generate_names(
-                vertical,
-                brief,
-                round_number=round_number,
-                previous_names=previous_names,
-                use_ai=use_ai,
-            )
+            if provider in {ModelProvider.OPENAI, ModelProvider.CLAUDE}:
+                results = generate_with_router(
+                    vertical=vertical,
+                    brief=brief,
+                    round_number=round_number,
+                    previous_names=previous_names,
+                    providers=[provider],
+                )
+            else:
+                results = generate_names(
+                    vertical,
+                    brief,
+                    round_number=round_number,
+                    previous_names=previous_names,
+                    use_ai=use_ai,
+                )
             latency_ms = int((time.perf_counter() - start) * 1000)
             names = [result.name for result in results]
             previous_names.extend(names)
@@ -418,6 +440,7 @@ def run_generation_quality(
     include_under_development: bool = False,
     rounds_override: int = 0,
     write_outputs: bool = True,
+    provider: ModelProvider | str = ModelProvider.FALLBACK,
 ) -> dict[str, Any]:
     """Run simulator scenarios and return the Mission Control-ready summary."""
     if mode not in {"fast", "full"}:
@@ -431,13 +454,27 @@ def run_generation_quality(
         include_under_development=include_under_development,
         rounds=rounds_override,
         use_ai=use_ai,
+        provider=provider.value if isinstance(provider, ModelProvider) else str(provider),
         out_dir=str(out_dir),
         no_write=not write_outputs,
     )
     scenarios = select_scenarios(load_scenarios(args.scenario_file), args)
     run_id = "generation-qa-" + datetime.now().strftime("%Y%m%d-%H%M%S")
-    results = [run_scenario(scenario, use_ai=use_ai, rounds_override=rounds_override) for scenario in scenarios]
-    summary = summarize_run(results, run_id=run_id, use_ai=use_ai)
+    selected_provider = ModelProvider(args.provider)
+    results = [
+        run_scenario(
+            scenario,
+            use_ai=use_ai,
+            rounds_override=rounds_override,
+            provider=selected_provider,
+        )
+        for scenario in scenarios
+    ]
+    summary = summarize_run(
+        results,
+        run_id=run_id,
+        use_ai=use_ai or selected_provider != ModelProvider.FALLBACK,
+    )
     if write_outputs:
         run_dir = write_artifacts(results, summary, Path(out_dir))
         summary["artifact_dir"] = str(run_dir)
@@ -458,6 +495,7 @@ def main() -> int:
         include_under_development=args.include_under_development,
         rounds_override=args.rounds,
         write_outputs=not args.no_write,
+        provider=ModelProvider(args.provider),
     )
     print(json.dumps(summary, ensure_ascii=False, indent=2))
     return 0 if summary["critical_anomaly_count"] == 0 and summary["major_anomaly_count"] == 0 else 1

@@ -110,8 +110,8 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         body = response.get_data(as_text=True)
         self.assertIn("Round 2", body)
         self.assertNotIn("Get finalists", body)
-        self.assertIn("Ready for a fresh list?", body)
         self.assertIn("Generate New List", body)
+        self.assertIn("React to 3 more names before generating the next list.", body)
         self.assertIn("Hazel", body)
 
     def test_progress_refine_redirects_to_saved_results_page(self):
@@ -139,7 +139,6 @@ class PhaseSevenRefinementTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn('class="bottom-next-panel"', body)
-        self.assertIn("Ready for a fresh list?", body)
         self.assertIn("Generate New List", body)
         self.assertIn(f'name="session_id" value="{session_id}"', body)
         self.assertIn('action="/refine"', body)
@@ -183,7 +182,7 @@ class PhaseSevenRefinementTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("Unlock Full Access", body)
-        self.assertIn("Your first list is free", body)
+        self.assertIn("Your first pet list is free", body)
         self.assertIn("100% money-back guarantee", body)
         self.assertIn('/pet/access?return_session=', body)
         self.assertNotIn('action="/refine"', body)
@@ -229,34 +228,32 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         self.assertEqual(len(extra_results), 6)
         self.assertFalse(finalist_names & extra_names)
 
-    def test_refinement_stops_after_round_five(self):
+    def test_refinement_stops_after_round_four(self):
         session_id = self._seed_round_one()
         round_two_id, _, _ = refine_session(session_id, PET, instruction="shorter")
         round_three_id, _, _ = refine_session(round_two_id, PET, instruction="finalists")
         round_four_id, _, _ = refine_session(round_three_id, PET, instruction="one more")
-        round_five_id, _, _ = refine_session(round_four_id, PET, instruction="one final list")
 
         with self.assertRaisesRegex(Exception, "guided naming project is complete"):
-            refine_session(round_five_id, PET, instruction="another one")
+            refine_session(round_four_id, PET, instruction="another one")
 
-    def test_round_five_results_replace_generate_button_with_completion_prompt(self):
+    def test_round_four_results_replace_generate_button_with_completion_prompt(self):
         session_id = self._seed_round_one()
         round_two_id, _, _ = refine_session(session_id, PET, instruction="shorter")
         round_three_id, _, finalists = refine_session(round_two_id, PET, instruction="finalists")
         for index, _ in enumerate(finalists, start=1):
             save_reaction(build_reaction(round_three_id, f"pet-{index}", "no"))
         round_four_id, _, _ = refine_session(round_three_id, PET, instruction="one more")
-        round_five_id, _, _ = refine_session(round_four_id, PET, instruction="one final list")
         self._unlock_access("pet")
 
-        response = self.client.get(f"/results/session/{round_five_id}")
+        response = self.client.get(f"/results/session/{round_four_id}")
         body = response.get_data(as_text=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn("Congratulations", body)
-        self.assertIn("your list is complete", body)
-        self.assertIn("Compare favorites", body)
-        self.assertIn("Share list", body)
+        self.assertIn("Curated finish", body)
+        self.assertIn("This naming project has reached its strongest final set.", body)
+        self.assertIn("compare your favorites", body)
+        self.assertIn("share this list", body)
         self.assertNotIn("Generate One More List", body)
         self.assertNotIn('action="/refine"', body)
 
@@ -284,8 +281,8 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         body = response.get_data(as_text=True)
 
         self.assertEqual(response.status_code, 400)
-        self.assertIn("Congratulations", body)
-        self.assertIn("your list is complete", body)
+        self.assertIn("Curated finish", body)
+        self.assertIn("This naming project has reached its strongest final set.", body)
         self.assertNotIn("Round 5", body)
 
     def test_baby_refinement_does_not_repeat_any_prior_round_names(self):
@@ -311,7 +308,7 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         round_three = get_session_snapshot(round_three_id)
 
         self.assertEqual(round_three["session"]["round_number"], 3)
-        self.assertEqual(len(round_three_results), 6)
+        self.assertEqual(len(round_three_results), 8)
         self.assertFalse(round_three_names & round_one_names)
         self.assertFalse(round_three_names & round_two_names)
 

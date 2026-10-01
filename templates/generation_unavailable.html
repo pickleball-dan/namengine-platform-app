@@ -11,19 +11,39 @@
   <body class="legal-page{% if vertical and vertical.slug == 'baby' %} baby-recovery-page{% endif %}">
     <main class="legal-shell{% if vertical and vertical.slug == 'baby' %} baby-recovery-shell{% endif %}">
       <img class="legal-brand-logo" src="{{ url_for('static', filename='images/namengine-baby.svg' if vertical and vertical.slug == 'baby' else 'images/namengine.svg') }}" alt="{% if vertical and vertical.slug == 'baby' %}NamEngine Baby{% else %}NamEngine{% endif %}">
-      {% if vertical and vertical.slug == "baby" %}
-      <p class="eyebrow">Your answers are safe</p>
-      <h1>We need a moment before trying again.</h1>
-      <p>We couldn’t bring your list together just now. Go back when you’re ready and we’ll try again with everything you shared.</p>
-      {% elif vertical and vertical.slug == "business" %}
-      <p class="eyebrow">Quality over filler</p>
-      <h1>We need a clean AI pass before showing business names.</h1>
-      <p>We couldn’t finish a high-quality Business list just now. Rather than show generic fallback names as premium output, please try again with the same brief.</p>
+      <p class="eyebrow">Your preferences are saved</p>
+      <h1>We want to get this right.</h1>
+      <p>We weren’t able to complete this set to the standard we want for you, and we don’t want to substitute generic names just to give you an answer.</p>
+      {% if session_id %}
+        <p>Your preferences are saved. You can try again now, or we can email you a private link so you can return without starting over.</p>
+        <div class="generation-recovery-actions">
+          {% if retry_url %}
+            <form action="{{ retry_url }}" method="post">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="button-link" type="submit">Try Again</button>
+            </form>
+          {% endif %}
+          <form class="save-progress-form" data-save-progress-form>
+            <input type="hidden" name="session_id" value="{{ session_id }}">
+            <input
+              type="email"
+              name="email"
+              class="save-progress-email"
+              placeholder="your@email.com"
+              autocomplete="email"
+              required
+            >
+            <button type="submit" class="button-link save-progress-submit">Email me a link</button>
+            <p class="save-progress-status" aria-live="polite"></p>
+          </form>
+        </div>
       {% else %}
-      <h1>We couldn’t generate this list right now.</h1>
-      <p>{{ message }}</p>
+        <p>{{ message }}</p>
+        <p><a class="button-link" href="javascript:history.back()">Go back and try again</a></p>
       {% endif %}
-      <p><a class="button-link" href="javascript:history.back()">Go back and try again</a></p>
     </main>
+    {% if session_id %}
+      <script src="{{ url_for('static', filename='js/access-gate.js') }}?v=20260930-generation-recovery-v1"></script>
+    {% endif %}
   </body>
 </html>

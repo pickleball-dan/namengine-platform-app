@@ -8,7 +8,15 @@ from uuid import uuid4
 
 from namengine.core.briefs import build_brief
 from namengine.core.generation import generate_names
-from namengine.core.schemas import NameResult, NamingBrief, VerticalConfig
+from namengine.core.schemas import (
+    GenerationAccessTier,
+    GenerationContext,
+    GenerationEnvironment,
+    NameResult,
+    NamingBrief,
+    GenerationPurpose,
+    VerticalConfig,
+)
 from namengine.core.storage import (
     StorageError,
     get_session_snapshot,
@@ -44,6 +52,7 @@ def refine_session(
     instruction: str = "",
     use_ai: bool = False,
     generator: Callable[..., list[NameResult]] | None = None,
+    generation_context: GenerationContext | None = None,
 ) -> tuple[str, NamingBrief, list]:
     snapshot = get_session_snapshot(parent_session_id)
     if snapshot is None:
@@ -51,7 +60,7 @@ def refine_session(
 
     parent = snapshot["session"]
     current_round = int(parent["round_number"])
-    if current_round >= 5:
+    if current_round >= 4:
         raise StorageError("guided naming project is complete")
     if len(snapshot.get("results", [])) < 3:
         raise StorageError("guided naming project is complete")
@@ -72,19 +81,41 @@ def refine_session(
         "taste_profile": taste_profile,
         "previous_names": previous_names,
     }
+    if next_round >= 4:
+        session_id = f"{parent_session_id}-r{next_round}-{uuid4().hex[:8]}"
+    else:
+        session_id = f"{parent_session_id}-r{next_round}"
+    save_session(
+        session_id,
+        vertical.slug,
+        brief,
+        [],
+        round_number=next_round,
+        parent_session_id=parent_session_id,
+        refinement_prompt=instruction,
+    )
     if generator is None:
         results = generate_names(
             vertical,
             brief,
             use_ai=use_ai,
+            generation_context=generation_context,
             **generation_kwargs,
         )
     else:
-        results = generator(vertical, brief, **generation_kwargs)
-    if next_round >= 4:
-        session_id = f"{parent_session_id}-r{next_round}-{uuid4().hex[:8]}"
-    else:
-        session_id = f"{parent_session_id}-r{next_round}"
+        if generation_context is None:
+            generation_context = GenerationContext(
+                purpose=GenerationPurpose.INTERNAL_QA,
+                access_tier=GenerationAccessTier.INTERNAL,
+                environment=GenerationEnvironment.TEST,
+            )
+        results = generator(
+            vertical,
+            brief,
+            generation_context=generation_context,
+            session_id=session_id,
+            **generation_kwargs,
+        )
     save_session(
         session_id,
         vertical.slug,

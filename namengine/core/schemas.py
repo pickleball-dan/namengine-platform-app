@@ -38,6 +38,34 @@ class ModelProvider(str, Enum):
     FALLBACK = "fallback"
 
 
+class GenerationPurpose(str, Enum):
+    FIRST_LIST = "first_list"
+    REFINEMENT = "refinement"
+    INTERNAL_QA = "internal_qa"
+
+
+class GenerationAccessTier(str, Enum):
+    FREE = "free"
+    PAID = "paid"
+    INTERNAL = "internal"
+
+
+class GenerationEnvironment(str, Enum):
+    PRODUCTION = "production"
+    STAGING = "staging"
+    DEVELOPMENT = "development"
+    TEST = "test"
+
+
+@dataclass(frozen=True, slots=True)
+class GenerationContext:
+    """Facts about a generation request; policy decisions are evaluated elsewhere."""
+
+    purpose: GenerationPurpose
+    access_tier: GenerationAccessTier
+    environment: GenerationEnvironment
+
+
 @dataclass(frozen=True, slots=True)
 class Question:
     id: str
@@ -82,6 +110,7 @@ class VerticalConfig:
     visual: VerticalVisualConfig = field(default_factory=VerticalVisualConfig)
     default_result_count: int = 8
     page_dark: bool = False
+    review_mode: str = "direct_generation"
 
 
 @dataclass(slots=True)
