@@ -212,6 +212,27 @@ class ResultsMobileStabilizationTest(unittest.TestCase):
         self.assertNotIn(".result-name-link {\n    min-height: 40px !important", css)
         self.assertNotIn(".result-name-link {\n    font-size: 0.82rem !important", css)
 
+    def test_mobile_paywall_css_allows_full_access_panel_to_fit_viewport(self):
+        css = Path("static/css/platform.css").read_text(encoding="utf-8")
+
+        self.assertIn(".paywall-option {\n  box-sizing: border-box;", css)
+        self.assertIn("min-width: 0;", css[css.index(".paywall-option {"):css.index(".paywall-option h3")])
+        self.assertIn(".paywall-option .button-link {\n  box-sizing: border-box;", css)
+        self.assertIn("white-space: normal;", css[css.index(".paywall-option .button-link {"):css.index(".paywall-option-divider {")])
+        self.assertIn(".beta-refine-lock .landing-accepted-payments", css)
+        payment_block = css[
+            css.index(".beta-refine-lock .landing-accepted-payments"):
+            css.index(".beta-refine-lock .accepted-payment-stripe")
+        ]
+        self.assertIn("flex-wrap: wrap;", payment_block)
+        self.assertIn("white-space: normal;", payment_block)
+        self.assertIn("min-width: 0;", payment_block)
+        cards_block = css[
+            css.index(".beta-refine-lock .accepted-payment-cards"):
+            css.index("/* Accepted payments — paywall modal */")
+        ]
+        self.assertIn("overflow-wrap: anywhere;", cards_block)
+
     def test_compact_card_text_shortens_long_visible_snippets(self):
         text = "A timeless classic embraced across cultures with a soft sound and modern warmth"
 
