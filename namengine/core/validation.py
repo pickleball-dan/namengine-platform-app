@@ -318,6 +318,8 @@ def validate_result(
         return _validate_baby_name(brief, result.name)
     if vertical.slug == "business":
         return _validate_business_name(brief, result.name)
+    if vertical.slug == "boat":
+        return _validate_boat_name(brief, result.name)
     if vertical.slug == "product":
         return _validate_product_name(brief, result.name)
     return [
@@ -581,6 +583,127 @@ def _validate_product_name(brief: NamingBrief, name: str) -> list[ValidationResu
     if avoid:
         validation.append(_business_avoid_validation(clean_name, avoid))
     return validation
+
+
+def _validate_boat_name(brief: NamingBrief, name: str) -> list[ValidationResult]:
+    clean_name = _clean_name_key(name)
+    avoid = {_clean_name_key(item) for item in brief.avoid}
+    words = [word for word in name.replace("-", " ").replace("'", " ").split() if word.strip()]
+    syllable_count = _estimate_syllables(clean_name)
+    validation = [
+        _boat_radio_clarity_validation(clean_name, words, syllable_count),
+        _boat_tradition_fit_validation(brief, clean_name, name),
+        _boat_length_validation(clean_name, words),
+    ]
+    if avoid:
+        validation.append(_business_avoid_validation(clean_name, avoid))
+    return validation
+
+
+def _boat_radio_clarity_validation(
+    clean_name: str,
+    words: list[str],
+    syllable_count: int,
+) -> ValidationResult:
+    has_clear_shape = bool(clean_name) and clean_name[0] not in "aeiouy" and clean_name[-1] not in "aeiouy"
+    word_count = len(words) or 1
+    if 4 <= len(clean_name) <= 18 and word_count <= 3 and syllable_count <= 5 and has_clear_shape:
+        return ValidationResult(
+            module="boat_radio_clarity",
+            status=ValidationStatus.PASS,
+            label="Radio clarity",
+            message="Clear enough to say over VHF radio and repeat back.",
+            score=0.9,
+            confidence=0.82,
+            metadata={"letters": len(clean_name), "words": word_count, "syllables": syllable_count},
+        )
+    return ValidationResult(
+        module="boat_radio_clarity",
+        status=ValidationStatus.WARN,
+        label="Radio clarity",
+        message="Test this name aloud on radio; length or sound shape may add friction.",
+        score=0.66,
+        confidence=0.76,
+        metadata={"letters": len(clean_name), "words": word_count, "syllables": syllable_count},
+    )
+
+
+def _boat_tradition_fit_validation(
+    brief: NamingBrief,
+    clean_name: str,
+    display_name: str,
+) -> ValidationResult:
+    requested = " ".join(
+        str(brief.inputs.get(key) or "")
+        for key in ("boat_type", "use", "waters", "name_type", "vibe", "inspiration", "notes")
+    ).lower()
+    nautical_terms = {
+        "anchor",
+        "bay",
+        "blue",
+        "cape",
+        "coast",
+        "cove",
+        "harbor",
+        "knot",
+        "mariner",
+        "moon",
+        "reef",
+        "sail",
+        "salt",
+        "sea",
+        "skipper",
+        "star",
+        "stern",
+        "tide",
+        "wake",
+        "wave",
+        "wind",
+    }
+    name_terms = set(display_name.lower().replace("-", " ").split())
+    has_requested_context = bool(requested.strip())
+    has_nautical_signal = any(term in clean_name or term in name_terms for term in nautical_terms)
+    if has_requested_context or has_nautical_signal:
+        return ValidationResult(
+            module="boat_tradition_fit",
+            status=ValidationStatus.PASS,
+            label="Vessel fit",
+            message="Boat context is present; judge whether the name fits the vessel and tradition.",
+            score=0.82 if has_nautical_signal else 0.76,
+            confidence=0.72,
+            metadata={"has_context": has_requested_context, "has_nautical_signal": has_nautical_signal},
+        )
+    return ValidationResult(
+        module="boat_tradition_fit",
+        status=ValidationStatus.UNKNOWN,
+        label="Vessel fit",
+        message="Add vessel use, waters, style, or inspiration to check maritime fit more clearly.",
+        score=0.55,
+        confidence=0.55,
+    )
+
+
+def _boat_length_validation(clean_name: str, words: list[str]) -> ValidationResult:
+    word_count = len(words) or 1
+    if 4 <= len(clean_name) <= 20 and word_count <= 3:
+        return ValidationResult(
+            module="boat_length",
+            status=ValidationStatus.PASS,
+            label="Transom fit",
+            message="Compact enough to test on a transom, registration form, and hail.",
+            score=0.86,
+            confidence=0.78,
+            metadata={"letters": len(clean_name), "words": word_count},
+        )
+    return ValidationResult(
+        module="boat_length",
+        status=ValidationStatus.WARN,
+        label="Transom fit",
+        message="Longer shape; check readability on the stern and in marina paperwork.",
+        score=0.64,
+        confidence=0.72,
+        metadata={"letters": len(clean_name), "words": word_count},
+    )
 
 
 def _product_shelf_fit_validation(clean_name: str, display_name: str) -> ValidationResult:
