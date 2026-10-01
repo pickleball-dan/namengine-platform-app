@@ -6,11 +6,14 @@ from unittest.mock import patch
 from access_helpers import csrf_token
 from app import create_app, make_session_id
 from namengine.core import (
+    build_brief,
     build_reaction,
     build_reaction_effect_summary,
+    generate_names,
     get_session_snapshot,
     refine_session,
     save_reaction,
+    save_session,
 )
 from namengine.verticals import BABY, PET
 
@@ -238,13 +241,13 @@ class PhaseSevenRefinementTest(unittest.TestCase):
             refine_session(round_four_id, PET, instruction="another one")
 
     def test_round_four_results_replace_generate_button_with_completion_prompt(self):
-        session_id = self._seed_round_one()
-        round_two_id, _, _ = refine_session(session_id, PET, instruction="shorter")
-        round_three_id, _, finalists = refine_session(round_two_id, PET, instruction="finalists")
+        session_id = self._seed_baby_round_one()
+        round_two_id, _, _ = refine_session(session_id, BABY, instruction="shorter")
+        round_three_id, _, finalists = refine_session(round_two_id, BABY, instruction="finalists")
         for index, _ in enumerate(finalists, start=1):
-            save_reaction(build_reaction(round_three_id, f"pet-{index}", "no"))
-        round_four_id, _, _ = refine_session(round_three_id, PET, instruction="one more")
-        self._unlock_access("pet")
+            save_reaction(build_reaction(round_three_id, f"baby-{index}", "no"))
+        round_four_id, _, _ = refine_session(round_three_id, BABY, instruction="one more")
+        self._unlock_access("baby")
 
         response = self.client.get(f"/results/session/{round_four_id}")
         body = response.get_data(as_text=True)
@@ -252,14 +255,37 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("Curated finish", body)
         self.assertIn("This naming project has reached its strongest final set.", body)
-        self.assertIn("compare your favorites", body)
+        self.assertIn("compare your loved names", body)
+        self.assertIn("Compare All Your Loved Names", body)
         self.assertIn("share this list", body)
         self.assertIn('data-save-progress-form', body)
         self.assertIn("Email this private link", body)
         self.assertIn("Send My Link", body)
         self.assertIn("js/access-gate.js", body)
+        self.assertNotIn('data-reaction-value="love"', body)
+        self.assertNotIn('data-reaction-value="no"', body)
+        self.assertNotIn("React to", body)
         self.assertNotIn("Generate One More List", body)
         self.assertNotIn('action="/refine"', body)
+
+    def test_baby_round_four_rejects_new_reactions_server_side(self):
+        brief = build_brief(BABY, {"gender": "Girl", "style": "Classic", "sound": "Soft"})
+        names = generate_names(BABY, brief, round_number=4)
+        save_session("baby-final-decision", "baby", brief, names, round_number=4)
+        self.client.get("/baby")
+
+        response = self.client.post(
+            "/api/react",
+            json={
+                "csrf_token": csrf_token(self.client),
+                "session_id": "baby-final-decision",
+                "result_id": names[0].id,
+                "value": "love",
+            },
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.get_json()["error"], "final_decision_reactions_closed")
 
     def test_refine_route_treats_small_shortlist_as_complete_server_side(self):
         session_id = self._seed_round_one()

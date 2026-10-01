@@ -20,6 +20,7 @@ from namengine.core import (
     update_chosen_metadata,
 )
 from namengine.core.schemas import NameResult
+from namengine.core.storage import get_magic_links_by_email
 from namengine.verticals import BABY, PET
 
 
@@ -180,11 +181,66 @@ class PhaseSixChosenNameTest(unittest.TestCase):
         self.assertNotIn("images/namengine-pets-icon.svg", body)
         self.assertNotIn("images/pet/namengine-pet-logo-transparent.png", body)
         self.assertIn("Share", body)
-        self.assertIn("navigator.share", body)
-        self.assertIn("navigator.clipboard.writeText", body)
-        self.assertIn("Link copied", body)
+        self.assertIn("data-chosen-share-form", body)
+        self.assertIn("Share by email", body)
+        self.assertIn("/api/chosen/", body)
+        self.assertNotIn("navigator.share", body)
+        share_form = body.split('data-chosen-share-form', 1)[1].split("</form>", 1)[0]
+        self.assertNotIn("mailto:", share_form)
         self.assertNotIn("Start another", body)
         self.assertNotIn('class="button-link" href="/pet"', body)
+
+    def test_chosen_share_email_uses_server_side_share_token_without_paid_access(self):
+        query = b"species=Dog&personality=Gentle&style=Warm"
+        session_id = self._session_id_for_query(PET, query)
+        self.client.get(f"/pet/results?{query.decode('utf-8')}")
+        unlock_beta_access(self.client, "pet")
+        self.client.post(
+            "/choose",
+            data={"session_id": session_id, "result_id": "pet-1", "csrf_token": csrf_token(self.client)},
+        )
+        chosen_id = get_session_snapshot(session_id)["chosen_names"][0]["id"]
+
+        with patch("app.send_chosen_share_link") as send:
+            response = self.client.post(
+                f"/api/chosen/{chosen_id}/share",
+                json={"email": "recipient@example.com", "csrf_token": csrf_token(self.client)},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        send.assert_called_once()
+        share_url = send.call_args.kwargs["magic_url"]
+        self.assertIn("/chosen/shared/", share_url)
+        token = share_url.rsplit("/", 1)[-1]
+        records = get_magic_links_by_email("recipient@example.com", "pet")
+        self.assertEqual(records[0]["session_id"], session_id)
+        self.assertIn('"purpose": "chosen_share"', records[0]["session_state_json"])
+
+        fresh_client = self.app.test_client()
+        shared = fresh_client.get(f"/chosen/shared/{token}")
+        body = shared.get_data(as_text=True)
+        self.assertEqual(shared.status_code, 200)
+        self.assertIn("Meet Rosie", body)
+        self.assertIn("Shared NamEngine name", body)
+        self.assertNotIn("data-chosen-share-form", body)
+        self.assertIsNone(fresh_client.get_cookie("namengine_pet_beta_access"))
+
+    def test_save_progress_magic_link_behavior_remains_session_recovery(self):
+        query = b"species=Dog&personality=Gentle&style=Warm"
+        session_id = self._session_id_for_query(PET, query)
+        self.client.get(f"/pet/results?{query.decode('utf-8')}")
+
+        with patch("app.send_magic_link"):
+            response = self.client.post(
+                "/api/save-progress",
+                json={"session_id": session_id, "email": "tester@example.com"},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        token = get_magic_links_by_email("tester@example.com", "pet")[0]["token"]
+        resumed = self.client.get(f"/continue/{token}")
+        self.assertEqual(resumed.status_code, 302)
+        self.assertIn(f"/results/session/{session_id}", resumed.headers["Location"])
 
     def test_chosen_page_uses_pet_portrait_details_when_present(self):
         query = (

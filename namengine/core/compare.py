@@ -8,7 +8,8 @@ from typing import Any
 from namengine.core.storage import get_session_chain_snapshots
 
 
-def build_compare_items(session_id: str, limit: int = 6) -> list[dict[str, Any]]:
+def build_compare_items(session_id: str, limit: int | None = None) -> list[dict[str, Any]]:
+    """Return loved names across the current journey, deduped by name."""
     snapshots = get_session_chain_snapshots(session_id)
     if not snapshots:
         return []
@@ -36,16 +37,8 @@ def build_compare_items(session_id: str, limit: int = 6) -> list[dict[str, Any]]
                 selected[key] = item
 
     items = list(selected.values())
-
-    latest = snapshots[-1]
-    for row in latest["results"][:limit]:
-        item = _compare_item_from_row(row, latest["session"], "finalist")
-        key = item["name"].lower()
-        if key not in {existing["name"].lower() for existing in items}:
-            items.append(item)
-        if len(items) >= limit:
-            break
-
+    if limit is None:
+        return items
     return items[:limit]
 
 

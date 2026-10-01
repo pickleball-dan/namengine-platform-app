@@ -77,7 +77,7 @@
             <span aria-live="polite"><span aria-hidden="true">♥</span> <strong data-saved-count>Saved {{ reaction_counts.love }} {{ "name" if reaction_counts.love == 1 else "names" }} this round</strong> {{ saved_notes.get(vertical.slug, "Your favorites help us understand the direction with the strongest fit.") }}</span>
           {% endif %}
         </div>
-      {% elif launch_results and vertical.slug == "baby" %}
+      {% elif launch_results and vertical.slug == "baby" and not final_decision_mode|default(false) %}
         <div class="baby-saved-progress" aria-label="Generation summary">
           <span aria-hidden="true">♥</span>
           <strong data-saved-count>You loved {{ reaction_counts.love }} {{ "name" if reaction_counts.love == 1 else "names" }} in Round {{ round_number }}</strong>
@@ -133,6 +133,7 @@
     </details>
 
     <div class="results-grid">
+      {% set final_decision_mode = final_decision_mode|default(false) %}
       {% for item in names %}
         {% set mobile_meaning = compact_card_text(collapsed_result_meaning(item), 54) %}
         {% set mobile_descriptor = compact_card_text(item.tagline or item.fit_note or item.why_this_name, 70) %}
@@ -190,15 +191,17 @@
             {% endif %}
           </div>
 
-          <div class="reaction-row" aria-label="React to {{ item.name }}" data-result-id="{{ item.id }}">
-            <button type="button" class="{% if current_reaction == 'love' %}is-selected{% endif %}" data-reaction-value="love" data-reaction-label="Love" data-result-name="{{ item.name }}" aria-label="Love {{ item.name }}" aria-pressed="{{ 'true' if current_reaction == 'love' else 'false' }}">
-              <img class="reaction-icon" src="{{ url_for('static', filename='images/reactions/love.jpg') }}" alt="">
-            </button>
-            <button type="button" class="{% if current_reaction == 'no' %}is-selected{% endif %}" data-reaction-value="no" data-reaction-label="No" data-result-name="{{ item.name }}" aria-label="No {{ item.name }}" aria-pressed="{{ 'true' if current_reaction == 'no' else 'false' }}">
-              <img class="reaction-icon" src="{{ url_for('static', filename='images/reactions/no.jpg') }}" alt="">
-            </button>
-          </div>
-          <p class="reaction-status" aria-live="polite"></p>
+          {% if not final_decision_mode %}
+            <div class="reaction-row" aria-label="React to {{ item.name }}" data-result-id="{{ item.id }}">
+              <button type="button" class="{% if current_reaction == 'love' %}is-selected{% endif %}" data-reaction-value="love" data-reaction-label="Love" data-result-name="{{ item.name }}" aria-label="Love {{ item.name }}" aria-pressed="{{ 'true' if current_reaction == 'love' else 'false' }}">
+                <img class="reaction-icon" src="{{ url_for('static', filename='images/reactions/love.jpg') }}" alt="">
+              </button>
+              <button type="button" class="{% if current_reaction == 'no' %}is-selected{% endif %}" data-reaction-value="no" data-reaction-label="No" data-result-name="{{ item.name }}" aria-label="No {{ item.name }}" aria-pressed="{{ 'true' if current_reaction == 'no' else 'false' }}">
+                <img class="reaction-icon" src="{{ url_for('static', filename='images/reactions/no.jpg') }}" alt="">
+              </button>
+            </div>
+            <p class="reaction-status" aria-live="polite"></p>
+          {% endif %}
           {% if launch_results %}<a class="result-explore-link" href="{{ detail_url }}" aria-label="Full report for {{ item.name }}">{{ result_cta_labels.get(vertical.slug, "View full report") }} <span aria-hidden="true">→</span></a>{% endif %}
 
 
@@ -370,7 +373,8 @@
           <div class="bottom-refine-form" aria-label="Guided project complete">
             <p class="eyebrow">Curated finish</p>
             <h3>This naming project has reached its strongest final set.</h3>
-            <p>No more list-chasing needed — open a name for the full “why it works,” compare your favorites, choose one, or share this list.</p>
+            <p>No more list-chasing needed — open a name for the full “why it works,” compare your loved names, choose one, or share this list.</p>
+            <a class="button-link" href="{{ url_for('compare', session_id=session_id) }}">Compare All Your Loved Names</a>
             <form class="save-progress-form" data-save-progress-form>
               <input type="hidden" name="session_id" value="{{ session_id }}">
               <label for="completion-email">Email this private link</label>
