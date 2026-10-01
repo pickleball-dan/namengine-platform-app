@@ -78,6 +78,7 @@ from namengine.core import (
     get_chosen_snapshot,
     get_database_path,
     generated_image_directory,
+    get_latest_session_in_journey,
     get_session_snapshot,
     keepsake_preview_for_chosen,
     get_taste_profile,
@@ -1250,7 +1251,24 @@ def _paid_existing_session_for_new_generation(vertical, session_id: str) -> str:
         return ""
     if get_session_snapshot(existing_session_id) is None:
         return ""
-    return existing_session_id
+    return get_latest_session_in_journey(existing_session_id) or existing_session_id
+
+
+def _terminal_paid_journey_session_for_request(vertical) -> str:
+    """Return the completed paid Baby journey this visitor should resume, if any."""
+    if vertical.slug != "baby" or not beta_unlocked_from_request(vertical):
+        return ""
+    existing_session_id = _beta_unlocked_return_session_from_request(vertical)
+    if not existing_session_id or get_session_snapshot(existing_session_id) is None:
+        return ""
+    latest_session_id = get_latest_session_in_journey(existing_session_id) or existing_session_id
+    snapshot = get_session_snapshot(latest_session_id)
+    if snapshot is None:
+        return ""
+    round_number = int(snapshot["session"].get("round_number") or 1)
+    if _is_final_decision_round(vertical, round_number):
+        return latest_session_id
+    return ""
 
 
 def _required_baby_refinement_count(vertical, round_number: int) -> int | None:
@@ -1850,6 +1868,9 @@ Sitemap: https://nam-engine.com/sitemap.xml
             abort(404)
 
         vertical = get_vertical(vertical_slug)
+        terminal_session_id = _terminal_paid_journey_session_for_request(vertical)
+        if terminal_session_id:
+            return redirect(url_for("session_results", session_id=terminal_session_id))
         return render_template(
             "intake.html",
             vertical=vertical,
@@ -1863,6 +1884,9 @@ Sitemap: https://nam-engine.com/sitemap.xml
             abort(404)
 
         vertical = get_vertical(vertical_slug)
+        terminal_session_id = _terminal_paid_journey_session_for_request(vertical)
+        if terminal_session_id:
+            return redirect(url_for("session_results", session_id=terminal_session_id))
         if not feelings_scale_enabled(vertical):
             query = _query_string_from_mapping(_sanitize_intake_source(vertical, request.args.to_dict(flat=True)))
             return redirect(f"{vertical.route_prefix}/results?{query}")
@@ -2230,7 +2254,7 @@ Sitemap: https://nam-engine.com/sitemap.xml
         if snapshot is not None:
             vertical = get_vertical(snapshot["session"]["vertical"])
             round_number = int(snapshot["session"].get("round_number") or 1)
-            if _is_final_decision_round(vertical, round_number):
+            if _is_final_decision_round(vertical, round_number) and value != "love":
                 return jsonify({"error": "final_decision_reactions_closed"}), 400
 
         try:
@@ -2295,6 +2319,13 @@ Sitemap: https://nam-engine.com/sitemap.xml
 
         reaction_counts = get_reaction_counts(session_id)
         vertical = get_vertical(snapshot["session"]["vertical"])
+        round_number = int(snapshot["session"].get("round_number") or 1)
+        if _is_final_decision_round(vertical, round_number):
+            return _render_results_snapshot(
+                session_id,
+                status=400,
+                refinement_error="Congratulations — your naming journey is complete.",
+            )
         if not beta_unlocked_from_request(vertical):
             return _render_results_snapshot(
                 session_id,

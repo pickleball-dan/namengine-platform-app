@@ -1,6 +1,7 @@
 import os
 import tempfile
 import unittest
+from dataclasses import replace
 
 from app import _query_string_from_mapping, _sanitize_intake_source, create_app, make_session_id
 from access_helpers import unlock_beta_access
@@ -84,6 +85,45 @@ class PhaseEightCompareTest(unittest.TestCase):
         self.assertNotIn(r1[1].name, names)
         self.assertEqual({item["reaction"] for item in items}, {"love"})
 
+    def test_baby_compare_route_renders_cards_for_loved_names_across_all_four_rounds(self):
+        brief = build_brief(BABY, {"gender": "Girl", "style": "Classic", "sound": "Soft"})
+        r1 = generate_names(BABY, brief, round_number=1)
+        r2 = generate_names(BABY, brief, round_number=2)
+        r3 = generate_names(BABY, brief, round_number=3)
+        r4 = generate_names(BABY, brief, round_number=4)
+        other = generate_names(BABY, brief, round_number=1)
+        r3[0] = replace(r3[0], id="baby-99", name="NoOnly", slug="noonly")
+        other[0] = replace(other[0], id="baby-99", name="OtherSessionOnly", slug="other-session-only")
+        save_session("baby-compare-r1", "baby", brief, r1, round_number=1)
+        save_session("baby-compare-r2", "baby", brief, r2, round_number=2, parent_session_id="baby-compare-r1")
+        save_session("baby-compare-r3", "baby", brief, r3, round_number=3, parent_session_id="baby-compare-r2")
+        save_session("baby-compare-r4", "baby", brief, r4, round_number=4, parent_session_id="baby-compare-r3")
+        save_session("baby-other", "baby", brief, other, round_number=1)
+        save_reaction(build_reaction("baby-compare-r1", r1[0].id, "love"))
+        save_reaction(build_reaction("baby-compare-r2", r2[0].id, "love"))
+        save_reaction(build_reaction("baby-compare-r3", r3[0].id, "no"))
+        save_reaction(build_reaction("baby-compare-r4", r4[0].id, "love"))
+        save_reaction(build_reaction("baby-other", other[0].id, "love"))
+        unlock_beta_access(self.client, "baby")
+
+        response = self.client.get("/compare/baby-compare-r4")
+        body = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Compare All Your Loved Names", body)
+        self.assertIn('data-compare-favorite-card', body)
+        self.assertIn("Loved in Round 1", body)
+        self.assertIn("Loved in Round 2", body)
+        self.assertIn("Loved in Round 4", body)
+        self.assertIn(r1[0].name, body)
+        self.assertIn(r2[0].name, body)
+        self.assertIn(r4[0].name, body)
+        self.assertNotIn(r3[0].name, body)
+        self.assertNotIn(other[0].name, body)
+        self.assertNotIn("NamEngine vs. the field", body)
+        self.assertNotIn("<table", body)
+        self.assertIn('action="/choose"', body)
+
     def test_compare_does_not_expose_historical_maybe_as_backup(self):
         query = b"species=Cat&personality=Quiet&style=Soft"
         session_id = self._pet_session_id_for_query(query)
@@ -102,16 +142,23 @@ class PhaseEightCompareTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         body = response.get_data(as_text=True)
-        self.assertIn("Compare Favorites", body)
         self.assertIn("Compare All Your Loved Names", body)
+        self.assertIn("compare-favorites-grid", body)
+        self.assertIn('data-compare-favorite-card', body)
+        self.assertIn("result-card compare-favorite-card", body)
+        self.assertNotIn("<table", body)
+        self.assertNotIn("engine-audit-table", body)
         self.assertIn("Best if", body)
         self.assertIn("Worth noting", body)
+        self.assertIn("Why it stayed with you", body)
         self.assertNotIn("NamEngine vs. the field", body)
         self.assertNotIn("Watch-out", body)
         self.assertIn("Open detail", body)
+        self.assertIn('action="/choose"', body)
+        self.assertIn("Choose Rosie", body)
         self.assertIn(f"/pet/name/{round_two_id}/pet-1", body)
         self.assertIn("Rosie", body)
-        self.assertIn("Round 2", body)
+        self.assertIn("Loved in Round 2", body)
 
     def test_compare_empty_state_when_no_loved_names(self):
         session_id, round_two_id = self._seed_chain()

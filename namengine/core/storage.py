@@ -1127,6 +1127,31 @@ def get_session_chain_snapshots(session_id: str, db_path: Path | None = None) ->
     return list(reversed(chain))
 
 
+def get_latest_session_in_journey(session_id: str, db_path: Path | None = None) -> str:
+    """Return the newest known descendant for a session lineage."""
+    initialize_database(db_path)
+    with closing(connect(db_path)) as connection:
+        row = connection.execute(
+            """
+            WITH RECURSIVE lineage(id, round_number, created_at) AS (
+                SELECT id, round_number, created_at
+                FROM sessions
+                WHERE id = ?
+                UNION ALL
+                SELECT sessions.id, sessions.round_number, sessions.created_at
+                FROM sessions
+                JOIN lineage ON sessions.parent_session_id = lineage.id
+            )
+            SELECT id
+            FROM lineage
+            ORDER BY round_number DESC, created_at DESC, id DESC
+            LIMIT 1
+            """,
+            (session_id,),
+        ).fetchone()
+    return str(row["id"]) if row else ""
+
+
 def get_chosen_snapshot(chosen_id: str, db_path: Path | None = None) -> dict[str, Any] | None:
     initialize_database(db_path)
     with closing(connect(db_path)) as connection:

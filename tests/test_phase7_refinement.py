@@ -4,7 +4,7 @@ import unittest
 from unittest.mock import patch
 
 from access_helpers import csrf_token
-from app import create_app, make_session_id
+from app import _signed_beta_access_token, beta_unlock_cookie_name, create_app, make_session_id
 from namengine.core import (
     build_brief,
     build_reaction,
@@ -262,19 +262,21 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         self.assertIn("Email this private link", body)
         self.assertIn("Send My Link", body)
         self.assertIn("js/access-gate.js", body)
-        self.assertNotIn('data-reaction-value="love"', body)
+        self.assertIn('data-reaction-value="love"', body)
         self.assertNotIn('data-reaction-value="no"', body)
+        self.assertNotIn('aria-label="Edit ', body)
+        self.assertNotIn("Adjust Feelings Scale", body)
         self.assertNotIn("React to", body)
         self.assertNotIn("Generate One More List", body)
         self.assertNotIn('action="/refine"', body)
 
-    def test_baby_round_four_rejects_new_reactions_server_side(self):
+    def test_baby_round_four_allows_love_but_rejects_refinement_reactions_server_side(self):
         brief = build_brief(BABY, {"gender": "Girl", "style": "Classic", "sound": "Soft"})
         names = generate_names(BABY, brief, round_number=4)
         save_session("baby-final-decision", "baby", brief, names, round_number=4)
         self.client.get("/baby")
 
-        response = self.client.post(
+        love_response = self.client.post(
             "/api/react",
             json={
                 "csrf_token": csrf_token(self.client),
@@ -284,8 +286,44 @@ class PhaseSevenRefinementTest(unittest.TestCase):
             },
         )
 
+        self.assertEqual(love_response.status_code, 201)
+        self.assertEqual(love_response.get_json()["reaction"]["value"], "love")
+
+        response = self.client.post(
+            "/api/react",
+            json={
+                "csrf_token": csrf_token(self.client),
+                "session_id": "baby-final-decision",
+                "result_id": names[1].id,
+                "value": "no",
+            },
+        )
+
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.get_json()["error"], "final_decision_reactions_closed")
+
+    def test_completed_paid_baby_journey_redirects_edit_and_new_results_to_latest_round(self):
+        session_id = self._seed_baby_round_one()
+        round_two_id, _, _ = refine_session(session_id, BABY, instruction="shorter")
+        round_three_id, _, _ = refine_session(round_two_id, BABY, instruction="finalists")
+        round_four_id, _, _ = refine_session(round_three_id, BABY, instruction="one more")
+        self.client.get("/baby")
+        self.client.set_cookie(
+            beta_unlock_cookie_name(BABY),
+            _signed_beta_access_token(BABY, session_id),
+        )
+
+        edit_response = self.client.get("/baby?gender=Girl&style=Classic&sound=Soft&edit=style")
+        new_results_response = self.client.get("/baby/results?gender=Boy&style=Bold&sound=Crisp")
+        feelings_response = self.client.get("/baby/feelings?gender=Girl&style=Classic&sound=Soft")
+
+        expected_location = f"/results/session/{round_four_id}"
+        self.assertEqual(edit_response.status_code, 302)
+        self.assertEqual(edit_response.headers["Location"], expected_location)
+        self.assertEqual(new_results_response.status_code, 302)
+        self.assertEqual(new_results_response.headers["Location"], expected_location)
+        self.assertEqual(feelings_response.status_code, 302)
+        self.assertEqual(feelings_response.headers["Location"], expected_location)
 
     def test_refine_route_treats_small_shortlist_as_complete_server_side(self):
         session_id = self._seed_round_one()
