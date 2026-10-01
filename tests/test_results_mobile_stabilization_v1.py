@@ -214,6 +214,9 @@ class ResultsMobileStabilizationTest(unittest.TestCase):
 
     def test_mobile_paywall_css_allows_full_access_panel_to_fit_viewport(self):
         css = Path("static/css/platform.css").read_text(encoding="utf-8")
+        base_template = Path("templates/base.html").read_text(encoding="utf-8")
+
+        self.assertIn("paywall-mobile", base_template)
 
         self.assertIn(".paywall-option {\n  box-sizing: border-box;", css)
         self.assertIn("min-width: 0;", css[css.index(".paywall-option {"):css.index(".paywall-option h3")])
