@@ -5,42 +5,65 @@
 
 {% block content %}
 {% if items is defined %}
-<section class="legal-shell">
-  <div class="legal-heading">
+<section class="results-shell compare-favorites-shell">
+  <div class="results-heading">
     <p class="eyebrow">{{ vertical.display_name }} favorites</p>
     <h1>Compare All Your Loved Names</h1>
     <p>These are the names marked Love in this naming journey, gathered across rounds and deduped for a cleaner decision.</p>
   </div>
 
   {% if items %}
-    <div class="engine-audit-table-wrap">
-      <table class="engine-audit-table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Round</th>
-            <th>Best if</th>
-            <th>Worth noting</th>
-            <th>Fit</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for item in items %}
-            <tr>
-              <td>
-                <strong>{{ item.name }}</strong>
-                {% if item.pronunciation %}<br><small>{{ item.pronunciation }}</small>{% endif %}
-              </td>
-              <td>Round {{ item.round_number }}</td>
-              <td>{{ item.best_if }}</td>
-              <td>{{ item.watch_out }}</td>
-              <td>{{ item.fit_note or item.why_this_name }}</td>
-              <td><a class="button-link" href="{{ url_for('name_detail', vertical_slug=vertical.slug, session_id=item.session_id, result_id=item.result_id) }}">Open detail</a></td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+    <div class="results-grid compare-favorites-grid">
+      {% for item in items %}
+        <article class="result-card compare-favorite-card" data-compare-favorite-card>
+          <div class="result-card-main">
+            <p class="result-index">Loved in Round {{ item.round_number }}</p>
+            <div class="result-card-identity">
+              <h2><a class="result-name-link" href="{{ url_for('name_detail', vertical_slug=vertical.slug, session_id=item.session_id, result_id=item.result_id) }}">{{ item.name }}</a></h2>
+              {% if item.pronunciation %}
+                <p class="pronunciation">{{ item.pronunciation }}</p>
+              {% endif %}
+            </div>
+            <div class="result-card-summary">
+              {% if item.meaning %}
+                <p class="result-card-meaning"><strong>Meaning:</strong> {{ item.meaning }}</p>
+              {% endif %}
+              {% if item.tagline %}
+                <p class="tagline">{{ item.tagline }}</p>
+              {% endif %}
+            </div>
+            {% if item.tags %}
+              <div class="result-tags{% if vertical.slug == 'baby' %} baby-result-tags{% elif vertical.slug == 'pet' %} pet-result-tags{% endif %}" aria-label="Qualities of {{ item.name }}">
+                {% for tag in item.tags[:3] %}<span>{{ tag }}</span>{% endfor %}
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="result-card-details compare-favorite-details">
+            <section class="result-quick-fit">
+              <h3>Why it stayed with you</h3>
+              <p>{{ item.why_this_name or item.fit_note or item.best_if }}</p>
+            </section>
+            <section>
+              <h3>Best if</h3>
+              <p>{{ item.best_if }}</p>
+            </section>
+            <section>
+              <h3>Worth noting</h3>
+              <p>{{ item.watch_out }}</p>
+            </section>
+            <div class="result-card-actions">
+              <a class="button-link detail-link" href="{{ url_for('name_detail', vertical_slug=vertical.slug, session_id=item.session_id, result_id=item.result_id) }}">Open detail</a>
+              <form action="{{ url_for('choose') }}" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="session_id" value="{{ item.session_id }}">
+                <input type="hidden" name="result_id" value="{{ item.result_id }}">
+                <button class="choose-button" type="submit">Choose {{ item.name }}</button>
+              </form>
+            </div>
+          </div>
+        </article>
+      {% endfor %}
     </div>
   {% else %}
     <div class="legal-notice">

@@ -94,7 +94,7 @@
       <div class="direction-disclosure-body" aria-label="Selected intake fields">
         <dl>
           {% for item in display_brief_items(vertical, brief) %}
-            {% if beta_unlocked %}
+            {% if beta_unlocked and not final_decision_mode|default(false) %}
               <a class="brief-summary-item" href="{{ item.edit_url }}" aria-label="Edit {{ item.label }}">
                 <dt>{{ item.label }}</dt>
                 <dd>{{ item.value }}</dd>
@@ -110,7 +110,7 @@
             <p class="brief-locked-note">Unlock full access to edit your direction and refine your results.</p>
           {% endif %}
         </dl>
-        {% if feelings_scale_enabled(vertical) and beta_unlocked %}
+        {% if feelings_scale_enabled(vertical) and beta_unlocked and not final_decision_mode|default(false) %}
           <p>
             <a class="button-link secondary-button" href="{{ vertical.route_prefix }}/feelings" data-adjust-feelings>Adjust Feelings Scale</a>
           </p>
@@ -191,13 +191,20 @@
             {% endif %}
           </div>
 
-          {% if not final_decision_mode %}
+          {% if journey_lifecycle.can_react("love") and journey_lifecycle.can_react("no") %}
             <div class="reaction-row" aria-label="React to {{ item.name }}" data-result-id="{{ item.id }}">
               <button type="button" class="{% if current_reaction == 'love' %}is-selected{% endif %}" data-reaction-value="love" data-reaction-label="Love" data-result-name="{{ item.name }}" aria-label="Love {{ item.name }}" aria-pressed="{{ 'true' if current_reaction == 'love' else 'false' }}">
                 <img class="reaction-icon" src="{{ url_for('static', filename='images/reactions/love.jpg') }}" alt="">
               </button>
               <button type="button" class="{% if current_reaction == 'no' %}is-selected{% endif %}" data-reaction-value="no" data-reaction-label="No" data-result-name="{{ item.name }}" aria-label="No {{ item.name }}" aria-pressed="{{ 'true' if current_reaction == 'no' else 'false' }}">
                 <img class="reaction-icon" src="{{ url_for('static', filename='images/reactions/no.jpg') }}" alt="">
+              </button>
+            </div>
+            <p class="reaction-status" aria-live="polite"></p>
+          {% elif journey_lifecycle.can_react("love") %}
+            <div class="reaction-row final-decision-reaction-row" aria-label="Save {{ item.name }} to loved names" data-result-id="{{ item.id }}">
+              <button type="button" class="{% if current_reaction == 'love' %}is-selected{% endif %}" data-reaction-value="love" data-reaction-label="Love" data-result-name="{{ item.name }}" aria-label="Love {{ item.name }}" aria-pressed="{{ 'true' if current_reaction == 'love' else 'false' }}">
+                <img class="reaction-icon" src="{{ url_for('static', filename='images/reactions/love.jpg') }}" alt="">
               </button>
             </div>
             <p class="reaction-status" aria-live="polite"></p>
@@ -301,7 +308,7 @@
     {% set reaction_total = reaction_total|default(reaction_counts.love + reaction_counts.maybe + reaction_counts.no) %}
     {% set min_reactions_for_refinement = min_reactions_for_refinement|default(3) %}
     {% set reactions_remaining = [min_reactions_for_refinement - reaction_total, 0]|max %}
-    {% set project_complete = beta_unlocked and (round_number >= 4 or names|length < min_reactions_for_refinement) %}
+    {% set project_complete = journey_lifecycle.project_complete %}
     <section class="bottom-next-panel" aria-label="Next list options">
       {% if not beta_unlocked %}
         <div class="bottom-refine-form beta-refine-lock" aria-label="Continue with NamEngine">

@@ -68,6 +68,7 @@ from namengine.core import (
     build_taste_profile,
     build_trust_cue,
     compare_contrast_groups,
+    build_journey_lifecycle,
     ensure_keepsake_for_chosen,
     generate_names,
     generate_with_router,
@@ -78,6 +79,7 @@ from namengine.core import (
     get_chosen_snapshot,
     get_database_path,
     generated_image_directory,
+    get_latest_session_in_journey,
     get_session_snapshot,
     keepsake_preview_for_chosen,
     get_taste_profile,
@@ -1250,7 +1252,31 @@ def _paid_existing_session_for_new_generation(vertical, session_id: str) -> str:
         return ""
     if get_session_snapshot(existing_session_id) is None:
         return ""
-    return existing_session_id
+    latest_session_id = get_latest_session_in_journey(existing_session_id) or existing_session_id
+    lifecycle = _journey_lifecycle_for(vertical, get_session_snapshot(latest_session_id))
+    if lifecycle.can_start_new_journey(
+        existing_session_id=existing_session_id,
+        requested_session_id=session_id,
+    ):
+        return ""
+    return latest_session_id
+
+
+def _terminal_paid_journey_session_for_request(vertical) -> str:
+    """Return the paid journey this visitor should resume instead of editing, if any."""
+    if not beta_unlocked_from_request(vertical):
+        return ""
+    existing_session_id = _beta_unlocked_return_session_from_request(vertical)
+    if not existing_session_id or get_session_snapshot(existing_session_id) is None:
+        return ""
+    latest_session_id = get_latest_session_in_journey(existing_session_id) or existing_session_id
+    snapshot = get_session_snapshot(latest_session_id)
+    if snapshot is None:
+        return ""
+    lifecycle = _journey_lifecycle_for(vertical, snapshot)
+    if not lifecycle.can_edit_direction():
+        return latest_session_id
+    return ""
 
 
 def _required_baby_refinement_count(vertical, round_number: int) -> int | None:
@@ -1261,8 +1287,13 @@ def _required_baby_refinement_count(vertical, round_number: int) -> int | None:
     return vertical.default_result_count
 
 
-def _is_final_decision_round(vertical, round_number: int) -> bool:
-    return vertical.slug == "baby" and round_number >= 4
+def _journey_lifecycle_for(vertical, snapshot: dict | None = None):
+    return build_journey_lifecycle(
+        vertical,
+        snapshot,
+        paid_access=beta_unlocked_from_request(vertical),
+        min_reactions_for_refinement=MIN_REACTIONS_FOR_REFINEMENT,
+    )
 
 
 def _chosen_share_url(token: str, base_url: str) -> str:
@@ -1380,6 +1411,7 @@ def _render_results_snapshot(
         )
         snapshot = get_session_snapshot(session_id) or snapshot
     reaction_counts = snapshot.get("reaction_counts") or _reaction_counts_from_snapshot(snapshot)
+    lifecycle = _journey_lifecycle_for(vertical, snapshot)
     response = make_response(
         render_template(
             "results.html",
@@ -1392,11 +1424,10 @@ def _render_results_snapshot(
             reaction_values=_reaction_values(snapshot),
             reaction_total=_reaction_total(reaction_counts),
             min_reactions_for_refinement=MIN_REACTIONS_FOR_REFINEMENT,
+            journey_lifecycle=lifecycle,
             taste_profile=_taste_profile_from_snapshot(snapshot),
             round_number=int(snapshot["session"]["round_number"]),
-            final_decision_mode=_is_final_decision_round(
-                vertical, int(snapshot["session"]["round_number"])
-            ),
+            final_decision_mode=lifecycle.is_final_decision_mode,
             parent_session_id=snapshot["session"]["parent_session_id"],
             original_mode=session_id.startswith("pet-original"),
             refinement_error=refinement_error,
@@ -1806,7 +1837,10 @@ Sitemap: https://nam-engine.com/sitemap.xml
         if vertical_slug not in VERTICALS:
             abort(404)
         vertical = get_vertical(vertical_slug)
-        if not vertical_uses_server_review(vertical):
+        terminal_session_id = _terminal_paid_journey_session_for_request(vertical)
+        if terminal_session_id:
+            return redirect(url_for("session_results", session_id=terminal_session_id))
+        if not _journey_lifecycle_for(vertical).can_enter_review():
             abort(404)
         raw_params = request.form.to_dict(flat=True) if request.method == "POST" else request.args.to_dict(flat=True)
         # Free users who already generated and arrive with no intake params go to their results.
@@ -1850,6 +1884,9 @@ Sitemap: https://nam-engine.com/sitemap.xml
             abort(404)
 
         vertical = get_vertical(vertical_slug)
+        terminal_session_id = _terminal_paid_journey_session_for_request(vertical)
+        if terminal_session_id:
+            return redirect(url_for("session_results", session_id=terminal_session_id))
         return render_template(
             "intake.html",
             vertical=vertical,
@@ -1863,6 +1900,9 @@ Sitemap: https://nam-engine.com/sitemap.xml
             abort(404)
 
         vertical = get_vertical(vertical_slug)
+        terminal_session_id = _terminal_paid_journey_session_for_request(vertical)
+        if terminal_session_id:
+            return redirect(url_for("session_results", session_id=terminal_session_id))
         if not feelings_scale_enabled(vertical):
             query = _query_string_from_mapping(_sanitize_intake_source(vertical, request.args.to_dict(flat=True)))
             return redirect(f"{vertical.route_prefix}/results?{query}")
@@ -1920,6 +1960,7 @@ Sitemap: https://nam-engine.com/sitemap.xml
             save_session(session_id, vertical.slug, brief, names)
             snapshot = get_session_snapshot(session_id)
         reaction_counts = snapshot.get("reaction_counts") if snapshot else {"love": 0, "maybe": 0, "no": 0}
+        lifecycle = _journey_lifecycle_for(vertical, snapshot)
         response = make_response(render_template(
             "results.html",
             vertical=vertical,
@@ -1929,9 +1970,10 @@ Sitemap: https://nam-engine.com/sitemap.xml
             session_id=session_id,
             reaction_counts=reaction_counts,
             reaction_values=_reaction_values(snapshot),
+            journey_lifecycle=lifecycle,
             taste_profile=_taste_profile_from_snapshot(snapshot or {}),
             round_number=1,
-            final_decision_mode=False,
+            final_decision_mode=lifecycle.is_final_decision_mode,
             parent_session_id=None,
             original_mode=True,
             beta_unlocked=beta_unlocked_from_request(vertical),
@@ -2041,6 +2083,7 @@ Sitemap: https://nam-engine.com/sitemap.xml
             save_session(session_id, vertical.slug, brief, names)
             snapshot = get_session_snapshot(session_id)
         reaction_counts = snapshot.get("reaction_counts") if snapshot else {"love": 0, "maybe": 0, "no": 0}
+        lifecycle = _journey_lifecycle_for(vertical, snapshot)
         response = make_response(render_template(
             "results.html",
             vertical=vertical,
@@ -2050,9 +2093,10 @@ Sitemap: https://nam-engine.com/sitemap.xml
             session_id=session_id,
             reaction_counts=reaction_counts,
             reaction_values=_reaction_values(snapshot),
+            journey_lifecycle=lifecycle,
             taste_profile=_taste_profile_from_snapshot(snapshot or {}),
             round_number=1,
-            final_decision_mode=False,
+            final_decision_mode=lifecycle.is_final_decision_mode,
             parent_session_id=None,
             original_mode=False,
             beta_unlocked=beta_unlocked_from_request(vertical),
@@ -2229,8 +2273,8 @@ Sitemap: https://nam-engine.com/sitemap.xml
         snapshot = get_session_snapshot(session_id) if session_id else None
         if snapshot is not None:
             vertical = get_vertical(snapshot["session"]["vertical"])
-            round_number = int(snapshot["session"].get("round_number") or 1)
-            if _is_final_decision_round(vertical, round_number):
+            lifecycle = _journey_lifecycle_for(vertical, snapshot)
+            if not lifecycle.can_react(value):
                 return jsonify({"error": "final_decision_reactions_closed"}), 400
 
         try:
@@ -2269,7 +2313,8 @@ Sitemap: https://nam-engine.com/sitemap.xml
         if snapshot is None:
             abort(404)
         vertical = get_vertical(snapshot["session"]["vertical"])
-        if not beta_unlocked_from_request(vertical):
+        lifecycle = _journey_lifecycle_for(vertical, snapshot)
+        if not lifecycle.can_choose():
             return _access_required_response(vertical, session_id)
 
         try:
@@ -2295,6 +2340,13 @@ Sitemap: https://nam-engine.com/sitemap.xml
 
         reaction_counts = get_reaction_counts(session_id)
         vertical = get_vertical(snapshot["session"]["vertical"])
+        lifecycle = _journey_lifecycle_for(vertical, snapshot)
+        if not lifecycle.can_refine():
+            return _render_results_snapshot(
+                session_id,
+                status=400,
+                refinement_error="Congratulations — your naming journey is complete.",
+            )
         if not beta_unlocked_from_request(vertical):
             return _render_results_snapshot(
                 session_id,
@@ -2337,6 +2389,7 @@ Sitemap: https://nam-engine.com/sitemap.xml
 
         child_snapshot = get_session_snapshot(child_session_id)
         round_number = int(child_snapshot["session"]["round_number"])
+        lifecycle = _journey_lifecycle_for(vertical, child_snapshot)
         taste_profile = _taste_profile_from_snapshot(child_snapshot)
         if request.headers.get("X-NamEngine-Progress") == "1":
             return redirect(url_for("session_results", session_id=child_session_id))
@@ -2350,9 +2403,10 @@ Sitemap: https://nam-engine.com/sitemap.xml
             session_id=child_session_id,
             reaction_counts=get_reaction_counts(child_session_id),
             reaction_values=_reaction_values(child_snapshot),
+            journey_lifecycle=lifecycle,
             taste_profile=taste_profile,
             round_number=round_number,
-            final_decision_mode=_is_final_decision_round(vertical, round_number),
+            final_decision_mode=lifecycle.is_final_decision_mode,
             parent_session_id=session_id,
             original_mode=False,
             beta_unlocked=beta_unlocked_from_request(vertical),
@@ -2365,7 +2419,8 @@ Sitemap: https://nam-engine.com/sitemap.xml
             abort(404)
 
         vertical = get_vertical(snapshot["session"]["vertical"])
-        if not beta_unlocked_from_request(vertical):
+        lifecycle = _journey_lifecycle_for(vertical, snapshot)
+        if not lifecycle.can_compare():
             return _access_required_response(vertical, session_id)
 
         items = build_compare_items(session_id)
@@ -2390,7 +2445,8 @@ Sitemap: https://nam-engine.com/sitemap.xml
             ), 410
 
         vertical = get_vertical(snapshot["session"]["vertical"])
-        if not beta_unlocked_from_request(vertical):
+        lifecycle = _journey_lifecycle_for(vertical, snapshot)
+        if not lifecycle.can_share():
             return _access_required_response(vertical, snapshot["session"]["id"])
         names = [json_loads(row["result_json"]) for row in snapshot["results"]]
         brief = json_loads(snapshot["session"]["brief_json"])
@@ -2541,7 +2597,8 @@ Sitemap: https://nam-engine.com/sitemap.xml
 
         vertical = get_vertical(snapshot["chosen"]["vertical"])
         session_id = str((snapshot.get("session") or {}).get("id") or snapshot["chosen"].get("session_id") or "")
-        if not beta_unlocked_from_request(vertical):
+        lifecycle = _journey_lifecycle_for(vertical, {"session": snapshot["session"], "results": [snapshot["result"]]})
+        if not lifecycle.can_choose():
             return _access_required_response(vertical, session_id)
 
         result = to_plain_data(json_loads(snapshot["result"]["result_json"]))
@@ -2572,7 +2629,8 @@ Sitemap: https://nam-engine.com/sitemap.xml
             abort(404)
         vertical = get_vertical(snapshot["chosen"]["vertical"])
         session_id = str(snapshot["chosen"].get("session_id") or snapshot["session"].get("id") or "")
-        if not beta_unlocked_from_request(vertical):
+        lifecycle = _journey_lifecycle_for(vertical, {"session": snapshot["session"], "results": [snapshot["result"]]})
+        if not lifecycle.can_share():
             return _access_required_response(vertical, session_id, wants_json=True)
 
         session_state = {
