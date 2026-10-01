@@ -1281,27 +1281,51 @@ button {
   opacity: 0.3;
 }
 
-/* On mobile stack vertically again */
-@media (max-width: 600px) {
-  .paywall-two-options {
-    flex-direction: column;
+/* Results paywall: stack early and keep every child shrinkable on mobile. */
+@media (max-width: 760px) {
+  .beta-refine-lock .paywall-two-options {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
     align-items: stretch;
-  }
-  .paywall-option {
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+  }
+  .beta-refine-lock .paywall-option {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
     padding: clamp(16px, 5vw, 20px);
   }
-  .paywall-option .button-link {
+  .beta-refine-lock .paywall-option-purchase,
+  .beta-refine-lock .paid-access-benefits,
+  .beta-refine-lock .paid-access-guarantee {
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
   }
-  .paywall-option-divider {
+  .beta-refine-lock .paid-access-benefits {
+    box-sizing: border-box;
+    padding-left: 1.15rem;
+    padding-right: 0;
+    overflow-wrap: anywhere;
+  }
+  .beta-refine-lock .paywall-option .button-link {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    padding-inline: 14px;
+  }
+  .beta-refine-lock .paywall-option-divider {
     flex-direction: row;
     padding: 4px 0;
     align-self: auto;
     width: 100%;
+    max-width: 100%;
   }
-  .paywall-option-divider::before,
-  .paywall-option-divider::after {
+  .beta-refine-lock .paywall-option-divider::before,
+  .beta-refine-lock .paywall-option-divider::after {
     width: auto;
     height: 1px;
     flex: 1;

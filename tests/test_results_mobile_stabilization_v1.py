@@ -222,6 +222,15 @@ class ResultsMobileStabilizationTest(unittest.TestCase):
         self.assertIn("min-width: 0;", css[css.index(".paywall-option {"):css.index(".paywall-option h3")])
         self.assertIn(".paywall-option .button-link {\n  box-sizing: border-box;", css)
         self.assertIn("white-space: normal;", css[css.index(".paywall-option .button-link {"):css.index(".paywall-option-divider {")])
+        self.assertIn("@media (max-width: 760px)", css)
+        mobile_paywall_block = css[
+            css.index("@media (max-width: 760px)"):
+            css.index("/* Save-progress form */")
+        ]
+        self.assertIn("grid-template-columns: minmax(0, 1fr);", mobile_paywall_block)
+        self.assertIn(".beta-refine-lock .paywall-option-purchase", mobile_paywall_block)
+        self.assertIn(".beta-refine-lock .paywall-option .button-link", mobile_paywall_block)
+        self.assertIn("max-width: 100%;", mobile_paywall_block)
         self.assertIn(".beta-refine-lock .landing-accepted-payments", css)
         payment_block = css[
             css.index(".beta-refine-lock .landing-accepted-payments"):
