@@ -31,7 +31,7 @@
         <table class="engine-audit-table">
           <thead>
             <tr>
-              <th>Timestamp</th><th>Session</th><th>Round</th><th>Parent</th>
+              <th>Timestamp</th><th>Session</th><th>Journey</th><th>Round</th><th>Parent</th>
               <th>Provider / model</th><th>Latency</th><th>Cost</th><th>Tokens</th><th>Prompt</th><th>Names</th>
               <th>Love</th><th>Maybe</th><th>No</th><th>Chosen</th>
             </tr>
@@ -41,6 +41,10 @@
               <tr>
                 <td>{{ session.timestamp }}</td>
                 <td><a href="{{ url_for('engine_audit', session_id=session.session_id) }}">{{ session.session_id }}</a></td>
+                <td>
+                  <a href="{{ url_for('engine_audit', session_id=session.journey_root_session_id) }}">{{ session.journey_root_session_id }}</a>
+                  <br><small>rounds {{ session.journey_rounds|join(' → ') }}</small>
+                </td>
                 <td>{{ session.round_number }}</td>
                 <td>{{ session.parent_session_id or 'none' }}</td>
                 <td>{{ session.provider }}<br><small>{{ session.model }}</small></td>
@@ -55,7 +59,7 @@
                 <td>{% if session.chosen_count %}Chosen: {{ session.chosen_name }}{% else %}Not chosen{% endif %}</td>
               </tr>
             {% else %}
-              <tr><td colspan="14">No {{ vertical.display_name }} sessions found.</td></tr>
+              <tr><td colspan="15">No {{ vertical.display_name }} sessions found.</td></tr>
             {% endfor %}
           </tbody>
         </table>

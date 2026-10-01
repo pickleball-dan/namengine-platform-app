@@ -107,6 +107,8 @@ def _successful_call_events(db_path: Path | None) -> list[dict[str, Any]]:
                 sessions.created_at,
                 sessions.vertical,
                 sessions.id AS session_id,
+                sessions.round_number,
+                sessions.parent_session_id,
                 (SELECT COUNT(*) FROM name_results WHERE session_id = sessions.id) AS generated_name_count,
                 (SELECT result_json FROM name_results
                     WHERE session_id = sessions.id ORDER BY id LIMIT 1) AS first_result_json
@@ -139,6 +141,8 @@ def _successful_call_events(db_path: Path | None) -> list[dict[str, Any]]:
                     "model": str(call.get("model") or fallback_model or "unknown"),
                     "vertical": str(row["vertical"] or "unknown"),
                     "session_id": str(row["session_id"]),
+                    "round_number": _safe_int(row["round_number"]) or 1,
+                    "parent_session_id": str(row["parent_session_id"] or ""),
                     "input_tokens": input_tokens,
                     "output_tokens": output_tokens,
                     "total_tokens": total_tokens,
@@ -336,6 +340,8 @@ def _session_rows(
         verticals = sorted({str(event.get("vertical") or "unknown") for event in items})
         models = sorted({str(event.get("model") or "unknown") for event in items})
         request_types = sorted({str(event.get("request_type") or "generation") for event in items})
+        round_numbers = sorted({_safe_int(event.get("round_number")) for event in items if event.get("round_number")})
+        parent_session_ids = sorted({str(event.get("parent_session_id") or "") for event in items})
         rows.append(
             {
                 "session_id": session_id,
@@ -343,6 +349,8 @@ def _session_rows(
                 "date": latest_timestamp.date().isoformat(),
                 "vertical": verticals[0] if len(verticals) == 1 else "mixed",
                 "model": models[0] if len(models) == 1 else "mixed",
+                "round_number": round_numbers[0] if len(round_numbers) == 1 else 0,
+                "parent_session_id": parent_session_ids[0] if len(parent_session_ids) == 1 else "",
                 "request_types": request_types,
                 "stage_breakdown": _stage_breakdown_rows(items),
                 **_metric_row(items),

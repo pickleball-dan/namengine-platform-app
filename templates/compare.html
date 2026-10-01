@@ -1,9 +1,55 @@
 {% extends "base.html" %}
 
-{% block title %}NamEngine vs. Other Name Generators - AI Name Generator{% endblock %}
-{% block meta_description %}See how NamEngine compares to Nameberry, Namelix, Nomello, and other name generators for baby, pet, and business naming.{% endblock %}
+{% block title %}{% if items is defined %}Compare Favorites | NamEngine{% else %}NamEngine vs. Other Name Generators - AI Name Generator{% endif %}{% endblock %}
+{% block meta_description %}{% if items is defined %}Compare your loved NamEngine names from this naming journey.{% else %}See how NamEngine compares to Nameberry, Namelix, Nomello, and other name generators for baby, pet, and business naming.{% endif %}{% endblock %}
 
 {% block content %}
+{% if items is defined %}
+<section class="legal-shell">
+  <div class="legal-heading">
+    <p class="eyebrow">{{ vertical.display_name }} favorites</p>
+    <h1>Compare All Your Loved Names</h1>
+    <p>These are the names marked Love in this naming journey, gathered across rounds and deduped for a cleaner decision.</p>
+  </div>
+
+  {% if items %}
+    <div class="engine-audit-table-wrap">
+      <table class="engine-audit-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Round</th>
+            <th>Best if</th>
+            <th>Worth noting</th>
+            <th>Fit</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in items %}
+            <tr>
+              <td>
+                <strong>{{ item.name }}</strong>
+                {% if item.pronunciation %}<br><small>{{ item.pronunciation }}</small>{% endif %}
+              </td>
+              <td>Round {{ item.round_number }}</td>
+              <td>{{ item.best_if }}</td>
+              <td>{{ item.watch_out }}</td>
+              <td>{{ item.fit_note or item.why_this_name }}</td>
+              <td><a class="button-link" href="{{ url_for('name_detail', vertical_slug=vertical.slug, session_id=item.session_id, result_id=item.result_id) }}">Open detail</a></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="legal-notice">
+      <strong>No loved names yet.</strong>
+      <span>Mark names with Love during the earlier rounds, then come back here to compare them side by side.</span>
+    </div>
+  {% endif %}
+</section>
+{% else %}
 <div class="compare-page">
 
   <a href="/#why-different" class="compare-back-btn">
@@ -208,4 +254,5 @@
   </div>
 
 </div>
+{% endif %}
 {% endblock %}

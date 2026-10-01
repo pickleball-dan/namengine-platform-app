@@ -171,9 +171,26 @@
       </div>
     </section>
 
-    <div class="chosen-actions">
-      <button type="button" data-copy-url>Share</button>
-    </div>
+    {% if shared_view|default(false) %}
+      <div class="chosen-actions">
+        <p class="share-preview-label">Shared NamEngine name</p>
+      </div>
+    {% else %}
+      <form class="chosen-actions chosen-share-form" data-chosen-share-form data-chosen-share-url="{{ url_for('share_chosen_name', chosen_id=chosen.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label for="chosen-share-email">Share by email</label>
+        <input
+          id="chosen-share-email"
+          type="email"
+          name="email"
+          placeholder="recipient@email.com"
+          autocomplete="email"
+          required
+        >
+        <button type="submit">Share</button>
+        <p class="save-progress-status" aria-live="polite"></p>
+      </form>
+    {% endif %}
 
     {% set domain_info = result.metadata.get("domain_info") if result.metadata else None %}
     {% if domain_info %}
@@ -194,32 +211,41 @@
       </section>
     </div>
   </section>
+  {% if not shared_view|default(false) %}
   <script>
-    document.querySelector("[data-copy-url]")?.addEventListener("click", async (event) => {
-      const button = event.currentTarget;
-      const chosenName = {{ chosen.name|tojson }};
-      const verticalLabel = {{ vertical.display_name|tojson }};
-      const sharePayload = {
-        title: `${chosenName} | NamEngine`,
-        text: `Meet ${chosenName}, a NamEngine ${verticalLabel} final pick.`,
-        url: window.location.href,
-      };
-
-      if (navigator.share) {
-        try {
-          await navigator.share(sharePayload);
-          return;
-        } catch (error) {
-          if (error.name === "AbortError") {
-            return;
-          }
+    document.querySelector("[data-chosen-share-form]")?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const status = form.querySelector(".save-progress-status");
+      const button = form.querySelector("button");
+      if (status) status.textContent = "Sending…";
+      if (button) button.disabled = true;
+      try {
+        const response = await fetch(form.dataset.chosenShareUrl, {
+          method: "POST",
+          headers: { "Accept": "application/json" },
+          body: new FormData(form),
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(payload.error || "share_failed");
+        if (status) {
+          status.className = "save-progress-status is-success";
+          status.textContent = "Share email sent.";
         }
+        form.reset();
+      } catch (error) {
+        if (status) {
+          status.className = "save-progress-status is-error";
+          status.textContent = "We couldn't send that share email. Please try again.";
+        }
+      } finally {
+        if (button) button.disabled = false;
       }
-
-      await navigator.clipboard.writeText(window.location.href);
-      button.textContent = "Link copied";
     });
+  </script>
+  {% endif %}
 
+  <script>
     const portraitShell = document.querySelector("[data-portrait-retry-url]");
     const portraitFrame = document.querySelector("[data-pet-portrait-frame]");
     const portraitStatus = document.querySelector("[data-pet-portrait-status]");

@@ -655,6 +655,9 @@ def get_recent_audit_sessions(
 
     summaries: list[dict[str, Any]] = []
     for row in rows:
+        chain = get_session_chain_snapshots(str(row["id"]), db_path)
+        root_session_id = str(chain[0]["session"]["id"]) if chain else str(row["id"])
+        journey_rounds = [int(item["session"]["round_number"]) for item in chain]
         result = _json_object(row["first_result_json"])
         metadata = result.get("metadata") if isinstance(result.get("metadata"), dict) else {}
         calls = metadata.get("ai_calls") if isinstance(metadata.get("ai_calls"), list) else []
@@ -668,6 +671,8 @@ def get_recent_audit_sessions(
             {
                 "timestamp": row["created_at"],
                 "session_id": row["id"],
+                "journey_root_session_id": root_session_id,
+                "journey_rounds": journey_rounds,
                 "vertical": row["vertical"],
                 "round_number": int(row["round_number"]),
                 "parent_session_id": row["parent_session_id"],

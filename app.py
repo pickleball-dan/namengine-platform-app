@@ -107,7 +107,7 @@ from namengine.core.storage import (
     save_beta_usage_free_session,
 )
 from namengine.magic_links import create_magic_link, build_magic_url, validate_and_consume_token
-from namengine.email import send_magic_link
+from namengine.email import send_chosen_share_link, send_magic_link
 from namengine.core.taste_evolution import build_taste_evolution
 from namengine.core.ai_generation import DEFAULT_MODEL
 from namengine.core.cost_estimates import estimate_ai_calls_cost_usd
@@ -1261,6 +1261,15 @@ def _required_baby_refinement_count(vertical, round_number: int) -> int | None:
     return vertical.default_result_count
 
 
+def _is_final_decision_round(vertical, round_number: int) -> bool:
+    return vertical.slug == "baby" and round_number >= 4
+
+
+def _chosen_share_url(token: str, base_url: str) -> str:
+    base = base_url.rstrip("/")
+    return f"{base}/chosen/shared/{token}"
+
+
 def _remember_free_generation(response, vertical, session_id: str):
     if beta_unlocked_from_request(vertical):
         return response
@@ -1385,6 +1394,9 @@ def _render_results_snapshot(
             min_reactions_for_refinement=MIN_REACTIONS_FOR_REFINEMENT,
             taste_profile=_taste_profile_from_snapshot(snapshot),
             round_number=int(snapshot["session"]["round_number"]),
+            final_decision_mode=_is_final_decision_round(
+                vertical, int(snapshot["session"]["round_number"])
+            ),
             parent_session_id=snapshot["session"]["parent_session_id"],
             original_mode=session_id.startswith("pet-original"),
             refinement_error=refinement_error,
@@ -1919,6 +1931,7 @@ Sitemap: https://nam-engine.com/sitemap.xml
             reaction_values=_reaction_values(snapshot),
             taste_profile=_taste_profile_from_snapshot(snapshot or {}),
             round_number=1,
+            final_decision_mode=False,
             parent_session_id=None,
             original_mode=True,
             beta_unlocked=beta_unlocked_from_request(vertical),
@@ -2039,6 +2052,7 @@ Sitemap: https://nam-engine.com/sitemap.xml
             reaction_values=_reaction_values(snapshot),
             taste_profile=_taste_profile_from_snapshot(snapshot or {}),
             round_number=1,
+            final_decision_mode=False,
             parent_session_id=None,
             original_mode=False,
             beta_unlocked=beta_unlocked_from_request(vertical),
@@ -2213,6 +2227,11 @@ Sitemap: https://nam-engine.com/sitemap.xml
         value = str(payload.get("value", ""))
 
         snapshot = get_session_snapshot(session_id) if session_id else None
+        if snapshot is not None:
+            vertical = get_vertical(snapshot["session"]["vertical"])
+            round_number = int(snapshot["session"].get("round_number") or 1)
+            if _is_final_decision_round(vertical, round_number):
+                return jsonify({"error": "final_decision_reactions_closed"}), 400
 
         try:
             reaction = build_public_reaction(
@@ -2333,6 +2352,7 @@ Sitemap: https://nam-engine.com/sitemap.xml
             reaction_values=_reaction_values(child_snapshot),
             taste_profile=taste_profile,
             round_number=round_number,
+            final_decision_mode=_is_final_decision_round(vertical, round_number),
             parent_session_id=session_id,
             original_mode=False,
             beta_unlocked=beta_unlocked_from_request(vertical),
@@ -2536,6 +2556,74 @@ Sitemap: https://nam-engine.com/sitemap.xml
             session=snapshot["session"],
             portrait=portrait,
             business_palette=business_brand_palette_index(str(snapshot["chosen"].get("name") or "")),
+            shared_view=False,
+        )
+
+    @app.post("/api/chosen/<chosen_id>/share")
+    def share_chosen_name(chosen_id: str):
+        payload = request.get_json(silent=True) or request.form or {}
+        if not _valid_csrf_token(payload.get("csrf_token")):
+            return jsonify({"error": "csrf_token_invalid"}), 403
+        email = str(payload.get("email") or "").strip().lower()
+        if not email or "@" not in email:
+            return jsonify({"error": "valid_email_required"}), 400
+        snapshot = get_chosen_snapshot(chosen_id)
+        if snapshot is None or snapshot["result"] is None or snapshot["session"] is None:
+            abort(404)
+        vertical = get_vertical(snapshot["chosen"]["vertical"])
+        session_id = str(snapshot["chosen"].get("session_id") or snapshot["session"].get("id") or "")
+        if not beta_unlocked_from_request(vertical):
+            return _access_required_response(vertical, session_id, wants_json=True)
+
+        session_state = {
+            "purpose": "chosen_share",
+            "chosen_id": chosen_id,
+            "session_id": session_id,
+            "vertical": vertical.slug,
+        }
+        try:
+            token = create_magic_link(
+                email=email,
+                vertical=vertical.slug,
+                session_id=session_id,
+                session_state=session_state,
+            )
+            share_url = _chosen_share_url(token, request.host_url.rstrip("/"))
+            send_chosen_share_link(
+                to_email=email,
+                magic_url=share_url,
+                vertical_name=vertical.display_name,
+                chosen_name=str(snapshot["chosen"].get("name") or ""),
+            )
+            return jsonify({"status": "ok", "message": "Share email sent"}), 200
+        except Exception as exc:
+            logging.exception("share_chosen_name failed")
+            return jsonify({"error": "send_failed", "detail": str(exc)}), 500
+
+    @app.get("/chosen/shared/<token>")
+    def shared_chosen_name(token: str):
+        record = validate_and_consume_token(token)
+        state = (record or {}).get("session_state") if isinstance(record, dict) else {}
+        if not isinstance(state, dict) or state.get("purpose") != "chosen_share":
+            return render_template("link_expired.html"), 410
+        chosen_id = str(state.get("chosen_id") or "")
+        snapshot = get_chosen_snapshot(chosen_id)
+        if snapshot is None or snapshot["result"] is None:
+            return render_template("link_expired.html"), 410
+
+        vertical = get_vertical(snapshot["chosen"]["vertical"])
+        result = to_plain_data(json_loads(snapshot["result"]["result_json"]))
+        portrait = _keepsake_preview(chosen_id)
+        return render_template(
+            "chosen.html",
+            vertical=vertical,
+            chosen=snapshot["chosen"],
+            result=result,
+            name_fact_card=build_name_fact_card(str(snapshot["chosen"]["vertical"]), result),
+            session=snapshot["session"],
+            portrait=portrait,
+            business_palette=business_brand_palette_index(str(snapshot["chosen"].get("name") or "")),
+            shared_view=True,
         )
 
     @app.get("/generated/pet-portraits/<filename>")
