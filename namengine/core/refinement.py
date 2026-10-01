@@ -22,6 +22,7 @@ from namengine.core.storage import (
     get_session_snapshot,
     save_session,
 )
+from namengine.core.journey_lifecycle import build_journey_lifecycle
 from namengine.core.taste import build_taste_profile
 
 
@@ -60,7 +61,8 @@ def refine_session(
 
     parent = snapshot["session"]
     current_round = int(parent["round_number"])
-    if current_round >= 4:
+    lifecycle = build_journey_lifecycle(vertical, snapshot, paid_access=True)
+    if not lifecycle.can_refine():
         raise StorageError("guided naming project is complete")
     if len(snapshot.get("results", [])) < 3:
         raise StorageError("guided naming project is complete")

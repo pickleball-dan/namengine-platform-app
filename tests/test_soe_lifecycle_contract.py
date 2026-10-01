@@ -5,9 +5,9 @@ import unittest
 
 from access_helpers import csrf_token, unlock_beta_access
 from app import _signed_beta_access_token, beta_unlock_cookie_name, create_app
-from namengine.core import build_reaction, get_session_snapshot, save_reaction
+from namengine.core import build_journey_lifecycle, build_reaction, get_session_snapshot, save_reaction
 from namengine.magic_links import create_magic_link
-from namengine.verticals import BABY
+from namengine.verticals import BABY, BOAT, BUSINESS, PET
 
 
 def _session_id_from_body(body: str) -> str:
@@ -174,8 +174,10 @@ class SOELifecycleContractTest(unittest.TestCase):
         self.assertEqual(feelings.headers["Location"], expected_location)
         self.assertEqual(new_results.status_code, 302)
         self.assertEqual(new_results.headers["Location"], expected_location)
-        self.assertEqual(review_get.status_code, 404)
-        self.assertEqual(review_post.status_code, 404)
+        self.assertEqual(review_get.status_code, 302)
+        self.assertEqual(review_get.headers["Location"], expected_location)
+        self.assertEqual(review_post.status_code, 302)
+        self.assertEqual(review_post.headers["Location"], expected_location)
         self.assertIsNone(get_session_snapshot("baby-new-terminal-escape"))
 
     def test_magic_link_resume_does_not_bypass_terminal_generation_rules(self):
@@ -210,6 +212,41 @@ class SOELifecycleContractTest(unittest.TestCase):
         self.assertIn("naming journey is complete", blocked_refine.get_data(as_text=True))
         self.assertEqual(new_generation.status_code, 302)
         self.assertIn("/baby/access?return_session=", new_generation.headers["Location"])
+
+    def test_shared_lifecycle_policy_preserves_current_vertical_contracts(self):
+        baby_r1 = build_journey_lifecycle(
+            BABY,
+            {"session": {"round_number": 1}, "results": [{"id": "baby-1"}] * 8},
+            paid_access=True,
+        )
+        baby_r4 = build_journey_lifecycle(
+            BABY,
+            {"session": {"round_number": 4}, "results": [{"id": "baby-1"}] * 6},
+            paid_access=True,
+        )
+        pet_r4 = build_journey_lifecycle(
+            PET,
+            {"session": {"round_number": 4}, "results": [{"id": "pet-1"}] * 6},
+            paid_access=True,
+        )
+
+        self.assertTrue(baby_r1.can_refine())
+        self.assertTrue(baby_r1.can_edit_direction())
+        self.assertFalse(baby_r1.is_terminal)
+        self.assertTrue(baby_r4.is_terminal)
+        self.assertFalse(baby_r4.can_refine())
+        self.assertFalse(baby_r4.can_edit_direction())
+        self.assertTrue(baby_r4.can_react("love"))
+        self.assertFalse(baby_r4.can_react("no"))
+        self.assertTrue(pet_r4.is_terminal)
+        self.assertFalse(pet_r4.can_refine())
+        self.assertTrue(pet_r4.can_edit_direction())
+        self.assertTrue(pet_r4.can_react("no"))
+
+        self.assertTrue(build_journey_lifecycle(PET, paid_access=True).can_enter_review())
+        self.assertTrue(build_journey_lifecycle(BUSINESS, paid_access=True).can_enter_review())
+        self.assertFalse(build_journey_lifecycle(BOAT, paid_access=True).can_enter_review())
+        self.assertFalse(build_journey_lifecycle(BABY, paid_access=True).can_enter_review())
 
 
 if __name__ == "__main__":

@@ -394,6 +394,9 @@ BABY = VerticalConfig(
     object_label="baby name",
     route_prefix="/baby",
     review_mode="direct_generation",
+    max_rounds=4,
+    terminal_reaction_mode="love_only",
+    terminal_edit_locked=True,
     intake_questions=(
         Question(
             "gender",

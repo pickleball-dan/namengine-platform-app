@@ -95,6 +95,7 @@ from .quality import (
     summarize_quality_runs,
 )
 from .progress import PROGRESS_STEPS, build_trust_cue
+from .journey_lifecycle import JourneyLifecycle, build_journey_lifecycle
 from .pet_portrait import (
     build_baby_keepsake_prompt,
     build_boat_keepsake_prompt,
@@ -309,6 +310,7 @@ __all__ = [
     "GenerationContext",
     "GenerationEnvironment",
     "GenerationPurpose",
+    "JourneyLifecycle",
     "get_chosen_snapshot",
     "get_database_path",
     "get_failed_generation_audits",
@@ -325,6 +327,7 @@ __all__ = [
     "initialize_database",
     "is_ai_generation_configured",
     "is_pet_portrait_generation_configured",
+    "build_journey_lifecycle",
     "keepsake_preview_for_chosen",
     "keepsake_runtime_config",
     "keepsake_url_from_metadata",

@@ -111,6 +111,9 @@ class VerticalConfig:
     default_result_count: int = 8
     page_dark: bool = False
     review_mode: str = "direct_generation"
+    max_rounds: int = 4
+    terminal_reaction_mode: str = "normal"
+    terminal_edit_locked: bool = False
 
 
 @dataclass(slots=True)
