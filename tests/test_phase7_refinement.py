@@ -228,27 +228,25 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         self.assertEqual(len(extra_results), 6)
         self.assertFalse(finalist_names & extra_names)
 
-    def test_refinement_stops_after_round_five(self):
+    def test_refinement_stops_after_round_four(self):
         session_id = self._seed_round_one()
         round_two_id, _, _ = refine_session(session_id, PET, instruction="shorter")
         round_three_id, _, _ = refine_session(round_two_id, PET, instruction="finalists")
         round_four_id, _, _ = refine_session(round_three_id, PET, instruction="one more")
-        round_five_id, _, _ = refine_session(round_four_id, PET, instruction="one final list")
 
         with self.assertRaisesRegex(Exception, "guided naming project is complete"):
-            refine_session(round_five_id, PET, instruction="another one")
+            refine_session(round_four_id, PET, instruction="another one")
 
-    def test_round_five_results_replace_generate_button_with_completion_prompt(self):
+    def test_round_four_results_replace_generate_button_with_completion_prompt(self):
         session_id = self._seed_round_one()
         round_two_id, _, _ = refine_session(session_id, PET, instruction="shorter")
         round_three_id, _, finalists = refine_session(round_two_id, PET, instruction="finalists")
         for index, _ in enumerate(finalists, start=1):
             save_reaction(build_reaction(round_three_id, f"pet-{index}", "no"))
         round_four_id, _, _ = refine_session(round_three_id, PET, instruction="one more")
-        round_five_id, _, _ = refine_session(round_four_id, PET, instruction="one final list")
         self._unlock_access("pet")
 
-        response = self.client.get(f"/results/session/{round_five_id}")
+        response = self.client.get(f"/results/session/{round_four_id}")
         body = response.get_data(as_text=True)
 
         self.assertEqual(response.status_code, 200)
@@ -310,7 +308,7 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         round_three = get_session_snapshot(round_three_id)
 
         self.assertEqual(round_three["session"]["round_number"], 3)
-        self.assertEqual(len(round_three_results), 6)
+        self.assertEqual(len(round_three_results), 8)
         self.assertFalse(round_three_names & round_one_names)
         self.assertFalse(round_three_names & round_two_names)
 

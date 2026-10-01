@@ -60,7 +60,7 @@ def refine_session(
 
     parent = snapshot["session"]
     current_round = int(parent["round_number"])
-    if current_round >= 5:
+    if current_round >= 4:
         raise StorageError("guided naming project is complete")
     if len(snapshot.get("results", [])) < 3:
         raise StorageError("guided naming project is complete")

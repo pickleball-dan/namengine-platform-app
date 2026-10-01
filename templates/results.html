@@ -298,7 +298,7 @@
     {% set reaction_total = reaction_total|default(reaction_counts.love + reaction_counts.maybe + reaction_counts.no) %}
     {% set min_reactions_for_refinement = min_reactions_for_refinement|default(3) %}
     {% set reactions_remaining = [min_reactions_for_refinement - reaction_total, 0]|max %}
-    {% set project_complete = beta_unlocked and (round_number >= 5 or names|length < min_reactions_for_refinement) %}
+    {% set project_complete = beta_unlocked and (round_number >= 4 or names|length < min_reactions_for_refinement) %}
     <section class="bottom-next-panel" aria-label="Next list options">
       {% if not beta_unlocked %}
         <div class="bottom-refine-form beta-refine-lock" aria-label="Continue with NamEngine">

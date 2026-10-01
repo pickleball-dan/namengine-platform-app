@@ -41,13 +41,15 @@ def generate_with_router(
     count: int | None = None,
     fallback_on_provider_error: bool = False,
 ) -> list[NameResult]:
+    requested_providers = providers or [ModelProvider.OPENAI, ModelProvider.FALLBACK]
+    openai_only_requested = set(requested_providers) == {ModelProvider.OPENAI}
     provider_results = route_generation(
         vertical=vertical,
         brief=brief,
         round_number=round_number,
         taste_profile=taste_profile,
         previous_names=previous_names or [],
-        providers=providers,
+        providers=requested_providers,
         fallback_on_provider_error=fallback_on_provider_error,
     )
     candidates = score_provider_results(provider_results, brief=brief, vertical=vertical)
@@ -60,7 +62,48 @@ def generate_with_router(
     )
     target_count = count or _count_for_round(vertical, round_number)
     if (
+        openai_only_requested
+        and _requires_baby_refinement_count_enforcement(vertical, round_number)
+        and len(selected) < target_count
+        and any(result.provider == ModelProvider.OPENAI and result.status == "ok" for result in provider_results)
+    ):
+        top_up_previous_names = _baby_top_up_exclusions(previous_names or [], provider_results, selected)
+        logger.warning(
+            "Baby refinement shortfall provider=openai vertical=%s round=%s selected=%s target=%s; trying AI top-up",
+            vertical.slug,
+            round_number,
+            len(selected),
+            target_count,
+        )
+        provider_results.append(
+            _run_provider(
+                provider=ModelProvider.OPENAI,
+                vertical=vertical,
+                brief=brief,
+                round_number=round_number,
+                taste_profile=taste_profile,
+                previous_names=top_up_previous_names,
+            )
+        )
+        candidates = score_provider_results(provider_results, brief=brief, vertical=vertical)
+        selected = select_best_candidates(
+            candidates,
+            count=target_count,
+            previous_names=previous_names or [],
+            allow_previous_fill=False,
+            vertical_slug=vertical.slug,
+        )
+    if (
+        openai_only_requested
+        and _requires_baby_refinement_count_enforcement(vertical, round_number)
+        and len(selected) < target_count
+    ):
+        raise AIGenerationError(
+            f"Baby refinement returned {len(selected)} names; required {target_count}"
+        )
+    if (
         fallback_on_provider_error
+        and not (openai_only_requested and _requires_baby_refinement_count_enforcement(vertical, round_number))
         and len(selected) < target_count
         and ModelProvider.FALLBACK not in {result.provider for result in provider_results}
     ):
@@ -258,6 +301,47 @@ def _stamp_candidate_metadata(candidate: GenerationCandidate) -> None:
     candidate.result.metadata["quality_reasons"] = candidate.reasons
 
 
+def _requires_baby_refinement_count_enforcement(
+    vertical: VerticalConfig,
+    round_number: int,
+) -> bool:
+    return vertical.slug == "baby" and 2 <= round_number <= 4
+
+
+def _baby_top_up_exclusions(
+    previous_names: list[str],
+    provider_results: list[ProviderResult],
+    selected: list[GenerationCandidate],
+) -> list[str]:
+    names: list[str] = []
+    seen: set[str] = set()
+
+    def add(value: object) -> None:
+        name = str(value or "").strip()
+        key = name.lower()
+        if name and key not in seen:
+            seen.add(key)
+            names.append(name)
+
+    for name in previous_names:
+        add(name)
+    for candidate in selected:
+        add(candidate.result.name)
+    for provider_result in provider_results:
+        if provider_result.provider != ModelProvider.OPENAI or provider_result.status != "ok":
+            continue
+        for result in provider_result.names:
+            add(result.name)
+            metadata = result.metadata if isinstance(result.metadata, dict) else {}
+            for candidate_row in metadata.get("candidate_pool") or []:
+                if isinstance(candidate_row, dict):
+                    add(candidate_row.get("name"))
+            for rejected_row in metadata.get("rejected_candidates") or []:
+                if isinstance(rejected_row, dict):
+                    add(rejected_row.get("name"))
+    return names
+
+
 def _run_provider(
     provider: ModelProvider,
     vertical: VerticalConfig,
@@ -404,7 +488,7 @@ def _unconfigured_provider(provider: ModelProvider) -> ProviderCallable:
 
 
 def _count_for_round(vertical: VerticalConfig, round_number: int) -> int:
-    if round_number >= 3:
+    if round_number >= 4:
         return 6
     return vertical.default_result_count
 

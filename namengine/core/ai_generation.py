@@ -1774,7 +1774,7 @@ def _taste_profile_payload(profile: TasteProfile | None) -> dict[str, Any]:
 
 
 def _count_for_round(vertical: VerticalConfig, round_number: int) -> int:
-    if round_number >= 3:
+    if round_number >= 4:
         return 6
     return vertical.default_result_count
 

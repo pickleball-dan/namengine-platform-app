@@ -1405,7 +1405,7 @@ def _generate_baby_fallback_names(
     elif round_number >= 3:
         pool = BABY_FINALIST_POOL + BABY_EXTRA_POOL + BABY_WIDE_EXPLORATION_POOL + _baby_heritage_pool_items()
 
-    result_count = 6 if round_number >= 3 else vertical.default_result_count
+    result_count = 6 if round_number >= 4 else vertical.default_result_count
     pool = _rank_pool_for_taste(vertical.slug, brief, pool)
     pool = _filter_baby_pool_for_brief(brief, pool, minimum_count=result_count)
 

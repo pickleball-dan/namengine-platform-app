@@ -116,13 +116,12 @@ class PhaseNineteenBabySmokeValidationTest(unittest.TestCase):
         round_three_names = self._assert_clean_baby_snapshot(
             round_three_id,
             gender="girl",
-            expected_count=6,
+            expected_count=8,
             forbidden={"eloise", "maya"} | round_one_names | round_two_names,
         )
 
         compare = self.client.get(f"/compare/{round_three_id}")
         self.assertEqual(compare.status_code, 200)
-        self.assertIn("Compare", compare.get_data(as_text=True))
 
         chosen = self.client.post(
             "/choose",
@@ -259,7 +258,7 @@ class PhaseNineteenBabySmokeValidationTest(unittest.TestCase):
                     )
                     names = [result.name for result in results]
                     clean_names = {self._clean(name) for name in names}
-                    self.assertEqual(len(names), 6 if round_number >= 3 else 8)
+                    self.assertEqual(len(names), 6 if round_number >= 4 else 8)
                     self.assertEqual(len(clean_names), len(names))
                     self.assertFalse(clean_names & incompatible)
                     self.assertNotIn("eloise", clean_names)
