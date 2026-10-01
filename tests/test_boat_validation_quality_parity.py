@@ -4,10 +4,13 @@ import unittest
 
 from app import create_app
 from namengine.core import build_brief, save_session, score_name_result
+from namengine.core.prompt_versions import DEFAULT_PROMPT_VERSION, prompt_version_for
 from namengine.core.model_router import score_provider_results
 from namengine.core.quality_framework import (
     apply_quality_metadata,
     quality_adapter_for,
+    quality_model_score_keys,
+    quality_prompt_guidance,
     score_quality_result,
 )
 from namengine.core.schemas import ModelProvider, NameResult, ProviderResult, ValidationStatus
@@ -50,7 +53,6 @@ class BoatValidationQualityParityTest(unittest.TestCase):
         adapter = quality_adapter_for("boat")
         self.assertIsNotNone(adapter)
         self.assertEqual(adapter.vertical_slug, "boat")
-        self.assertEqual(adapter.model_score_keys, ("radio_clarity", "vessel_fit", "nautical_character"))
 
         brief = _boat_brief()
         result = _boat_result("Harbor Star")
@@ -64,6 +66,13 @@ class BoatValidationQualityParityTest(unittest.TestCase):
         self.assertIn("vessel_fit", result.metadata["quality_scores"])
         self.assertIn("nautical_character", result.metadata["quality_scores"])
         self.assertIn("overall", result.metadata["quality_scores"])
+
+    def test_boat_adapter_preserves_legacy_generation_prompt_fields(self):
+        legacy_score_keys = ("callability", "warmth", "distinctiveness")
+
+        self.assertEqual(prompt_version_for("boat"), DEFAULT_PROMPT_VERSION)
+        self.assertEqual(quality_model_score_keys("boat", legacy_score_keys), legacy_score_keys)
+        self.assertEqual(quality_prompt_guidance("boat", ()), ())
 
     def test_boat_router_scoring_uses_adapter_instead_of_generic_fallback(self):
         brief = _boat_brief()
