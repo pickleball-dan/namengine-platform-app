@@ -166,6 +166,14 @@ class FreeGenerationAccessRequired(RuntimeError):
         self.session_id = session_id
 
 
+class ExistingPaidSessionRequired(RuntimeError):
+    """Raised when paid access is tied to an existing naming journey."""
+
+    def __init__(self, session_id: str):
+        super().__init__(session_id)
+        self.session_id = session_id
+
+
 _UNHELPFUL_CARD_VALUES = {
     "unknown",
     "not available",
@@ -1233,6 +1241,26 @@ def _free_generation_blocked(vertical, session_id: str, *, needs_generation: boo
     return False
 
 
+def _paid_existing_session_for_new_generation(vertical, session_id: str) -> str:
+    """Return the paid journey this visitor must continue instead of starting another."""
+    if not beta_unlocked_from_request(vertical):
+        return ""
+    existing_session_id = _beta_unlocked_return_session_from_request(vertical)
+    if not existing_session_id or existing_session_id == session_id:
+        return ""
+    if get_session_snapshot(existing_session_id) is None:
+        return ""
+    return existing_session_id
+
+
+def _required_baby_refinement_count(vertical, round_number: int) -> int | None:
+    if vertical.slug != "baby" or round_number < 2:
+        return None
+    if round_number >= 4:
+        return 6
+    return vertical.default_result_count
+
+
 def _remember_free_generation(response, vertical, session_id: str):
     if beta_unlocked_from_request(vertical):
         return response
@@ -1906,6 +1934,9 @@ Sitemap: https://nam-engine.com/sitemap.xml
             vertical.slug,
             _query_string_from_mapping(source).encode("utf-8"),
         )
+        existing_paid_session_id = _paid_existing_session_for_new_generation(vertical, session_id)
+        if existing_paid_session_id:
+            raise ExistingPaidSessionRequired(existing_paid_session_id)
         snapshot = get_session_snapshot(session_id)
         if snapshot and snapshot["results"]:
             names = _names_from_snapshot(snapshot)
@@ -1942,6 +1973,8 @@ Sitemap: https://nam-engine.com/sitemap.xml
         vertical = get_vertical(vertical_slug)
         try:
             session_id = _create_results_session(vertical, request.form.to_dict(flat=True))
+        except ExistingPaidSessionRequired as exc:
+            return redirect(url_for("session_results", session_id=exc.session_id))
         except FreeGenerationAccessRequired as exc:
             return _free_generation_access_required_response(vertical, exc.session_id)
         response = redirect(url_for("session_results", session_id=session_id))
@@ -1958,6 +1991,9 @@ Sitemap: https://nam-engine.com/sitemap.xml
         apply_taste_strength_inputs(brief, source)
 
         session_id = make_session_id(vertical.slug, _query_string_from_mapping(source).encode("utf-8"))
+        existing_paid_session_id = _paid_existing_session_for_new_generation(vertical, session_id)
+        if existing_paid_session_id:
+            return redirect(url_for("session_results", session_id=existing_paid_session_id))
         snapshot = get_session_snapshot(session_id)
         if snapshot and snapshot["results"]:
             if _free_session_access_blocked(vertical, session_id):
@@ -2867,6 +2903,11 @@ def _generate_names_for_route(
             )
             if not names:
                 raise AIGenerationError("generation returned no usable names")
+            required_count = _required_baby_refinement_count(vertical, round_number)
+            if required_count is not None and len(names) < required_count:
+                raise AIGenerationError(
+                    f"Baby refinement returned {len(names)} names; required {required_count}"
+                )
         except Exception as exc:  # pragma: no cover - live provider behavior
             logger.exception("LLM generation failed for %s", vertical.slug)
             safe_message = "We’re having trouble generating this list right now. Please try again shortly."

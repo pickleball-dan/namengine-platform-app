@@ -183,7 +183,8 @@ class PhaseSixChosenNameTest(unittest.TestCase):
         self.assertIn("navigator.share", body)
         self.assertIn("navigator.clipboard.writeText", body)
         self.assertIn("Link copied", body)
-        self.assertIn("Start another", body)
+        self.assertNotIn("Start another", body)
+        self.assertNotIn('class="button-link" href="/pet"', body)
 
     def test_chosen_page_uses_pet_portrait_details_when_present(self):
         query = (
@@ -403,4 +404,3 @@ class PhaseSixChosenNameTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

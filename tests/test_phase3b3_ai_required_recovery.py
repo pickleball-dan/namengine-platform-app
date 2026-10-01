@@ -238,6 +238,65 @@ class PhaseThreeBThreeAiRequiredRecoveryTest(unittest.TestCase):
         self.assertEqual(retry.status_code, 302)
         self.assertIn("/baby/access", retry.headers["Location"])
 
+    def test_short_baby_round_four_route_enters_recovery_instead_of_displaying_short_list(self):
+        vertical = get_vertical("baby")
+        parent_id = "baby-paid-r3-parent"
+        brief = build_brief(vertical, {"gender": "Girl", "style": "Classic", "sound": "Soft"})
+        save_session(parent_id, vertical.slug, brief, _ai_names("baby"), round_number=3)
+        for index, value in enumerate(("love", "maybe", "no"), start=1):
+            save_reaction(build_reaction(parent_id, f"baby-{index}", value))
+
+        unlock_beta_access(self.client, "baby")
+        short_names = _ai_names("baby")[:4]
+        with patch.object(platform_app, "is_ai_generation_configured", return_value=True), patch.object(
+            platform_app, "generate_with_router", return_value=short_names
+        ) as generate:
+            response = self.client.post(
+                "/refine",
+                data={"session_id": parent_id, "instruction": "bolder", "csrf_token": csrf_token(self.client)},
+            )
+
+        body = response.get_data(as_text=True)
+        self.assertEqual(response.status_code, 503)
+        self.assertIn("We want to get this right.", body)
+        self.assertIn("Email me a link", body)
+        self.assertNotIn("Eleanor", body)
+        self.assertEqual(generate.call_args.kwargs["providers"], [platform_app.ModelProvider.OPENAI])
+        self.assertFalse(generate.call_args.kwargs["fallback_on_provider_error"])
+        child_id = _session_id_from_recovery_page(body)
+        child = get_session_snapshot(child_id)
+        self.assertIsNotNone(child)
+        self.assertEqual(child["session"]["round_number"], 4)
+        self.assertEqual(child["results"], [])
+        failures = get_failed_generation_audits("baby")
+        self.assertEqual(failures[0]["session_id"], child_id)
+        self.assertEqual(failures[0]["generation_purpose"], "refinement")
+
+    def test_paid_unlock_cannot_start_second_baby_journey_directly(self):
+        vertical = get_vertical("baby")
+        existing_id = "baby-paid-existing"
+        brief = build_brief(vertical, {"gender": "Girl", "style": "Classic", "sound": "Soft"})
+        save_session(existing_id, vertical.slug, brief, _ai_names("baby"), round_number=4)
+        previous_link = os.environ.get("NAMENGINE_BABY_BETA_PAYMENT_LINK")
+        os.environ["NAMENGINE_BABY_BETA_PAYMENT_LINK"] = "https://buy.stripe.com/test_example"
+        try:
+            self.client.get(f"/baby/access/checkout?return_session={existing_id}")
+            with patch.object(platform_app, "_stripe_checkout_session_paid", return_value=True):
+                self.client.get("/baby/access?checkout_session_id=cs_test_paid")
+
+            get_response = self.client.get("/baby/results?gender=Boy&style=Modern&sound=Bold")
+            post_response = self.client.post(
+                "/baby/results",
+                data={"gender": "Boy", "style": "Modern", "sound": "Bold"},
+            )
+        finally:
+            self._restore_env("NAMENGINE_BABY_BETA_PAYMENT_LINK", previous_link)
+
+        self.assertEqual(get_response.status_code, 302)
+        self.assertEqual(get_response.headers["Location"], f"/results/session/{existing_id}")
+        self.assertEqual(post_response.status_code, 302)
+        self.assertEqual(post_response.headers["Location"], f"/results/session/{existing_id}")
+
 
 if __name__ == "__main__":
     unittest.main()

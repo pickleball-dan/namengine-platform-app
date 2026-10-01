@@ -254,6 +254,10 @@ class PhaseSevenRefinementTest(unittest.TestCase):
         self.assertIn("This naming project has reached its strongest final set.", body)
         self.assertIn("compare your favorites", body)
         self.assertIn("share this list", body)
+        self.assertIn('data-save-progress-form', body)
+        self.assertIn("Email this private link", body)
+        self.assertIn("Send My Link", body)
+        self.assertIn("js/access-gate.js", body)
         self.assertNotIn("Generate One More List", body)
         self.assertNotIn('action="/refine"', body)
 

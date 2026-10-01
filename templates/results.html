@@ -371,6 +371,21 @@
             <p class="eyebrow">Curated finish</p>
             <h3>This naming project has reached its strongest final set.</h3>
             <p>No more list-chasing needed — open a name for the full “why it works,” compare your favorites, choose one, or share this list.</p>
+            <form class="save-progress-form" data-save-progress-form>
+              <input type="hidden" name="session_id" value="{{ session_id }}">
+              <label for="completion-email">Email this private link</label>
+              <input
+                id="completion-email"
+                type="email"
+                name="email"
+                class="save-progress-email"
+                placeholder="your@email.com"
+                autocomplete="email"
+                required
+              >
+              <button type="submit" class="button-link save-progress-submit">Send My Link</button>
+              <p class="save-progress-status" aria-live="polite"></p>
+            </form>
             {% if refinement_error %}
               <p class="refine-reaction-gate is-error" aria-live="polite">{{ refinement_error }}</p>
             {% endif %}
@@ -423,5 +438,5 @@
   <script src="{{ url_for('static', filename='js/reactions.js') }}?v=20260716-results-mobile-stabilization-v1"></script>
   <script src="{{ url_for('static', filename='js/results-accordion.js') }}?v=20260731-launch-card-contract-v1"></script>
   <script src="{{ url_for('static', filename='js/share-list.js') }}?v=20260815-share-sheet-v1"></script>
-  {% if not beta_unlocked %}<script src="{{ url_for('static', filename='js/access-gate.js') }}?v=20260929-free-actions-v4"></script>{% endif %}
+  {% if not beta_unlocked or project_complete %}<script src="{{ url_for('static', filename='js/access-gate.js') }}?v=20260930-save-progress-v5"></script>{% endif %}
 {% endblock %}
