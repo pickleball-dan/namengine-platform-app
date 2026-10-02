@@ -130,7 +130,7 @@
       {% elif portrait %}
         <figure class="pet-portrait-frame{% if vertical.slug == 'baby' %} baby-keepsake-frame{% elif vertical.slug == 'business' %} business-image-frame{% elif vertical.slug == 'boat' %} boat-transom-frame{% endif %}" data-pet-portrait-frame{% if vertical.slug == 'boat' %} data-transom-preview-open role="button" tabindex="0" aria-label="Open larger transom preview for {{ chosen.name }}"{% endif %}>
           {% if portrait.url %}
-            <img data-pet-portrait-image src="{{ portrait.url }}" alt="{{ keepsake_ready_alt }}">
+            <img data-pet-portrait-image data-transom-preview-image src="{{ portrait.url }}" alt="{{ keepsake_ready_alt }}">
           {% else %}
             <div class="pet-portrait-placeholder{% if vertical.slug == 'baby' %} baby-keepsake-placeholder{% elif vertical.slug == 'business' %} business-image-placeholder{% elif vertical.slug == 'boat' %} boat-transom-placeholder{% endif %}{% if portrait.status == 'failed' %} is-failed{% endif %}" data-pet-portrait-placeholder>
               {% if vertical.slug == "baby" %}
@@ -186,8 +186,9 @@
           <button class="transom-preview-close" type="button" data-transom-preview-close aria-label="Close larger transom preview">Close</button>
           <div class="transom-preview-enlarged">
             {% if portrait.url %}
-              <img src="{{ portrait.url }}" alt="{{ keepsake_ready_alt }}">
+              <img data-transom-dialog-image src="{{ portrait.url }}" alt="{{ keepsake_ready_alt }}">
             {% else %}
+              <img data-transom-dialog-image src="" alt="{{ keepsake_ready_alt }}" hidden>
               <div class="boat-transom-placeholder" aria-label="Large boat transom preview displaying {{ chosen.name }}">
                 <span class="boat-transom-sheen" aria-hidden="true"></span>
                 <span class="boat-transom-rail boat-transom-rail-top" aria-hidden="true"></span>
@@ -314,6 +315,7 @@
           if (portrait.status === "ready" && portrait.url) {
             const image = document.createElement("img");
             image.dataset.petPortraitImage = "true";
+            image.dataset.transomPreviewImage = "true";
             image.src = portrait.url;
             image.alt = readyAlt;
             portraitFrame.querySelector("[data-pet-portrait-placeholder]")?.replaceWith(image);
@@ -373,8 +375,16 @@
     const transomTrigger = document.querySelector("[data-transom-preview-open]");
     const transomDialog = document.querySelector("[data-transom-preview-dialog]");
     const transomClose = document.querySelector("[data-transom-preview-close]");
+    const transomDialogImage = document.querySelector("[data-transom-dialog-image]");
     const openTransomPreview = () => {
       if (!transomDialog) return;
+      const transomPreviewImage = transomTrigger?.querySelector("[data-transom-preview-image]");
+      if (transomPreviewImage?.getAttribute("src") && transomDialogImage) {
+        transomDialogImage.src = transomPreviewImage.getAttribute("src");
+        transomDialogImage.alt = transomPreviewImage.getAttribute("alt") || readyAlt;
+        transomDialogImage.hidden = false;
+        transomDialogImage.nextElementSibling?.setAttribute("hidden", "");
+      }
       if (typeof transomDialog.showModal === "function") {
         transomDialog.showModal();
       } else {

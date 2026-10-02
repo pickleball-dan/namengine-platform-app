@@ -1,6 +1,7 @@
 import os
 import tempfile
 import unittest
+from pathlib import Path
 
 from access_helpers import unlock_beta_access
 from app import create_app
@@ -11,6 +12,7 @@ from namengine.core import (
     save_chosen_name,
     save_reaction,
     save_session,
+    update_chosen_metadata,
 )
 from namengine.core.schemas import NameResult
 from namengine.verticals import BOAT
@@ -116,6 +118,33 @@ class BoatAcceptanceUiTest(unittest.TestCase):
         self.assertIn("Classic", body)
         self.assertIn("Transom preview", body)
         self.assertIn(r1[0].name, body)
+
+    def test_boat_transom_lightbox_uses_same_ready_image_as_preview(self):
+        r1, _, _ = self._seed_boat_chain()
+        chosen = save_chosen_name("boat-accept-r1", r1[0].id)
+        image_dir = Path(self.tempdir.name) / "boat-portraits"
+        image_dir.mkdir(parents=True, exist_ok=True)
+        (image_dir / "chosen-transom.png").write_bytes(b"fake-png")
+        update_chosen_metadata(
+            chosen.id,
+            {
+                "boat_portrait": {
+                    "status": "ready",
+                    "filename": "chosen-transom.png",
+                    "kind": "boat_portrait",
+                }
+            },
+        )
+        unlock_beta_access(self.client, "boat")
+
+        response = self.client.get(f"/chosen/{chosen.id}")
+        body = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('data-transom-preview-image src="/generated/boat-portraits/chosen-transom.png"', body)
+        self.assertIn('data-transom-dialog-image src="/generated/boat-portraits/chosen-transom.png"', body)
+        self.assertIn('const transomDialogImage = document.querySelector("[data-transom-dialog-image]");', body)
+        self.assertIn("transomDialogImage.src = transomPreviewImage.getAttribute(\"src\");", body)
 
     def test_boat_paywall_full_access_card_is_clickable_without_inner_button(self):
         self._seed_boat_chain()
