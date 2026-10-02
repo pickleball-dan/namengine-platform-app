@@ -352,22 +352,32 @@
             <div class="paywall-option-divider"><span>or</span></div>
 
             <!-- Option 2: Purchase -->
+            {% if vertical.slug == "boat" %}
+            <a class="paywall-option paywall-option-purchase paywall-option-access-card" href="/{{ vertical.slug }}/access?return_session={{ session_id }}" aria-label="Unlock the full access to that Special Name">
+            {% else %}
             <div class="paywall-option paywall-option-purchase">
+            {% endif %}
               <p class="eyebrow">Full Access</p>
-              <h3>{% if vertical.slug == "baby" %}Want a smarter second list?{% else %}Want a sharper next list?{% endif %}</h3>
+              <h3>{% if vertical.slug == "boat" %}Unlock the full access to that Special Name{% elif vertical.slug == "baby" %}Want a smarter second list?{% else %}Want a sharper next list?{% endif %}</h3>
               <ul class="paid-access-benefits" aria-label="What paid access includes">
                 <li>Full Reports for every name</li>
                 <li>Refined follow-up rounds shaped by Love / No reactions</li>
                 <li>Compare favorites and choose with confidence</li>
               </ul>
               <p class="paid-access-guarantee">100% money-back guarantee if NamEngine doesn't feel useful.</p>
+              {% if vertical.slug != "boat" %}
               <a class="button-link" href="/{{ vertical.slug }}/access?return_session={{ session_id }}">{{ beta_cta_label(vertical) }}</a>
+              {% endif %}
               <div class="landing-accepted-payments">
                 <span>Secure payment by</span>
                 <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/stripe.svg" alt="Stripe" class="accepted-payment-stripe">
                 <span class="accepted-payment-cards">Visa · Mastercard · Amex · Apple Pay · Google Pay</span>
               </div>
+            {% if vertical.slug == "boat" %}
+            </a>
+            {% else %}
             </div>
+            {% endif %}
 
           </div>
 
