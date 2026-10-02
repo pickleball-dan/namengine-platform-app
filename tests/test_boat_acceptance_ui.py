@@ -61,7 +61,7 @@ class BoatAcceptanceUiTest(unittest.TestCase):
             {
                 "boat_type": "Cruiser",
                 "boat_use": "Weekend cruising",
-                "style": "Classic",
+                "vibe": "Classic",
             },
         )
         r1 = [_boat_result("boat-r1-a", "Harbor Star"), _boat_result("boat-r1-b", "Dock Drift")]
@@ -109,8 +109,42 @@ class BoatAcceptanceUiTest(unittest.TestCase):
         self.assertIn("Chosen vessel name", body)
         self.assertIn("boat-transom-frame", body)
         self.assertIn("boat-transom-placeholder", body)
+        self.assertIn("data-transom-preview-open", body)
+        self.assertIn("data-transom-preview-dialog", body)
+        self.assertIn("data-transom-preview-close", body)
+        self.assertIn("Cruiser", body)
+        self.assertIn("Classic", body)
         self.assertIn("Transom preview", body)
         self.assertIn(r1[0].name, body)
+
+    def test_boat_paywall_full_access_card_is_clickable_without_inner_button(self):
+        self._seed_boat_chain()
+
+        response = self.client.get("/results/session/boat-accept-r3")
+        body = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('paywall-option-access-card', body)
+        self.assertIn('href="/boat/access?return_session=boat-accept-r3"', body)
+        self.assertIn("Unlock the full access to that Special Name", body)
+        card_start = body.index("paywall-option-access-card")
+        card_end = body.index("landing-accepted-payments", card_start)
+        card_markup = body[card_start:card_end]
+        self.assertNotIn("Unlock Full Access", card_markup)
+
+    def test_boat_compare_favorites_uses_boat_contrast_shell(self):
+        r1, r2, r3 = self._seed_boat_chain()
+        unlock_beta_access(self.client, "boat")
+
+        response = self.client.get("/compare/boat-accept-r3")
+        body = response.get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("vertical-boat", body)
+        self.assertIn("compare-favorite-card", body)
+        self.assertIn(r1[0].name, body)
+        self.assertIn(r2[0].name, body)
+        self.assertIn(r3[0].name, body)
 
     def test_boat_progress_overlay_keeps_boat_sonar_markup(self):
         response = self.client.get("/boat")

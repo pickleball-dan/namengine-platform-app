@@ -15,6 +15,9 @@
     {% set business_industry = session.brief_json|brief_value("industry", "category") or "Category fit" %}
     {% set business_audience = session.brief_json|brief_value("audience", "customer") or "Audience fit" %}
     {% set business_style = session.brief_json|brief_value("style") or "Brand-ready" %}
+  {% elif vertical.slug == "boat" %}
+    {% set boat_preview_type = session.brief_json|brief_value("boat_type", "vessel_type", "type") or "Your vessel" %}
+    {% set boat_preview_style = session.brief_json|brief_value("vibe", "style", "personality") or "Custom transom" %}
   {% endif %}
   <section class="chosen-shell">
     {% set page_logo = vertical.assets.get("page_logo", vertical.assets.get("logo")) %}
@@ -125,7 +128,7 @@
           <figcaption>Brand preview · Lettermark · Wordmark directions</figcaption>
         </figure>
       {% elif portrait %}
-        <figure class="pet-portrait-frame{% if vertical.slug == 'baby' %} baby-keepsake-frame{% elif vertical.slug == 'business' %} business-image-frame{% elif vertical.slug == 'boat' %} boat-transom-frame{% endif %}" data-pet-portrait-frame>
+        <figure class="pet-portrait-frame{% if vertical.slug == 'baby' %} baby-keepsake-frame{% elif vertical.slug == 'business' %} business-image-frame{% elif vertical.slug == 'boat' %} boat-transom-frame{% endif %}" data-pet-portrait-frame{% if vertical.slug == 'boat' %} data-transom-preview-open role="button" tabindex="0" aria-label="Open larger transom preview for {{ chosen.name }}"{% endif %}>
           {% if portrait.url %}
             <img data-pet-portrait-image src="{{ portrait.url }}" alt="{{ keepsake_ready_alt }}">
           {% else %}
@@ -137,6 +140,7 @@
                 <span class="boat-transom-sheen" aria-hidden="true"></span>
                 <span class="boat-transom-rail boat-transom-rail-top" aria-hidden="true"></span>
                 <span class="portrait-monogram boat-transom-name" aria-label="Boat transom preview displaying {{ chosen.name }}">{{ chosen.name }}</span>
+                <span class="boat-transom-context">{{ boat_preview_type }} · {{ boat_preview_style }}</span>
                 <span class="boat-transom-rail boat-transom-rail-bottom" aria-hidden="true"></span>
               {% else %}
                 <span class="portrait-monogram" aria-hidden="true">{{ chosen.name[:1] }}</span>
@@ -175,6 +179,27 @@
         {% endif %}
       </div>
     </section>
+
+    {% if vertical.slug == "boat" and portrait %}
+      <dialog class="transom-preview-dialog" data-transom-preview-dialog aria-label="Larger transom preview for {{ chosen.name }}">
+        <div class="transom-preview-dialog-inner">
+          <button class="transom-preview-close" type="button" data-transom-preview-close aria-label="Close larger transom preview">Close</button>
+          <div class="transom-preview-enlarged">
+            {% if portrait.url %}
+              <img src="{{ portrait.url }}" alt="{{ keepsake_ready_alt }}">
+            {% else %}
+              <div class="boat-transom-placeholder" aria-label="Large boat transom preview displaying {{ chosen.name }}">
+                <span class="boat-transom-sheen" aria-hidden="true"></span>
+                <span class="boat-transom-rail boat-transom-rail-top" aria-hidden="true"></span>
+                <span class="portrait-monogram boat-transom-name">{{ chosen.name }}</span>
+                <span class="boat-transom-context">{{ boat_preview_type }} · {{ boat_preview_style }}</span>
+                <span class="boat-transom-rail boat-transom-rail-bottom" aria-hidden="true"></span>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </dialog>
+    {% endif %}
 
     {% if shared_view|default(false) %}
       <div class="chosen-actions">
@@ -344,5 +369,27 @@
         showFailure();
       }
     });
+
+    const transomTrigger = document.querySelector("[data-transom-preview-open]");
+    const transomDialog = document.querySelector("[data-transom-preview-dialog]");
+    const transomClose = document.querySelector("[data-transom-preview-close]");
+    const openTransomPreview = () => {
+      if (!transomDialog) return;
+      if (typeof transomDialog.showModal === "function") {
+        transomDialog.showModal();
+      } else {
+        transomDialog.setAttribute("open", "");
+      }
+    };
+    transomTrigger?.addEventListener("click", (event) => {
+      if (event.target.closest("[data-portrait-retry]")) return;
+      openTransomPreview();
+    });
+    transomTrigger?.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      openTransomPreview();
+    });
+    transomClose?.addEventListener("click", () => transomDialog?.close());
   </script>
 {% endblock %}
