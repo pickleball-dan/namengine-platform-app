@@ -7,8 +7,9 @@ import binascii
 import os
 import secrets
 import time
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 from urllib.request import urlopen
 
 from openai import OpenAI
@@ -16,12 +17,23 @@ from openai import OpenAI
 from namengine.core.storage import get_database_path, update_chosen_metadata
 
 
-PORTRAIT_DIRNAME = "generated_pet_portraits"
-BABY_KEEPSAKE_DIRNAME = "generated_baby_keepsakes"
-BUSINESS_IMAGE_DIRNAME = "generated_business_images"
 DEFAULT_IMAGE_MODEL = "gpt-image-1"
 DEFAULT_IMAGE_RETENTION_DAYS = 30
-IMAGE_VERTICALS = {"baby", "pet", "business", "boat"}
+PromptBuilder = Callable[[dict[str, Any], dict[str, Any], dict[str, Any], dict[str, str] | None], str]
+
+
+@dataclass(frozen=True, slots=True)
+class ArtifactDefinition:
+    vertical_slug: str
+    kind: str
+    metadata_key: str
+    route_segment: str
+    directory: str
+    disable_env: str
+    detail_fields: tuple[str, ...]
+    prompt_builder: PromptBuilder
+    render_variant: str
+    state: str = "enabled"
 
 
 def is_pet_portrait_generation_configured() -> bool:
@@ -29,9 +41,10 @@ def is_pet_portrait_generation_configured() -> bool:
 
 
 def is_keepsake_generation_configured(vertical_slug: str) -> bool:
-    if vertical_slug not in IMAGE_VERTICALS or not os.getenv("OPENAI_API_KEY"):
+    definition = artifact_definition_or_none(vertical_slug)
+    if definition is None or definition.state != "enabled" or not os.getenv("OPENAI_API_KEY"):
         return False
-    return not _env_flag(_disable_flag(vertical_slug))
+    return not _env_flag(definition.disable_env)
 
 
 def pet_portrait_runtime_config() -> dict[str, Any]:
@@ -39,10 +52,13 @@ def pet_portrait_runtime_config() -> dict[str, Any]:
 
 
 def keepsake_runtime_config(vertical_slug: str) -> dict[str, Any]:
+    definition = artifact_definition_or_none(vertical_slug)
     return {
         "configured": is_keepsake_generation_configured(vertical_slug),
         "has_api_key": bool(os.getenv("OPENAI_API_KEY")),
-        "disabled": _env_flag(_disable_flag(vertical_slug)) if vertical_slug in IMAGE_VERTICALS else True,
+        "disabled": True if definition is None else _env_flag(definition.disable_env),
+        "state": "unregistered" if definition is None else definition.state,
+        "kind": None if definition is None else definition.kind,
         "model": os.getenv("NAMENGINE_IMAGE_MODEL", DEFAULT_IMAGE_MODEL),
         "size": os.getenv("NAMENGINE_IMAGE_SIZE", "1024x1024"),
         "storage_configured": bool(os.getenv("NAMENGINE_GENERATED_IMAGE_DIR")),
@@ -82,7 +98,10 @@ def keepsake_url_from_metadata(
     metadata: dict[str, Any],
     vertical_slug: str,
 ) -> str | None:
-    metadata_key = _metadata_key(vertical_slug)
+    definition = artifact_definition_or_none(vertical_slug)
+    if definition is None:
+        return None
+    metadata_key = definition.metadata_key
     keepsake = metadata.get(metadata_key) if isinstance(metadata, dict) else None
     if not isinstance(keepsake, dict):
         return None
@@ -93,7 +112,7 @@ def keepsake_url_from_metadata(
 
     path = _keepsake_path(str(filename), vertical_slug)
     if path.is_file():
-        return f"/generated/{_generated_route_segment(vertical_slug)}/{path.name}"
+        return f"/generated/{definition.route_segment}/{path.name}"
     return None
 
 
@@ -109,11 +128,11 @@ def keepsake_preview_for_chosen(
     session: dict[str, Any] | None,
 ) -> dict[str, Any] | None:
     vertical_slug = str(chosen.get("vertical", ""))
-    if vertical_slug not in IMAGE_VERTICALS:
+    if not artifact_supported(vertical_slug):
         return None
 
     metadata = chosen.get("metadata") if isinstance(chosen.get("metadata"), dict) else {}
-    metadata_key = _metadata_key(vertical_slug)
+    metadata_key = artifact_definition(vertical_slug).metadata_key
     portrait = metadata.get(metadata_key) if isinstance(metadata, dict) else None
     if isinstance(portrait, dict):
         portrait = dict(portrait)
@@ -124,7 +143,7 @@ def keepsake_preview_for_chosen(
 
     brief = _json_loads((session or {}).get("brief_json", "{}"))
     details = keepsake_details_from_brief(brief, vertical_slug)
-    if not _has_enough_detail(details):
+    if not _has_enough_detail(details, vertical_slug):
         return None
 
     return {
@@ -132,7 +151,7 @@ def keepsake_preview_for_chosen(
         "model": os.getenv("NAMENGINE_IMAGE_MODEL", DEFAULT_IMAGE_MODEL),
         "size": os.getenv("NAMENGINE_IMAGE_SIZE", "1024x1024"),
         "status": "pending" if is_keepsake_generation_configured(vertical_slug) else "not_configured",
-        "kind": _keepsake_kind(vertical_slug),
+        "kind": artifact_definition(vertical_slug).kind,
     }
 
 
@@ -152,11 +171,11 @@ def prepare_keepsake_for_chosen(
     force_retry: bool = False,
 ) -> dict[str, Any] | None:
     vertical_slug = str(chosen.get("vertical", ""))
-    if vertical_slug not in IMAGE_VERTICALS:
+    if not artifact_supported(vertical_slug):
         return None
 
     metadata = chosen.get("metadata") if isinstance(chosen.get("metadata"), dict) else {}
-    metadata_key = _metadata_key(vertical_slug)
+    metadata_key = artifact_definition(vertical_slug).metadata_key
     portrait = metadata.get(metadata_key) if isinstance(metadata, dict) else None
     if (
         isinstance(portrait, dict)
@@ -167,7 +186,7 @@ def prepare_keepsake_for_chosen(
 
     brief = _json_loads((session or {}).get("brief_json", "{}"))
     details = keepsake_details_from_brief(brief, vertical_slug)
-    if not _has_enough_detail(details):
+    if not _has_enough_detail(details, vertical_slug):
         return None
 
     portrait = {
@@ -176,7 +195,7 @@ def prepare_keepsake_for_chosen(
         "model": os.getenv("NAMENGINE_IMAGE_MODEL", DEFAULT_IMAGE_MODEL),
         "size": os.getenv("NAMENGINE_IMAGE_SIZE", "1024x1024"),
         "status": "pending" if is_keepsake_generation_configured(vertical_slug) else "not_configured",
-        "kind": _keepsake_kind(vertical_slug),
+        "kind": artifact_definition(vertical_slug).kind,
     }
     update_chosen_metadata(
         str(chosen["id"]),
@@ -199,11 +218,11 @@ def ensure_keepsake_for_chosen(
     session: dict[str, Any] | None,
 ) -> dict[str, Any] | None:
     vertical_slug = str(chosen.get("vertical", ""))
-    if vertical_slug not in IMAGE_VERTICALS:
+    if not artifact_supported(vertical_slug):
         return None
 
     metadata = chosen.get("metadata") if isinstance(chosen.get("metadata"), dict) else {}
-    metadata_key = _metadata_key(vertical_slug)
+    metadata_key = artifact_definition(vertical_slug).metadata_key
     existing_url = keepsake_url_from_metadata(str(chosen["id"]), metadata, vertical_slug)
     if existing_url:
         portrait = dict(metadata[metadata_key])
@@ -212,7 +231,7 @@ def ensure_keepsake_for_chosen(
 
     brief = _json_loads((session or {}).get("brief_json", "{}"))
     details = keepsake_details_from_brief(brief, vertical_slug)
-    if not _has_enough_detail(details):
+    if not _has_enough_detail(details, vertical_slug):
         return None
 
     portrait = {
@@ -221,7 +240,7 @@ def ensure_keepsake_for_chosen(
         "model": os.getenv("NAMENGINE_IMAGE_MODEL", DEFAULT_IMAGE_MODEL),
         "size": os.getenv("NAMENGINE_IMAGE_SIZE", "1024x1024"),
         "status": "pending",
-        "kind": _keepsake_kind(vertical_slug),
+        "kind": artifact_definition(vertical_slug).kind,
     }
 
     if not is_keepsake_generation_configured(vertical_slug):
@@ -279,7 +298,7 @@ def ensure_keepsake_for_chosen(
         {
             "filename": filename,
             "status": "ready",
-            "url": f"/generated/{_generated_route_segment(vertical_slug)}/{filename}",
+            "url": f"/generated/{artifact_definition(vertical_slug).route_segment}/{filename}",
         }
     )
     update_chosen_metadata(
@@ -295,7 +314,26 @@ def build_pet_portrait_prompt(
     brief: dict[str, Any],
     details: dict[str, str] | None = None,
 ) -> str:
-    return build_keepsake_prompt(chosen, result, brief, details, "pet")
+    inputs = brief.get("inputs", {}) if isinstance(brief, dict) else {}
+    details = details or portrait_details_from_brief(brief)
+    pet_type = _clean(inputs.get("pet_type")) or "pet"
+    breed = details.get("breed") or pet_type
+    color = details.get("color") or "natural"
+    extra_details = details.get("details") or ""
+    personality = _clean(inputs.get("vibe")) or "warm"
+    style = _clean(inputs.get("style")) or "timeless"
+    name = _clean(chosen.get("name")) or _clean(result.get("name")) or "the pet"
+    detail_sentence = f" Additional visual details: {extra_details}." if extra_details else ""
+
+    return (
+        "Create a timeless framed studio portrait of a beloved pet. "
+        f"Subject: a {color} {breed} {pet_type.lower()} named {name}.{detail_sentence} "
+        f"Mood: {personality.lower()}, {style.lower()}, warm, dignified, emotionally inviting. "
+        "Composition: centered head-and-shoulders portrait, natural expression, soft eyes, "
+        "classic painted-photo look, subtle cream background, tasteful archival frame feeling, "
+        "premium keepsake quality, realistic fur texture, gentle studio light. "
+        "Do not include words, captions, logos, watermarks, collars with readable text, or signage."
+    )
 
 
 def build_boat_keepsake_prompt(
@@ -356,33 +394,7 @@ def build_keepsake_prompt(
     details: dict[str, str] | None = None,
     vertical_slug: str = "pet",
 ) -> str:
-    if vertical_slug == "baby":
-        return build_baby_keepsake_prompt(chosen, result, brief, details)
-    if vertical_slug == "business":
-        return build_business_image_prompt(chosen, result, brief, details)
-    if vertical_slug == "boat":
-        return build_boat_keepsake_prompt(chosen, result, brief, details)
-
-    inputs = brief.get("inputs", {}) if isinstance(brief, dict) else {}
-    details = details or portrait_details_from_brief(brief)
-    pet_type = _clean(inputs.get("pet_type")) or "pet"
-    breed = details.get("breed") or pet_type
-    color = details.get("color") or "natural"
-    extra_details = details.get("details") or ""
-    personality = _clean(inputs.get("vibe")) or "warm"
-    style = _clean(inputs.get("style")) or "timeless"
-    name = _clean(chosen.get("name")) or _clean(result.get("name")) or "the pet"
-    detail_sentence = f" Additional visual details: {extra_details}." if extra_details else ""
-
-    return (
-        "Create a timeless framed studio portrait of a beloved pet. "
-        f"Subject: a {color} {breed} {pet_type.lower()} named {name}.{detail_sentence} "
-        f"Mood: {personality.lower()}, {style.lower()}, warm, dignified, emotionally inviting. "
-        "Composition: centered head-and-shoulders portrait, natural expression, soft eyes, "
-        "classic painted-photo look, subtle cream background, tasteful archival frame feeling, "
-        "premium keepsake quality, realistic fur texture, gentle studio light. "
-        "Do not include words, captions, logos, watermarks, collars with readable text, or signage."
-    )
+    return artifact_definition(vertical_slug).prompt_builder(chosen, result, brief, details)
 
 
 def build_baby_keepsake_prompt(
@@ -440,31 +452,87 @@ def build_business_image_prompt(
     )
 
 
-def _has_enough_detail(details: dict[str, str]) -> bool:
-    return bool(
-        details.get("breed")
-        or details.get("color")
-        or details.get("details")
-        or details.get("gender")
-        or details.get("style")
-        or details.get("business_description")
-        or details.get("audience")
-        or details.get("boat_type")
-        or details.get("waters")
-        or details.get("vibe")
-        or details.get("use")
-    )
+ARTIFACT_REGISTRY: dict[str, ArtifactDefinition] = {
+    "baby": ArtifactDefinition(
+        vertical_slug="baby",
+        kind="baby_blanket",
+        metadata_key="baby_keepsake",
+        route_segment="baby-keepsakes",
+        directory="generated_baby_keepsakes",
+        disable_env="NAMENGINE_DISABLE_BABY_IMAGES",
+        detail_fields=("gender", "style", "sound"),
+        prompt_builder=build_baby_keepsake_prompt,
+        render_variant="baby_keepsake",
+    ),
+    "pet": ArtifactDefinition(
+        vertical_slug="pet",
+        kind="pet_portrait",
+        metadata_key="pet_portrait",
+        route_segment="pet-portraits",
+        directory="generated_pet_portraits",
+        disable_env="NAMENGINE_DISABLE_PET_IMAGES",
+        detail_fields=("breed", "color", "details"),
+        prompt_builder=build_pet_portrait_prompt,
+        render_variant="pet_portrait",
+    ),
+    "business": ArtifactDefinition(
+        vertical_slug="business",
+        kind="business_brand_concept",
+        metadata_key="business_image",
+        route_segment="business-images",
+        directory="generated_business_images",
+        disable_env="NAMENGINE_DISABLE_BUSINESS_IMAGES",
+        detail_fields=("business_description", "audience", "style"),
+        prompt_builder=build_business_image_prompt,
+        render_variant="business_brand_concept",
+    ),
+    "boat": ArtifactDefinition(
+        vertical_slug="boat",
+        kind="boat_portrait",
+        metadata_key="boat_portrait",
+        route_segment="boat-portraits",
+        directory="boat-portraits",
+        disable_env="NAMENGINE_DISABLE_BOAT_IMAGES",
+        detail_fields=("boat_type", "waters", "vibe", "use"),
+        prompt_builder=build_boat_keepsake_prompt,
+        render_variant="boat_transom",
+    ),
+}
+
+
+def artifact_definition(vertical_slug: str) -> ArtifactDefinition:
+    try:
+        return ARTIFACT_REGISTRY[str(vertical_slug)]
+    except KeyError as exc:
+        raise KeyError(f"Graphical artifact is not registered for vertical: {vertical_slug}") from exc
+
+
+def artifact_definition_or_none(vertical_slug: str) -> ArtifactDefinition | None:
+    return ARTIFACT_REGISTRY.get(str(vertical_slug))
+
+
+def artifact_supported(vertical_slug: str) -> bool:
+    definition = artifact_definition_or_none(vertical_slug)
+    return definition is not None and definition.state == "enabled"
+
+
+def registered_artifact_verticals() -> tuple[str, ...]:
+    return tuple(ARTIFACT_REGISTRY)
+
+
+def _has_enough_detail(details: dict[str, str], vertical_slug: str) -> bool:
+    return any(details.get(field) for field in artifact_definition(vertical_slug).detail_fields)
 
 
 def _portrait_path(filename: str) -> Path:
-    safe_name = Path(filename).name
-    return get_database_path().parent / PORTRAIT_DIRNAME / safe_name
+    return _keepsake_path(filename, "pet")
 
 
 def keepsake_details_from_brief(
     brief: dict[str, Any] | None,
     vertical_slug: str,
 ) -> dict[str, str]:
+    artifact_definition(vertical_slug)
     if vertical_slug == "pet":
         return portrait_details_from_brief(brief)
 
@@ -498,42 +566,22 @@ def keepsake_details_from_brief(
 
 def _keepsake_path(filename: str, vertical_slug: str) -> Path:
     safe_name = Path(filename).name
-    dirname = {
-        "baby": BABY_KEEPSAKE_DIRNAME,
-        "business": BUSINESS_IMAGE_DIRNAME,
-        "boat": "boat-portraits",
-        "pet": PORTRAIT_DIRNAME,
-    }[vertical_slug]
+    dirname = artifact_definition(vertical_slug).directory
     configured_root = os.getenv("NAMENGINE_GENERATED_IMAGE_DIR", "").strip()
     root = Path(configured_root) if configured_root else get_database_path().parent
     return root / dirname / safe_name
 
 
 def _metadata_key(vertical_slug: str) -> str:
-    return {
-        "baby": "baby_keepsake",
-        "business": "business_image",
-        "boat": "boat_portrait",
-        "pet": "pet_portrait",
-    }[vertical_slug]
+    return artifact_definition(vertical_slug).metadata_key
 
 
 def _generated_route_segment(vertical_slug: str) -> str:
-    return {
-        "baby": "baby-keepsakes",
-        "business": "business-images",
-        "boat": "boat-portraits",
-        "pet": "pet-portraits",
-    }[vertical_slug]
+    return artifact_definition(vertical_slug).route_segment
 
 
 def _keepsake_kind(vertical_slug: str) -> str:
-    return {
-        "baby": "baby_blanket",
-        "business": "business_brand_concept",
-        "boat": "boat_portrait",
-        "pet": "pet_portrait",
-    }[vertical_slug]
+    return artifact_definition(vertical_slug).kind
 
 
 def generated_image_directory(vertical_slug: str) -> Path:
@@ -560,12 +608,7 @@ def cleanup_generated_images(vertical_slug: str, *, now: float | None = None) ->
 
 
 def _disable_flag(vertical_slug: str) -> str:
-    return {
-        "baby": "NAMENGINE_DISABLE_BABY_IMAGES",
-        "business": "NAMENGINE_DISABLE_BUSINESS_IMAGES",
-        "boat": "NAMENGINE_DISABLE_BOAT_IMAGES",
-        "pet": "NAMENGINE_DISABLE_PET_IMAGES",
-    }[vertical_slug]
+    return artifact_definition(vertical_slug).disable_env
 
 
 def _image_bytes_from_response(response: Any) -> bytes:
