@@ -21,7 +21,7 @@ BABY_KEEPSAKE_DIRNAME = "generated_baby_keepsakes"
 BUSINESS_IMAGE_DIRNAME = "generated_business_images"
 DEFAULT_IMAGE_MODEL = "gpt-image-1"
 DEFAULT_IMAGE_RETENTION_DAYS = 30
-IMAGE_VERTICALS = {"baby", "pet", "business"}
+IMAGE_VERTICALS = {"baby", "pet", "business", "boat"}
 
 
 def is_pet_portrait_generation_configured() -> bool:
@@ -449,6 +449,10 @@ def _has_enough_detail(details: dict[str, str]) -> bool:
         or details.get("style")
         or details.get("business_description")
         or details.get("audience")
+        or details.get("boat_type")
+        or details.get("waters")
+        or details.get("vibe")
+        or details.get("use")
     )
 
 

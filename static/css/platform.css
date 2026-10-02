@@ -3076,6 +3076,10 @@ button {
 /* ── Boat generation progress ─────────────────────────── */
 .boat-progress-visual {
   width: min(100%, 230px);
+  background:
+    radial-gradient(circle at 50% 50%, rgba(200, 150, 62, 0.16), transparent 56%),
+    linear-gradient(180deg, rgba(7, 17, 31, 0.95), rgba(10, 22, 40, 0.88));
+  border-color: rgba(200, 150, 62, 0.28);
 }
 
 .boat-progress-visual-inner {
@@ -3101,6 +3105,30 @@ button {
   clip-path: polygon(50% 0%, 82% 30%, 100% 70%, 100% 100%, 0% 100%, 0% 70%, 18% 30%);
   filter: drop-shadow(0 0 10px rgba(200, 150, 62, 0.55));
   z-index: 3;
+}
+
+.boat-hull::before,
+.boat-hull::after {
+  position: absolute;
+  content: "";
+  pointer-events: none;
+}
+
+.boat-hull::before {
+  inset: 10px 12px 12px;
+  border-top: 2px solid rgba(7, 17, 31, 0.42);
+  border-bottom: 2px solid rgba(7, 17, 31, 0.32);
+  border-radius: 50%;
+}
+
+.boat-hull::after {
+  left: 50%;
+  bottom: -12px;
+  width: 74px;
+  height: 18px;
+  border-bottom: 2px solid rgba(143, 198, 228, 0.38);
+  border-radius: 50%;
+  transform: translateX(-50%);
 }
 
 /* Center sonar emitter dot */
@@ -3265,6 +3293,23 @@ button {
   background:
     radial-gradient(circle at 50% 40%, rgba(200, 150, 62, 0.14), transparent 52%),
     radial-gradient(circle at 50% 70%, rgba(43, 108, 184, 0.10), transparent 60%);
+}
+
+[data-progress-vertical="boat"] .progress-visual::after {
+  inset: 18px;
+  width: auto;
+  height: auto;
+  background:
+    conic-gradient(from 310deg, rgba(200, 150, 62, 0.58) 0 18deg, transparent 19deg 360deg);
+  border: 1px solid rgba(143, 198, 228, 0.20);
+  border-radius: 50%;
+  opacity: 0.75;
+  transform: none;
+  animation: boat-radar-sweep 3.8s linear infinite;
+}
+
+@keyframes boat-radar-sweep {
+  to { transform: rotate(360deg); }
 }
 
 [data-progress-vertical="boat"] .progress-visual-label {
@@ -12631,6 +12676,139 @@ body.vertical-boat {
 .vertical-boat .choose-button:focus-visible {
   background: #e0aa50;
   border-color: #e0aa50;
+}
+
+/* Boat detail/chosen pages: preserve the dark nautical palette with readable text. */
+.vertical-boat .detail-hero {
+  color: #f0ead8;
+  background:
+    radial-gradient(circle at 82% 14%, rgba(200, 150, 62, 0.24), transparent 42%),
+    linear-gradient(145deg, rgba(15, 30, 51, 0.98), rgba(7, 17, 31, 0.98));
+  border: 1px solid rgba(200, 150, 62, 0.26);
+}
+
+.vertical-boat .detail-hero h1 {
+  color: #fff7df;
+  text-shadow: 0 3px 18px rgba(0, 0, 0, 0.58), 0 0 20px rgba(200, 150, 62, 0.18);
+}
+
+.vertical-boat .detail-hero .eyebrow,
+.vertical-boat .detail-fit-card .chosen-kicker {
+  color: #d9b96f;
+}
+
+.vertical-boat .chosen-pronunciation,
+.vertical-boat .chosen-tagline,
+.vertical-boat .detail-fit-card p {
+  color: #dbe7f1;
+}
+
+.vertical-boat :is(.chosen-detail, .detail-fit-card, .compare-taste) {
+  color: #f0ead8;
+  background: rgba(15, 30, 51, 0.72);
+  border-color: rgba(200, 150, 62, 0.24);
+}
+
+.vertical-boat :is(.chosen-detail h2, .compare-taste h2) {
+  color: #fff7df;
+}
+
+.vertical-boat :is(.chosen-detail p, .chosen-detail li, .compare-taste p) {
+  color: #dbe7f1;
+}
+
+.vertical-boat .chosen-detail strong {
+  color: #f2d08b;
+}
+
+.vertical-boat .detail-validation .validation-pill span {
+  color: #dbe7f1;
+}
+
+.vertical-boat .share-preview.vertical-boat {
+  color: #f0ead8;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(200, 150, 62, 0.16), transparent 40%),
+    linear-gradient(145deg, #0f1e33, #07111f);
+  border-color: rgba(200, 150, 62, 0.24);
+}
+
+.vertical-boat .share-preview.vertical-boat .share-preview-label,
+.vertical-boat .share-preview.vertical-boat .share-preview-meta {
+  color: #d9b96f;
+}
+
+.vertical-boat .share-preview.vertical-boat :is(h1, h2, strong) {
+  color: #fff7df;
+}
+
+.vertical-boat .share-preview.vertical-boat :is(.share-preview-tagline, .share-preview-pronunciation, p) {
+  color: #dbe7f1;
+}
+
+.vertical-boat .boat-transom-frame {
+  border-color: rgba(200, 150, 62, 0.26);
+}
+
+.vertical-boat .boat-transom-placeholder {
+  position: relative;
+  min-height: 250px;
+  justify-content: center;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.07), transparent 34%),
+    linear-gradient(160deg, #173250 0%, #07111f 100%);
+}
+
+.vertical-boat .boat-transom-placeholder::before {
+  position: absolute;
+  inset: 28px 18px;
+  content: "";
+  border: 1px solid rgba(200, 150, 62, 0.28);
+  border-radius: 26px 26px 46px 46px / 20px 20px 54px 54px;
+  background:
+    linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent),
+    rgba(7, 17, 31, 0.36);
+  box-shadow: inset 0 -20px 42px rgba(0, 0, 0, 0.26);
+}
+
+.vertical-boat .boat-transom-sheen {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 0 34%, rgba(255, 255, 255, 0.14) 46%, transparent 58% 100%);
+  opacity: 0.58;
+}
+
+.vertical-boat .boat-transom-rail {
+  position: relative;
+  z-index: 1;
+  width: min(76%, 300px);
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(217, 185, 111, 0.86), transparent);
+}
+
+.vertical-boat .boat-transom-name {
+  position: relative;
+  z-index: 1;
+  width: min(86%, 340px);
+  margin: 18px 0;
+  color: #fff7df;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(32px, 8vw, 54px);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-shadow: 0 3px 14px rgba(0, 0, 0, 0.64), 0 0 18px rgba(200, 150, 62, 0.24);
+  background: transparent;
+}
+
+.vertical-boat .boat-transom-placeholder .portrait-status {
+  position: relative;
+  z-index: 1;
+  max-width: min(82%, 280px);
+  color: #dbe7f1;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.58);
 }
 
 /* Mobile */
