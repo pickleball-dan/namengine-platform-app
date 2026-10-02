@@ -384,17 +384,19 @@ def result_detail_from_session(session_id: str, result_id: str) -> dict | None:
     if snapshot is None:
         return None
 
+    compare_session_id = get_latest_session_in_journey(session_id) or session_id
     for row in snapshot["results"]:
         if row["id"] == result_id:
             reaction_values = _reaction_values(snapshot)
             available_results: list[dict] = []
-            for chain_snapshot in get_session_chain_snapshots(session_id):
+            for chain_snapshot in get_session_chain_snapshots(compare_session_id):
                 available_results.extend(
                     json_loads(item["result_json"])
                     for item in chain_snapshot.get("results", [])
                 )
             return {
                 "session": snapshot["session"],
+                "compare_session_id": compare_session_id,
                 "result": json_loads(row["result_json"]),
                 "reaction_counts": snapshot["reaction_counts"],
                 "taste_profile": _taste_profile_from_snapshot(snapshot),
@@ -2582,6 +2584,7 @@ Sitemap: https://nam-engine.com/sitemap.xml
             "name_detail.html",
             vertical=vertical,
             session=detail["session"],
+            compare_session_id=detail["compare_session_id"],
             result=detail["result"],
             name_fact_card=build_name_fact_card(vertical.slug, detail["result"]),
             reaction_counts=detail["reaction_counts"],
@@ -3234,7 +3237,7 @@ def _try_generate_keepsake(chosen_id: str):
     snapshot = get_chosen_snapshot(chosen_id)
     if snapshot is None or snapshot["result"] is None:
         return None
-    if snapshot["chosen"].get("vertical") not in {"pet", "baby", "business"}:
+    if snapshot["chosen"].get("vertical") not in {"pet", "baby", "business", "boat"}:
         return None
 
     result = to_plain_data(json_loads(snapshot["result"]["result_json"]))

@@ -49,7 +49,7 @@
         <input type="hidden" name="result_id" value="{{ result.id }}">
         <button class="choose-button" type="submit">Choose {{ result.name }}</button>
       </form>
-      <a class="button-link" href="/compare/{{ session.id }}">Compare favorites</a>
+      <a class="button-link" href="/compare/{{ compare_session_id or session.id }}">Compare favorites</a>
       <a class="button-link secondary-button" href="/results/session/{{ session.id }}">Back to results</a>
     </div>{% endif %}
 
@@ -167,7 +167,7 @@
             <input type="hidden" name="result_id" value="{{ result.id }}">
             <button class="choose-button" type="submit">Choose {{ result.name }}</button>
           </form>
-          <a class="button-link" href="/compare/{{ session.id }}">Compare favorites</a>
+          <a class="button-link" href="/compare/{{ compare_session_id or session.id }}">Compare favorites</a>
           <a class="button-link secondary-button" href="/results/session/{{ session.id }}">Return to results</a>
         </div>
       </section>
@@ -227,4 +227,3 @@
   </section>
   {% if vertical.slug == "baby" %}<script src="{{ url_for('static', filename='js/reactions.js') }}?v=20260717-baby-decision-support"></script>{% endif %}
 {% endblock %}
-

@@ -3,9 +3,9 @@
 {% block title %}{{ chosen.name }} | NamEngine{% endblock %}
 
 {% block content %}
-  {% set keepsake_label = "keepsake" if vertical.slug == "baby" else ("logo concept" if vertical.slug == "business" else "portrait") %}
-  {% set keepsake_ready_alt = "Baby blanket keepsake for " ~ chosen.name if vertical.slug == "baby" else ("Logo concept for " ~ chosen.name if vertical.slug == "business" else "Framed portrait of " ~ chosen.name) %}
-  {% set keepsake_setup_text = "Keepsake preview isn’t available right now" if vertical.slug == "baby" else ("Portrait preview will appear here when image creation is available" if vertical.slug == "pet" else "Image preview will appear here when image creation is available") %}
+  {% set keepsake_label = "keepsake" if vertical.slug == "baby" else ("logo concept" if vertical.slug == "business" else ("transom preview" if vertical.slug == "boat" else "portrait")) %}
+  {% set keepsake_ready_alt = "Baby blanket keepsake for " ~ chosen.name if vertical.slug == "baby" else ("Logo concept for " ~ chosen.name if vertical.slug == "business" else ("Boat transom preview for " ~ chosen.name if vertical.slug == "boat" else "Framed portrait of " ~ chosen.name)) %}
+  {% set keepsake_setup_text = "Keepsake preview isn’t available right now" if vertical.slug == "baby" else ("Portrait preview will appear here when image creation is available" if vertical.slug == "pet" else ("Transom preview will appear here when image creation is available" if vertical.slug == "boat" else "Image preview will appear here when image creation is available")) %}
   {% set keepsake_failed_text = "Your " ~ keepsake_label ~ " could not be created" %}
   {% set keepsake_creating_text = "Creating " ~ keepsake_label %}
   {% if vertical.slug == "pet" %}
@@ -125,14 +125,19 @@
           <figcaption>Brand preview · Lettermark · Wordmark directions</figcaption>
         </figure>
       {% elif portrait %}
-        <figure class="pet-portrait-frame{% if vertical.slug == 'baby' %} baby-keepsake-frame{% elif vertical.slug == 'business' %} business-image-frame{% endif %}" data-pet-portrait-frame>
+        <figure class="pet-portrait-frame{% if vertical.slug == 'baby' %} baby-keepsake-frame{% elif vertical.slug == 'business' %} business-image-frame{% elif vertical.slug == 'boat' %} boat-transom-frame{% endif %}" data-pet-portrait-frame>
           {% if portrait.url %}
             <img data-pet-portrait-image src="{{ portrait.url }}" alt="{{ keepsake_ready_alt }}">
           {% else %}
-            <div class="pet-portrait-placeholder{% if vertical.slug == 'baby' %} baby-keepsake-placeholder{% elif vertical.slug == 'business' %} business-image-placeholder{% endif %}{% if portrait.status == 'failed' %} is-failed{% endif %}" data-pet-portrait-placeholder>
+            <div class="pet-portrait-placeholder{% if vertical.slug == 'baby' %} baby-keepsake-placeholder{% elif vertical.slug == 'business' %} business-image-placeholder{% elif vertical.slug == 'boat' %} boat-transom-placeholder{% endif %}{% if portrait.status == 'failed' %} is-failed{% endif %}" data-pet-portrait-placeholder>
               {% if vertical.slug == "baby" %}
                 <span class="blanket-fold" aria-hidden="true"></span>
                 <span class="portrait-monogram blanket-embroidered-name" aria-label="Baby blanket keepsake embroidered with {{ chosen.name }}">{{ chosen.name }}</span>
+              {% elif vertical.slug == "boat" %}
+                <span class="boat-transom-sheen" aria-hidden="true"></span>
+                <span class="boat-transom-rail boat-transom-rail-top" aria-hidden="true"></span>
+                <span class="portrait-monogram boat-transom-name" aria-label="Boat transom preview displaying {{ chosen.name }}">{{ chosen.name }}</span>
+                <span class="boat-transom-rail boat-transom-rail-bottom" aria-hidden="true"></span>
               {% else %}
                 <span class="portrait-monogram" aria-hidden="true">{{ chosen.name[:1] }}</span>
               {% endif %}
@@ -149,11 +154,11 @@
               {% endif %}
             </div>
           {% endif %}
-          <figcaption>{{ chosen.name }}</figcaption>
+          <figcaption>{{ "Transom preview" if vertical.slug == "boat" else chosen.name }}</figcaption>
         </figure>
       {% endif %}
       <div class="share-preview-copy">
-        <p class="share-preview-label">{% if vertical.slug == "baby" %}Your chosen name{% elif vertical.slug == "pet" %}Chosen companion name{% else %}Final pick{% endif %}</p>
+        <p class="share-preview-label">{% if vertical.slug == "baby" %}Your chosen name{% elif vertical.slug == "pet" %}Chosen companion name{% elif vertical.slug == "boat" %}Chosen vessel name{% else %}Final pick{% endif %}</p>
         <h1>Meet {{ chosen.name }}</h1>
         {% if result.pronunciation %}
           <p class="share-preview-pronunciation">{{ result.pronunciation }}</p>
