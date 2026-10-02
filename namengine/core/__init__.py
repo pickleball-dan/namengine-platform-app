@@ -97,6 +97,10 @@ from .quality import (
 from .progress import PROGRESS_STEPS, build_trust_cue
 from .journey_lifecycle import JourneyLifecycle, build_journey_lifecycle
 from .pet_portrait import (
+    ArtifactDefinition,
+    artifact_definition,
+    artifact_definition_or_none,
+    artifact_supported,
     build_baby_keepsake_prompt,
     build_boat_keepsake_prompt,
     build_business_image_prompt,
@@ -117,6 +121,7 @@ from .pet_portrait import (
     portrait_details_from_brief,
     keepsake_details_from_brief,
     generated_image_directory,
+    registered_artifact_verticals,
     safe_provider_error_for_log,
 )
 from .provider_performance import (
@@ -240,8 +245,12 @@ __all__ = [
     "IntelligenceMetric",
     "IntelligenceRegression",
     "Weakness",
+    "ArtifactDefinition",
     "analyze_baby_candidate_diversity",
     "analyze_baby_weaknesses",
+    "artifact_definition",
+    "artifact_definition_or_none",
+    "artifact_supported",
     "build_brief",
     "compare_normalized_intakes",
     "compare_baby_intelligence_runs",
@@ -354,6 +363,7 @@ __all__ = [
     "portrait_details_from_brief",
     "keepsake_details_from_brief",
     "generated_image_directory",
+    "registered_artifact_verticals",
     "safe_provider_error_for_log",
     "Reaction",
     "ReactionError",

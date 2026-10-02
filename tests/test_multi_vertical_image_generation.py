@@ -7,10 +7,12 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
-from access_helpers import unlock_beta_access
+from access_helpers import csrf_token, unlock_beta_access
 import app as app_module
 from app import create_app
 from namengine.core import (
+    artifact_definition,
+    artifact_supported,
     build_brief,
     cleanup_generated_images,
     ensure_keepsake_for_chosen,
@@ -19,7 +21,9 @@ from namengine.core import (
     save_chosen_name,
     save_session,
     keepsake_runtime_config,
+    keepsake_details_from_brief,
     update_chosen_metadata,
+    registered_artifact_verticals,
 )
 from namengine.core.schemas import NameResult
 from namengine.verticals import BABY, BOAT, BUSINESS, PET
@@ -38,6 +42,7 @@ class MultiVerticalImageGenerationTest(unittest.TestCase):
                 "NAMENGINE_DISABLE_BABY_IMAGES": "0",
                 "NAMENGINE_DISABLE_PET_IMAGES": "0",
                 "NAMENGINE_DISABLE_BUSINESS_IMAGES": "0",
+                "NAMENGINE_DISABLE_BOAT_IMAGES": "0",
             },
         )
         self.env.start()
@@ -69,6 +74,7 @@ class MultiVerticalImageGenerationTest(unittest.TestCase):
             (BABY, {"gender": "Girl", "style": "Classic", "sound": "Soft"}, "Eloise", "baby blanket"),
             (PET, {"pet_type": "Dog", "pet_breed": "Whippet", "pet_color": "Blue gray", "pet_life_stage": "Mature", "style": "Classic", "vibe": "Playful"}, "Clover", "Whippet"),
             (BUSINESS, {"business_description": "Premium recovery studio", "industry": "Wellness", "audience": "Premium clients", "style": "Clear and credible"}, "Northwell", "Premium recovery studio"),
+            (BOAT, {"boat_type": "Sailboat", "waters": "Bay or sound", "vibe": "Classic"}, "Harbor Star", "classic wooden sailboat"),
         )
         png = base64.b64encode(b"valid-png-bytes").decode("ascii")
 
@@ -93,18 +99,80 @@ class MultiVerticalImageGenerationTest(unittest.TestCase):
                 self.assertEqual(image["status"], "ready")
                 self.assertNotIn(snapshot["chosen"]["id"], image["filename"])
                 self.assertGreaterEqual(len(Path(image["filename"]).stem), 24)
-                dirname = {
-                    "baby": "generated_baby_keepsakes",
-                    "pet": "generated_pet_portraits",
-                    "business": "generated_business_images",
-                }[vertical.slug]
-                self.assertTrue((Path(self.tempdir.name) / dirname / image["filename"]).exists())
+                directory = artifact_definition(vertical.slug).directory
+                self.assertTrue((Path(self.tempdir.name) / directory / image["filename"]).exists())
+
+    def test_artifact_registry_explicitly_registers_active_verticals(self):
+        expected = {
+            "baby": (
+                "baby_blanket",
+                "baby_keepsake",
+                "baby-keepsakes",
+                "generated_baby_keepsakes",
+                "NAMENGINE_DISABLE_BABY_IMAGES",
+                "baby_keepsake",
+            ),
+            "pet": (
+                "pet_portrait",
+                "pet_portrait",
+                "pet-portraits",
+                "generated_pet_portraits",
+                "NAMENGINE_DISABLE_PET_IMAGES",
+                "pet_portrait",
+            ),
+            "business": (
+                "business_brand_concept",
+                "business_image",
+                "business-images",
+                "generated_business_images",
+                "NAMENGINE_DISABLE_BUSINESS_IMAGES",
+                "business_brand_concept",
+            ),
+            "boat": (
+                "boat_portrait",
+                "boat_portrait",
+                "boat-portraits",
+                "boat-portraits",
+                "NAMENGINE_DISABLE_BOAT_IMAGES",
+                "boat_transom",
+            ),
+        }
+
+        self.assertEqual(set(registered_artifact_verticals()), set(expected))
+        for slug, values in expected.items():
+            with self.subTest(slug=slug):
+                definition = artifact_definition(slug)
+                self.assertTrue(artifact_supported(slug))
+                self.assertEqual(definition.vertical_slug, slug)
+                self.assertEqual(
+                    (
+                        definition.kind,
+                        definition.metadata_key,
+                        definition.route_segment,
+                        definition.directory,
+                        definition.disable_env,
+                        definition.render_variant,
+                    ),
+                    values,
+                )
+
+    def test_unregistered_artifact_vertical_fails_explicitly(self):
+        self.assertFalse(artifact_supported("character"))
+        with self.assertRaisesRegex(KeyError, "not registered"):
+            artifact_definition("character")
+        with self.assertRaisesRegex(KeyError, "not registered"):
+            generated_image_directory("character")
+        with self.assertRaisesRegex(KeyError, "not registered"):
+            keepsake_details_from_brief({"inputs": {"style": "Heroic"}}, "character")
 
     def test_boat_vertical_is_registered_without_image_generation_side_effects(self):
         self.assertEqual(BOAT.slug, "boat")
         self.assertEqual(BOAT.assets["logo"], "images/namengine-boat.svg")
+        definition = artifact_definition("boat")
+        self.assertEqual(definition.kind, "boat_portrait")
+        self.assertEqual(definition.render_variant, "boat_transom")
 
-    def test_business_chosen_page_uses_clear_brand_card_without_generated_image(self):
+    def test_business_chosen_page_uses_clear_brand_card_with_shared_artifact_flow(self):
         snapshot = self._chosen(
             BUSINESS,
             {
@@ -123,7 +191,8 @@ class MultiVerticalImageGenerationTest(unittest.TestCase):
         body = page.get_data(as_text=True)
         self.assertEqual(page.status_code, 200)
         self.assertIn("business-brand-card", body)
-        self.assertIn("Clear brand card", body)
+        self.assertIn("Brand preview", body)
+        self.assertIn("Logo concept", body)
         self.assertIn("Northwell", body)
         self.assertIn("Premium clients", body)
         self.assertIn("Clear and credible", body)
@@ -132,10 +201,9 @@ class MultiVerticalImageGenerationTest(unittest.TestCase):
         self.assertIn(".business-brand-card h2", css)
         self.assertIn("white-space: nowrap;", css)
         self.assertIn("overflow-wrap: normal;", css)
-        self.assertNotIn("Brand direction board for Northwell", body)
         self.assertNotIn("/generated/business-images/", body)
-        self.assertNotIn("data-portrait-status-url", body)
-        thread.assert_not_called()
+        self.assertIn("data-portrait-status-url", body)
+        thread.assert_called_once()
 
     def test_failure_is_sanitized_preserves_choice_and_exposes_retry(self):
         snapshot = self._chosen(
@@ -254,7 +322,12 @@ class MultiVerticalImageGenerationTest(unittest.TestCase):
         unlock_beta_access(self.client, "pet")
         reaction = self.client.post(
             "/api/react",
-            json={"session_id": session_id, "result_id": result_id, "value": "love"},
+            json={
+                "session_id": session_id,
+                "result_id": result_id,
+                "value": "love",
+                "csrf_token": csrf_token(self.client),
+            },
         )
         self.assertEqual(reaction.status_code, 201)
         update_chosen_metadata(
@@ -270,7 +343,7 @@ class MultiVerticalImageGenerationTest(unittest.TestCase):
 
         results = self.client.get(f"/results/session/{session_id}").get_data(as_text=True)
         self.assertIn("Clover", results)
-        self.assertIn("Saved 1 name", results)
+        self.assertIn("Loved 1", results)
 
         try:
             with patch("app.Thread") as thread:

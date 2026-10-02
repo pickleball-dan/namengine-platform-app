@@ -68,6 +68,7 @@ from namengine.core import (
     build_taste_profile,
     build_trust_cue,
     compare_contrast_groups,
+    artifact_supported,
     build_journey_lifecycle,
     ensure_keepsake_for_chosen,
     generate_names,
@@ -3237,7 +3238,7 @@ def _try_generate_keepsake(chosen_id: str):
     snapshot = get_chosen_snapshot(chosen_id)
     if snapshot is None or snapshot["result"] is None:
         return None
-    if snapshot["chosen"].get("vertical") not in {"pet", "baby", "business", "boat"}:
+    if not artifact_supported(str(snapshot["chosen"].get("vertical") or "")):
         return None
 
     result = to_plain_data(json_loads(snapshot["result"]["result_json"]))
@@ -3261,7 +3262,7 @@ def _keepsake_preview(chosen_id: str):
     snapshot = get_chosen_snapshot(chosen_id)
     if snapshot is None or snapshot["result"] is None:
         return None
-    if snapshot["chosen"].get("vertical") not in {"pet", "baby", "business", "boat"}:
+    if not artifact_supported(str(snapshot["chosen"].get("vertical") or "")):
         return None
 
     return keepsake_preview_for_chosen(snapshot["chosen"], snapshot["session"])
@@ -3271,7 +3272,7 @@ def _queue_keepsake_generation(chosen_id: str, *, force_retry: bool = False):
     snapshot = get_chosen_snapshot(chosen_id)
     if snapshot is None or snapshot["result"] is None:
         return None
-    if snapshot["chosen"].get("vertical") not in {"pet", "baby", "business", "boat"}:
+    if not artifact_supported(str(snapshot["chosen"].get("vertical") or "")):
         return None
 
     result = to_plain_data(json_loads(snapshot["result"]["result_json"]))
