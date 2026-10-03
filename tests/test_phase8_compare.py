@@ -104,7 +104,7 @@ class PhaseEightCompareTest(unittest.TestCase):
         save_reaction(build_reaction("baby-compare-r3", r3[0].id, "no"))
         save_reaction(build_reaction("baby-compare-r4", r4[0].id, "love"))
         save_reaction(build_reaction("baby-other", other[0].id, "love"))
-        unlock_beta_access(self.client, "baby")
+        unlock_beta_access(self.client, "baby", return_session="baby-compare-r1")
 
         response = self.client.get("/compare/baby-compare-r4")
         body = response.get_data(as_text=True)

@@ -123,7 +123,7 @@ class ResultsMobileStabilizationTest(unittest.TestCase):
 
     def test_mobile_card_markup_keeps_summary_controls_and_full_detail(self):
         session_id = self._seed_results()
-        unlock_beta_access(self.client, "pet")
+        unlock_beta_access(self.client, "pet", return_session=session_id)
         body = self.client.get(f"/results/session/{session_id}").get_data(as_text=True)
 
         self.assertEqual(body.count("data-result-card>"), 2)
@@ -187,7 +187,7 @@ class ResultsMobileStabilizationTest(unittest.TestCase):
                     vertical=vertical,
                     count=4,
                 )
-                unlock_beta_access(self.client, vertical)
+                unlock_beta_access(self.client, vertical, return_session=session_id)
                 body = self.client.get(f"/results/session/{session_id}").get_data(as_text=True)
                 card_count = body.count('<article class="result-card" data-result-card>')
 
@@ -274,7 +274,7 @@ class ResultsMobileStabilizationTest(unittest.TestCase):
 
     def test_reaction_state_persists_and_maybe_is_rejected_publicly(self):
         session_id = self._seed_results()
-        unlock_beta_access(self.client, "pet")
+        unlock_beta_access(self.client, "pet", return_session=session_id)
         accepted = self.client.post(
             "/api/react",
             json={"session_id": session_id, "result_id": "pet-1", "value": "love", "csrf_token": csrf_token(self.client)},
@@ -305,7 +305,7 @@ class ResultsMobileStabilizationTest(unittest.TestCase):
     def test_empty_reactions_return_a_helpful_refinement_gate(self):
         session_id = self._seed_results()
 
-        unlock_beta_access(self.client, "pet")
+        unlock_beta_access(self.client, "pet", return_session=session_id)
         response = self.client.post(
             "/refine",
             data={"session_id": session_id, "instruction": "shorter", "csrf_token": csrf_token(self.client)},

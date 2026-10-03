@@ -80,7 +80,7 @@ class BoatAcceptanceUiTest(unittest.TestCase):
 
     def test_boat_detail_compare_link_uses_latest_journey_session(self):
         r1, r2, r3 = self._seed_boat_chain()
-        unlock_beta_access(self.client, "boat")
+        unlock_beta_access(self.client, "boat", return_session="boat-accept-r1")
 
         results_compare = self.client.get("/compare/boat-accept-r3")
         detail = self.client.get("/boat/name/boat-accept-r1/boat-r1-a")
@@ -102,7 +102,7 @@ class BoatAcceptanceUiTest(unittest.TestCase):
     def test_boat_chosen_page_renders_transom_preview_shell(self):
         r1, _, _ = self._seed_boat_chain()
         chosen = save_chosen_name("boat-accept-r1", r1[0].id)
-        unlock_beta_access(self.client, "boat")
+        unlock_beta_access(self.client, "boat", return_session="boat-accept-r1")
 
         response = self.client.get(f"/chosen/{chosen.id}")
         body = response.get_data(as_text=True)
@@ -135,7 +135,7 @@ class BoatAcceptanceUiTest(unittest.TestCase):
                 }
             },
         )
-        unlock_beta_access(self.client, "boat")
+        unlock_beta_access(self.client, "boat", return_session="boat-accept-r1")
 
         response = self.client.get(f"/chosen/{chosen.id}")
         body = response.get_data(as_text=True)
@@ -163,7 +163,7 @@ class BoatAcceptanceUiTest(unittest.TestCase):
 
     def test_boat_compare_favorites_uses_boat_contrast_shell(self):
         r1, r2, r3 = self._seed_boat_chain()
-        unlock_beta_access(self.client, "boat")
+        unlock_beta_access(self.client, "boat", return_session="boat-accept-r1")
 
         response = self.client.get("/compare/boat-accept-r3")
         body = response.get_data(as_text=True)

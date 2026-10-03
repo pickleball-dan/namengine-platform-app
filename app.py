@@ -1232,6 +1232,73 @@ def _free_session_access_blocked(vertical, session_id: str) -> bool:
     return False
 
 
+def _session_lineage_ids(session_id: str) -> set[str]:
+    """Return known ancestor/current/descendant ids for a session journey."""
+    session_id = str(session_id or "").strip()
+    if not session_id:
+        return set()
+    ids: set[str] = set()
+    for chain_id in (session_id, get_latest_session_in_journey(session_id) or ""):
+        if not chain_id:
+            continue
+        for snapshot in get_session_chain_snapshots(chain_id):
+            snapshot_id = str((snapshot.get("session") or {}).get("id") or "")
+            if snapshot_id:
+                ids.add(snapshot_id)
+    return ids
+
+
+def _same_session_journey(left_session_id: str, right_session_id: str) -> bool:
+    left_session_id = str(left_session_id or "").strip()
+    right_session_id = str(right_session_id or "").strip()
+    if not left_session_id or not right_session_id:
+        return False
+    if left_session_id == right_session_id:
+        return True
+    left_ids = _session_lineage_ids(left_session_id)
+    right_ids = _session_lineage_ids(right_session_id)
+    return bool(left_ids and right_ids and left_ids.intersection(right_ids))
+
+
+def _request_free_session_matches(vertical, session_id: str) -> bool:
+    visitor_id = _beta_visitor_id(create=False)
+    if not visitor_id:
+        return False
+    usage = get_beta_usage(visitor_id, vertical.slug)
+    usage_session_id = _beta_usage_session_id(vertical, usage)
+    if not usage_session_id or _beta_usage_expired(usage):
+        return False
+    return _same_session_journey(usage_session_id, session_id)
+
+
+def _request_paid_session_matches(vertical, session_id: str) -> bool:
+    if not beta_unlocked_from_request(vertical):
+        return False
+    return_session_id = _beta_unlocked_return_session_from_request(vertical)
+    if not return_session_id:
+        return False
+    return _same_session_journey(return_session_id, session_id)
+
+
+def can_access_session_resource(vertical, session_id: str, action: str = "view") -> bool:
+    """Return whether this request owns the requested session resource.
+
+    Paid actions stay paid-gated, but the unlock must belong to this journey.
+    Magic-link recovery restores the linked session into the free-session ledger,
+    while chosen-share tokens use their own read-only route and do not call this.
+    """
+    session_id = str(session_id or "").strip()
+    if not session_id:
+        return False
+    snapshot = get_session_snapshot(session_id)
+    if snapshot is None or snapshot["session"]["vertical"] != vertical.slug:
+        return False
+    paid_match = _request_paid_session_matches(vertical, session_id)
+    if action in {"react", "choose", "compare", "chosen"}:
+        return paid_match
+    return paid_match or _request_free_session_matches(vertical, session_id)
+
+
 def _free_generation_blocked(vertical, session_id: str, *, needs_generation: bool) -> bool:
     """Allow one free generated list per vertical/browser, then require paid access for new lists."""
     if not needs_generation or beta_unlocked_from_request(vertical):
@@ -2281,6 +2348,8 @@ Sitemap: https://nam-engine.com/sitemap.xml
         snapshot = get_session_snapshot(session_id) if session_id else None
         if snapshot is not None:
             vertical = get_vertical(snapshot["session"]["vertical"])
+            if not can_access_session_resource(vertical, session_id, "react"):
+                return _access_required_response(vertical, session_id, wants_json=True)
             lifecycle = _journey_lifecycle_for(vertical, snapshot)
             if not lifecycle.can_react(value):
                 return jsonify({"error": "final_decision_reactions_closed"}), 400
@@ -2322,7 +2391,7 @@ Sitemap: https://nam-engine.com/sitemap.xml
             abort(404)
         vertical = get_vertical(snapshot["session"]["vertical"])
         lifecycle = _journey_lifecycle_for(vertical, snapshot)
-        if not lifecycle.can_choose():
+        if not lifecycle.can_choose() or not can_access_session_resource(vertical, session_id, "choose"):
             return _access_required_response(vertical, session_id)
 
         try:
@@ -2428,7 +2497,7 @@ Sitemap: https://nam-engine.com/sitemap.xml
 
         vertical = get_vertical(snapshot["session"]["vertical"])
         lifecycle = _journey_lifecycle_for(vertical, snapshot)
-        if not lifecycle.can_compare():
+        if not lifecycle.can_compare() or not can_access_session_resource(vertical, session_id, "compare"):
             return _access_required_response(vertical, session_id)
 
         items = build_compare_items(session_id)
@@ -2607,7 +2676,7 @@ Sitemap: https://nam-engine.com/sitemap.xml
         vertical = get_vertical(snapshot["chosen"]["vertical"])
         session_id = str((snapshot.get("session") or {}).get("id") or snapshot["chosen"].get("session_id") or "")
         lifecycle = _journey_lifecycle_for(vertical, {"session": snapshot["session"], "results": [snapshot["result"]]})
-        if not lifecycle.can_choose():
+        if not lifecycle.can_choose() or not can_access_session_resource(vertical, session_id, "chosen"):
             return _access_required_response(vertical, session_id)
 
         result = to_plain_data(json_loads(snapshot["result"]["result_json"]))

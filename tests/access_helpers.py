@@ -14,7 +14,7 @@ def csrf_token(client):
     return cookie.value if cookie else ""
 
 
-def unlock_beta_access(client, vertical_slug="baby"):
+def unlock_beta_access(client, vertical_slug="baby", return_session: str = ""):
     """Simulate the verified checkout return used by paid refinement tests.
 
     Note: beta_landing (the checkout-return route) legitimately redirects straight
@@ -27,7 +27,10 @@ def unlock_beta_access(client, vertical_slug="baby"):
     previous = os.environ.get(env_key)
     os.environ[env_key] = "https://buy.stripe.com/test_example"
     try:
-        checkout = client.get(f"/{vertical_slug}/access/checkout")
+        checkout_path = f"/{vertical_slug}/access/checkout"
+        if return_session:
+            checkout_path = f"{checkout_path}?return_session={return_session}"
+        checkout = client.get(checkout_path)
         if checkout.status_code not in {302, 303}:
             raise AssertionError(f"checkout did not redirect: {checkout.status_code}")
         with patch("app._stripe_checkout_session_paid", return_value=True):

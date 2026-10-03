@@ -5,7 +5,7 @@ from contextlib import closing
 from unittest.mock import patch
 
 import app as platform_app
-from access_helpers import csrf_token
+from access_helpers import csrf_token, unlock_beta_access
 from app import create_app, make_session_id
 from namengine.core import (
     build_brief,
@@ -128,16 +128,16 @@ class PhaseFiveStorageTest(unittest.TestCase):
         query = b"pet_type=Dog&vibe=Gentle&style=Warm"
         session_id = make_session_id("pet", query)
         self.client.get(f"/pet/results?{query.decode('utf-8')}")
-        with patch.object(platform_app, "beta_unlocked_from_request", return_value=True):
-            response = self.client.post(
-                "/api/react",
-                json={
-                    "session_id": session_id,
-                    "result_id": "pet-1",
-                    "value": "love",
-                    "csrf_token": csrf_token(self.client),
-                },
-            )
+        unlock_beta_access(self.client, "pet", return_session=session_id)
+        response = self.client.post(
+            "/api/react",
+            json={
+                "session_id": session_id,
+                "result_id": "pet-1",
+                "value": "love",
+                "csrf_token": csrf_token(self.client),
+            },
+        )
 
         self.assertEqual(response.status_code, 201)
         data = response.get_json()

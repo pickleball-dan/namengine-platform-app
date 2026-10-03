@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from access_helpers import csrf_token
+from access_helpers import csrf_token, unlock_beta_access
 from app import create_app, make_session_id
 from namengine.core import (
     NameResult,
@@ -141,11 +141,11 @@ class PhaseNineTasteProfileTest(unittest.TestCase):
         session_id = make_session_id("pet", query)
         self.client.get(f"/pet/results?{query.decode('utf-8')}")
 
-        with patch("app.beta_unlocked_from_request", return_value=True):
-            response = self.client.post(
-                "/api/react",
-                json={"session_id": session_id, "result_id": "pet-1", "value": "love", "csrf_token": csrf_token(self.client)},
-            )
+        unlock_beta_access(self.client, "pet", return_session=session_id)
+        response = self.client.post(
+            "/api/react",
+            json={"session_id": session_id, "result_id": "pet-1", "value": "love", "csrf_token": csrf_token(self.client)},
+        )
 
         self.assertEqual(response.status_code, 201)
         data = response.get_json()
@@ -174,8 +174,8 @@ class PhaseNineTasteProfileTest(unittest.TestCase):
         session_id = self._seed_round_one()
         build_taste_profile(session_id)
 
-        with patch("app.beta_unlocked_from_request", return_value=True):
-            response = self.client.get(f"/compare/{session_id}")
+        unlock_beta_access(self.client, "pet", return_session=session_id)
+        response = self.client.get(f"/compare/{session_id}")
 
         self.assertEqual(response.status_code, 200)
         body = response.get_data(as_text=True)
@@ -185,4 +185,3 @@ class PhaseNineTasteProfileTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
