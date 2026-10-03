@@ -22,6 +22,15 @@ from .prompt_versions import (
     prompt_version_for,
     registered_prompt_versions,
 )
+from .generation_prompt_config import (
+    GenerationPromptConfig,
+    generation_model_score_keys,
+    generation_prompt_config_for,
+    generation_prompt_config_or_none,
+    generation_prompt_guidance,
+    generation_prompt_version_for,
+    registered_generation_prompt_configs,
+)
 from .quality_framework import QualityAdapter, quality_adapter_for, register_quality_adapter
 from .briefs import build_brief
 from .canonical_intent import CANONICAL_INTENT_VERSION, CanonicalNamingIntent
@@ -284,6 +293,11 @@ __all__ = [
     "generate_ai_names",
     "generate_names",
     "generate_with_router",
+    "generation_model_score_keys",
+    "generation_prompt_config_for",
+    "generation_prompt_config_or_none",
+    "generation_prompt_guidance",
+    "generation_prompt_version_for",
     "intake_adapter_for",
     "list_intake_schemas",
     "load_baby_intelligence_baseline",
@@ -318,6 +332,7 @@ __all__ = [
     "GenerationCandidate",
     "GenerationContext",
     "GenerationEnvironment",
+    "GenerationPromptConfig",
     "GenerationPurpose",
     "JourneyLifecycle",
     "get_chosen_snapshot",
@@ -364,6 +379,7 @@ __all__ = [
     "keepsake_details_from_brief",
     "generated_image_directory",
     "registered_artifact_verticals",
+    "registered_generation_prompt_configs",
     "safe_provider_error_for_log",
     "Reaction",
     "ReactionError",

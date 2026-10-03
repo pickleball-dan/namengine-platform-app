@@ -10,11 +10,9 @@ from namengine.core.quality_framework import (
     explanation_quality_score,
     register_quality_adapter,
 )
-from namengine.core.prompt_versions import DEFAULT_PROMPT_VERSION
 from namengine.core.schemas import NameResult, NamingBrief
 
 
-BOAT_PROMPT_VERSION = DEFAULT_PROMPT_VERSION
 BOAT_QUALITY_SCORE_VERSION = "boat-quality-score-v1"
 BOAT_QUALITY_SCORE_WEIGHTS = {
     "radio_clarity": 0.24,
@@ -317,11 +315,8 @@ def _average(rows: list[dict[str, float]], key: str) -> float:
 
 BOAT_QUALITY_ADAPTER = QualityAdapter(
     vertical_slug="boat",
-    prompt_version=BOAT_PROMPT_VERSION,
     score_version=BOAT_QUALITY_SCORE_VERSION,
     score_weights=BOAT_QUALITY_SCORE_WEIGHTS,
-    model_score_keys=("callability", "warmth", "distinctiveness"),
-    prompt_guidance=(),
     build_taste_thesis=build_boat_taste_thesis,
     score_dimensions=score_boat_dimensions,
     improve_explanations=improve_boat_explanations,

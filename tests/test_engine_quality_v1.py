@@ -1,4 +1,5 @@
 import json
+import hashlib
 import os
 import tempfile
 import unittest
@@ -13,13 +14,19 @@ from namengine.core import (
     QualityAdapter,
     build_brief,
     generate_ai_names,
+    generation_model_score_keys,
+    generation_prompt_config_for,
+    generation_prompt_guidance,
+    generation_prompt_version_for,
     load_taste_engine_fixtures,
+    registered_generation_prompt_configs,
     run_taste_engine_fixture_set,
     save_session,
     score_name_result,
     select_best_candidates,
 )
 from namengine.core.ai_generation import build_local_taste_strategy
+from namengine.core.ai_generation import build_finalizer_prompt, build_generation_prompt
 from namengine.core.baby_quality_adapter import (
     BABY_QUALITY_SCORE_WEIGHTS,
     improve_baby_explanations,
@@ -65,6 +72,59 @@ STRATEGY_RESPONSE = json.dumps(
         "diversity_plan": "Balance familiar and less common Japanese-rooted choices.",
     }
 )
+
+PROMPT_PAYLOAD_INPUTS = {
+    "baby": {
+        "gender": "girl",
+        "style": "Classic",
+        "sound": "Soft",
+        "discovery_style": "Familiar",
+        "familiarity_preference": "Recognizable",
+    },
+    "pet": {
+        "pet_type": "Dog",
+        "pet_breed": "Whippet",
+        "pet_color": "Blue gray",
+        "pet_details": "Mature rescue",
+        "style": "Modern",
+        "vibe": "Gentle",
+        "pronunciation_importance": "Very important",
+        "familiarity_preference": "Distinctive",
+    },
+    "business": {
+        "business_description": "Premium coffee subscription",
+        "industry": "Food and beverage",
+        "audience": "Busy professionals",
+        "style": "Modern",
+        "market_scope": "National",
+    },
+    "boat": {
+        "boat_type": "Sailboat",
+        "use": "Weekend adventures",
+        "vibe": "Adventurous",
+        "style": "Traditional nautical",
+        "radio_clarity": "Very important",
+    },
+}
+
+PROMPT_PAYLOAD_HASHES = {
+    "baby": (
+        "2f5ac935152599f9df2d68fb5af6206a6a36bf16ab4510f2d7c6d48f9610f8b0",
+        "aa10b3df9f64547b7a5dcfd0ffb55d1eb8af740486f28c27890b908f09cf27ff",
+    ),
+    "pet": (
+        "3a00869c6d9b299c39dc44577a781b5769df245f3da582d1a4732acfca095541",
+        "45af704b5b23a8b0db71fca95fb09683d2c69467175e84e1fc4d6d558700acad",
+    ),
+    "business": (
+        "cd28f62298c0fb1545a8b303b74bb6858d3cbfc9d52b5b540492f30c9ef2ffbb",
+        "0d40b666076e0c80442c9944929781266bcece5f9f786ea954733a6e81137028",
+    ),
+    "boat": (
+        "f71714f7f0e5047ec5be6fe8c49559a791822482cd9f7cd81e2b675dc5192f6a",
+        "403f058c7c7f21bfda6050a548468c7de6e4f82e9b7f2ffc294aba79d8c8f9da",
+    ),
+}
 
 
 CANDIDATE_RESPONSE = json.dumps(
@@ -337,19 +397,17 @@ class EngineQualityV1Test(unittest.TestCase):
         adapter = quality_adapter_for("baby")
 
         self.assertIsNotNone(adapter)
-        self.assertEqual(adapter.prompt_version, BABY_PROMPT_VERSION)
-        self.assertEqual(prompt_version_for("baby"), BABY_PROMPT_VERSION)
+        self.assertEqual(generation_prompt_version_for("baby"), BABY_PROMPT_VERSION)
+        self.assertEqual(generation_prompt_config_for("baby").prompt_version, BABY_PROMPT_VERSION)
         self.assertEqual(adapter.score_weights, BABY_QUALITY_SCORE_WEIGHTS)
+        self.assertEqual(generation_model_score_keys("baby"), tuple(BABY_QUALITY_SCORE_WEIGHTS))
 
     def test_shared_framework_supports_a_minimal_non_baby_adapter(self):
         slug = "test-minimal"
         adapter = QualityAdapter(
             vertical_slug=slug,
-            prompt_version="test-minimal-prompt-v1",
             score_version="test-minimal-score-v1",
             score_weights={"fit": 0.75, "clarity": 0.25},
-            model_score_keys=("fit", "clarity"),
-            prompt_guidance=("Be concrete.",),
             build_taste_thesis=lambda brief, weighting: f"Tone: {brief.inputs['tone']}",
             score_dimensions=lambda result, brief: (
                 {"fit": result.scores["fit"], "clarity": result.scores["clarity"]},
@@ -370,7 +428,8 @@ class EngineQualityV1Test(unittest.TestCase):
         score, reasons = score_quality_result(slug, result, brief)
 
         self.assertEqual(build_quality_taste_thesis(slug, brief, {}), "Tone: Direct")
-        self.assertEqual(prompt_version_for(slug), "test-minimal-prompt-v1")
+        self.assertEqual(prompt_version_for(slug), DEFAULT_PROMPT_VERSION)
+        self.assertEqual(generation_prompt_version_for(slug), DEFAULT_PROMPT_VERSION)
         self.assertEqual(score, 0.75)
         self.assertEqual(reasons, ["configured dimensions"])
         self.assertEqual(result.metadata["quality_score_version"], "test-minimal-score-v1")
@@ -380,54 +439,113 @@ class EngineQualityV1Test(unittest.TestCase):
         self.assertIsNone(quality_adapter_for(slug))
         self.assertEqual(prompt_version_for(slug), DEFAULT_PROMPT_VERSION)
 
+    def test_all_active_verticals_have_explicit_generation_prompt_config(self):
+        configs = registered_generation_prompt_configs()
+
+        self.assertEqual(set(configs), {"baby", "pet", "business", "boat"})
+        self.assertEqual(configs["baby"].prompt_version, BABY_PROMPT_VERSION)
+        self.assertEqual(configs["pet"].prompt_version, PET_PROMPT_VERSION)
+        self.assertEqual(configs["business"].prompt_version, BUSINESS_PROMPT_VERSION)
+        self.assertEqual(configs["boat"].prompt_version, DEFAULT_PROMPT_VERSION)
+        self.assertEqual(configs["baby"].model_score_keys, tuple(BABY_QUALITY_SCORE_WEIGHTS))
+        self.assertEqual(configs["business"].model_score_keys, ("memorability", "category_fit", "launch_readiness"))
+        self.assertEqual(configs["boat"].prompt_guidance, ())
+
+    def test_active_vertical_generation_prompt_payloads_match_pre_separation_hashes(self):
+        for slug, inputs in PROMPT_PAYLOAD_INPUTS.items():
+            with self.subTest(vertical=slug):
+                vertical = get_vertical(slug)
+                brief = build_brief(vertical, inputs)
+                taste_strategy = {
+                    "taste_thesis": f"{slug} thesis",
+                    "priority_interpretation": "keep it specific",
+                }
+                candidate = build_generation_prompt(
+                    vertical=vertical,
+                    brief=brief,
+                    round_number=1,
+                    taste_profile=None,
+                    previous_names=[],
+                    count=8,
+                    taste_strategy=taste_strategy,
+                )
+                finalizer = build_finalizer_prompt(
+                    vertical=vertical,
+                    brief=brief,
+                    round_number=1,
+                    taste_profile=None,
+                    previous_names=[],
+                    count=8,
+                    taste_strategy=taste_strategy,
+                    candidate_pool=[
+                        {"name": "Harbor", "territory": "nautical", "rationale": "clear"}
+                    ],
+                )
+                candidate_hash = hashlib.sha256(
+                    json.dumps(candidate, sort_keys=True, separators=(",", ":")).encode()
+                ).hexdigest()
+                finalizer_hash = hashlib.sha256(
+                    json.dumps(finalizer, sort_keys=True, separators=(",", ":")).encode()
+                ).hexdigest()
+
+                self.assertEqual((candidate_hash, finalizer_hash), PROMPT_PAYLOAD_HASHES[slug])
+
+    def test_quality_adapter_registration_does_not_change_generation_prompt_config(self):
+        slug = "test-generation-independent"
+        before = generation_prompt_config_for(slug)
+        adapter = QualityAdapter(
+            vertical_slug=slug,
+            score_version="test-score-v1",
+            score_weights={"fit": 1.0},
+            build_taste_thesis=lambda brief, weighting: "test",
+            score_dimensions=lambda result, brief: ({"fit": 1.0}, []),
+        )
+
+        register_quality_adapter(adapter)
+        self.addCleanup(unregister_quality_adapter, slug)
+
+        after = generation_prompt_config_for(slug)
+        self.assertEqual(after, before)
+        self.assertEqual(after.prompt_version, DEFAULT_PROMPT_VERSION)
+        self.assertEqual(after.model_score_keys, ("callability", "warmth", "distinctiveness"))
+        self.assertEqual(after.prompt_guidance, ())
+
     def test_adapter_registration_rejects_invalid_or_conflicting_configuration(self):
         with self.assertRaises(ValueError):
             QualityAdapter(
                 vertical_slug="Invalid Slug",
-                prompt_version="prompt-v1",
                 score_version="score-v1",
                 score_weights={"fit": 1.0},
-                model_score_keys=("fit",),
-                prompt_guidance=(),
                 build_taste_thesis=lambda brief, weighting: "test",
                 score_dimensions=lambda result, brief: ({"fit": 1.0}, []),
             )
         with self.assertRaises(ValueError):
             QualityAdapter(
                 vertical_slug="invalid-weights",
-                prompt_version="prompt-v1",
                 score_version="score-v1",
                 score_weights={"fit": 1.1, "clarity": -0.1},
-                model_score_keys=("fit", "clarity"),
-                prompt_guidance=(),
                 build_taste_thesis=lambda brief, weighting: "test",
                 score_dimensions=lambda result, brief: ({"fit": 1.0, "clarity": 0.0}, []),
             )
         valid = QualityAdapter(
             vertical_slug="test-conflict",
-            prompt_version="prompt-v1",
             score_version="score-v1",
             score_weights={"fit": 1.0},
-            model_score_keys=("fit",),
-            prompt_guidance=(),
             build_taste_thesis=lambda brief, weighting: "test",
             score_dimensions=lambda result, brief: ({"fit": 1.0}, []),
         )
         register_quality_adapter(valid)
         self.addCleanup(unregister_quality_adapter, valid.vertical_slug)
         with self.assertRaises(ValueError):
-            register_quality_adapter(replace(valid, prompt_version="prompt-v2"))
+            register_quality_adapter(replace(valid, score_version="score-v2"))
 
     def test_deterministic_ranking_is_shared_and_unregistered_vertical_keeps_legacy_order(self):
         slug = "test-ranking"
         register_quality_adapter(
             QualityAdapter(
                 vertical_slug=slug,
-                prompt_version="test-ranking-prompt-v1",
                 score_version="test-ranking-score-v1",
                 score_weights={"fit": 1.0},
-                model_score_keys=("fit",),
-                prompt_guidance=(),
                 build_taste_thesis=lambda brief, weighting: "test",
                 score_dimensions=lambda result, brief: ({"fit": 0.8}, []),
             )
@@ -471,10 +589,9 @@ class EngineQualityV1Test(unittest.TestCase):
         adapter = quality_adapter_for("pet")
 
         self.assertIsNotNone(adapter)
-        self.assertEqual(adapter.prompt_version, PET_PROMPT_VERSION)
-        self.assertEqual(prompt_version_for("pet"), PET_PROMPT_VERSION)
+        self.assertEqual(generation_prompt_version_for("pet"), PET_PROMPT_VERSION)
         self.assertEqual(adapter.score_weights, PET_QUALITY_SCORE_WEIGHTS)
-        self.assertEqual(adapter.model_score_keys, ("callability", "warmth", "distinctiveness"))
+        self.assertEqual(generation_model_score_keys("pet"), ("callability", "warmth", "distinctiveness"))
 
     def test_pet_quality_adapter_scores_callability_warmth_and_distinctiveness(self):
         brief = build_brief(
@@ -525,10 +642,12 @@ class EngineQualityV1Test(unittest.TestCase):
         adapter = quality_adapter_for("business")
 
         self.assertIsNotNone(adapter)
-        self.assertEqual(adapter.prompt_version, BUSINESS_PROMPT_VERSION)
-        self.assertEqual(prompt_version_for("business"), BUSINESS_PROMPT_VERSION)
+        self.assertEqual(generation_prompt_version_for("business"), BUSINESS_PROMPT_VERSION)
         self.assertEqual(adapter.score_weights, BUSINESS_QUALITY_SCORE_WEIGHTS)
-        self.assertEqual(adapter.model_score_keys, ("memorability", "category_fit", "launch_readiness"))
+        self.assertEqual(
+            generation_model_score_keys("business"),
+            ("memorability", "category_fit", "launch_readiness"),
+        )
 
     def test_business_quality_adapter_scores_launch_fit_dimensions(self):
         vertical = get_vertical("business")

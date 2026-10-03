@@ -10,7 +10,6 @@ from namengine.core.quality_framework import (
     explanation_quality_score,
     register_quality_adapter,
 )
-from namengine.core.prompt_versions import BABY_PROMPT_VERSION
 from namengine.core.schemas import NameResult, NamingBrief
 
 
@@ -367,16 +366,8 @@ def _rounded(value: float) -> float:
 
 BABY_QUALITY_ADAPTER = QualityAdapter(
     vertical_slug="baby",
-    prompt_version=BABY_PROMPT_VERSION,
     score_version=BABY_QUALITY_SCORE_VERSION,
     score_weights=BABY_QUALITY_SCORE_WEIGHTS,
-    model_score_keys=tuple(BABY_QUALITY_SCORE_WEIGHTS),
-    prompt_guidance=(
-        "Explain why each name fits this specific parent brief, not only its meaning.",
-        "Mention a relevant tradeoff honestly and keep the explanation concise.",
-        "Use varied, parent-friendly phrasing across the list.",
-        "Treat model scores as evidence; the application makes the final rank.",
-    ),
     build_taste_thesis=build_baby_taste_thesis,
     score_dimensions=score_baby_dimensions,
     improve_explanations=improve_baby_explanations,
