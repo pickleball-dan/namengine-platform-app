@@ -7,7 +7,11 @@ from dataclasses import dataclass
 import math
 from typing import Any
 
-from namengine.core.prompt_versions import register_prompt_version, unregister_prompt_version
+from namengine.core.generation_prompt_config import (
+    generation_model_score_keys,
+    generation_prompt_config_or_none,
+    generation_prompt_guidance,
+)
 from namengine.core.schemas import GenerationCandidate, NameResult, NamingBrief
 
 
@@ -20,11 +24,8 @@ AttributeEvaluator = Callable[[NamingBrief, list[NameResult]], dict[str, float]]
 @dataclass(frozen=True, slots=True)
 class QualityAdapter:
     vertical_slug: str
-    prompt_version: str
     score_version: str
     score_weights: dict[str, float]
-    model_score_keys: tuple[str, ...]
-    prompt_guidance: tuple[str, ...]
     build_taste_thesis: TasteThesisBuilder
     score_dimensions: DimensionScorer
     improve_explanations: ExplanationImprover | None = None
@@ -33,16 +34,14 @@ class QualityAdapter:
     def __post_init__(self) -> None:
         if not self.vertical_slug or self.vertical_slug != self.vertical_slug.strip().lower():
             raise ValueError("Quality adapter vertical slugs must be non-empty lowercase values")
-        if not self.prompt_version.strip() or not self.score_version.strip():
-            raise ValueError("Quality adapters require prompt and score versions")
+        if not self.score_version.strip():
+            raise ValueError("Quality adapters require score versions")
         if (
             not self.score_weights
             or any(not math.isfinite(weight) or weight < 0 for weight in self.score_weights.values())
             or abs(sum(self.score_weights.values()) - 1.0) > 0.001
         ):
             raise ValueError("Quality adapter score weights must total 1.0")
-        if not self.model_score_keys or len(set(self.model_score_keys)) != len(self.model_score_keys):
-            raise ValueError("Quality adapter model score keys must be non-empty and unique")
 
 
 _ADAPTERS: dict[str, QualityAdapter] = {}
@@ -53,14 +52,12 @@ def register_quality_adapter(adapter: QualityAdapter) -> None:
     if existing is not None and existing != adapter:
         raise ValueError(f"A quality adapter is already registered for {adapter.vertical_slug}")
     _ADAPTERS[adapter.vertical_slug] = adapter
-    register_prompt_version(adapter.vertical_slug, adapter.prompt_version)
 
 
 def unregister_quality_adapter(vertical_slug: str) -> None:
     """Remove a dynamically registered adapter (primarily useful for isolated tests)."""
     slug = vertical_slug.strip().lower()
     _ADAPTERS.pop(slug, None)
-    unregister_prompt_version(slug)
 
 
 def quality_adapter_for(vertical_slug: str) -> QualityAdapter | None:
@@ -121,13 +118,15 @@ def evaluate_quality_attributes(
 
 
 def quality_model_score_keys(vertical_slug: str, legacy: tuple[str, ...]) -> tuple[str, ...]:
-    adapter = quality_adapter_for(vertical_slug)
-    return adapter.model_score_keys if adapter else legacy
+    if not generation_prompt_config_or_none(vertical_slug):
+        return legacy
+    return generation_model_score_keys(vertical_slug)
 
 
 def quality_prompt_guidance(vertical_slug: str, legacy: tuple[str, ...]) -> tuple[str, ...]:
-    adapter = quality_adapter_for(vertical_slug)
-    return adapter.prompt_guidance if adapter else legacy
+    if not generation_prompt_config_or_none(vertical_slug):
+        return legacy
+    return generation_prompt_guidance(vertical_slug)
 
 
 def rank_quality_candidates(

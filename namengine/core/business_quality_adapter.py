@@ -10,7 +10,6 @@ from namengine.core.quality_framework import (
     explanation_quality_score,
     register_quality_adapter,
 )
-from namengine.core.prompt_versions import BUSINESS_PROMPT_VERSION
 from namengine.core.schemas import NameResult, NamingBrief
 
 
@@ -298,15 +297,8 @@ def _clean(value: str) -> str:
 register_quality_adapter(
     QualityAdapter(
         vertical_slug="business",
-        prompt_version=BUSINESS_PROMPT_VERSION,
         score_version=BUSINESS_QUALITY_SCORE_VERSION,
         score_weights=BUSINESS_QUALITY_SCORE_WEIGHTS,
-        model_score_keys=("memorability", "category_fit", "launch_readiness"),
-        prompt_guidance=(
-            "Business explanations must tie the name to the offer, audience, category, and launch risk.",
-            "Scores must evaluate memorability, category_fit, and launch_readiness instead of baby/pet warmth.",
-            "Treat domain, social handle, trademark, and competitor checks as practical risks, not guarantees.",
-        ),
         build_taste_thesis=build_business_taste_thesis,
         score_dimensions=score_business_dimensions,
         improve_explanations=improve_business_explanations,

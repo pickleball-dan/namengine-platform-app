@@ -13,13 +13,16 @@ from collections.abc import Callable
 from typing import Any
 
 import namengine.core.quality_adapters  # Registers built-in vertical adapters.
-from namengine.core.prompt_versions import DEFAULT_PROMPT_VERSION, prompt_version_for
+from namengine.core.generation_prompt_config import (
+    generation_model_score_keys,
+    generation_prompt_guidance,
+    generation_prompt_version_for,
+)
+from namengine.core.prompt_versions import DEFAULT_PROMPT_VERSION
 from namengine.core.quality_framework import (
     apply_quality_metadata,
     build_quality_taste_thesis,
     improve_quality_explanations,
-    quality_model_score_keys,
-    quality_prompt_guidance,
 )
 from namengine.core.schemas import (
     ModelProvider,
@@ -108,7 +111,7 @@ def generate_ai_names(
     client = client_factory() if client_factory else None
     shared_client_factory = (lambda: client) if client is not None else None
     generation_id = f"gen-{uuid.uuid4().hex[:12]}"
-    prompt_version = prompt_version_for(vertical.slug)
+    prompt_version = generation_prompt_version_for(vertical.slug)
     previous = previous_names or []
 
     taste_prompt = build_taste_interpreter_prompt(
@@ -418,7 +421,7 @@ def build_generation_prompt(
         "role": "NamEngine candidate generator",
         "engine_stage": "candidate_generator_v1",
         "prompt_version": prompt_version
-        or prompt_version_for(vertical.slug),
+        or generation_prompt_version_for(vertical.slug),
         "vertical": vertical.slug,
         "vertical_context": vertical.prompt_context,
         "round_number": round_number,
@@ -582,7 +585,7 @@ def build_finalizer_prompt(
         **_baby_taxonomy_diagnostics(vertical, brief),
         "role": "NamEngine critic, ranker, and finalizer",
         "engine_stage": "critic_ranker_finalizer_v1",
-        "prompt_version": prompt_version or prompt_version_for(vertical.slug),
+        "prompt_version": prompt_version or generation_prompt_version_for(vertical.slug),
         "vertical": vertical.slug,
         "vertical_context": vertical.prompt_context,
         "round_number": round_number,
@@ -659,7 +662,7 @@ def build_business_recovery_finalizer_prompt(
     return {
         "role": "NamEngine senior business naming critic",
         "engine_stage": "business_recovery_finalizer_v1",
-        "prompt_version": prompt_version or prompt_version_for(vertical.slug),
+        "prompt_version": prompt_version or generation_prompt_version_for(vertical.slug),
         "vertical": vertical.slug,
         "vertical_context": vertical.prompt_context,
         "round_number": round_number,
@@ -1062,9 +1065,7 @@ def _baby_decision_schema_properties() -> dict[str, Any]:
 
 
 def _score_keys(vertical_slug: str) -> list[str]:
-    return list(
-        quality_model_score_keys(vertical_slug, ("callability", "warmth", "distinctiveness"))
-    )
+    return list(generation_model_score_keys(vertical_slug))
 
 
 def _explanation_guidance(vertical_slug: str) -> list[str]:
@@ -1080,7 +1081,7 @@ def _explanation_guidance(vertical_slug: str) -> list[str]:
         "Good matched_preferences example: {\"preference\": \"Sound: Strong\", \"evidence\": \"Two syllables landing on the grounded nd consonant cluster\", \"fit\": \"Holds presence and authority without sounding harsh\"}",
         "Bad matched_preferences example: {\"preference\": \"Sound: Strong\", \"evidence\": \"You selected Strong\", \"fit\": \"Leander carries that signal in its strong direction\"}",
     ]
-    return guidance + list(quality_prompt_guidance(vertical_slug, ()))
+    return guidance + list(generation_prompt_guidance(vertical_slug))
 
 def parse_taste_strategy_response(raw_text: str) -> dict[str, Any]:
     payload = _loads_json_payload(raw_text)

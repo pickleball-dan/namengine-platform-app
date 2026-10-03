@@ -10,7 +10,6 @@ from namengine.core.quality_framework import (
     explanation_quality_score,
     register_quality_adapter,
 )
-from namengine.core.prompt_versions import PET_PROMPT_VERSION
 from namengine.core.schemas import NameResult, NamingBrief
 
 
@@ -274,16 +273,8 @@ def _average(rows: list[dict[str, float]], key: str) -> float:
 
 PET_QUALITY_ADAPTER = QualityAdapter(
     vertical_slug="pet",
-    prompt_version=PET_PROMPT_VERSION,
     score_version=PET_QUALITY_SCORE_VERSION,
     score_weights=PET_QUALITY_SCORE_WEIGHTS,
-    model_score_keys=("callability", "warmth", "distinctiveness"),
-    prompt_guidance=(
-        "Keep every Pet-specific intake field as evidence; do not genericize into Baby naming language.",
-        "Prioritize callability, animal personality, and household fit over abstract name beauty.",
-        "Tie the rationale to the pet type, personality, style, and practical out-loud use.",
-        "Mention one practical tradeoff honestly when relevant.",
-    ),
     build_taste_thesis=build_pet_taste_thesis,
     score_dimensions=score_pet_dimensions,
     improve_explanations=improve_pet_explanations,
