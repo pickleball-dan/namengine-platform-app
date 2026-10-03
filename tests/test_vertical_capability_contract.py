@@ -1,8 +1,11 @@
 from dataclasses import replace
 import unittest
+from unittest.mock import patch
 
+from app import _record_provider_failures_from_fallback, _required_baby_refinement_count
 from namengine.core.generation_prompt_config import generation_prompt_config_for
 from namengine.core.pet_portrait import artifact_definition
+from namengine.core.schemas import NameResult, NamingBrief
 from namengine.core.quality_framework import quality_adapter_for
 from namengine.core.validation import validate_result
 from namengine.core.vertical_capabilities import (
@@ -14,7 +17,6 @@ from namengine.core.vertical_capabilities import (
     route_generation_policy_for,
     vertical_capability_contract,
 )
-from namengine.core.schemas import NameResult, NamingBrief
 from namengine.verticals import BABY, BOAT, BUSINESS, PET
 
 
@@ -251,6 +253,48 @@ class VerticalCapabilityContractTest(unittest.TestCase):
             "Route/generation policy is not declared for active vertical: pet",
         ):
             vertical_capability_contract(PET, route_policy_lookup=lambda _slug: None)
+
+    def test_required_refinement_count_uses_route_generation_policy(self):
+        self.assertIsNone(_required_baby_refinement_count(BABY, 1))
+        self.assertEqual(_required_baby_refinement_count(BABY, 2), BABY.default_result_count)
+        self.assertEqual(_required_baby_refinement_count(BABY, 3), BABY.default_result_count)
+        self.assertEqual(_required_baby_refinement_count(BABY, 4), 6)
+        self.assertEqual(_required_baby_refinement_count(BABY, 5), 6)
+
+        for vertical in (PET, BUSINESS, BOAT):
+            for round_number in (1, 2, 3, 4, 5):
+                with self.subTest(vertical=vertical.slug, round_number=round_number):
+                    self.assertIsNone(_required_baby_refinement_count(vertical, round_number))
+
+    def test_provider_fallback_audit_uses_route_generation_policy(self):
+        for vertical in (BABY, PET, BUSINESS, BOAT):
+            with self.subTest(vertical=vertical.slug):
+                brief = NamingBrief(vertical=vertical.slug, inputs={})
+                result = NameResult(
+                    id=f"{vertical.slug}-fallback",
+                    name="Contract",
+                    slug="contract",
+                    metadata={
+                        "provider": "fallback",
+                        "provider_failures": [
+                            {
+                                "provider": "openai",
+                                "exception_type": "generation_error",
+                                "latency_ms": 17,
+                            }
+                        ],
+                    },
+                )
+
+                with patch("app.save_failed_generation_audit") as save_failed_generation_audit:
+                    _record_provider_failures_from_fallback(vertical, brief, [result])
+
+                if route_generation_policy_for(vertical.slug).fallback_audit_enabled:
+                    save_failed_generation_audit.assert_called_once()
+                    self.assertNotIn("provider_failures", result.metadata)
+                else:
+                    save_failed_generation_audit.assert_not_called()
+                    self.assertIn("provider_failures", result.metadata)
 
 
 if __name__ == "__main__":

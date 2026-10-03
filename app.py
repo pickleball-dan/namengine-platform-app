@@ -88,6 +88,7 @@ from namengine.core import (
     load_taste_engine_fixtures,
     ModelProvider,
     prepare_keepsake_for_chosen,
+    route_generation_policy_for,
     safe_provider_error_for_log,
     refine_session,
     run_taste_engine_fixture_set,
@@ -1283,7 +1284,10 @@ def _terminal_paid_journey_session_for_request(vertical) -> str:
 
 
 def _required_baby_refinement_count(vertical, round_number: int) -> int | None:
-    if vertical.slug != "baby" or round_number < 2:
+    policy = route_generation_policy_for(vertical.slug)
+    if policy.required_refinement_count_policy != "round_2_3_default_round_4_min_6":
+        return None
+    if round_number < 2:
         return None
     if round_number >= 4:
         return 6
@@ -3121,7 +3125,7 @@ def _generate_names_for_route(
 
 
 def _record_provider_failures_from_fallback(vertical, brief: NamingBrief, names: list[NameResult]) -> None:
-    if vertical.slug not in {"baby", "pet"}:
+    if not route_generation_policy_for(vertical.slug).fallback_audit_enabled:
         return
 
     recorded: set[tuple[str, str]] = set()
