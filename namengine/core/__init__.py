@@ -105,6 +105,14 @@ from .quality import (
 )
 from .progress import PROGRESS_STEPS, build_trust_cue
 from .journey_lifecycle import JourneyLifecycle, build_journey_lifecycle
+from .vertical_capabilities import (
+    ACTIVE_VERTICAL_SLUGS,
+    CapabilityContractError,
+    VerticalCapabilityContract,
+    active_vertical_capability_contracts,
+    assert_active_vertical_capability_contracts_complete,
+    vertical_capability_contract,
+)
 from .pet_portrait import (
     ArtifactDefinition,
     artifact_definition,
@@ -282,8 +290,10 @@ __all__ = [
     "build_taste_profile",
     "ChosenName",
     "AIGenerationError",
+    "ACTIVE_VERTICAL_SLUGS",
     "BABY_PROMPT_VERSION",
     "BUSINESS_PROMPT_VERSION",
+    "CapabilityContractError",
     "PET_PROMPT_VERSION",
     "QualityAdapter",
     "prompt_version_for",
@@ -335,6 +345,7 @@ __all__ = [
     "GenerationPromptConfig",
     "GenerationPurpose",
     "JourneyLifecycle",
+    "VerticalCapabilityContract",
     "get_chosen_snapshot",
     "get_database_path",
     "get_failed_generation_audits",
@@ -352,6 +363,8 @@ __all__ = [
     "is_ai_generation_configured",
     "is_pet_portrait_generation_configured",
     "build_journey_lifecycle",
+    "active_vertical_capability_contracts",
+    "assert_active_vertical_capability_contracts_complete",
     "keepsake_preview_for_chosen",
     "keepsake_runtime_config",
     "keepsake_url_from_metadata",
@@ -422,6 +435,7 @@ __all__ = [
     "update_chosen_metadata",
     "validate_result",
     "validate_results",
+    "vertical_capability_contract",
     "write_engine_audit_csv",
     "write_engine_audit_json",
     "vertical_theme_style",
