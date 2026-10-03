@@ -88,6 +88,7 @@ from namengine.core import (
     load_taste_engine_fixtures,
     ModelProvider,
     prepare_keepsake_for_chosen,
+    registered_route_generation_policies,
     route_generation_policy_for,
     safe_provider_error_for_log,
     refine_session,
@@ -3175,7 +3176,13 @@ def _audit_customer_intake(brief: NamingBrief) -> dict:
 
 
 def _ai_primary_verticals() -> set[str]:
-    raw_value = os.getenv("NAMENGINE_AI_PRIMARY_VERTICALS", "baby,pet,business")
+    raw_value = os.getenv("NAMENGINE_AI_PRIMARY_VERTICALS")
+    if raw_value is None:
+        return {
+            slug
+            for slug, policy in registered_route_generation_policies().items()
+            if policy.ai_primary_default
+        }
     if raw_value.strip().lower() in {"", "none", "off", "false", "0"}:
         return set()
     if raw_value.strip().lower() in {"all", "*"}:

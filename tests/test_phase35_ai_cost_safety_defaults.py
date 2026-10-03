@@ -39,15 +39,38 @@ class PhaseThirtyFiveAiCostSafetyDefaultsTest(unittest.TestCase):
             self.assertTrue(platform_app._should_use_ai_for_vertical(pet))
             self.assertTrue(platform_app._should_use_ai_for_vertical(business))
 
+    def test_ai_primary_default_set_comes_from_route_policy_when_env_is_absent(self):
+        with patch.dict(os.environ, {}, clear=True):
+            self.assertEqual(platform_app._ai_primary_verticals(), {"baby", "pet", "business"})
+            self.assertNotIn("boat", platform_app._ai_primary_verticals())
+
     def test_ai_primary_env_override_can_narrow_vertical_opt_in(self):
         baby = get_vertical("baby")
         pet = get_vertical("pet")
         business = get_vertical("business")
+        boat = get_vertical("boat")
         os.environ["NAMENGINE_AI_PRIMARY_VERTICALS"] = "baby"
         with patch.object(platform_app, "is_ai_generation_configured", return_value=True):
             self.assertTrue(platform_app._should_use_ai_for_vertical(baby))
             self.assertFalse(platform_app._should_use_ai_for_vertical(pet))
             self.assertFalse(platform_app._should_use_ai_for_vertical(business))
+            self.assertFalse(platform_app._should_use_ai_for_vertical(boat))
+
+    def test_ai_primary_env_override_special_values_are_unchanged(self):
+        for value in ("", "none", "off", "false", "0"):
+            with self.subTest(value=value):
+                os.environ["NAMENGINE_AI_PRIMARY_VERTICALS"] = value
+                self.assertEqual(platform_app._ai_primary_verticals(), set())
+
+        for value in ("all", "*"):
+            with self.subTest(value=value):
+                os.environ["NAMENGINE_AI_PRIMARY_VERTICALS"] = value
+                self.assertEqual(platform_app._ai_primary_verticals(), set(platform_app.VERTICALS))
+
+    def test_ai_primary_env_override_keeps_existing_token_parsing(self):
+        os.environ["NAMENGINE_AI_PRIMARY_VERTICALS"] = " baby, boat ,unknown,, "
+
+        self.assertEqual(platform_app._ai_primary_verticals(), {"baby", "boat", "unknown"})
 
     def test_business_results_route_uses_openai_prompt_pipeline_when_configured(self):
         ai_names = [
