@@ -33,6 +33,7 @@ class VerticalCapabilityContractTest(unittest.TestCase):
                 "prompt_version": "namengine-baby-quality-v1",
                 "quality": "baby-quality-score-v1",
                 "validation": ("baby_pronunciation", "baby_initials", "baby_popularity"),
+                "runtime_validation": ("baby_gender_direction",),
                 "artifact": "baby_blanket",
                 "render": "baby_keepsake",
                 "special": ("baby_taxonomy", "baby_final_decision"),
@@ -45,6 +46,7 @@ class VerticalCapabilityContractTest(unittest.TestCase):
                 "prompt_version": "namengine-pet-quality-v1",
                 "quality": "pet-quality-score-v1",
                 "validation": ("pet_callability", "pet_sound_clarity"),
+                "runtime_validation": (),
                 "artifact": "pet_portrait",
                 "render": "pet_portrait",
                 "special": ("pet_legacy_brief_aliases",),
@@ -61,6 +63,7 @@ class VerticalCapabilityContractTest(unittest.TestCase):
                     "business_category_fit",
                     "business_similarity",
                 ),
+                "runtime_validation": (),
                 "artifact": "business_brand_concept",
                 "render": "business_brand_concept",
                 "special": ("business_recovery_finalizer", "business_domain_enrichment"),
@@ -77,6 +80,7 @@ class VerticalCapabilityContractTest(unittest.TestCase):
                     "boat_tradition_fit",
                     "boat_length",
                 ),
+                "runtime_validation": (),
                 "artifact": "boat_portrait",
                 "render": "boat_transom",
                 "special": ("boat_transom_artifact",),
@@ -93,6 +97,11 @@ class VerticalCapabilityContractTest(unittest.TestCase):
                 self.assertEqual(contract.generation_prompt_config.prompt_version, row["prompt_version"])
                 self.assertEqual(contract.quality_adapter.score_version, row["quality"])
                 self.assertEqual(contract.validation_modules, row["validation"])
+                self.assertEqual(contract.validation_runtime_modules, row["runtime_validation"])
+                self.assertEqual(
+                    contract.validation_executor_modules,
+                    row["runtime_validation"] + row["validation"],
+                )
                 self.assertEqual(contract.artifact_kind, row["artifact"])
                 self.assertEqual(contract.artifact_render_variant, row["render"])
                 self.assertEqual(contract.special_capabilities, row["special"])

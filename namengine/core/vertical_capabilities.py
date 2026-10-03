@@ -39,6 +39,7 @@ class VerticalCapabilityContract:
     generation_prompt_config: GenerationPromptConfig
     quality_adapter: QualityAdapter
     validation_modules: tuple[str, ...]
+    validation_runtime_modules: tuple[str, ...]
     validation_executor_modules: tuple[str, ...]
     artifact_definition: ArtifactDefinition
     special_capabilities: tuple[str, ...] = ()
@@ -85,6 +86,7 @@ def vertical_capability_contract(
         raise CapabilityContractError(
             f"Validation modules are not declared for active vertical: {slug}"
         )
+    validation_runtime_modules = tuple(vertical.validation_runtime_modules)
     executor_modules = _validation_executor_modules(vertical)
     if "validation_not_configured" in executor_modules:
         raise CapabilityContractError(
@@ -106,6 +108,7 @@ def vertical_capability_contract(
         generation_prompt_config=generation_config,
         quality_adapter=quality_adapter,
         validation_modules=validation_modules,
+        validation_runtime_modules=validation_runtime_modules,
         validation_executor_modules=executor_modules,
         artifact_definition=artifact_definition,
         special_capabilities=SPECIAL_CAPABILITIES.get(slug, ()),

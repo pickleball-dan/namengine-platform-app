@@ -105,6 +105,7 @@ class VerticalConfig:
     prompt_context: str
     result_field_labels: dict[str, str] = field(default_factory=dict)
     validation_modules: tuple[str, ...] = ()
+    validation_runtime_modules: tuple[str, ...] = ()
     theme: dict[str, str] = field(default_factory=dict)
     assets: dict[str, str] = field(default_factory=dict)
     visual: VerticalVisualConfig = field(default_factory=VerticalVisualConfig)

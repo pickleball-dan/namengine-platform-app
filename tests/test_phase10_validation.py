@@ -1,6 +1,7 @@
 import os
 import tempfile
 import unittest
+from dataclasses import replace
 
 from app import create_app, make_session_id
 from namengine.core import (
@@ -11,10 +12,15 @@ from namengine.core import (
     save_session,
     validate_result,
 )
-from namengine.core.validation import filter_results_for_brief
+from namengine.core.validation import (
+    ValidationModuleError,
+    filter_results_for_brief,
+    registered_validation_modules,
+    validation_modules_for,
+)
 from namengine.core.schemas import NameResult, ValidationStatus
 from namengine.core.generation import slugify
-from namengine.verticals import BABY, PET
+from namengine.verticals import BABY, BOAT, BUSINESS, PET
 
 
 class PhaseTenValidationTest(unittest.TestCase):
@@ -46,6 +52,112 @@ class PhaseTenValidationTest(unittest.TestCase):
         )
         avoid = next(item for item in validation if item.module == "avoid_match")
         self.assertEqual(avoid.status, ValidationStatus.FAIL)
+
+    def test_declared_validation_modules_dispatch_in_order(self):
+        cases = (
+            (
+                PET,
+                {"pet_type": "Dog", "style": "Warm", "vibe": "Playful"},
+                "Milo",
+                ("pet_callability", "pet_sound_clarity"),
+            ),
+            (
+                BABY,
+                {"gender": "Girl", "style": "Classic", "sound": "Soft"},
+                "Clara",
+                (
+                    "baby_gender_direction",
+                    "baby_pronunciation",
+                    "baby_initials",
+                    "baby_popularity",
+                ),
+            ),
+            (
+                BUSINESS,
+                {"business_description": "AI ops platform", "audience": "B2B", "style": "Clear"},
+                "Gridline",
+                (
+                    "business_domain",
+                    "business_category_fit",
+                    "business_similarity",
+                ),
+            ),
+            (
+                BOAT,
+                {
+                    "boat_type": "Sailboat",
+                    "use": "Weekend adventures",
+                    "vibe": "Adventurous",
+                    "style": "Traditional nautical",
+                },
+                "Harbor Star",
+                ("boat_radio_clarity", "boat_tradition_fit", "boat_length"),
+            ),
+        )
+
+        for vertical, inputs, name, expected_modules in cases:
+            with self.subTest(vertical=vertical.slug):
+                brief = build_brief(vertical, inputs)
+                result = NameResult(id=f"{vertical.slug}-1", name=name, slug=slugify(name))
+
+                validation = validate_result(vertical, brief, result)
+
+                self.assertEqual(tuple(item.module for item in validation), expected_modules)
+
+    def test_active_validation_modules_are_registered(self):
+        registered = registered_validation_modules()
+
+        for vertical in (BABY, PET, BUSINESS, BOAT):
+            with self.subTest(vertical=vertical.slug):
+                self.assertEqual(
+                    tuple(module for module in validation_modules_for(vertical) if module not in registered),
+                    (),
+                )
+
+    def test_baby_gender_direction_runtime_validator_always_runs_first(self):
+        brief = build_brief(BABY, {"gender": "Girl", "style": "Classic", "sound": "Soft"})
+        result = NameResult(id="baby-1", name="Clara", slug=slugify("Clara"))
+
+        validation = validate_result(BABY, brief, result)
+
+        self.assertEqual(validation[0].module, "baby_gender_direction")
+        self.assertEqual(validation[0].status, ValidationStatus.PASS)
+
+    def test_avoid_match_remains_conditional_common_validation(self):
+        cases = (
+            (PET, {"pet_type": "Dog", "avoid": "Milo"}, "Milo"),
+            (BABY, {"gender": "Girl", "avoid": "Clara"}, "Clara"),
+            (BUSINESS, {"business_description": "AI ops", "avoid": "Gridline"}, "Gridline"),
+            (BOAT, {"boat_type": "Sailboat", "avoid": "Harbor Star"}, "Harbor Star"),
+        )
+
+        for vertical, inputs, name in cases:
+            with self.subTest(vertical=vertical.slug):
+                brief = build_brief(vertical, inputs)
+                result = NameResult(id=f"{vertical.slug}-avoid", name=name, slug=slugify(name))
+
+                validation = validate_result(vertical, brief, result)
+
+                avoid = next(item for item in validation if item.module == "avoid_match")
+                self.assertEqual(avoid.status, ValidationStatus.FAIL)
+
+        brief = build_brief(PET, {"pet_type": "Dog"})
+        result = NameResult(id="pet-no-avoid", name="Milo", slug=slugify("Milo"))
+        self.assertNotIn(
+            "avoid_match",
+            {item.module for item in validate_result(PET, brief, result)},
+        )
+
+    def test_unknown_validation_module_fails_explicitly(self):
+        candidate = replace(PET, validation_modules=("pet_callability", "missing_validator"))
+        brief = build_brief(candidate, {"pet_type": "Dog"})
+        result = NameResult(id="pet-unknown", name="Milo", slug=slugify("Milo"))
+
+        with self.assertRaisesRegex(
+            ValidationModuleError,
+            "Validation module is not registered: missing_validator",
+        ):
+            validate_result(candidate, brief, result)
 
     def test_generation_applies_validation_pipeline(self):
         brief = build_brief(PET, {"species": "Dog", "style": "Warm"})

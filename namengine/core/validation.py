@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
+
 from namengine.core.schemas import (
     NamingBrief,
     NameResult,
@@ -307,21 +309,23 @@ BABY_BOY_INCOMPATIBLE_NAMES = {
 }
 
 
+ValidationCallable = Callable[[NamingBrief, str], ValidationResult]
+
+
+class ValidationModuleError(ValueError):
+    """Raised when a declared validation module has no registered executor."""
+
+
 def validate_result(
     vertical: VerticalConfig,
     brief: NamingBrief,
     result: NameResult,
 ) -> list[ValidationResult]:
-    if vertical.slug == "pet":
-        return _validate_pet_name(brief, result.name)
-    if vertical.slug == "baby":
-        return _validate_baby_name(brief, result.name)
-    if vertical.slug == "business":
-        return _validate_business_name(brief, result.name)
-    if vertical.slug == "boat":
-        return _validate_boat_name(brief, result.name)
-    if vertical.slug == "product":
-        return _validate_product_name(brief, result.name)
+    modules = validation_modules_for(vertical)
+    if modules:
+        validation = [_run_validation_module(module, brief, result.name) for module in modules]
+        validation.extend(_conditional_validation_modules(vertical, brief, result.name))
+        return validation
     return [
         ValidationResult(
             module="validation_not_configured",
@@ -331,6 +335,42 @@ def validate_result(
             confidence=0.0,
         )
     ]
+
+
+def validation_modules_for(vertical: VerticalConfig) -> tuple[str, ...]:
+    return tuple(vertical.validation_runtime_modules) + tuple(vertical.validation_modules)
+
+
+def validation_validator_for(module_name: str) -> ValidationCallable:
+    try:
+        return VALIDATION_MODULE_REGISTRY[module_name]
+    except KeyError as exc:
+        raise ValidationModuleError(f"Validation module is not registered: {module_name}") from exc
+
+
+def registered_validation_modules() -> dict[str, ValidationCallable]:
+    return dict(VALIDATION_MODULE_REGISTRY)
+
+
+def _run_validation_module(module_name: str, brief: NamingBrief, name: str) -> ValidationResult:
+    return validation_validator_for(module_name)(brief, name)
+
+
+def _conditional_validation_modules(
+    vertical: VerticalConfig,
+    brief: NamingBrief,
+    name: str,
+) -> list[ValidationResult]:
+    if not brief.avoid:
+        return []
+    clean_name = _clean_name_key(name)
+    if vertical.slug in {"pet", "baby"}:
+        avoid = {item.lower() for item in brief.avoid}
+        return [_pet_avoid_validation(clean_name, avoid)]
+    if vertical.slug in {"business", "boat", "product"}:
+        avoid = {_clean_name_key(item) for item in brief.avoid}
+        return [_business_avoid_validation(clean_name, avoid)]
+    return []
 
 
 def validate_results(
@@ -876,6 +916,93 @@ def _baby_popularity_validation(clean_name: str) -> ValidationResult:
         score=0.84,
         confidence=0.65,
     )
+
+
+def _pet_callability_validator(_brief: NamingBrief, name: str) -> ValidationResult:
+    clean_name = _clean_name_key(name)
+    return _pet_callability_validation(len(clean_name), _estimate_syllables(clean_name))
+
+
+def _pet_sound_clarity_validator(_brief: NamingBrief, name: str) -> ValidationResult:
+    return _pet_sound_clarity_validation(_clean_name_key(name))
+
+
+def _baby_gender_direction_validator(brief: NamingBrief, name: str) -> ValidationResult:
+    return _baby_gender_direction_validation(brief, _clean_name_key(name))
+
+
+def _baby_pronunciation_validator(_brief: NamingBrief, name: str) -> ValidationResult:
+    clean_name = _clean_name_key(name)
+    return _baby_pronunciation_validation(clean_name, _estimate_syllables(clean_name))
+
+
+def _baby_initials_validator(brief: NamingBrief, name: str) -> ValidationResult:
+    return _baby_initials_validation(brief, _clean_name_key(name))
+
+
+def _baby_popularity_validator(_brief: NamingBrief, name: str) -> ValidationResult:
+    return _baby_popularity_validation(_clean_name_key(name))
+
+
+def _business_domain_validator(_brief: NamingBrief, name: str) -> ValidationResult:
+    return _business_domain_validation(_clean_name_key(name), name)
+
+
+def _business_category_fit_validator(brief: NamingBrief, _name: str) -> ValidationResult:
+    return _business_category_fit_validation(brief)
+
+
+def _business_similarity_validator(brief: NamingBrief, name: str) -> ValidationResult:
+    return _business_similarity_validation(brief, _clean_name_key(name))
+
+
+def _product_shelf_fit_validator(_brief: NamingBrief, name: str) -> ValidationResult:
+    return _product_shelf_fit_validation(_clean_name_key(name), name)
+
+
+def _product_category_fit_validator(brief: NamingBrief, _name: str) -> ValidationResult:
+    return _product_category_fit_validation(brief)
+
+
+def _product_claim_risk_validator(brief: NamingBrief, name: str) -> ValidationResult:
+    return _product_claim_risk_validation(brief, _clean_name_key(name))
+
+
+def _boat_radio_clarity_validator(_brief: NamingBrief, name: str) -> ValidationResult:
+    clean_name = _clean_name_key(name)
+    words = _name_words(name)
+    return _boat_radio_clarity_validation(clean_name, words, _estimate_syllables(clean_name))
+
+
+def _boat_tradition_fit_validator(brief: NamingBrief, name: str) -> ValidationResult:
+    return _boat_tradition_fit_validation(brief, _clean_name_key(name), name)
+
+
+def _boat_length_validator(_brief: NamingBrief, name: str) -> ValidationResult:
+    return _boat_length_validation(_clean_name_key(name), _name_words(name))
+
+
+VALIDATION_MODULE_REGISTRY: dict[str, ValidationCallable] = {
+    "baby_gender_direction": _baby_gender_direction_validator,
+    "baby_pronunciation": _baby_pronunciation_validator,
+    "baby_initials": _baby_initials_validator,
+    "baby_popularity": _baby_popularity_validator,
+    "pet_callability": _pet_callability_validator,
+    "pet_sound_clarity": _pet_sound_clarity_validator,
+    "business_domain": _business_domain_validator,
+    "business_category_fit": _business_category_fit_validator,
+    "business_similarity": _business_similarity_validator,
+    "product_shelf_fit": _product_shelf_fit_validator,
+    "product_category_fit": _product_category_fit_validator,
+    "product_claim_risk": _product_claim_risk_validator,
+    "boat_radio_clarity": _boat_radio_clarity_validator,
+    "boat_tradition_fit": _boat_tradition_fit_validator,
+    "boat_length": _boat_length_validator,
+}
+
+
+def _name_words(name: str) -> list[str]:
+    return [word for word in name.replace("-", " ").replace("'", " ").split() if word.strip()]
 
 
 def _estimate_syllables(clean_name: str) -> int:

@@ -491,6 +491,7 @@ BABY = VerticalConfig(
         "risks": "Considerations",
     },
     validation_modules=("baby_pronunciation", "baby_initials", "baby_popularity"),
+    validation_runtime_modules=("baby_gender_direction",),
     theme={
         "accent": "#7d95c7",
         "accent_deep": "#29344f",
