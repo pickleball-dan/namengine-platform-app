@@ -30,6 +30,77 @@ class CapabilityContractError(RuntimeError):
 
 
 @dataclass(frozen=True, slots=True)
+class RouteGenerationPolicy:
+    ai_primary_default: bool
+    allow_provider_fallback: bool
+    fallback_audit_enabled: bool
+    cache_freshness_requirements: tuple[str, ...]
+    required_refinement_count_policy: str
+    allow_previous_fill_policy: str
+    result_filter_policy: str
+    special_generation_capabilities: tuple[str, ...] = ()
+
+
+ROUTE_GENERATION_POLICIES: dict[str, RouteGenerationPolicy] = {
+    "baby": RouteGenerationPolicy(
+        ai_primary_default=True,
+        allow_provider_fallback=True,
+        fallback_audit_enabled=True,
+        cache_freshness_requirements=(
+            "ai_primary_source_consistency",
+            "customer_environment_requires_all_ai",
+            "baby_gender_filter",
+            "baby_gender_direction_validation",
+        ),
+        required_refinement_count_policy="round_2_3_default_round_4_min_6",
+        allow_previous_fill_policy="never",
+        result_filter_policy="baby_gender_and_avoid",
+        special_generation_capabilities=("baby_taxonomy", "baby_generation_guidance"),
+    ),
+    "pet": RouteGenerationPolicy(
+        ai_primary_default=True,
+        allow_provider_fallback=True,
+        fallback_audit_enabled=True,
+        cache_freshness_requirements=(
+            "ai_primary_source_consistency",
+            "customer_environment_requires_all_ai",
+        ),
+        required_refinement_count_policy="none",
+        allow_previous_fill_policy="rounds_before_four",
+        result_filter_policy="none",
+    ),
+    "business": RouteGenerationPolicy(
+        ai_primary_default=True,
+        allow_provider_fallback=False,
+        fallback_audit_enabled=False,
+        cache_freshness_requirements=(
+            "ai_primary_source_consistency",
+            "always_requires_all_ai",
+            "business_domain_validation",
+            "business_domain_info",
+        ),
+        required_refinement_count_policy="none",
+        allow_previous_fill_policy="rounds_before_four",
+        result_filter_policy="none",
+        special_generation_capabilities=(
+            "business_recovery_finalizer",
+            "business_quality_gate",
+            "business_domain_enrichment",
+        ),
+    ),
+    "boat": RouteGenerationPolicy(
+        ai_primary_default=False,
+        allow_provider_fallback=True,
+        fallback_audit_enabled=False,
+        cache_freshness_requirements=(),
+        required_refinement_count_policy="none",
+        allow_previous_fill_policy="rounds_before_four",
+        result_filter_policy="none",
+    ),
+}
+
+
+@dataclass(frozen=True, slots=True)
 class VerticalCapabilityContract:
     vertical_slug: str
     review_mode: str
@@ -42,6 +113,7 @@ class VerticalCapabilityContract:
     validation_runtime_modules: tuple[str, ...]
     validation_executor_modules: tuple[str, ...]
     artifact_definition: ArtifactDefinition
+    route_generation_policy: RouteGenerationPolicy
     special_capabilities: tuple[str, ...] = ()
 
     @property
@@ -56,6 +128,7 @@ class VerticalCapabilityContract:
 QualityLookup = Callable[[str], QualityAdapter | None]
 GenerationPromptLookup = Callable[[str], GenerationPromptConfig | None]
 ArtifactLookup = Callable[[str], ArtifactDefinition | None]
+RouteGenerationPolicyLookup = Callable[[str], RouteGenerationPolicy | None]
 
 
 def vertical_capability_contract(
@@ -64,6 +137,7 @@ def vertical_capability_contract(
     generation_lookup: GenerationPromptLookup = generation_prompt_config_or_none,
     quality_lookup: QualityLookup = quality_adapter_for,
     artifact_lookup: ArtifactLookup = artifact_definition_or_none,
+    route_policy_lookup: RouteGenerationPolicyLookup = lambda slug: ROUTE_GENERATION_POLICIES.get(slug),
 ) -> VerticalCapabilityContract:
     """Aggregate the current subsystem registrations for one active vertical."""
 
@@ -99,6 +173,12 @@ def vertical_capability_contract(
             f"Graphical artifact is not registered for active vertical: {slug}"
         )
 
+    route_generation_policy = route_policy_lookup(slug)
+    if route_generation_policy is None:
+        raise CapabilityContractError(
+            f"Route/generation policy is not declared for active vertical: {slug}"
+        )
+
     return VerticalCapabilityContract(
         vertical_slug=slug,
         review_mode=vertical.review_mode,
@@ -111,6 +191,7 @@ def vertical_capability_contract(
         validation_runtime_modules=validation_runtime_modules,
         validation_executor_modules=executor_modules,
         artifact_definition=artifact_definition,
+        route_generation_policy=route_generation_policy,
         special_capabilities=SPECIAL_CAPABILITIES.get(slug, ()),
     )
 
@@ -121,6 +202,7 @@ def active_vertical_capability_contracts(
     generation_lookup: GenerationPromptLookup = generation_prompt_config_or_none,
     quality_lookup: QualityLookup = quality_adapter_for,
     artifact_lookup: ArtifactLookup = artifact_definition_or_none,
+    route_policy_lookup: RouteGenerationPolicyLookup = lambda slug: ROUTE_GENERATION_POLICIES.get(slug),
 ) -> tuple[VerticalCapabilityContract, ...]:
     verticals = tuple(active_verticals) if active_verticals is not None else active_verticals_for_contract()
     return tuple(
@@ -129,6 +211,7 @@ def active_vertical_capability_contracts(
             generation_lookup=generation_lookup,
             quality_lookup=quality_lookup,
             artifact_lookup=artifact_lookup,
+            route_policy_lookup=route_policy_lookup,
         )
         for vertical in verticals
     )
@@ -146,6 +229,24 @@ def active_verticals_for_contract() -> tuple[VerticalConfig, ...]:
     from namengine.verticals.configs import VERTICALS
 
     return tuple(VERTICALS[slug] for slug in ACTIVE_VERTICAL_SLUGS)
+
+
+def route_generation_policy_for(vertical_slug: str) -> RouteGenerationPolicy:
+    slug = vertical_slug.strip().lower()
+    policy = route_generation_policy_or_none(slug)
+    if policy is None:
+        raise CapabilityContractError(
+            f"Route/generation policy is not declared for active vertical: {slug}"
+        )
+    return policy
+
+
+def route_generation_policy_or_none(vertical_slug: str) -> RouteGenerationPolicy | None:
+    return ROUTE_GENERATION_POLICIES.get(vertical_slug.strip().lower())
+
+
+def registered_route_generation_policies() -> dict[str, RouteGenerationPolicy]:
+    return dict(ROUTE_GENERATION_POLICIES)
 
 
 def _ensure_builtin_quality_adapters_registered() -> None:

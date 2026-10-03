@@ -10,6 +10,8 @@ from namengine.core.vertical_capabilities import (
     CapabilityContractError,
     active_vertical_capability_contracts,
     assert_active_vertical_capability_contracts_complete,
+    registered_route_generation_policies,
+    route_generation_policy_for,
     vertical_capability_contract,
 )
 from namengine.core.schemas import NameResult, NamingBrief
@@ -37,6 +39,21 @@ class VerticalCapabilityContractTest(unittest.TestCase):
                 "artifact": "baby_blanket",
                 "render": "baby_keepsake",
                 "special": ("baby_taxonomy", "baby_final_decision"),
+                "route_policy": {
+                    "ai_primary_default": True,
+                    "allow_provider_fallback": True,
+                    "fallback_audit_enabled": True,
+                    "cache": (
+                        "ai_primary_source_consistency",
+                        "customer_environment_requires_all_ai",
+                        "baby_gender_filter",
+                        "baby_gender_direction_validation",
+                    ),
+                    "required_count": "round_2_3_default_round_4_min_6",
+                    "previous_fill": "never",
+                    "result_filter": "baby_gender_and_avoid",
+                    "generation_special": ("baby_taxonomy", "baby_generation_guidance"),
+                },
             },
             "pet": {
                 "review_mode": "direction_review",
@@ -50,6 +67,19 @@ class VerticalCapabilityContractTest(unittest.TestCase):
                 "artifact": "pet_portrait",
                 "render": "pet_portrait",
                 "special": ("pet_legacy_brief_aliases",),
+                "route_policy": {
+                    "ai_primary_default": True,
+                    "allow_provider_fallback": True,
+                    "fallback_audit_enabled": True,
+                    "cache": (
+                        "ai_primary_source_consistency",
+                        "customer_environment_requires_all_ai",
+                    ),
+                    "required_count": "none",
+                    "previous_fill": "rounds_before_four",
+                    "result_filter": "none",
+                    "generation_special": (),
+                },
             },
             "business": {
                 "review_mode": "direction_review",
@@ -67,6 +97,25 @@ class VerticalCapabilityContractTest(unittest.TestCase):
                 "artifact": "business_brand_concept",
                 "render": "business_brand_concept",
                 "special": ("business_recovery_finalizer", "business_domain_enrichment"),
+                "route_policy": {
+                    "ai_primary_default": True,
+                    "allow_provider_fallback": False,
+                    "fallback_audit_enabled": False,
+                    "cache": (
+                        "ai_primary_source_consistency",
+                        "always_requires_all_ai",
+                        "business_domain_validation",
+                        "business_domain_info",
+                    ),
+                    "required_count": "none",
+                    "previous_fill": "rounds_before_four",
+                    "result_filter": "none",
+                    "generation_special": (
+                        "business_recovery_finalizer",
+                        "business_quality_gate",
+                        "business_domain_enrichment",
+                    ),
+                },
             },
             "boat": {
                 "review_mode": "direct_generation",
@@ -84,6 +133,16 @@ class VerticalCapabilityContractTest(unittest.TestCase):
                 "artifact": "boat_portrait",
                 "render": "boat_transom",
                 "special": ("boat_transom_artifact",),
+                "route_policy": {
+                    "ai_primary_default": False,
+                    "allow_provider_fallback": True,
+                    "fallback_audit_enabled": False,
+                    "cache": (),
+                    "required_count": "none",
+                    "previous_fill": "rounds_before_four",
+                    "result_filter": "none",
+                    "generation_special": (),
+                },
             },
         }
 
@@ -105,6 +164,19 @@ class VerticalCapabilityContractTest(unittest.TestCase):
                 self.assertEqual(contract.artifact_kind, row["artifact"])
                 self.assertEqual(contract.artifact_render_variant, row["render"])
                 self.assertEqual(contract.special_capabilities, row["special"])
+                policy = contract.route_generation_policy
+                policy_row = row["route_policy"]
+                self.assertEqual(policy.ai_primary_default, policy_row["ai_primary_default"])
+                self.assertEqual(policy.allow_provider_fallback, policy_row["allow_provider_fallback"])
+                self.assertEqual(policy.fallback_audit_enabled, policy_row["fallback_audit_enabled"])
+                self.assertEqual(policy.cache_freshness_requirements, policy_row["cache"])
+                self.assertEqual(policy.required_refinement_count_policy, policy_row["required_count"])
+                self.assertEqual(policy.allow_previous_fill_policy, policy_row["previous_fill"])
+                self.assertEqual(policy.result_filter_policy, policy_row["result_filter"])
+                self.assertEqual(
+                    policy.special_generation_capabilities,
+                    policy_row["generation_special"],
+                )
 
     def test_contract_resolves_existing_subsystem_implementations(self):
         for vertical in (BABY, PET, BUSINESS, BOAT):
@@ -116,6 +188,25 @@ class VerticalCapabilityContractTest(unittest.TestCase):
                 )
                 self.assertIs(contract.quality_adapter, quality_adapter_for(vertical.slug))
                 self.assertIs(contract.artifact_definition, artifact_definition(vertical.slug))
+                self.assertIs(
+                    contract.route_generation_policy,
+                    route_generation_policy_for(vertical.slug),
+                )
+
+    def test_route_generation_policies_are_explicit_for_active_verticals(self):
+        policies = registered_route_generation_policies()
+
+        self.assertEqual(tuple(policies), ACTIVE_VERTICAL_SLUGS)
+        for slug in ACTIVE_VERTICAL_SLUGS:
+            with self.subTest(vertical=slug):
+                policy = policies[slug]
+                self.assertIs(policy, route_generation_policy_for(slug))
+                self.assertIn(policy.required_refinement_count_policy, {
+                    "none",
+                    "round_2_3_default_round_4_min_6",
+                })
+                self.assertIn(policy.allow_previous_fill_policy, {"never", "rounds_before_four"})
+                self.assertIn(policy.result_filter_policy, {"none", "baby_gender_and_avoid"})
 
     def test_active_verticals_do_not_use_silent_validation_fallback(self):
         for vertical in (BABY, PET, BUSINESS, BOAT):
@@ -154,6 +245,12 @@ class VerticalCapabilityContractTest(unittest.TestCase):
             "Graphical artifact is not registered for active vertical: pet",
         ):
             vertical_capability_contract(PET, artifact_lookup=lambda _slug: None)
+
+        with self.assertRaisesRegex(
+            CapabilityContractError,
+            "Route/generation policy is not declared for active vertical: pet",
+        ):
+            vertical_capability_contract(PET, route_policy_lookup=lambda _slug: None)
 
 
 if __name__ == "__main__":
