@@ -92,7 +92,10 @@ ROUTE_GENERATION_POLICIES: dict[str, RouteGenerationPolicy] = {
         ai_primary_default=False,
         allow_provider_fallback=True,
         fallback_audit_enabled=False,
-        cache_freshness_requirements=(),
+        cache_freshness_requirements=(
+            "ai_primary_source_consistency",
+            "customer_environment_requires_all_ai",
+        ),
         required_refinement_count_policy="none",
         allow_previous_fill_policy="rounds_before_four",
         result_filter_policy="none",

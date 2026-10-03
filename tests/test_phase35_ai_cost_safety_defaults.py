@@ -6,6 +6,7 @@ from unittest.mock import patch
 
 import app as platform_app
 from app import create_app
+from namengine.core.briefs import build_brief
 from namengine.core.schemas import NameResult, ValidationResult, ValidationStatus
 from namengine.verticals import get_vertical
 
@@ -72,6 +73,101 @@ class PhaseThirtyFiveAiCostSafetyDefaultsTest(unittest.TestCase):
 
         self.assertEqual(platform_app._ai_primary_verticals(), {"baby", "boat", "unknown"})
 
+    def test_pet_business_and_boat_valid_cached_ai_results_remain_reusable(self):
+        cases = (
+            ("pet", {"pet_type": "Dog", "vibe": "Playful"}),
+            ("business", {"business_description": "Operations support", "style": "Clear"}),
+            ("boat", {"vessel_type": "Sloop", "vibe": "Classic"}),
+        )
+        for vertical_slug, inputs in cases:
+            with self.subTest(vertical=vertical_slug):
+                vertical = get_vertical(vertical_slug)
+                brief = build_brief(vertical, inputs)
+                result = NameResult(
+                    id=f"{vertical_slug}-1",
+                    name="Northmark",
+                    slug="northmark",
+                    validation=self._validation_for_cached_result(vertical_slug),
+                    metadata=self._metadata_for_cached_result(vertical_slug),
+                )
+
+                with patch.dict(
+                    "os.environ",
+                    {
+                        "NAMENGINE_AI_PRIMARY_VERTICALS": "baby,pet,business,boat",
+                        "NAMENGINE_ENVIRONMENT": "production",
+                    },
+                ):
+                    self.assertTrue(platform_app._cached_names_match_current_rules(vertical, brief, [result]))
+
+    def test_pet_business_and_boat_stale_fallback_handling_is_unchanged(self):
+        cases = (
+            ("pet", {"pet_type": "Dog", "vibe": "Playful"}),
+            ("business", {"business_description": "Operations support", "style": "Clear"}),
+            ("boat", {"vessel_type": "Sloop", "vibe": "Classic"}),
+        )
+        for vertical_slug, inputs in cases:
+            with self.subTest(vertical=vertical_slug):
+                vertical = get_vertical(vertical_slug)
+                brief = build_brief(vertical, inputs)
+                result = NameResult(
+                    id=f"{vertical_slug}-1",
+                    name="Northmark",
+                    slug="northmark",
+                    validation=self._validation_for_cached_result(vertical_slug),
+                    metadata={
+                        "source": f"{vertical_slug}_fallback",
+                        "provider": "fallback",
+                        "ai_primary_requested": True,
+                        "ai_primary_fallback": True,
+                    },
+                )
+
+                with patch.dict(
+                    "os.environ",
+                    {
+                        "NAMENGINE_AI_PRIMARY_VERTICALS": "baby,pet,business,boat",
+                        "NAMENGINE_ENVIRONMENT": "production",
+                    },
+                ):
+                    self.assertFalse(platform_app._cached_names_match_current_rules(vertical, brief, [result]))
+
+    def test_business_cache_still_requires_domain_validation_and_metadata(self):
+        business = get_vertical("business")
+        brief = build_brief(business, {"business_description": "Operations support", "style": "Clear"})
+
+        with patch.dict("os.environ", {"NAMENGINE_AI_PRIMARY_VERTICALS": "business"}):
+            self.assertFalse(
+                platform_app._cached_names_match_current_rules(
+                    business,
+                    brief,
+                    [
+                        NameResult(
+                            id="business-1",
+                            name="Northmark",
+                            slug="northmark",
+                            validation=[],
+                            metadata={"source": "openai", "provider": "openai", "domain_info": {}},
+                        )
+                    ],
+                )
+            )
+            self.assertFalse(
+                platform_app._cached_names_match_current_rules(
+                    business,
+                    brief,
+                    [
+                        NameResult(
+                            id="business-1",
+                            name="Northmark",
+                            slug="northmark",
+                            validation=self._validation_for_cached_result("business"),
+                            metadata={"source": "openai", "provider": "openai"},
+                        )
+                    ],
+                )
+            )
+
     def test_business_results_route_uses_openai_prompt_pipeline_when_configured(self):
         ai_names = [
             NameResult(
@@ -133,6 +229,24 @@ class PhaseThirtyFiveAiCostSafetyDefaultsTest(unittest.TestCase):
         self.assertEqual(cached.status_code, 200)
         self.assertEqual(generate.call_count, 1)
         self.assertIn("Northmark", cached.get_data(as_text=True))
+
+    def _validation_for_cached_result(self, vertical_slug: str):
+        if vertical_slug != "business":
+            return []
+        return [
+            ValidationResult(
+                module="business_domain",
+                status=ValidationStatus.PASS,
+                label="Domain review",
+                message="Domain quick-check attached.",
+            )
+        ]
+
+    def _metadata_for_cached_result(self, vertical_slug: str):
+        metadata = {"source": "openai", "provider": "openai"}
+        if vertical_slug == "business":
+            metadata["domain_info"] = {"primary": "northmark.com", "display_status": {"status": "available"}}
+        return metadata
 
 
 if __name__ == "__main__":

@@ -3211,30 +3211,42 @@ def _cached_names_match_current_rules(
 ) -> bool:
     if not names:
         return False
-    if vertical.slug in _ai_primary_verticals():
+    policy = route_generation_policy_for(vertical.slug)
+    cache_requirements = set(policy.cache_freshness_requirements)
+    if "ai_primary_source_consistency" in cache_requirements and vertical.slug in _ai_primary_verticals():
         all_ai = all(_result_is_ai_sourced(name) for name in names)
         customer_environment = generation_environment() in {
             GenerationEnvironment.PRODUCTION,
             GenerationEnvironment.STAGING,
         }
-        if vertical.slug == "business" or customer_environment:
+        requires_all_ai = "always_requires_all_ai" in cache_requirements or (
+            "customer_environment_requires_all_ai" in cache_requirements and customer_environment
+        )
+        if requires_all_ai:
             if not all_ai:
                 return False
         else:
             any_ai = any(_result_is_ai_sourced(name) for name in names)
             if any_ai and not all_ai:
                 return False
-    if vertical.slug == "baby":
+    if policy.result_filter_policy == "baby_gender_and_avoid":
         if len(filter_results_for_brief(vertical, brief, names)) != len(names):
             return False
+    if "baby_gender_direction_validation" in cache_requirements:
         return all(
             "baby_gender_direction" in {item.module for item in name.validation}
             for name in names
         )
-    if vertical.slug == "business":
+    if "business_domain_validation" in cache_requirements or "business_domain_info" in cache_requirements:
         return all(
-            "business_domain" in {item.module for item in name.validation}
-            and isinstance(name.metadata.get("domain_info"), dict)
+            (
+                "business_domain_validation" not in cache_requirements
+                or "business_domain" in {item.module for item in name.validation}
+            )
+            and (
+                "business_domain_info" not in cache_requirements
+                or isinstance(name.metadata.get("domain_info"), dict)
+            )
             for name in names
         )
     return True

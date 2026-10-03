@@ -139,7 +139,10 @@ class VerticalCapabilityContractTest(unittest.TestCase):
                     "ai_primary_default": False,
                     "allow_provider_fallback": True,
                     "fallback_audit_enabled": False,
-                    "cache": (),
+                    "cache": (
+                        "ai_primary_source_consistency",
+                        "customer_environment_requires_all_ai",
+                    ),
                     "required_count": "none",
                     "previous_fill": "rounds_before_four",
                     "result_filter": "none",
