@@ -20,6 +20,7 @@ from namengine.core.schemas import (
     TasteProfile,
     VerticalConfig,
 )
+from namengine.core.vertical_capabilities import route_generation_policy_or_none
 
 
 ProviderCallable = Callable[
@@ -57,7 +58,7 @@ def generate_with_router(
         candidates,
         count=count or _count_for_round(vertical, round_number),
         previous_names=previous_names or [],
-        allow_previous_fill=vertical.slug != "baby" and round_number < 4,
+        allow_previous_fill=_allow_previous_fill_for_round(vertical, round_number),
         vertical_slug=vertical.slug,
     )
     target_count = count or _count_for_round(vertical, round_number)
@@ -129,7 +130,7 @@ def generate_with_router(
             candidates,
             count=target_count,
             previous_names=previous_names or [],
-            allow_previous_fill=vertical.slug != "baby" and round_number < 4,
+            allow_previous_fill=_allow_previous_fill_for_round(vertical, round_number),
             vertical_slug=vertical.slug,
         )
     results = [candidate.result for candidate in selected]
@@ -306,6 +307,17 @@ def _requires_baby_refinement_count_enforcement(
     round_number: int,
 ) -> bool:
     return vertical.slug == "baby" and 2 <= round_number <= 4
+
+
+def _allow_previous_fill_for_round(vertical: VerticalConfig, round_number: int) -> bool:
+    policy = route_generation_policy_or_none(vertical.slug)
+    if policy is None:
+        return vertical.slug != "baby" and round_number < 4
+    if policy.allow_previous_fill_policy == "never":
+        return False
+    if policy.allow_previous_fill_policy == "rounds_before_four":
+        return round_number < 4
+    return vertical.slug != "baby" and round_number < 4
 
 
 def _baby_top_up_exclusions(

@@ -23,7 +23,7 @@ from namengine.core import (
     save_session,
     summarize_quality_runs,
 )
-from namengine.verticals import BABY, PET
+from namengine.verticals import BABY, BOAT, BUSINESS, PET
 from namengine.core.schemas import NameResult, ProviderResult
 
 
@@ -160,6 +160,22 @@ class PhaseTwelveModelRouterQualityTest(unittest.TestCase):
         self.assertEqual(model_router._count_for_round(BABY, 2), 8)
         self.assertEqual(model_router._count_for_round(BABY, 3), 8)
         self.assertEqual(model_router._count_for_round(BABY, 4), 6)
+
+    def test_previous_fill_policy_matches_legacy_vertical_and_round_rule(self):
+        expected = {
+            BABY.slug: {1: False, 2: False, 3: False, 4: False, 5: False},
+            PET.slug: {1: True, 2: True, 3: True, 4: False, 5: False},
+            BUSINESS.slug: {1: True, 2: True, 3: True, 4: False, 5: False},
+            BOAT.slug: {1: True, 2: True, 3: True, 4: False, 5: False},
+        }
+
+        for vertical in (BABY, PET, BUSINESS, BOAT):
+            for round_number, allow_previous_fill in expected[vertical.slug].items():
+                with self.subTest(vertical=vertical.slug, round_number=round_number):
+                    self.assertEqual(
+                        model_router._allow_previous_fill_for_round(vertical, round_number),
+                        allow_previous_fill,
+                    )
 
     def test_provider_routing_keeps_openai_claude_and_fallback_distinct(self):
         brief = build_brief(PET, {"species": "Dog", "style": "Warm"})
