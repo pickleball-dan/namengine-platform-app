@@ -161,12 +161,12 @@ class PhaseTwelveModelRouterQualityTest(unittest.TestCase):
         self.assertEqual(model_router._count_for_round(BABY, 3), 8)
         self.assertEqual(model_router._count_for_round(BABY, 4), 6)
 
-    def test_previous_fill_policy_matches_legacy_vertical_and_round_rule(self):
+    def test_previous_fill_policy_disables_reuse_for_all_active_verticals(self):
         expected = {
             BABY.slug: {1: False, 2: False, 3: False, 4: False, 5: False},
-            PET.slug: {1: True, 2: True, 3: True, 4: False, 5: False},
-            BUSINESS.slug: {1: True, 2: True, 3: True, 4: False, 5: False},
-            BOAT.slug: {1: True, 2: True, 3: True, 4: False, 5: False},
+            PET.slug: {1: False, 2: False, 3: False, 4: False, 5: False},
+            BUSINESS.slug: {1: False, 2: False, 3: False, 4: False, 5: False},
+            BOAT.slug: {1: False, 2: False, 3: False, 4: False, 5: False},
         }
 
         for vertical in (BABY, PET, BUSINESS, BOAT):
@@ -176,6 +176,66 @@ class PhaseTwelveModelRouterQualityTest(unittest.TestCase):
                         model_router._allow_previous_fill_for_round(vertical, round_number),
                         allow_previous_fill,
                     )
+
+    def test_generate_with_router_never_reuses_prior_round_names_in_later_rounds(self):
+        vertical_inputs = (
+            (BABY, {"gender": "Girl", "style": "Warm", "sound": "Soft"}),
+            (PET, {"pet_type": "Dog", "style": "Warm", "vibe": "Playful"}),
+            (
+                BUSINESS,
+                {
+                    "business_description": "Operations support studio",
+                    "audience": "B2B buyers",
+                    "style": "Clear and credible",
+                },
+            ),
+            (
+                BOAT,
+                {
+                    "boat_type": "Sailboat",
+                    "use": "Weekend adventures",
+                    "vibe": "Adventurous",
+                    "style": "Traditional nautical",
+                },
+            ),
+        )
+
+        for vertical, inputs in vertical_inputs:
+            brief = build_brief(vertical, inputs)
+            previous_name = f"Prior {vertical.slug.title()}"
+            fresh_name = f"Fresh {vertical.slug.title()}"
+
+            def fallback_provider(*_args, **_kwargs):
+                return [
+                    NameResult(
+                        id=f"{vertical.slug}-prior",
+                        name=previous_name,
+                        slug=f"prior-{vertical.slug}",
+                        scores={"callability": 0.99, "warmth": 0.99, "distinctiveness": 0.99},
+                    ),
+                    NameResult(
+                        id=f"{vertical.slug}-fresh",
+                        name=fresh_name,
+                        slug=f"fresh-{vertical.slug}",
+                        scores={"callability": 0.7, "warmth": 0.7, "distinctiveness": 0.7},
+                    ),
+                ]
+
+            for round_number in (2, 3, 4):
+                with self.subTest(vertical=vertical.slug, round_number=round_number):
+                    with patch("namengine.core.model_router._fallback_provider", side_effect=fallback_provider):
+                        names = generate_with_router(
+                            vertical=vertical,
+                            brief=brief,
+                            round_number=round_number,
+                            previous_names=[previous_name],
+                            providers=[ModelProvider.FALLBACK],
+                            count=4,
+                        )
+
+                    returned_names = [item.name for item in names]
+                    self.assertIn(fresh_name, returned_names)
+                    self.assertNotIn(previous_name, returned_names)
 
     def test_provider_routing_keeps_openai_claude_and_fallback_distinct(self):
         brief = build_brief(PET, {"species": "Dog", "style": "Warm"})

@@ -78,7 +78,7 @@ class VerticalCapabilityContractTest(unittest.TestCase):
                         "customer_environment_requires_all_ai",
                     ),
                     "required_count": "none",
-                    "previous_fill": "rounds_before_four",
+                    "previous_fill": "never",
                     "result_filter": "none",
                     "generation_special": (),
                 },
@@ -110,7 +110,7 @@ class VerticalCapabilityContractTest(unittest.TestCase):
                         "business_domain_info",
                     ),
                     "required_count": "none",
-                    "previous_fill": "rounds_before_four",
+                    "previous_fill": "never",
                     "result_filter": "none",
                     "generation_special": (
                         "business_recovery_finalizer",
@@ -144,7 +144,7 @@ class VerticalCapabilityContractTest(unittest.TestCase):
                         "customer_environment_requires_all_ai",
                     ),
                     "required_count": "none",
-                    "previous_fill": "rounds_before_four",
+                    "previous_fill": "never",
                     "result_filter": "none",
                     "generation_special": (),
                 },
@@ -210,7 +210,7 @@ class VerticalCapabilityContractTest(unittest.TestCase):
                     "none",
                     "round_2_3_default_round_4_min_6",
                 })
-                self.assertIn(policy.allow_previous_fill_policy, {"never", "rounds_before_four"})
+                self.assertEqual(policy.allow_previous_fill_policy, "never")
                 self.assertIn(policy.result_filter_policy, {"none", "baby_gender_and_avoid"})
 
     def test_active_verticals_do_not_use_silent_validation_fallback(self):

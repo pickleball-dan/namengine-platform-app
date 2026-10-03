@@ -66,7 +66,7 @@ ROUTE_GENERATION_POLICIES: dict[str, RouteGenerationPolicy] = {
             "customer_environment_requires_all_ai",
         ),
         required_refinement_count_policy="none",
-        allow_previous_fill_policy="rounds_before_four",
+        allow_previous_fill_policy="never",
         result_filter_policy="none",
     ),
     "business": RouteGenerationPolicy(
@@ -80,7 +80,7 @@ ROUTE_GENERATION_POLICIES: dict[str, RouteGenerationPolicy] = {
             "business_domain_info",
         ),
         required_refinement_count_policy="none",
-        allow_previous_fill_policy="rounds_before_four",
+        allow_previous_fill_policy="never",
         result_filter_policy="none",
         special_generation_capabilities=(
             "business_recovery_finalizer",
@@ -97,7 +97,7 @@ ROUTE_GENERATION_POLICIES: dict[str, RouteGenerationPolicy] = {
             "customer_environment_requires_all_ai",
         ),
         required_refinement_count_policy="none",
-        allow_previous_fill_policy="rounds_before_four",
+        allow_previous_fill_policy="never",
         result_filter_policy="none",
     ),
 }
